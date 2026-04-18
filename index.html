@@ -602,8 +602,7 @@ menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
 
 /* ── SHARED CONSTANTS ── */
 const isMobile = window.innerWidth <= 768;
-const CHARS    = '@#FRT43%=+-.';
-const NAME     = 'André Larsen';
+const CHARS    = 'ABCDEFRT34FR3T4R3TRF4T3R43RT3';const NAME     = 'André Larsen';
 
 function rand(x, y, s) {
   const v = Math.sin(x * 127.1 + y * 311.7 + s) * 43758.5453;
@@ -676,7 +675,7 @@ function buildParticles() {
       const px = Math.floor(c * S_CW + S_CW / 2);
       const py = Math.floor(r * S_CH + S_CH / 2);
       if (px >= NC_W || py >= NC_H) continue;
-      if (imgD[(py * NC_W + px) * 4 + 3] >= 30) {
+      if (imgD[(py * NC_W + px) * 4 + 3] >= 8) {
         cells.push({ sc: c, sr: r });
       }
     }
@@ -691,7 +690,7 @@ function buildParticles() {
     lockFlicker: 0,
     charOffset: Math.random() * 100,
     charSpeed:  0.4 + Math.random() * 0.8,
-    depth: 0.88 + Math.random() * 0.12,   // near full white
+    depth: 1.0,   // pure white — no dimming
     lockedChar: '',
   }));
 
@@ -761,15 +760,15 @@ function renderAscii(_el, t) {
           ? p.lockedChar
           : CHARS[Math.floor(rand(p.sc, p.sr, t + p.lockFlicker) * CHARS.length)];
       } else {
-        // Slow living drift — name stays alive
-        ch = CHARS[Math.floor(rand(p.sc, p.sr, Math.floor(t * 0.15 * p.charSpeed + p.charOffset)) * CHARS.length)];
+        // Very slow drift — keeps name readable, just barely alive
+        ch = CHARS[Math.floor(rand(p.sc, p.sr, Math.floor(t * 0.04 * p.charSpeed + p.charOffset)) * CHARS.length)];
       }
     } else {
       ch = CHARS[Math.floor(rand(cc, rc, Math.floor(t * p.charSpeed + p.charOffset)) * CHARS.length)];
     }
 
-    const alpha = p.arrived ? p.depth : p.depth * 0.45;
-    aCtx.fillStyle = `rgba(255,255,255,${alpha})`;
+    const alpha = p.arrived ? 1.0 : 0.35;
+    aCtx.fillStyle = p.arrived ? '#ffffff' : `rgba(255,255,255,0.35)`;
     aCtx.fillText(ch, cc * S_CW, rc * S_CH);
   }
 }
