@@ -9,6 +9,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
   *::-webkit-scrollbar { display: none; }
 
+  /* ── SITE — starts invisible, fades in after loading ── */
   .site {
     min-height: 100vh;
     height: 100vh;
@@ -20,13 +21,9 @@
     position: relative;
     background-color: #0a0604;
     opacity: 0;
-    animation: fadeIn 1.4s ease forwards;
+    transition: opacity 1.0s ease;
   }
-  @keyframes fadeIn {
-    0%   { opacity: 0; }
-    30%  { opacity: 0; }
-    100% { opacity: 1; }
-  }
+  .site.visible { opacity: 1; }
 
   .bg-img {
     position: absolute;
@@ -98,8 +95,6 @@
     color: #fff; text-decoration: none;
     font-size: 10.5px; letter-spacing: 0.1em;
   }
-
-  /* MENU button — hidden on desktop */
   .nav-menu-btn {
     display: none;
     background: none;
@@ -112,19 +107,35 @@
     cursor: pointer;
     text-transform: uppercase;
   }
-
   .spacer { flex: 1; }
 
-  /* ── ASCII ── */
+  /* ── BLACK BACKDROP — z-index below ASCII, fades out ── */
+  #loadScreen {
+    position: fixed;
+    inset: 0;
+    background: #0a0604;
+    z-index: 150;
+    opacity: 1;
+    transition: opacity 0.9s ease;
+    pointer-events: none;
+  }
+  #loadScreen.hide { opacity: 0; }
+
+  /* ── ASCII WRAP — NEVER MOVES, same position loading & main ── */
+  /* Desktop: pinned to bottom 11% */
   .ascii-wrap {
     position: fixed;
     left: 50%;
-    transform: translateX(-50%);
     bottom: 11%;
+    transform: translateX(-50%);
     z-index: 210;
     cursor: crosshair;
     pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
+
   #asciiOut {
     font-size: 8.6px;
     line-height: 1.13;
@@ -136,7 +147,44 @@
     text-shadow: 0 0 14px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,1);
   }
 
-  /* ── MOBILE FULL-SCREEN MENU OVERLAY ── */
+  /* ── LOADING UI — rendered ABOVE the ascii name inside .ascii-wrap ── */
+  #loadUi {
+    order: -1; /* places it before #asciiOut in flex column */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 12px;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+  }
+  #loadUi.hide { opacity: 0; }
+
+  #loadLine1 {
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    letter-spacing: 0.18em;
+    text-align: center;
+    text-transform: uppercase;
+    opacity: 0.55;
+    font-size: 9px;
+    margin-bottom: 10px;
+  }
+  .load-bar-wrap {
+    width: 140px;
+    height: 1px;
+    background: rgba(255,255,255,0.12);
+    position: relative;
+    overflow: hidden;
+  }
+  .load-bar {
+    position: absolute;
+    left: 0; top: 0; height: 100%;
+    width: 0%;
+    background: rgba(255,255,255,0.7);
+    transition: width 0.05s linear;
+  }
+
+  /* ── MOBILE FULL-SCREEN MENU ── */
   .menu-overlay {
     display: none;
     position: fixed;
@@ -150,10 +198,7 @@
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-  .menu-overlay.open {
-    display: flex;
-    opacity: 1;
-  }
+  .menu-overlay.open { display: flex; opacity: 1; }
   .menu-overlay a {
     color: #fff;
     text-decoration: none;
@@ -181,8 +226,7 @@
   }
   .menu-close {
     position: absolute;
-    top: 26px;
-    right: 24px;
+    top: 26px; right: 24px;
     background: none;
     border: 1px solid rgba(255,255,255,0.4);
     color: #fff;
@@ -194,62 +238,7 @@
     text-transform: uppercase;
   }
 
-  /* ── LOADING SCREEN ── */
-  #loadScreen {
-    position: fixed;
-    inset: 0;
-    background: #0a0604;
-    z-index: 200;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    padding-bottom: 38vh;
-    opacity: 1;
-    transition: opacity 0.8s ease;
-  }
-  #loadScreen.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
-  #loadLine1 {
-    font-family: 'Courier New', monospace;
-    color: #fff;
-    letter-spacing: 0.12em;
-    text-align: center;
-    text-transform: uppercase;
-    opacity: 0.5;
-    font-size: 10px;
-    margin-bottom: 28px;
-  }
-  #loadAscii {
-    font-size: 4.2px;
-    line-height: 1.13;
-    letter-spacing: 0.06em;
-    white-space: pre;
-    color: #ffffff;
-    font-family: 'Courier New', Courier, monospace;
-    user-select: none;
-    text-shadow: 0 0 14px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,1);
-    text-align: left;
-  }
-  .load-bar-wrap {
-    margin-top: 28px;
-    width: 160px;
-    height: 1px;
-    background: rgba(255,255,255,0.12);
-    position: relative;
-    overflow: hidden;
-  }
-  .load-bar {
-    position: absolute;
-    left: 0; top: 0; height: 100%;
-    width: 0%;
-    background: rgba(255,255,255,0.7);
-    transition: width 0.05s linear;
-  }
-
-  /* ── MOBILE STYLES ── */
+  /* ── MOBILE ── */
   @media (max-width: 768px) {
     nav {
       padding: 22px 20px 0;
@@ -260,29 +249,29 @@
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* ASCII: fixed position on mobile */
+    /* Mobile: ASCII centered at 52% — never changes */
     .ascii-wrap {
       bottom: auto;
-      top: 54%;
-      left: 50%;
+      top: 52%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
-      pointer-events: none;
     }
   }
 </style>
 
-<!-- Single ASCII — fixed in place, persists through load → home transition -->
+<!-- Black backdrop -->
+<div id="loadScreen"></div>
+
+<!-- ASCII — fixed in place forever. #loadUi sits above it (order:-1). -->
 <div class="ascii-wrap" id="area">
+  <div id="loadUi">
+    <div id="loadLine1">:/ INITIALISING</div>
+    <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+  </div>
   <div id="asciiOut"></div>
 </div>
 
-<div id="loadScreen">
-  <div id="loadLine1">:/ INITIALISING</div>
-  <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
-</div>
-
-<div class="site">
+<div class="site" id="site">
   <img class="bg-img" src="IMG_5937.JPG" alt="" />
   <div class="overlay"></div>
   <div class="overlay-center"></div>
@@ -334,7 +323,7 @@ const COLS     = isMobile ? 140 : 195;
 const ROWS     = isMobile ? 36  : 48;
 const CHAR_W   = isMobile ? 6   : 7;
 const CHAR_H   = isMobile ? 9   : 10;
-const FONT_S   = isMobile ? 120 : 112;
+const FONT_S   = isMobile ? 100 : 96;
 const NAME     = 'André Larsen';
 
 function rand(x, y, s) {
@@ -342,7 +331,7 @@ function rand(x, y, s) {
   return v - Math.floor(v);
 }
 
-/* ── BUILD SHARED CANVAS (used by both load screen + home) ── */
+/* ── BUILD CANVAS ── */
 const canvas = document.createElement('canvas');
 canvas.width  = COLS * CHAR_W;
 canvas.height = ROWS * CHAR_H;
@@ -361,7 +350,7 @@ for (let i = 0; i < COLS * ROWS; i++) {
   cellSpeed[i]  = 0.5 + Math.random() * 1.0;
 }
 
-/* ── ASCII RENDER FUNCTION (shared) ── */
+/* ── ASCII RENDER ── */
 function renderAscii(targetEl, t, mouseCol, mouseRow) {
   const breath    = 0.5 + 0.5 * Math.sin(t * 0.018);
   const threshold = 30 + breath * 40;
@@ -393,12 +382,8 @@ function renderAscii(targetEl, t, mouseCol, mouseRow) {
   targetEl.textContent = out;
 }
 
-/* ── LOADING SCREEN ── */
-const loadScreen  = document.getElementById('loadScreen');
-const loadBar     = document.getElementById('loadBar');
-const loadLine1   = document.getElementById('loadLine1');
+/* ── GLITCH TEXT ── */
 const GLITCH_CHARS_LOAD = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
-
 function glitchLine(el, finalText, startDelay) {
   const scrambled = Array.from(finalText).map(c =>
     (c === ' ' || c === ':' || c === '/') ? c :
@@ -422,6 +407,12 @@ function glitchLine(el, finalText, startDelay) {
   }, startDelay);
 }
 
+const loadLine1  = document.getElementById('loadLine1');
+const loadBar    = document.getElementById('loadBar');
+const loadUi     = document.getElementById('loadUi');
+const loadScreen = document.getElementById('loadScreen');
+const site       = document.getElementById('site');
+
 glitchLine(loadLine1, ':/ INITIALISING', 100);
 
 let progress = 0;
@@ -431,34 +422,44 @@ const loadInterval = setInterval(() => {
   loadBar.style.width = progress + '%';
 }, 28);
 
-// Fade out load screen — ASCII stays fixed in place, perfectly continuous
+/* ── TRANSITION ──
+   1. Fade out :/ INITIALISING + bar
+   2. Fade out black backdrop
+   3. Fade in background image / nav
+   ASCII position NEVER changes — background fades in around it
+*/
 setTimeout(() => {
+  loadUi.classList.add('hide');
   loadScreen.classList.add('hide');
-  setTimeout(() => loadScreen.remove(), 800);
+  setTimeout(() => {
+    site.classList.add('visible');
+    setTimeout(() => { loadScreen.remove(); loadUi.remove(); }, 1000);
+  }, 500);
 }, 2400);
 
-/* ── SINGLE ASCII (persists through load → home) ── */
+/* ── ASCII SETUP ── */
 const asciiEl = document.getElementById('asciiOut');
+const area    = document.getElementById('area');
 
 if (isMobile) {
-  asciiEl.style.fontSize      = '5.5px';
+  asciiEl.style.fontSize      = '4.8px';
   asciiEl.style.lineHeight    = '1.10';
   asciiEl.style.letterSpacing = '0.04em';
 }
 
+/* Scale to fit screen on mobile */
 function scaleAscii() {
   if (!isMobile) return;
   const screenW = window.innerWidth;
   const w = asciiEl.scrollWidth;
   if (w > 0) {
-    const wrap = document.getElementById('area');
-    wrap.style.transform = `translate(-50%, -50%) scale(${(screenW * 0.90) / w})`;
-    wrap.style.transformOrigin = 'center center';
+    const scale = (screenW * 0.90) / w;
+    area.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    area.style.transformOrigin = 'center center';
   }
 }
 
 let mouseCol = -999, mouseRow = -999;
-const area = document.getElementById('area');
 area.addEventListener('mousemove', e => {
   const rect = asciiEl.getBoundingClientRect();
   mouseCol = (e.clientX - rect.left) / (rect.width / COLS);
