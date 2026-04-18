@@ -1,21 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="André Larsen portfolio landing page with interactive ASCII and ambient animation." />
-  <title>André Larsen</title>
-  <style>
-    /* Prevent any white flash before CSS loads */
-    html, body {
-      background: #0a0604;
-      margin: 0; padding: 0;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
+  html, body {
+    background: #0a0604;
+    margin: 0; padding: 0;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   .site {
     min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     font-family: 'Courier New', Courier, monospace;
     color: #fff;
     display: flex;
@@ -27,7 +22,7 @@
   }
   @keyframes fadeIn {
     0%   { opacity: 0; }
-    30%  { opacity: 0; }   /* hold dark for a beat before revealing */
+    30%  { opacity: 0; }
     100% { opacity: 1; }
   }
 
@@ -55,11 +50,7 @@
   .overlay-center {
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-      ellipse 60% 30% at 50% 72%,
-      rgba(0,0,0,0.45) 0%,
-      transparent 100%
-    );
+    background: radial-gradient(ellipse 60% 30% at 50% 72%, rgba(0,0,0,0.45) 0%, transparent 100%);
     z-index: 2;
   }
   .flicker {
@@ -73,8 +64,7 @@
     z-index: 3; pointer-events: none;
   }
   .sky-drift {
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 55%;
+    position: absolute; top: 0; left: 0; right: 0; height: 55%;
     background: radial-gradient(ellipse 60% 80% at 70% 20%, rgba(20,5,40,0.18) 0%, transparent 70%);
     z-index: 3; pointer-events: none;
     animation: skyDrift 18s ease-in-out infinite alternate;
@@ -84,7 +74,7 @@
     to   { transform: translateX(30px) scale(1.04); opacity: 1; }
   }
 
-  /* ── NAV ── */
+  /* ── DESKTOP NAV ── */
   nav {
     display: flex;
     justify-content: space-between;
@@ -107,9 +97,23 @@
     font-size: 10.5px; letter-spacing: 0.1em;
   }
 
+  /* MENU button — hidden on desktop */
+  .nav-menu-btn {
+    display: none;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.5);
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    padding: 7px 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
   .spacer { flex: 1; }
 
-  /* ── ASCII block — absolutely positioned on the page ── */
+  /* ── ASCII ── */
   .ascii-wrap {
     position: absolute;
     left: 50%;
@@ -128,6 +132,84 @@
     user-select: none;
     text-shadow: 0 0 12px rgba(255,255,255,0.6);
   }
+
+  /* ── MOBILE FULL-SCREEN MENU OVERLAY ── */
+  .menu-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(6,3,1,0.97);
+    z-index: 100;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 40px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .menu-overlay.open {
+    display: flex;
+    opacity: 1;
+  }
+  .menu-overlay a {
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    opacity: 0.9;
+  }
+  .menu-overlay a + a { margin-top: 8px; }
+  .menu-overlay .menu-sub {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .menu-overlay .menu-sub a {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    opacity: 0.45;
+  }
+  .menu-close {
+    position: absolute;
+    top: 26px;
+    right: 24px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    padding: 7px 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  /* ── MOBILE STYLES ── */
+  @media (max-width: 768px) {
+    nav {
+      padding: 22px 20px 0;
+      align-items: center;
+    }
+    .nav-logo { font-size: 13px; }
+    .nav-links, .nav-center { display: none; }
+    .nav-menu-btn { display: block; }
+
+    /* ASCII: centered on screen */
+    .ascii-wrap {
+      bottom: auto;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
+    }
+  }
 </style>
 
 <div class="site">
@@ -140,7 +222,6 @@
   <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;"></canvas>
   <canvas id="grainCanvas"    style="position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;opacity:0.35;"></canvas>
 
-  <!-- ASCII sits directly on .site, not inside footer -->
   <div class="ascii-wrap" id="area">
     <div id="asciiOut"></div>
   </div>
@@ -155,23 +236,46 @@
       <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
       <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
     </div>
+    <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
   </nav>
 
   <div class="spacer"></div>
 </div>
 
+<!-- Mobile full-screen menu -->
+<div class="menu-overlay" id="menuOverlay">
+  <button class="menu-close" id="menuClose">✕ CLOSE</button>
+  <a href="works.html">WORKS</a>
+  <a href="#">ABOUT</a>
+  <div class="menu-sub">
+    <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
+    <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+  </div>
+</div>
+
 <script>
-const COLS = 195;
-const ROWS = 48;
-const CHAR_W = 7;
-const CHAR_H = 10;
+/* ── MENU TOGGLE ── */
+const menuBtn     = document.getElementById('menuBtn');
+const menuOverlay = document.getElementById('menuOverlay');
+const menuClose   = document.getElementById('menuClose');
+menuBtn.addEventListener('click', () => menuOverlay.classList.add('open'));
+menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
+
+/* ── ASCII — responsive ── */
+const isMobile = window.innerWidth <= 768;
+
+const COLS   = isMobile ? 80  : 195;
+const ROWS   = isMobile ? 22  : 48;
+const CHAR_W = isMobile ? 6   : 7;
+const CHAR_H = isMobile ? 9   : 10;
+const FONT_S = isMobile ? 56  : 112;
 
 const canvas = document.createElement('canvas');
-canvas.width = COLS * CHAR_W;
+canvas.width  = COLS * CHAR_W;
 canvas.height = ROWS * CHAR_H;
 const ctx = canvas.getContext('2d');
 ctx.clearRect(0, 0, canvas.width, canvas.height);
-ctx.font = `900 italic 112px Arial Black, Arial, sans-serif`;
+ctx.font = `900 italic ${FONT_S}px Arial Black, Arial, sans-serif`;
 ctx.fillStyle = '#fff';
 ctx.textBaseline = 'middle';
 const NAME = 'André Larsen';
@@ -203,6 +307,20 @@ area.addEventListener('mousemove', e => {
 });
 area.addEventListener('mouseleave', () => { mouseCol = -999; mouseRow = -999; });
 
+/* Scale ASCII to fit screen width on mobile */
+function scaleAscii() {
+  if (!isMobile) return;
+  const el = document.getElementById('asciiOut');
+  const wrap = document.getElementById('area');
+  const screenW = window.innerWidth;
+  const asciiW  = el.scrollWidth;
+  if (asciiW > 0) {
+    const scale = (screenW * 0.92) / asciiW;
+    wrap.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    wrap.style.transformOrigin = 'center center';
+  }
+}
+
 function rand(x, y, s) {
   const v = Math.sin(x * 127.1 + y * 311.7 + s) * 43758.5453;
   return v - Math.floor(v);
@@ -210,10 +328,11 @@ function rand(x, y, s) {
 
 let t = 0;
 const el = document.getElementById('asciiOut');
+let scaled = false;
 
 function frame() {
   let out = '';
-  const REPEL_RADIUS = 14;
+  const REPEL_RADIUS = isMobile ? 0 : 14;
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       const dx = c - mouseCol;
@@ -237,13 +356,20 @@ function frame() {
   }
   el.textContent = out;
   t += 0.05;
+  if (!scaled) { scaleAscii(); scaled = true; }
   requestAnimationFrame(frame);
 }
 frame();
 
+/* Set mobile font size */
+if (isMobile) {
+  el.style.fontSize   = '5.5px';
+  el.style.lineHeight = '1.10';
+  el.style.letterSpacing = '0.04em';
+}
+
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
 
-// Logo blink on load
 const logo = document.querySelector('.nav-logo');
 let blinks = 0;
 const blinkInterval = setInterval(() => {
@@ -252,7 +378,6 @@ const blinkInterval = setInterval(() => {
   if (blinks >= 4) { clearInterval(blinkInterval); logo.style.opacity = '1'; }
 }, 130);
 
-// Typewriter glitch — fires after the page fade completes
 function typewriterGlitch(el, delay) {
   const final = el.textContent;
   const scrambled = Array.from(final).map(c =>
@@ -277,13 +402,12 @@ function typewriterGlitch(el, delay) {
   }, delay);
 }
 
-// Delay typewriter until after the dark fade resolves (~1400ms)
 const typeTargets = document.querySelectorAll('.nav-links a, .nav-center a');
 typeTargets.forEach((el, i) => {
   typewriterGlitch(el, 1500 + i * 100);
 });
 
-// ── FILM GRAIN ──
+/* ── FILM GRAIN ── */
 const grainCanvas = document.getElementById('grainCanvas');
 const grainCtx = grainCanvas.getContext('2d');
 function resizeGrain() { grainCanvas.width = window.innerWidth; grainCanvas.height = window.innerHeight; }
@@ -301,7 +425,7 @@ function drawGrain() {
 }
 setInterval(drawGrain, 42);
 
-// ── LAVA EMBER PARTICLES ──
+/* ── LAVA EMBER PARTICLES ── */
 const partCanvas = document.getElementById('particleCanvas');
 const partCtx = partCanvas.getContext('2d');
 function resizePart() { partCanvas.width = window.innerWidth; partCanvas.height = window.innerHeight; }
@@ -332,7 +456,7 @@ function drawParticles() {
 }
 drawParticles();
 
-// ── VOLCANO LIGHT FLICKER ──
+/* ── VOLCANO LIGHT FLICKER ── */
 const flicker = document.getElementById('flicker');
 const flickerRight = document.getElementById('flickerRight');
 let flickerTarget = 0.13, flickerCurrent = 0.13;
@@ -348,5 +472,3 @@ function animateFlicker() {
 }
 animateFlicker();
 </script>
-</body>
-</html>
