@@ -13,17 +13,12 @@
   #scrollContainer {
     position: fixed;
     inset: 0;
-    overflow-y: scroll;
-    scroll-snap-type: y proximity;
-    scroll-behavior: smooth;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    will-change: scroll-position;
   }
 
   /* ── SITE SECTION 1 — Landing ── */
   .site {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
     min-height: 100vh;
     height: 100vh;
     overflow: hidden;
@@ -122,50 +117,7 @@
   }
   .spacer { flex: 1; }
 
-  /* ── SCROLL HINT ── */
-  .scroll-hint {
-    position: absolute;
-    bottom: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 1s ease;
-    pointer-events: none;
-  }
-  .scroll-hint.visible { opacity: 1; }
-  .scroll-hint span {
-    font-family: 'Courier New', monospace;
-    font-size: 8px;
-    letter-spacing: 0.22em;
-    color: rgba(255,255,255,0.45);
-    text-transform: uppercase;
-  }
-  .scroll-hint-line {
-    width: 1px;
-    height: 32px;
-    background: rgba(255,255,255,0.25);
-    position: relative;
-    overflow: hidden;
-  }
-  .scroll-hint-line::after {
-    content: '';
-    position: absolute;
-    top: -100%;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255,255,255,0.8);
-    animation: scrollDrop 1.8s ease-in-out infinite;
-  }
-  @keyframes scrollDrop {
-    0% { top: -100%; }
-    100% { top: 100%; }
-  }
+
 
   /* ── BLACK BACKDROP ── */
   #loadScreen {
@@ -179,16 +131,18 @@
   }
   #loadScreen.hide { opacity: 0; }
 
-  /* ── ASCII WRAP ── */
+  /* ── ASCII WRAP — loading screen only ── */
   .ascii-wrap {
     position: fixed;
     left: 50%;
     bottom: 8%;
     transform: translateX(-50%);
     z-index: 210;
-    cursor: crosshair;
     pointer-events: none;
+    opacity: 1;
+    transition: opacity 1.2s ease;
   }
+  .ascii-wrap.hidden { opacity: 0; }
 
   #asciiOut {
     display: block;
@@ -307,8 +261,6 @@
      ── VIDEO SECTION ──
   ══════════════════════════════════════ */
   .video-section {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
     height: 100vh;
     width: 100%;
     position: relative;
@@ -440,14 +392,12 @@
       left: 50%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
+      display: none;
     }
 
     /* Mobile: full width video, no black bars */
     #showreel { object-fit: cover; width: 100%; height: 100%; }
     .video-vignette { display: none; }
-
-    /* Softer snap on mobile */
-    #scrollContainer { scroll-snap-type: y proximity; }
 
     .video-label-tl, .video-label-tr { font-size: 8px; letter-spacing: 0.14em; }
     .video-label-tl { left: 16px; top: 20px; }
@@ -498,11 +448,7 @@
 
     <div class="spacer"></div>
 
-    <!-- Scroll hint -->
-    <div class="scroll-hint" id="scrollHint">
-      <span>scroll</span>
-      <div class="scroll-hint-line"></div>
-    </div>
+
   </div>
 
   <!-- SECTION 2: Showreel Video -->
@@ -644,7 +590,6 @@ const loadBar    = document.getElementById('loadBar');
 const loadUi     = document.getElementById('loadUi');
 const loadScreen = document.getElementById('loadScreen');
 const site       = document.getElementById('site');
-const scrollHint = document.getElementById('scrollHint');
 
 glitchLine(loadLine1, ':/ INITIALISING', 100);
 
@@ -657,15 +602,18 @@ const loadInterval = setInterval(() => {
 
 setTimeout(() => {
   loadUi.classList.add('hide');
-  loadScreen.classList.add('hide');
+  // Let ASCII shine alone for 1 extra second before fading
   setTimeout(() => {
-    site.classList.add('visible');
+    area.classList.add('hidden'); // fade ASCII out
+    loadScreen.classList.add('hide');
     setTimeout(() => {
-      loadScreen.remove();
-      // Show scroll hint after landing is visible
-      setTimeout(() => scrollHint.classList.add('visible'), 800);
-    }, 1200);
-  }, 500);
+      site.classList.add('visible');
+      setTimeout(() => {
+        loadScreen.remove();
+        asciiRunning = false; // stop ASCII rAF — frees CPU permanently
+      }, 1200);
+    }, 500);
+  }, 1000);
 }, 2400);
 
 /* ── POSITION loadUi just above the visible ascii letters ── */
@@ -695,17 +643,7 @@ function scaleAscii() {
   }
 }
 
-/* Hide/pause ASCII when scrolled to video section */
 const scrollContainer = document.getElementById('scrollContainer');
-let onLandingPage = true;
-scrollContainer.addEventListener('scroll', () => {
-  const scrolled = scrollContainer.scrollTop;
-  const vh = window.innerHeight;
-  const ratio = scrolled / vh;
-  onLandingPage = ratio < 0.5;
-  area.style.opacity = Math.max(0, 1 - ratio * 3).toString();
-  scrollHint.style.opacity = Math.max(0, 1 - ratio * 5).toString();
-}, { passive: true });
 
 let mouseCol = -999, mouseRow = -999;
 area.addEventListener('mousemove', e => {
@@ -718,8 +656,9 @@ area.addEventListener('mouseleave', () => { mouseCol = -999; mouseRow = -999; })
 let t = 0;
 let scaled = false;
 let uiPositioned = false;
+let asciiRunning = true;
 function frame() {
-  if (onLandingPage) {
+  if (asciiRunning) {
     renderAscii(asciiEl, t, mouseCol, mouseRow);
     t += 0.05;
   }
