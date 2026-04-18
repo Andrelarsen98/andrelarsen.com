@@ -544,7 +544,7 @@
 
   <!-- SECTION 2: Showreel Video -->
   <div class="video-section" id="videoSection">
-    <video id="showreel" autoplay muted loop playsinline preload="auto">
+    <video id="showreel" muted loop playsinline preload="none">
       <source src="showreel.mp4" type="video/mp4">
     </video>
 
@@ -1038,7 +1038,21 @@ videoEl.addEventListener('timeupdate', () => {
   const pct = (videoEl.currentTime / videoEl.duration) * 100;
   progressBar.style.width = pct + '%';
   videoTime.textContent = formatTime(videoEl.currentTime);
+
 });
+
+/* ── Lazy-load video: only fetch + play when scrolled into view ── */
+const videoObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      videoEl.load();
+      videoEl.play().catch(() => {});
+    } else {
+      videoEl.pause();
+    }
+  });
+}, { threshold: 0.25 });
+videoObserver.observe(document.getElementById('videoSection'));
 
 /* ══════════════════════════════════════
    ── FOOTER ASCII — full width, animated
