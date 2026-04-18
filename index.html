@@ -411,17 +411,23 @@
   .footer {
     background: #0a0604;
     width: 100%;
+    min-height: 100vh;
+    height: 100vh;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* ASCII name — full width canvas rendered here */
+  /* ASCII name — takes all remaining space, fills the whole viewport height */
   .footer-ascii-wrap {
+    flex: 1;
     width: 100%;
-    padding: 40px 0 0;
     display: flex;
+    align-items: center;
     justify-content: center;
     overflow: hidden;
+    padding: 0;
   }
   #footerAsciiOut {
     display: block;
@@ -437,11 +443,11 @@
       0 0 28px rgba(255,255,255,0.6);
   }
 
-  /* Info row */
+  /* Info row — sits at the bottom */
   .footer-info {
     display: flex;
     justify-content: space-between;
-    padding: 14px 32px 0;
+    padding: 14px 32px 14px;
     border-top: 1px solid rgba(255,255,255,0.08);
     font-family: 'Courier New', monospace;
     font-size: 8px;
@@ -449,6 +455,7 @@
     color: rgba(255,255,255,0.35);
     text-transform: uppercase;
     line-height: 1.6;
+    flex-shrink: 0;
   }
   .footer-info a {
     color: rgba(255,255,255,0.45);
@@ -469,7 +476,6 @@
     align-items: center;
     justify-content: center;
     padding: 10px 32px;
-    margin-top: 16px;
     border-top: 1px solid rgba(255,255,255,0.08);
     font-family: 'Courier New', monospace;
     font-size: 8px;
@@ -479,6 +485,7 @@
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease;
     user-select: none;
+    flex-shrink: 0;
   }
   .footer-back:hover {
     background: #1a6bff;
@@ -486,13 +493,16 @@
   }
 
   @media (max-width: 768px) {
+    .footer {
+      min-height: 100vh;
+      height: 100vh;
+    }
     .footer-info {
       flex-direction: column;
-      gap: 28px;
-      padding: 24px 20px 0;
+      gap: 20px;
+      padding: 18px 20px;
     }
-    .footer-back { padding: 18px 20px; }
-    #footerAsciiOut { font-size: 3.2px; letter-spacing: 0.02em; }
+    .footer-back { padding: 14px 20px; }
   }
 </style>
 
@@ -1033,14 +1043,19 @@ videoEl.addEventListener('timeupdate', () => {
   const FOOTER_NAME  = 'André Larsen';
   const FOOTER_CHARS = '@#FRT43%=+-.';
 
-  // Calculate columns to fill screen width
-  // Each char is ~6px wide at font-size 5.5px
-  const CHAR_PX   = 5.5;
-  const F_COLS    = Math.floor(window.innerWidth / (CHAR_PX * 0.62));
-  const F_ROWS    = 38;
-  const F_CHAR_W  = Math.floor(window.innerWidth / F_COLS);
-  const F_CHAR_H  = 10;
-  const F_FONT_S  = 160; // large so name fills width
+  // Footer fills full viewport. Reserve ~80px for info row + back-to-top bar.
+  const FOOTER_RESERVED = 80;
+  const availH = window.innerHeight - FOOTER_RESERVED;
+
+  // Choose char size so we get a dense grid that fills the available area
+  const F_CHAR_H  = isMobile ? 8  : 10;
+  const F_CHAR_W  = isMobile ? 6  : 7;
+  const F_COLS    = Math.floor(window.innerWidth / F_CHAR_W);
+  const F_ROWS    = Math.floor(availH / F_CHAR_H);
+
+  // Set font size on the pre element
+  footerEl.style.fontSize   = F_CHAR_W * 0.88 + 'px';
+  footerEl.style.lineHeight = F_CHAR_H + 'px';
 
   // Build canvas with name sized to fill width
   const fCanvas = document.createElement('canvas');
@@ -1048,8 +1063,8 @@ videoEl.addEventListener('timeupdate', () => {
   fCanvas.height = F_ROWS * F_CHAR_H;
   const fCtx = fCanvas.getContext('2d');
 
-  // Scale font so name spans ~85% of canvas width
-  let fontSize = F_FONT_S;
+  // Scale font so name spans full canvas width
+  let fontSize = 200;
   fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
   let nameW = fCtx.measureText(FOOTER_NAME).width;
   const targetW = fCanvas.width * 0.99;
@@ -1061,10 +1076,6 @@ videoEl.addEventListener('timeupdate', () => {
   nameW = fCtx.measureText(FOOTER_NAME).width;
   fCtx.fillText(FOOTER_NAME, (fCanvas.width - nameW) / 2, fCanvas.height / 2);
   const fImgData = fCtx.getImageData(0, 0, fCanvas.width, fCanvas.height).data;
-
-  // Set font size on the pre element to fit
-  const displayFontSize = (window.innerWidth / F_COLS) * 0.62;
-  footerEl.style.fontSize = displayFontSize + 'px';
 
   const fCellOffset = new Float32Array(F_COLS * F_ROWS);
   const fCellSpeed  = new Float32Array(F_COLS * F_ROWS);
