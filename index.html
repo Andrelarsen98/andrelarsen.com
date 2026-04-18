@@ -142,7 +142,11 @@
     color: #ffffff;
     font-family: 'Courier New', Courier, monospace;
     user-select: none;
-    text-shadow: 0 0 14px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,1);
+    text-shadow:
+      0 0 6px rgba(255,255,255,1),
+      0 0 14px rgba(255,255,255,1),
+      0 0 28px rgba(255,255,255,0.9),
+      0 0 50px rgba(255,255,255,0.6);
   }
 
   /* ── LOADING UI — fixed position, JS places it right above ascii letters ── */
@@ -167,14 +171,15 @@
     letter-spacing: 0.18em;
     text-align: center;
     text-transform: uppercase;
-    opacity: 0.55;
+    opacity: 0.9;
     font-size: 9px;
     margin-bottom: 10px;
+    text-shadow: 0 0 8px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.5);
   }
   .load-bar-wrap {
     width: 140px;
     height: 1px;
-    background: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.25);
     position: relative;
     overflow: hidden;
   }
@@ -182,8 +187,9 @@
     position: absolute;
     left: 0; top: 0; height: 100%;
     width: 0%;
-    background: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,1);
     transition: width 0.05s linear;
+    box-shadow: 0 0 6px rgba(255,255,255,0.8);
   }
 
   /* ── MOBILE FULL-SCREEN MENU ── */
