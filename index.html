@@ -619,9 +619,9 @@ const aC   = document.getElementById('asciiCanvas');
 const aCtx = aC.getContext('2d');
 
 // ── Cell size: small enough to be dense, large enough to read ──
-const S_CW = isMobile ? 4.5 : 6;    // cell width  px
-const S_CH = isMobile ? 7   : 9;    // cell height px
-const S_FS = isMobile ? 4.5 : 6;    // font size   px
+const S_CW = isMobile ? 5.5 : 7;    // cell width  px
+const S_CH = isMobile ? 8.5 : 10;   // cell height px
+const S_FS = isMobile ? 6   : 8;    // font size   px — bold and readable
 
 function SC_COLS() { return Math.ceil(window.innerWidth  / S_CW); }
 function SC_ROWS() { return Math.ceil(window.innerHeight / S_CH); }
@@ -639,8 +639,8 @@ function buildParticles() {
   const sw = window.innerWidth;
   const sh = window.innerHeight;
 
-  // Target: name fills 38% of screen height
-  const targetH = sh * (isMobile ? 0.22 : 0.38);
+  // Target: name fills 42% of screen height on desktop, 32% on mobile
+  const targetH = sh * (isMobile ? 0.32 : 0.42);
 
   // Figure out font size so name fits both in height AND width
   const tempC = document.createElement('canvas');
@@ -649,7 +649,7 @@ function buildParticles() {
   tempX.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
   let nameW = tempX.measureText(NAME).width;
   // Clamp to 90% of screen width
-  const maxW = sw * 0.90;
+  const maxW = sw * 0.95;
   if (nameW > maxW) { fontSize *= maxW / nameW; nameW = maxW; }
 
   // Build name canvas at screen pixel resolution
@@ -743,7 +743,7 @@ function renderAscii(_el, t) {
 
   // Draw
   aCtx.clearRect(0, 0, aC.width, aC.height);
-  aCtx.font         = `${S_FS}px "Courier New", Courier, monospace`;
+  aCtx.font         = `bold ${S_FS}px "Courier New", Courier, monospace`;
   aCtx.textBaseline = 'top';
 
   for (let i = 0; i < particles.length; i++) {
