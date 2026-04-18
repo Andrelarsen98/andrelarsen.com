@@ -404,6 +404,96 @@
     .video-time { left: 16px; bottom: 14px; }
     .video-name { right: 16px; bottom: 14px; font-size: 9px; }
   }
+
+  /* ══════════════════════════════════════
+     ── FOOTER ──
+  ══════════════════════════════════════ */
+  .footer {
+    background: #000;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ASCII name — full width canvas rendered here */
+  .footer-ascii-wrap {
+    width: 100%;
+    padding: 60px 0 40px;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #footerAsciiOut {
+    display: block;
+    white-space: pre;
+    font-family: 'Courier New', Courier, monospace;
+    color: #ffffff;
+    user-select: none;
+    line-height: 1.13;
+    letter-spacing: 0.04em;
+    text-shadow:
+      0 0 4px rgba(255,255,255,0.8),
+      0 0 12px rgba(255,255,255,0.5),
+      0 0 24px rgba(255,255,255,0.3);
+  }
+
+  /* Info row */
+  .footer-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 32px 32px 0;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-family: 'Courier New', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    line-height: 1.8;
+  }
+  .footer-info a {
+    color: rgba(255,255,255,0.45);
+    text-decoration: none;
+  }
+  .footer-info a:hover { color: #fff; }
+  .footer-col { display: flex; flex-direction: column; }
+  .footer-col-label {
+    color: rgba(255,255,255,0.2);
+    font-size: 8px;
+    margin-bottom: 6px;
+    letter-spacing: 0.2em;
+  }
+
+  /* Back to top */
+  .footer-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 32px;
+    margin-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    user-select: none;
+  }
+  .footer-back:hover {
+    background: #1a6bff;
+    color: #fff;
+  }
+
+  @media (max-width: 768px) {
+    .footer-info {
+      flex-direction: column;
+      gap: 28px;
+      padding: 24px 20px 0;
+    }
+    .footer-back { padding: 18px 20px; }
+    #footerAsciiOut { font-size: 3.2px; letter-spacing: 0.02em; }
+  }
 </style>
 
 <!-- Black backdrop -->
@@ -473,6 +563,35 @@
   </div>
 
 </div><!-- end scrollContainer -->
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-ascii-wrap">
+    <pre id="footerAsciiOut"></pre>
+  </div>
+
+  <div class="footer-info">
+    <div class="footer-col">
+      <span class="footer-col-label">■ Studio</span>
+      <span>André Larsen</span>
+      <span>Dubai, UAE</span>
+      <span>Worldwide</span>
+    </div>
+    <div class="footer-col">
+      <span class="footer-col-label">■ Get in touch</span>
+      <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+      <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
+    </div>
+    <div class="footer-col">
+      <span class="footer-col-label">■ </span>
+      <span>© 2026 André Larsen</span>
+      <span>Visual Artist</span>
+    </div>
+  </div>
+
+  <div class="footer-back" id="footerBackTop">:/ BACK TO TOP</div>
+</footer>
+
 
 <!-- Mobile full-screen menu -->
 <div class="menu-overlay" id="menuOverlay">
@@ -904,4 +1023,98 @@ videoEl.addEventListener('timeupdate', () => {
   progressBar.style.width = pct + '%';
   videoTime.textContent = formatTime(videoEl.currentTime);
 });
+
+/* ══════════════════════════════════════
+   ── FOOTER ASCII — full width, animated
+══════════════════════════════════════ */
+(function() {
+  const footerEl = document.getElementById('footerAsciiOut');
+  if (!footerEl) return;
+
+  const FOOTER_NAME  = 'André Larsen';
+  const FOOTER_CHARS = '@#FRT43%=+-.';
+
+  // Calculate columns to fill screen width
+  // Each char is ~6px wide at font-size 5.5px
+  const CHAR_PX   = 5.5;
+  const F_COLS    = Math.floor(window.innerWidth / (CHAR_PX * 0.62));
+  const F_ROWS    = 28;
+  const F_CHAR_W  = Math.floor(window.innerWidth / F_COLS);
+  const F_CHAR_H  = 10;
+  const F_FONT_S  = 160; // large so name fills width
+
+  // Build canvas with name sized to fill width
+  const fCanvas = document.createElement('canvas');
+  fCanvas.width  = F_COLS * F_CHAR_W;
+  fCanvas.height = F_ROWS * F_CHAR_H;
+  const fCtx = fCanvas.getContext('2d');
+
+  // Scale font so name spans ~85% of canvas width
+  let fontSize = F_FONT_S;
+  fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
+  let nameW = fCtx.measureText(FOOTER_NAME).width;
+  const targetW = fCanvas.width * 0.92;
+  fontSize = fontSize * (targetW / nameW);
+  fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
+
+  fCtx.fillStyle = '#fff';
+  fCtx.textBaseline = 'middle';
+  nameW = fCtx.measureText(FOOTER_NAME).width;
+  fCtx.fillText(FOOTER_NAME, (fCanvas.width - nameW) / 2, fCanvas.height / 2);
+  const fImgData = fCtx.getImageData(0, 0, fCanvas.width, fCanvas.height).data;
+
+  // Set font size on the pre element to fit
+  const displayFontSize = (window.innerWidth / F_COLS) * 0.62;
+  footerEl.style.fontSize = displayFontSize + 'px';
+
+  const fCellOffset = new Float32Array(F_COLS * F_ROWS);
+  const fCellSpeed  = new Float32Array(F_COLS * F_ROWS);
+  for (let i = 0; i < F_COLS * F_ROWS; i++) {
+    fCellOffset[i] = Math.random() * 100;
+    fCellSpeed[i]  = 0.4 + Math.random() * 0.9;
+  }
+
+  function fRand(x, y, s) {
+    const v = Math.sin(x * 127.1 + y * 311.7 + s) * 43758.5453;
+    return v - Math.floor(v);
+  }
+
+  let ft = 0;
+  let footerVisible = false;
+
+  // Only animate when footer is in view (IntersectionObserver)
+  const footerObserver = new IntersectionObserver(entries => {
+    footerVisible = entries[0].isIntersecting;
+  }, { threshold: 0.1 });
+  footerObserver.observe(footerEl);
+
+  function renderFooterAscii() {
+    if (!footerVisible) { requestAnimationFrame(renderFooterAscii); return; }
+    const breath    = 0.5 + 0.5 * Math.sin(ft * 0.014);
+    const threshold = 25 + breath * 45;
+    const parts = [];
+    for (let r = 0; r < F_ROWS; r++) {
+      for (let c = 0; c < F_COLS; c++) {
+        const px = Math.floor(c * F_CHAR_W + F_CHAR_W / 2);
+        const py = Math.floor(r * F_CHAR_H + F_CHAR_H / 2);
+        const inB  = px >= 0 && py >= 0 && px < fCanvas.width && py < fCanvas.height;
+        const alpha = inB ? fImgData[(py * fCanvas.width + px) * 4 + 3] : 0;
+        if (alpha < threshold) { parts.push(' '); continue; }
+        const idx = Math.floor(fRand(c, r, Math.floor(ft * fCellSpeed[r * F_COLS + c] + fCellOffset[r * F_COLS + c])) * FOOTER_CHARS.length);
+        parts.push(FOOTER_CHARS[Math.max(0, Math.min(FOOTER_CHARS.length - 1, idx))]);
+      }
+      parts.push('\n');
+    }
+    footerEl.textContent = parts.join('');
+    ft += 0.05;
+    requestAnimationFrame(renderFooterAscii);
+  }
+  renderFooterAscii();
+
+  // Back to top
+  document.getElementById('footerBackTop').addEventListener('click', () => {
+    document.getElementById('scrollContainer').scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+
 </script>
