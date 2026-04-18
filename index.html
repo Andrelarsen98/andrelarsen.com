@@ -125,22 +125,7 @@
   }
   #loadScreen.hide { opacity: 0; }
 
-  /* ── BRAIN CANVAS ── */
-  #burstCanvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 151;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 1.4s ease, filter 1.2s ease;
-    filter: blur(0px);
-  }
-  #burstCanvas.visible { opacity: 1; }
-  #burstCanvas.hide    { opacity: 0; filter: blur(8px); }
-
-  /* ASCII reacts to brain — subtle blue glow when brain is active */
+  /* ── ASCII OUTPUT ── */
   #asciiOut {
     display: block;
     font-size: 8.6px;
@@ -150,18 +135,7 @@
     color: #ffffff;
     font-family: 'Courier New', Courier, monospace;
     user-select: none;
-    transition: text-shadow 0.8s ease;
-    text-shadow:
-      0 0 6px rgba(255,255,255,0.9),
-      0 0 14px rgba(255,255,255,0.7),
-      0 0 28px rgba(255,255,255,0.5);
-  }
-  #asciiOut.brain-pulse {
-    text-shadow:
-      0 0 6px rgba(180,220,255,1),
-      0 0 18px rgba(100,180,255,0.9),
-      0 0 40px rgba(60,140,255,0.6),
-      0 0 70px rgba(40,100,255,0.3);
+    text-shadow: 0 0 4px rgba(255,255,255,0.55);
   }
 
 
@@ -522,13 +496,8 @@
   }
 </style>
 
-<!-- Three.js for neural brain animation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
 <!-- Black backdrop -->
 <div id="loadScreen"></div>
-<!-- Brain canvas -->
-<canvas id="burstCanvas"></canvas>
 
 <!-- ASCII — fixed in place forever -->
 <div class="ascii-wrap" id="area">
@@ -666,40 +635,119 @@ const tw = ctx.measureText(NAME).width;
 ctx.fillText(NAME, (canvas.width - tw) / 2, canvas.height / 2);
 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
-const cellOffset = new Float32Array(COLS * ROWS);
-const cellSpeed  = new Float32Array(COLS * ROWS);
-for (let i = 0; i < COLS * ROWS; i++) {
-  cellOffset[i] = Math.random() * 100;
-  cellSpeed[i]  = 0.5 + Math.random() * 1.0;
+/* ── PARTICLE ASSEMBLY SYSTEM ── */
+
+// Collect all cells that are part of the name (alpha > threshold)
+const NAME_THRESHOLD = 28;
+const nameCells = []; // { r, c } — every cell that belongs to the name
+for (let r = 0; r < ROWS; r++) {
+  for (let c = 0; c < COLS; c++) {
+    const px = Math.floor(c * CHAR_W + CHAR_W / 2);
+    const py = Math.floor(r * CHAR_H + CHAR_H / 2);
+    if (px < 0 || py < 0 || px >= canvas.width || py >= canvas.height) continue;
+    if (imgData[(py * canvas.width + px) * 4 + 3] >= NAME_THRESHOLD) {
+      nameCells.push({ r, c });
+    }
+  }
 }
 
-/* ── ASCII RENDER ── */
-function renderAscii(targetEl, t, mouseCol, mouseRow) {
-  const breath    = 0.5 + 0.5 * Math.sin(t * 0.018);
-  const threshold = 30 + breath * 40;
-  const REPEL_RADIUS = (mouseCol !== -999 && !isMobile) ? 14 : 0;
+// Each name cell gets a particle: start position, current position, locked state
+const particles = nameCells.map(({ r, c }) => {
+  // Random scatter origin — spread across the full grid
+  const startC = Math.random() * COLS;
+  const startR = Math.random() * ROWS;
+  return {
+    r, c,             // target cell (grid)
+    curC: startC,     // current float column
+    curR: startR,     // current float row
+    startC, startR,
+    locked: false,
+    lockFlicker: 0,   // frames of flicker after lock-in
+    charOffset: Math.random() * 100,
+    charSpeed: 0.5 + Math.random() * 1.0,
+  };
+});
+
+// Stable locked char per particle (resolved once on lock)
+const lockedChars = new Array(particles.length).fill('');
+
+// Grid lookup: for each (r,c) that is a name cell → particle index
+const cellMap = new Map();
+nameCells.forEach(({ r, c }, i) => cellMap.set(r * COLS + c, i));
+
+/* Determine lock order: shuffle so they lock in a spread pattern, not left-to-right */
+const lockOrder = particles.map((_, i) => i);
+for (let i = lockOrder.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [lockOrder[i], lockOrder[j]] = [lockOrder[j], lockOrder[i]];
+}
+
+function renderAscii(targetEl, t, _mouseCol, _mouseRow) {
+  // How many particles should be locked at current progress (0–100)
+  const lockTarget = Math.floor((progress / 100) * particles.length);
+
+  // Lock particles in order up to lockTarget
+  for (let k = 0; k < lockTarget; k++) {
+    const p = particles[lockOrder[k]];
+    if (!p.locked) {
+      p.locked = true;
+      p.lockFlicker = 6; // ~6 frames of flicker
+      // Snap to exact target
+      p.curC = p.c;
+      p.curR = p.r;
+      // Pick a stable char that actually sits in the name glyph
+      lockedChars[lockOrder[k]] = CHARS[Math.floor(rand(p.c, p.r, 77) * CHARS.length)];
+    }
+  }
+
+  // Move unlocked particles toward their target
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    if (p.locked) continue;
+    const dc = p.c - p.curC;
+    const dr = p.r - p.curR;
+    const dist = Math.sqrt(dc * dc + dr * dr);
+    if (dist < 0.3) { p.curC = p.c; p.curR = p.r; continue; }
+    // Speed: slow far away, accelerate within ~8 cells
+    const speedFactor = dist > 8 ? 0.022 : 0.022 + (1 - dist / 8) * 0.065;
+    p.curC += dc * speedFactor;
+    p.curR += dr * speedFactor;
+  }
+
+  // Build grid: for each row/col, figure out what char to show
+  // Use a sparse approach — only name-cell positions carry chars
+  // Build output as 2D char array (spaces by default)
+  const grid = new Array(ROWS);
+  for (let r = 0; r < ROWS; r++) grid[r] = new Array(COLS).fill(' ');
+
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    const rc = Math.round(p.curR);
+    const cc = Math.round(p.curC);
+    if (rc < 0 || rc >= ROWS || cc < 0 || cc >= COLS) continue;
+
+    let ch;
+    if (p.locked) {
+      if (p.lockFlicker > 0) {
+        // Brief flicker: alternate between correct char and a glitch char
+        p.lockFlicker--;
+        ch = (p.lockFlicker % 2 === 0)
+          ? lockedChars[i]
+          : CHARS[Math.floor(rand(p.c, p.r, t + p.lockFlicker) * CHARS.length)];
+      } else {
+        ch = lockedChars[i];
+      }
+    } else {
+      // Travelling: animate char rapidly
+      ch = CHARS[Math.floor(rand(cc, rc, Math.floor(t * p.charSpeed + p.charOffset)) * CHARS.length)];
+    }
+    grid[rc][cc] = ch;
+  }
+
+  // Render to string
   const parts = [];
   for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      let srcCol = c, srcRow = r;
-      if (REPEL_RADIUS > 0) {
-        const dx = c - mouseCol;
-        const dy = (r - mouseRow) * 2.2;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < REPEL_RADIUS && dist > 0.5) {
-          const force = Math.pow((REPEL_RADIUS - dist) / REPEL_RADIUS, 1.4);
-          srcCol = c - (dx / dist) * force * REPEL_RADIUS * 0.85;
-          srcRow = r - ((r - mouseRow) / dist) * force * REPEL_RADIUS * 0.85;
-        }
-      }
-      const px = Math.floor(srcCol * CHAR_W + CHAR_W / 2);
-      const py = Math.floor(srcRow * CHAR_H + CHAR_H / 2);
-      const inB  = px >= 0 && py >= 0 && px < canvas.width && py < canvas.height;
-      const alpha = inB ? imgData[(py * canvas.width + px) * 4 + 3] : 0;
-      if (alpha < threshold) { parts.push(' '); continue; }
-      const idx = Math.floor(rand(srcCol, srcRow, Math.floor(t * cellSpeed[r * COLS + c] + cellOffset[r * COLS + c])) * CHARS.length);
-      parts.push(CHARS[Math.max(0, Math.min(CHARS.length - 1, idx))]);
-    }
+    parts.push(grid[r].join(''));
     parts.push('\n');
   }
   targetEl.textContent = parts.join('');
@@ -841,374 +889,6 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 frame(0);
-
-/* ══════════════════════════════════════
-   ── NEURAL BRAIN — Three.js loading screen
-   TWEAKS: PULSE_SPEED, SIGNAL_SPEED, GLOW_INTENSITY, BRAIN_COLOR below
-══════════════════════════════════════ */
-(function() {
-  if (typeof THREE === 'undefined') return;
-
-  // ── TWEAK THESE ──────────────────────
-  const PULSE_SPEED    = 0.022;   // heartbeat oscillation speed
-  const SIGNAL_SPEED   = 0.012;   // neural signal travel speed
-  const GLOW_INTENSITY = 0.72;    // 0.0–1.0
-  const BRAIN_COLOR    = new THREE.Color(0.25, 0.65, 1.0); // blue
-  const ACCENT_COLOR   = new THREE.Color(1.0,  0.55, 0.15); // warm orange accent
-  // ─────────────────────────────────────
-
-  const bc = document.getElementById('burstCanvas');
-  const renderer = new THREE.WebGLRenderer({ canvas: bc, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setClearColor(0x000000, 0);
-  renderer.setSize(window.innerWidth, window.innerHeight);
-
-  const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(0, 0.3, 4.5);
-
-  window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-  });
-
-  // ── Build brain shape: cross-section silhouette points ──
-  // Cerebrum lobes as parametric outline, mirrored
-  function brainProfile(t) {
-    // t: 0–1, maps to angle around a rough brain cross-section
-    const a = t * Math.PI * 2;
-    // Distorted ellipse with frontal/parietal/occipital bulges
-    const r = 1.0
-      + 0.18 * Math.cos(2 * a)
-      + 0.10 * Math.cos(3 * a + 0.3)
-      + 0.07 * Math.cos(5 * a + 1.1)
-      + 0.05 * Math.sin(4 * a - 0.5);
-    return new THREE.Vector2(
-      r * Math.cos(a) * 1.15,
-      r * Math.sin(a) * 0.88 + 0.12   // slightly taller than wide, shifted up
-    );
-  }
-
-  // ── NODE PARTICLES ──
-  const NODE_COUNT = isMobile ? 380 : 620;
-  const nodePositions = [];
-  const nodeSizes = [];
-  const nodeOpacities = [];
-
-  for (let i = 0; i < NODE_COUNT; i++) {
-    // Place points within the brain profile using rejection sampling
-    let x, y, inside = false, attempts = 0;
-    while (!inside && attempts < 40) {
-      x = (Math.random() - 0.5) * 2.6;
-      y = (Math.random() - 0.5) * 2.0;
-      // Check if inside the profile by angle
-      const angle = Math.atan2(y - 0.12, x / 1.15);
-      const t = (angle / (Math.PI * 2) + 1) % 1;
-      const p = brainProfile(t);
-      const dist = Math.sqrt(x * x + (y - 0.12) * (y - 0.12));
-      const pDist = Math.sqrt(p.x * p.x + (p.y - 0.12) * (p.y - 0.12));
-      inside = dist < pDist * 0.95;
-      attempts++;
-    }
-    // Add slight z depth for 3D feel
-    const z = (Math.random() - 0.5) * 0.8;
-    nodePositions.push(x || 0, y || 0, z);
-    nodeSizes.push(0.008 + Math.random() * 0.018);
-    nodeOpacities.push(0.3 + Math.random() * 0.7);
-  }
-
-  // Outline particles along brain profile
-  const OUTLINE_COUNT = 160;
-  for (let i = 0; i < OUTLINE_COUNT; i++) {
-    const t = i / OUTLINE_COUNT;
-    const p = brainProfile(t);
-    const jitter = (Math.random() - 0.5) * 0.04;
-    nodePositions.push(p.x + jitter, p.y + jitter, (Math.random() - 0.5) * 0.2);
-    nodeSizes.push(0.012 + Math.random() * 0.012);
-    nodeOpacities.push(0.7 + Math.random() * 0.3);
-  }
-
-  const totalNodes = NODE_COUNT + OUTLINE_COUNT;
-  const nodeGeo = new THREE.BufferGeometry();
-  nodeGeo.setAttribute('position', new THREE.Float32BufferAttribute(nodePositions, 3));
-  nodeGeo.setAttribute('size',     new THREE.Float32BufferAttribute(nodeSizes, 1));
-  nodeGeo.setAttribute('opacity',  new THREE.Float32BufferAttribute(nodeOpacities, 1));
-
-  const nodeMat = new THREE.ShaderMaterial({
-    uniforms: {
-      uColor:   { value: BRAIN_COLOR },
-      uAccent:  { value: ACCENT_COLOR },
-      uPulse:   { value: 0.0 },
-      uGlow:    { value: GLOW_INTENSITY },
-    },
-    vertexShader: `
-      attribute float size;
-      attribute float opacity;
-      varying float vOpacity;
-      uniform float uPulse;
-      void main() {
-        vOpacity = opacity;
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = size * (1.0 + uPulse * 0.35) * 320.0 / -mv.z;
-        gl_Position = projectionMatrix * mv;
-      }
-    `,
-    fragmentShader: `
-      varying float vOpacity;
-      uniform vec3 uColor;
-      uniform vec3 uAccent;
-      uniform float uPulse;
-      uniform float uGlow;
-      void main() {
-        vec2 uv = gl_PointCoord - 0.5;
-        float d = length(uv);
-        if (d > 0.5) discard;
-        float core  = 1.0 - smoothstep(0.0, 0.18, d);
-        float bloom = 1.0 - smoothstep(0.0, 0.5,  d);
-        vec3 col = mix(uColor, uAccent, uPulse * 0.4);
-        float alpha = (core * 0.9 + bloom * 0.35 * uGlow) * vOpacity * (0.7 + uPulse * 0.3);
-        gl_FragColor = vec4(col, alpha);
-      }
-    `,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  });
-
-  const nodesMesh = new THREE.Points(nodeGeo, nodeMat);
-  scene.add(nodesMesh);
-
-  // ── CONNECTION LINES between nearby nodes ──
-  const LINE_PAIRS = isMobile ? 180 : 320;
-  const linePositions = [];
-  const lineOpacities = [];
-
-  const posArr = nodePositions;
-  for (let i = 0; i < LINE_PAIRS; i++) {
-    const a = Math.floor(Math.random() * totalNodes);
-    const b = Math.floor(Math.random() * totalNodes);
-    const ax = posArr[a*3], ay = posArr[a*3+1], az = posArr[a*3+2];
-    const bx2 = posArr[b*3], by2 = posArr[b*3+1], bz2 = posArr[b*3+2];
-    const dist = Math.sqrt((ax-bx2)**2+(ay-by2)**2+(az-bz2)**2);
-    if (dist < 0.55) {
-      linePositions.push(ax, ay, az, bx2, by2, bz2);
-      lineOpacities.push(0.08 + Math.random() * 0.14, 0.08 + Math.random() * 0.14);
-    }
-  }
-
-  const lineGeo = new THREE.BufferGeometry();
-  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-  lineGeo.setAttribute('opacity',  new THREE.Float32BufferAttribute(lineOpacities, 1));
-
-  const lineMat = new THREE.ShaderMaterial({
-    uniforms: {
-      uColor: { value: BRAIN_COLOR },
-      uPulse: { value: 0.0 },
-    },
-    vertexShader: `
-      attribute float opacity;
-      varying float vOpacity;
-      void main() {
-        vOpacity = opacity;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      varying float vOpacity;
-      uniform vec3 uColor;
-      uniform float uPulse;
-      void main() {
-        gl_FragColor = vec4(uColor, vOpacity * (0.6 + uPulse * 0.4));
-      }
-    `,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  });
-
-  const linesMesh = new THREE.LineSegments(lineGeo, lineMat);
-  scene.add(linesMesh);
-
-  // ── NEURAL SIGNAL PULSES ──
-  // Bright dots that travel along a path through the brain
-  const SIGNAL_COUNT = isMobile ? 5 : 9;
-  const signals = [];
-
-  function makeSignalPath() {
-    const pts = [];
-    const startT = Math.random();
-    const steps = 18 + Math.floor(Math.random() * 20);
-    for (let s = 0; s < steps; s++) {
-      const frac = s / steps;
-      const t = (startT + frac * 0.6) % 1;
-      const p = brainProfile(t);
-      const inward = 0.3 + Math.random() * 0.55;
-      pts.push(new THREE.Vector3(
-        p.x * inward + (Math.random()-0.5)*0.15,
-        p.y * inward + (Math.random()-0.5)*0.15,
-        (Math.random()-0.5)*0.4
-      ));
-    }
-    return pts;
-  }
-
-  for (let i = 0; i < SIGNAL_COUNT; i++) {
-    signals.push({
-      path:     makeSignalPath(),
-      progress: Math.random(),
-      speed:    SIGNAL_SPEED * (0.7 + Math.random() * 0.8),
-      warm:     Math.random() < 0.25,
-    });
-  }
-
-  const signalGeo = new THREE.BufferGeometry();
-  const signalPos = new Float32Array(SIGNAL_COUNT * 3);
-  signalGeo.setAttribute('position', new THREE.BufferAttribute(signalPos, 3));
-
-  const signalMat = new THREE.ShaderMaterial({
-    uniforms: { uTime: { value: 0 } },
-    vertexShader: `
-      void main() {
-        vec4 mv = modelViewMatrix * vec4(position, 1.0);
-        gl_PointSize = 6.0 * 320.0 / -mv.z;
-        gl_Position = projectionMatrix * mv;
-      }
-    `,
-    fragmentShader: `
-      void main() {
-        vec2 uv = gl_PointCoord - 0.5;
-        float d = length(uv);
-        if (d > 0.5) discard;
-        float a = 1.0 - smoothstep(0.0, 0.5, d);
-        gl_FragColor = vec4(0.7, 0.9, 1.0, a * 0.95);
-      }
-    `,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-  });
-
-  const signalMesh = new THREE.Points(signalGeo, signalMat);
-  scene.add(signalMesh);
-
-  // ── SOFT AMBIENT GLOW (billboard sprite) ──
-  const glowGeo = new THREE.PlaneGeometry(3.8, 2.8);
-  const glowMat = new THREE.ShaderMaterial({
-    uniforms: {
-      uColor: { value: BRAIN_COLOR },
-      uPulse: { value: 0.0 },
-      uGlow:  { value: GLOW_INTENSITY },
-    },
-    vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
-    fragmentShader: `
-      varying vec2 vUv;
-      uniform vec3 uColor;
-      uniform float uPulse;
-      uniform float uGlow;
-      void main() {
-        vec2 c = vUv - 0.5;
-        float d = length(c * vec2(1.0, 1.3));
-        float g = 1.0 - smoothstep(0.0, 0.5, d);
-        g = g * g;
-        float alpha = g * 0.18 * uGlow * (0.7 + uPulse * 0.3);
-        gl_FragColor = vec4(uColor, alpha);
-      }
-    `,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-    side: THREE.DoubleSide,
-  });
-  const glowMesh = new THREE.Mesh(glowGeo, glowMat);
-  glowMesh.position.set(0, 0.1, -0.5);
-  scene.add(glowMesh);
-
-  // ── ANIMATION LOOP ──
-  let brainRunning = true;
-  let bt = 0;
-  let buildUp = 0; // 0→1 as page loads, controls intro fade-in
-
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  function animate() {
-    if (!brainRunning) return;
-    bt++;
-    buildUp = Math.min(1, buildUp + 0.004);
-
-    // Heartbeat: strong pulse every ~2s
-    const heartbeat = Math.pow(Math.abs(Math.sin(bt * PULSE_SPEED)), 3.5);
-
-    // Slow organic rotation
-    nodesMesh.rotation.y = Math.sin(bt * 0.0018) * 0.12;
-    nodesMesh.rotation.x = Math.sin(bt * 0.0011) * 0.06;
-    linesMesh.rotation.copy(nodesMesh.rotation);
-    signalMesh.rotation.copy(nodesMesh.rotation);
-    glowMesh.rotation.copy(nodesMesh.rotation);
-
-    // Parallax drift
-    nodesMesh.position.y = Math.sin(bt * 0.0009) * 0.04;
-    linesMesh.position.y = nodesMesh.position.y;
-
-    // Update uniforms
-    nodeMat.uniforms.uPulse.value = heartbeat * buildUp;
-    lineMat.uniforms.uPulse.value = heartbeat * buildUp;
-    glowMat.uniforms.uPulse.value = heartbeat * buildUp;
-
-    // Scale pulse on heartbeat
-    const scale = 1.0 + heartbeat * 0.04 * buildUp;
-    nodesMesh.scale.setScalar(scale);
-    linesMesh.scale.setScalar(scale);
-
-    // ── Update signal pulses
-    for (let i = 0; i < signals.length; i++) {
-      const sig = signals[i];
-      sig.progress += sig.speed;
-      if (sig.progress >= 1) {
-        sig.progress = 0;
-        sig.path = makeSignalPath();
-      }
-      const idx = Math.min(sig.path.length - 2, Math.floor(sig.progress * sig.path.length));
-      const frac = (sig.progress * sig.path.length) % 1;
-      const pa = sig.path[idx];
-      const pb = sig.path[Math.min(idx + 1, sig.path.length - 1)];
-      signalPos[i*3]   = lerp(pa.x, pb.x, frac);
-      signalPos[i*3+1] = lerp(pa.y, pb.y, frac);
-      signalPos[i*3+2] = lerp(pa.z, pb.z, frac);
-    }
-    signalGeo.attributes.position.needsUpdate = true;
-
-    // ASCII pulse reaction
-    const asciiEl = document.getElementById('asciiOut');
-    if (asciiEl && buildUp > 0.5) {
-      if (heartbeat > 0.7) asciiEl.classList.add('brain-pulse');
-      else asciiEl.classList.remove('brain-pulse');
-    }
-
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  }
-
-  // Fade in brain smoothly
-  setTimeout(() => { bc.classList.add('visible'); }, 200);
-  animate();
-
-  // Stop on reveal
-  const loadScreenEl = document.getElementById('loadScreen');
-  const mo = new MutationObserver(() => {
-    if (loadScreenEl.classList.contains('hide')) {
-      bc.classList.remove('visible');
-      bc.classList.add('hide');
-      setTimeout(() => {
-        brainRunning = false;
-        renderer.dispose();
-        bc.remove();
-      }, 1400);
-      mo.disconnect();
-    }
-  });
-  mo.observe(loadScreenEl, { attributes: true, attributeFilter: ['class'] });
-})();
 
 /* ── NAV GLITCH INTRO ── */
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
