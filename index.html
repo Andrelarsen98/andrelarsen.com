@@ -544,7 +544,7 @@
 
   <!-- SECTION 2: Showreel Video -->
   <div class="video-section" id="videoSection">
-    <video id="showreel" muted loop playsinline preload="none">
+    <video id="showreel" autoplay muted loop playsinline preload="metadata">
       <source src="showreel.mp4" type="video/mp4">
     </video>
 
@@ -709,11 +709,17 @@ const site       = document.getElementById('site');
 
 glitchLine(loadLine1, ':/ INITIALISING', 100);
 
-
 let progress = 0;
+let barDone = false;
 const loadInterval = setInterval(() => {
   progress += 1.4 + Math.random() * 2;
-  if (progress >= 100) { progress = 100; clearInterval(loadInterval); }
+  if (progress >= 100) {
+    progress = 100;
+    clearInterval(loadInterval);
+    loadBar.style.width = '100%';
+    // Small pause so user sees 100% before reveal
+    setTimeout(() => { barDone = true; checkReveal(); }, 300);
+  }
   loadBar.style.width = progress + '%';
 }, 28);
 
@@ -733,16 +739,14 @@ function doReveal() {
         asciiRunning = false;
       }, 1200);
     }, 500);
-  }, 1000);
+  }, 600);
 }
 
-// Wait for BOTH the 2.4s timer AND the image to be loaded before revealing
-let timerDone = false;
+// Wait for BOTH bar at 100% AND image loaded before revealing
 let imageDone = false;
 function checkReveal() {
-  if (timerDone && imageDone) doReveal();
+  if (barDone && imageDone) doReveal();
 }
-setTimeout(() => { timerDone = true; checkReveal(); }, 2400);
 if (bgPreload.complete) {
   imageDone = true;
 } else {
@@ -791,10 +795,15 @@ let t = 0;
 let scaled = false;
 let uiPositioned = false;
 let asciiRunning = true;
-function frame() {
-  if (asciiRunning) {
+let lastAsciiFrame = 0;
+const ASCII_FPS = 20; // throttle to 20fps — smooth enough, much lighter on CPU
+const ASCII_INTERVAL = 1000 / ASCII_FPS;
+
+function frame(now) {
+  if (asciiRunning && (now - lastAsciiFrame) >= ASCII_INTERVAL) {
     renderAscii(asciiEl, t, mouseCol, mouseRow);
     t += 0.05;
+    lastAsciiFrame = now;
   }
   if (!scaled) { scaleAscii(); scaled = true; }
   if (!uiPositioned && asciiEl.getBoundingClientRect().height > 0) {
@@ -803,7 +812,7 @@ function frame() {
   }
   requestAnimationFrame(frame);
 }
-frame();
+frame(0);
 
 /* ── NAV GLITCH INTRO ── */
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
@@ -1040,19 +1049,6 @@ videoEl.addEventListener('timeupdate', () => {
   videoTime.textContent = formatTime(videoEl.currentTime);
 
 });
-
-/* ── Lazy-load video: only fetch + play when scrolled into view ── */
-const videoObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      videoEl.load();
-      videoEl.play().catch(() => {});
-    } else {
-      videoEl.pause();
-    }
-  });
-}, { threshold: 0.25 });
-videoObserver.observe(document.getElementById('videoSection'));
 
 /* ══════════════════════════════════════
    ── FOOTER ASCII — full width, animated
