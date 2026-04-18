@@ -603,11 +603,6 @@ menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
 /* ── SHARED CONSTANTS ── */
 const isMobile = window.innerWidth <= 768;
 const CHARS    = '@#FRT43%=+-.';
-const COLS     = isMobile ? 140 : 195;
-const ROWS     = isMobile ? 36  : 48;
-const CHAR_W   = isMobile ? 6   : 7;
-const CHAR_H   = isMobile ? 9   : 10;
-const FONT_S   = isMobile ? 100 : 96;
 const NAME     = 'André Larsen';
 
 function rand(x, y, s) {
@@ -615,149 +610,141 @@ function rand(x, y, s) {
   return v - Math.floor(v);
 }
 
-/* ── BUILD CANVAS ── */
-const canvas = document.createElement('canvas');
-canvas.width  = COLS * CHAR_W;
-canvas.height = ROWS * CHAR_H;
-const ctx = canvas.getContext('2d');
-ctx.font = `900 italic ${FONT_S}px Arial Black, Arial, sans-serif`;
-ctx.fillStyle = '#fff';
-ctx.textBaseline = 'middle';
-const tw = ctx.measureText(NAME).width;
-ctx.fillText(NAME, (canvas.width - tw) / 2, canvas.height / 2);
-const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
 /* ══════════════════════════════════════
    ── FULL-SCREEN ASCII CANVAS SYSTEM ──
+   Artefakt-style: name fills ~40% of
+   screen height, characters dense & white
 ══════════════════════════════════════ */
 
-const aC        = document.getElementById('asciiCanvas');
-const aCtx      = aC.getContext('2d');
+const aC   = document.getElementById('asciiCanvas');
+const aCtx = aC.getContext('2d');
 
-// Character cell size in screen pixels
-// Mobile: smaller cells so the name fits within the viewport width
-const S_CW = isMobile ? 5  : 8;   // cell width  (px)
-const S_CH = isMobile ? 8  : 12;  // cell height (px)
-const S_FS = isMobile ? 5  : 7;   // font size   (px)
+// ── Cell size: small enough to be dense, large enough to read ──
+const S_CW = isMobile ? 4.5 : 6;    // cell width  px
+const S_CH = isMobile ? 7   : 9;    // cell height px
+const S_FS = isMobile ? 4.5 : 6;    // font size   px
+
+function SC_COLS() { return Math.ceil(window.innerWidth  / S_CW); }
+function SC_ROWS() { return Math.ceil(window.innerHeight / S_CH); }
 
 function resizeAsciiCanvas() {
   aC.width  = window.innerWidth;
   aC.height = window.innerHeight;
-  aCtx.font = `${S_FS}px "Courier New", Courier, monospace`;
-  aCtx.textBaseline = 'top';
 }
 resizeAsciiCanvas();
 window.addEventListener('resize', resizeAsciiCanvas);
 
-// Screen grid dimensions — the full viewport
-const SC_COLS = () => Math.ceil(window.innerWidth  / S_CW);
-const SC_ROWS = () => Math.ceil(window.innerHeight / S_CH);
+// ── Render name into an off-screen canvas sized to the SCREEN ──
+// Name block targets 38% of screen height (like artefakt)
+function buildParticles() {
+  const sw = window.innerWidth;
+  const sh = window.innerHeight;
 
-// ── Build name mask at screen coordinates ──
-// Scale name block so it never exceeds 92% of viewport width on mobile
-function buildNameCells() {
+  // Target: name fills 38% of screen height
+  const targetH = sh * (isMobile ? 0.22 : 0.38);
+
+  // Figure out font size so name fits both in height AND width
+  const tempC = document.createElement('canvas');
+  const tempX = tempC.getContext('2d');
+  let fontSize = targetH * 0.72; // rough ratio: font-size to rendered height
+  tempX.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
+  let nameW = tempX.measureText(NAME).width;
+  // Clamp to 90% of screen width
+  const maxW = sw * 0.90;
+  if (nameW > maxW) { fontSize *= maxW / nameW; nameW = maxW; }
+
+  // Build name canvas at screen pixel resolution
+  const NC_W = sw;
+  const NC_H = sh;
+  const nc   = document.createElement('canvas');
+  nc.width   = NC_W;
+  nc.height  = NC_H;
+  const nx   = nc.getContext('2d');
+  nx.font          = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
+  nx.fillStyle     = '#fff';
+  nx.textBaseline  = 'middle';
+  const tw = nx.measureText(NAME).width;
+  // Center horizontally, center vertically
+  nx.fillText(NAME, (NC_W - tw) / 2, NC_H / 2);
+  const imgD = nx.getImageData(0, 0, NC_W, NC_H).data;
+
+  // Sample every cell on the screen grid — collect name cells
   const cols = SC_COLS(), rows = SC_ROWS();
-  const namePixW = canvas.width;
-  const namePixH = canvas.height;
-
-  // Raw name block size in screen cells
-  let blockCols = COLS;
-  let blockRows = ROWS;
-
-  // On mobile, shrink the block so it fits inside the screen width
-  const maxCols = Math.floor(cols * 0.92);
-  let scale = 1;
-  if (isMobile && blockCols > maxCols) {
-    scale = maxCols / blockCols;
-    blockCols = maxCols;
-    blockRows = Math.round(ROWS * scale);
-  }
-
-  const offC = Math.round((cols - blockCols) / 2);
-  const offR = Math.round((rows - blockRows) / 2);
-
   const cells = [];
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const px = Math.floor(c * CHAR_W + CHAR_W / 2);
-      const py = Math.floor(r * CHAR_H + CHAR_H / 2);
-      if (px < 0 || py < 0 || px >= namePixW || py >= namePixH) continue;
-      if (imgData[(py * namePixW + px) * 4 + 3] >= 28) {
-        // Map original grid cell → scaled screen cell
-        const sc = offC + Math.round(c * scale);
-        const sr = offR + Math.round(r * scale);
-        cells.push({ sc, sr });
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const px = Math.floor(c * S_CW + S_CW / 2);
+      const py = Math.floor(r * S_CH + S_CH / 2);
+      if (px >= NC_W || py >= NC_H) continue;
+      if (imgD[(py * NC_W + px) * 4 + 3] >= 30) {
+        cells.push({ sc: c, sr: r });
       }
     }
   }
 
-  // Deduplicate cells that map to the same screen position after scaling
-  const seen = new Set();
-  return cells.filter(({ sc, sr }) => {
-    const key = sc * 10000 + sr;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-const nameCells = buildNameCells();
-
-// ── Particles — one per name cell, origin anywhere on screen ──
-const particles = nameCells.map(({ sc, sr }) => {
-  const cols = SC_COLS(), rows = SC_ROWS();
-  const startC = Math.random() * cols;
-  const startR = Math.random() * rows;
-  return {
+  // Build particles — each spawns from a random full-screen position
+  const parts = cells.map(({ sc, sr }) => ({
     sc, sr,
-    curC: startC,
-    curR: startR,
+    curC: Math.random() * cols,
+    curR: Math.random() * rows,
     arrived: false,
     lockFlicker: 0,
     charOffset: Math.random() * 100,
-    charSpeed: 0.4 + Math.random() * 0.9,
-    depth: 0.82 + Math.random() * 0.18,  // high base — near full white
+    charSpeed:  0.4 + Math.random() * 0.8,
+    depth: 0.88 + Math.random() * 0.12,   // near full white
     lockedChar: '',
-  };
-});
+  }));
 
-// Shuffle arrival order
-const lockOrder = particles.map((_, i) => i);
-for (let i = lockOrder.length - 1; i > 0; i--) {
-  const j = Math.floor(Math.random() * (i + 1));
-  [lockOrder[i], lockOrder[j]] = [lockOrder[j], lockOrder[i]];
+  // Shuffle arrival order
+  const order = parts.map((_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+
+  return { parts, order };
 }
+
+let { parts: particles, order: lockOrder } = buildParticles();
+
+// Rebuild on resize so name stays correctly sized
+window.addEventListener('resize', () => {
+  const r = buildParticles();
+  particles = r.parts;
+  lockOrder = r.order;
+});
 
 function renderAscii(_el, t) {
   const cols = SC_COLS(), rows = SC_ROWS();
-
   const arriveTarget = Math.floor((progress / 100) * particles.length);
 
+  // Trigger arrivals
   for (let k = 0; k < arriveTarget; k++) {
     const p = particles[lockOrder[k]];
     if (!p.arrived) {
       p.arrived    = true;
-      p.lockFlicker = 8;
+      p.lockFlicker = 10;
       p.curC        = p.sc;
       p.curR        = p.sr;
       p.lockedChar  = CHARS[Math.floor(rand(p.sc, p.sr, 77) * CHARS.length)];
     }
   }
 
+  // Move travelling particles
   for (let i = 0; i < particles.length; i++) {
     const p = particles[i];
     if (p.arrived) continue;
-    const dc   = p.sc - p.curC;
-    const dr   = p.sr - p.curR;
+    const dc = p.sc - p.curC, dr = p.sr - p.curR;
     const dist = Math.sqrt(dc * dc + dr * dr);
-    if (dist < 0.25) { p.curC = p.sc; p.curR = p.sr; continue; }
-    const ease = dist > 12 ? 0.018 : 0.018 + (1 - dist / 12) * 0.07;
+    if (dist < 0.2) { p.curC = p.sc; p.curR = p.sr; continue; }
+    const ease = dist > 15 ? 0.016 : 0.016 + (1 - dist / 15) * 0.072;
     p.curC += dc * ease;
     p.curR += dr * ease;
   }
 
+  // Draw
   aCtx.clearRect(0, 0, aC.width, aC.height);
-  aCtx.font = `${S_FS}px "Courier New", Courier, monospace`;
+  aCtx.font         = `${S_FS}px "Courier New", Courier, monospace`;
   aCtx.textBaseline = 'top';
 
   for (let i = 0; i < particles.length; i++) {
@@ -770,25 +757,23 @@ function renderAscii(_el, t) {
     if (p.arrived) {
       if (p.lockFlicker > 0) {
         p.lockFlicker--;
-        ch = (p.lockFlicker % 2 === 0)
+        ch = p.lockFlicker % 2 === 0
           ? p.lockedChar
           : CHARS[Math.floor(rand(p.sc, p.sr, t + p.lockFlicker) * CHARS.length)];
       } else {
-        const slowT = Math.floor(t * 0.18 * p.charSpeed + p.charOffset);
-        ch = CHARS[Math.floor(rand(p.sc, p.sr, slowT) * CHARS.length)];
+        // Slow living drift — name stays alive
+        ch = CHARS[Math.floor(rand(p.sc, p.sr, Math.floor(t * 0.15 * p.charSpeed + p.charOffset)) * CHARS.length)];
       }
     } else {
       ch = CHARS[Math.floor(rand(cc, rc, Math.floor(t * p.charSpeed + p.charOffset)) * CHARS.length)];
     }
 
-    // Arrived = full white punch; travelling = slightly dimmer but still visible
-    const alpha = p.arrived ? p.depth : p.depth * 0.5;
+    const alpha = p.arrived ? p.depth : p.depth * 0.45;
     aCtx.fillStyle = `rgba(255,255,255,${alpha})`;
     aCtx.fillText(ch, cc * S_CW, rc * S_CH);
   }
 }
 
-// Hide the old <pre> element — canvas does all drawing now
 function renderAsciiLegacy() {}
 
 /* ── GLITCH TEXT ── */
