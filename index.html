@@ -121,8 +121,8 @@
   }
   #loadScreen.hide { opacity: 0; }
 
-  /* ── ASCII WRAP — NEVER MOVES, same position loading & main ── */
-  /* Desktop: pinned to bottom 11% */
+  /* ── ASCII WRAP — NEVER MOVES ── */
+  /* Desktop: bottom 11%. Mobile: top 52% via media query. Neither changes. */
   .ascii-wrap {
     position: fixed;
     left: 50%;
@@ -131,12 +131,13 @@
     z-index: 210;
     cursor: crosshair;
     pointer-events: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    /* position:relative needed so #loadUi absolute child anchors to this */
+    /* Note: fixed already creates a containing block, so absolute children
+       of a fixed element are positioned relative to it — this is correct. */
   }
 
   #asciiOut {
+    display: block;
     font-size: 8.6px;
     line-height: 1.13;
     letter-spacing: 0.06em;
@@ -147,15 +148,24 @@
     text-shadow: 0 0 14px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,1);
   }
 
-  /* ── LOADING UI — rendered ABOVE the ascii name inside .ascii-wrap ── */
+  /* ── LOADING UI ──
+     position: absolute so it has ZERO effect on ascii layout.
+     bottom: 100% = sits directly above the ascii block with a gap.
+     Hiding it (opacity 0 / remove) cannot shift the ascii position.
+  ── */
   #loadUi {
-    order: -1; /* places it before #asciiOut in flex column */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding-bottom: 18px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 12px;
+    white-space: nowrap;
     opacity: 1;
     transition: opacity 0.5s ease;
+    pointer-events: none;
   }
   #loadUi.hide { opacity: 0; }
 
@@ -249,10 +259,11 @@
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* Mobile: ASCII centered at 52% — never changes */
+    /* Mobile: ASCII at 52% from top — fixed, never changes */
     .ascii-wrap {
       bottom: auto;
       top: 52%;
+      left: 50%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
     }
@@ -423,17 +434,17 @@ const loadInterval = setInterval(() => {
 }, 28);
 
 /* ── TRANSITION ──
-   1. Fade out :/ INITIALISING + bar
+   1. Fade out :/ INITIALISING + bar (opacity 0, stays in DOM so no layout shift)
    2. Fade out black backdrop
    3. Fade in background image / nav
-   ASCII position NEVER changes — background fades in around it
+   ASCII position NEVER changes.
 */
 setTimeout(() => {
   loadUi.classList.add('hide');
   loadScreen.classList.add('hide');
   setTimeout(() => {
     site.classList.add('visible');
-    setTimeout(() => { loadScreen.remove(); loadUi.remove(); }, 1000);
+    setTimeout(() => { loadScreen.remove(); }, 1200);
   }, 500);
 }, 2400);
 
