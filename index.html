@@ -9,8 +9,20 @@
   * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
   *::-webkit-scrollbar { display: none; }
 
-  /* ── SITE — starts invisible, fades in after loading ── */
+  /* ── SCROLL CONTAINER ── */
+  #scrollContainer {
+    position: fixed;
+    inset: 0;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── SITE SECTION 1 — Landing ── */
   .site {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
     min-height: 100vh;
     height: 100vh;
     overflow: hidden;
@@ -109,7 +121,52 @@
   }
   .spacer { flex: 1; }
 
-  /* ── BLACK BACKDROP — z-index below ASCII, fades out ── */
+  /* ── SCROLL HINT ── */
+  .scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+  }
+  .scroll-hint.visible { opacity: 1; }
+  .scroll-hint span {
+    font-family: 'Courier New', monospace;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+  }
+  .scroll-hint-line {
+    width: 1px;
+    height: 32px;
+    background: rgba(255,255,255,0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-hint-line::after {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+    animation: scrollDrop 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollDrop {
+    0% { top: -100%; }
+    100% { top: 100%; }
+  }
+
+  /* ── BLACK BACKDROP ── */
   #loadScreen {
     position: fixed;
     inset: 0;
@@ -121,8 +178,7 @@
   }
   #loadScreen.hide { opacity: 0; }
 
-  /* ── ASCII WRAP — NEVER MOVES ── */
-  /* Desktop: bottom 8%. Mobile: top 63% via media query. Neither changes. */
+  /* ── ASCII WRAP ── */
   .ascii-wrap {
     position: fixed;
     left: 50%;
@@ -149,7 +205,7 @@
       0 0 50px rgba(255,255,255,0.6);
   }
 
-  /* ── LOADING UI — fixed position, JS places it right above ascii letters ── */
+  /* ── LOADING UI ── */
   #loadUi {
     position: fixed;
     left: 50%;
@@ -246,6 +302,126 @@
     text-transform: uppercase;
   }
 
+  /* ══════════════════════════════════════
+     ── VIDEO SECTION ──
+  ══════════════════════════════════════ */
+  .video-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    height: 100vh;
+    width: 100%;
+    position: relative;
+    background: #000;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* The actual video */
+  #showreel {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Pixel canvas sits on top of video, pointer events so it captures mouse */
+  #pixelCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Subtle dark vignette over video */
+  .video-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 50%, rgba(0,0,0,0.55) 100%);
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  /* Top-left label: SHOWREEL — 2025 */
+  .video-label-tl {
+    position: absolute;
+    top: 28px;
+    left: 32px;
+    z-index: 10;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  /* Top-right label */
+  .video-label-tr {
+    position: absolute;
+    top: 28px;
+    right: 32px;
+    z-index: 10;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+
+  /* Bottom progress bar */
+  .video-progress-wrap {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    z-index: 10;
+  }
+  .video-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: rgba(255,255,255,0.7);
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px rgba(255,255,255,0.4);
+  }
+
+  /* Bottom-left: time counter */
+  .video-time {
+    position: absolute;
+    bottom: 18px;
+    left: 32px;
+    z-index: 10;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.35);
+    pointer-events: none;
+  }
+
+  /* Bottom-right: ANDRÉ LARSEN */
+  .video-name {
+    position: absolute;
+    bottom: 18px;
+    right: 32px;
+    z-index: 10;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.25);
+    text-transform: lowercase;
+    pointer-events: none;
+  }
+  .video-name em { font-style: italic; }
+
   /* ── MOBILE ── */
   @media (max-width: 768px) {
     nav {
@@ -257,7 +433,6 @@
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* Mobile: ASCII at 53% from top — at arm/camera level */
     .ascii-wrap {
       bottom: auto;
       top: 53%;
@@ -265,13 +440,19 @@
       transform: translate(-50%, -50%);
       transform-origin: center center;
     }
+
+    .video-label-tl, .video-label-tr { font-size: 8px; letter-spacing: 0.14em; }
+    .video-label-tl { left: 16px; top: 20px; }
+    .video-label-tr { right: 16px; top: 20px; }
+    .video-time { left: 16px; bottom: 14px; }
+    .video-name { right: 16px; bottom: 14px; font-size: 9px; }
   }
 </style>
 
 <!-- Black backdrop -->
 <div id="loadScreen"></div>
 
-<!-- ASCII — fixed in place forever. #loadUi sits above it (order:-1). -->
+<!-- ASCII — fixed in place forever -->
 <div class="ascii-wrap" id="area">
   <div id="loadUi">
     <div id="loadLine1">:/ INITIALISING</div>
@@ -280,31 +461,65 @@
   <div id="asciiOut"></div>
 </div>
 
-<div class="site" id="site">
-  <img class="bg-img" src="IMG_5937.JPG" alt="" />
-  <div class="overlay"></div>
-  <div class="overlay-center"></div>
-  <div class="flicker" id="flicker"></div>
-  <div class="flicker-right" id="flickerRight"></div>
-  <div class="sky-drift"></div>
-  <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;"></canvas>
-  <canvas id="grainCanvas"    style="position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;opacity:0.35;"></canvas>
+<!-- ── SCROLL CONTAINER ── -->
+<div id="scrollContainer">
 
-  <nav>
-    <div class="nav-logo">andré <em>larsen</em></div>
-    <div class="nav-links">
-      <a href="works.html">WORKS</a>
-      <a href="#">ABOUT</a>
-    </div>
-    <div class="nav-center">
-      <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
-      <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
-    </div>
-    <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
-  </nav>
+  <!-- SECTION 1: Landing -->
+  <div class="site" id="site">
+    <img class="bg-img" src="IMG_5937.JPG" alt="" />
+    <div class="overlay"></div>
+    <div class="overlay-center"></div>
+    <div class="flicker" id="flicker"></div>
+    <div class="flicker-right" id="flickerRight"></div>
+    <div class="sky-drift"></div>
+    <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;"></canvas>
+    <canvas id="grainCanvas"    style="position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;opacity:0.35;"></canvas>
 
-  <div class="spacer"></div>
-</div>
+    <nav>
+      <div class="nav-logo">andré <em>larsen</em></div>
+      <div class="nav-links">
+        <a href="works.html">WORKS</a>
+        <a href="#">ABOUT</a>
+      </div>
+      <div class="nav-center">
+        <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
+        <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+      </div>
+      <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
+    </nav>
+
+    <div class="spacer"></div>
+
+    <!-- Scroll hint -->
+    <div class="scroll-hint" id="scrollHint">
+      <span>scroll</span>
+      <div class="scroll-hint-line"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Showreel Video -->
+  <div class="video-section" id="videoSection">
+    <video id="showreel" autoplay muted loop playsinline preload="auto">
+      <source src="showreel.mp4" type="video/mp4">
+    </video>
+
+    <!-- Pixel hover canvas -->
+    <canvas id="pixelCanvas"></canvas>
+
+    <div class="video-vignette"></div>
+
+    <div class="video-label-tl">SHOWREEL — 2025</div>
+    <div class="video-label-tr">VISUAL ARTIST</div>
+
+    <div class="video-progress-wrap">
+      <div class="video-progress-bar" id="videoProgressBar"></div>
+    </div>
+
+    <div class="video-time" id="videoTime">00:00</div>
+    <div class="video-name">andré <em>larsen</em></div>
+  </div>
+
+</div><!-- end scrollContainer -->
 
 <!-- Mobile full-screen menu -->
 <div class="menu-overlay" id="menuOverlay">
@@ -364,7 +579,7 @@ function renderAscii(targetEl, t, mouseCol, mouseRow) {
   const breath    = 0.5 + 0.5 * Math.sin(t * 0.018);
   const threshold = 30 + breath * 40;
   const REPEL_RADIUS = (mouseCol !== -999 && !isMobile) ? 14 : 0;
-  let out = '';
+  const parts = [];
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       let srcCol = c, srcRow = r;
@@ -382,13 +597,13 @@ function renderAscii(targetEl, t, mouseCol, mouseRow) {
       const py = Math.floor(srcRow * CHAR_H + CHAR_H / 2);
       const inB  = px >= 0 && py >= 0 && px < canvas.width && py < canvas.height;
       const alpha = inB ? imgData[(py * canvas.width + px) * 4 + 3] : 0;
-      if (alpha < threshold) { out += ' '; continue; }
+      if (alpha < threshold) { parts.push(' '); continue; }
       const idx = Math.floor(rand(srcCol, srcRow, Math.floor(t * cellSpeed[r * COLS + c] + cellOffset[r * COLS + c])) * CHARS.length);
-      out += CHARS[Math.max(0, Math.min(CHARS.length - 1, idx))];
+      parts.push(CHARS[Math.max(0, Math.min(CHARS.length - 1, idx))]);
     }
-    out += '\n';
+    parts.push('\n');
   }
-  targetEl.textContent = out;
+  targetEl.textContent = parts.join('');
 }
 
 /* ── GLITCH TEXT ── */
@@ -421,6 +636,7 @@ const loadBar    = document.getElementById('loadBar');
 const loadUi     = document.getElementById('loadUi');
 const loadScreen = document.getElementById('loadScreen');
 const site       = document.getElementById('site');
+const scrollHint = document.getElementById('scrollHint');
 
 glitchLine(loadLine1, ':/ INITIALISING', 100);
 
@@ -431,27 +647,22 @@ const loadInterval = setInterval(() => {
   loadBar.style.width = progress + '%';
 }, 28);
 
-/* ── TRANSITION ──
-   1. Fade out :/ INITIALISING + bar (opacity 0, stays in DOM so no layout shift)
-   2. Fade out black backdrop
-   3. Fade in background image / nav
-   ASCII position NEVER changes.
-*/
 setTimeout(() => {
   loadUi.classList.add('hide');
   loadScreen.classList.add('hide');
   setTimeout(() => {
     site.classList.add('visible');
-    setTimeout(() => { loadScreen.remove(); }, 1200);
+    setTimeout(() => {
+      loadScreen.remove();
+      // Show scroll hint after landing is visible
+      setTimeout(() => scrollHint.classList.add('visible'), 800);
+    }, 1200);
   }, 500);
 }, 2400);
 
 /* ── POSITION loadUi just above the visible ascii letters ── */
 function positionLoadUi() {
   const rect = asciiEl.getBoundingClientRect();
-  // rect.top is top of the full pre block (includes blank rows).
-  // We want just above the block's top — but since letters are centered
-  // in the pre block, offset down by ~35% of block height to get near letters.
   const visualTop = rect.top + rect.height * 0.32;
   loadUi.style.top = (visualTop - loadUi.offsetHeight - 8) + 'px';
 }
@@ -465,7 +676,6 @@ if (isMobile) {
   asciiEl.style.letterSpacing = '0.04em';
 }
 
-/* Scale to fit screen on mobile */
 function scaleAscii() {
   if (!isMobile) return;
   const screenW = window.innerWidth;
@@ -476,6 +686,16 @@ function scaleAscii() {
     area.style.transformOrigin = 'center center';
   }
 }
+
+/* Hide ASCII when scrolled to video section */
+const scrollContainer = document.getElementById('scrollContainer');
+scrollContainer.addEventListener('scroll', () => {
+  const scrolled = scrollContainer.scrollTop;
+  const vh = window.innerHeight;
+  const ratio = scrolled / vh; // 0 = landing, 1 = video
+  area.style.opacity = Math.max(0, 1 - ratio * 3).toString();
+  scrollHint.style.opacity = Math.max(0, 1 - ratio * 5).toString();
+});
 
 let mouseCol = -999, mouseRow = -999;
 area.addEventListener('mousemove', e => {
@@ -601,4 +821,131 @@ function animateFlicker() {
   requestAnimationFrame(animateFlicker);
 }
 animateFlicker();
+
+/* ══════════════════════════════════════
+   ── VIDEO PIXEL HOVER EFFECT ──
+   Desktop only. Reads video frames,
+   pixelates a radius around the cursor.
+══════════════════════════════════════ */
+if (!isMobile) {
+  const video      = document.getElementById('showreel');
+  const pxCanvas   = document.getElementById('pixelCanvas');
+  const pxCtx      = pxCanvas.getContext('2d');
+
+  let vMouseX = -999, vMouseY = -999;
+  const videoSection = document.getElementById('videoSection');
+
+  function resizePixelCanvas() {
+    pxCanvas.width  = window.innerWidth;
+    pxCanvas.height = window.innerHeight;
+  }
+  resizePixelCanvas();
+  window.addEventListener('resize', resizePixelCanvas);
+
+  videoSection.addEventListener('mousemove', e => {
+    const rect = videoSection.getBoundingClientRect();
+    vMouseX = e.clientX - rect.left;
+    vMouseY = e.clientY - rect.top;
+    pxCanvas.style.pointerEvents = 'none';
+  });
+  videoSection.addEventListener('mouseleave', () => {
+    vMouseX = -999;
+    vMouseY = -999;
+  });
+
+  // Off-screen canvas to sample video frames
+  const sampleCanvas = document.createElement('canvas');
+  const sampleCtx    = sampleCanvas.getContext('2d');
+  const SAMPLE_W = 320, SAMPLE_H = 180; // low-res sample for performance
+  sampleCanvas.width  = SAMPLE_W;
+  sampleCanvas.height = SAMPLE_H;
+
+  const PIXEL_SIZE   = 18;  // size of each pixel block
+  const EFFECT_RADIUS = 130; // px radius of effect
+
+  function drawPixelEffect() {
+    pxCtx.clearRect(0, 0, pxCanvas.width, pxCanvas.height);
+
+    if (vMouseX === -999 || video.readyState < 2) {
+      requestAnimationFrame(drawPixelEffect);
+      return;
+    }
+
+    // Draw current video frame to sample canvas
+    sampleCtx.drawImage(video, 0, 0, SAMPLE_W, SAMPLE_H);
+    const frameData = sampleCtx.getImageData(0, 0, SAMPLE_W, SAMPLE_H);
+
+    const W = pxCanvas.width;
+    const H = pxCanvas.height;
+
+    // Scale factor from pixel canvas to sample canvas
+    const scaleX = SAMPLE_W / W;
+    const scaleY = SAMPLE_H / H;
+
+    // Draw pixelated blocks in radius around mouse
+    const startX = Math.floor((vMouseX - EFFECT_RADIUS) / PIXEL_SIZE) * PIXEL_SIZE;
+    const startY = Math.floor((vMouseY - EFFECT_RADIUS) / PIXEL_SIZE) * PIXEL_SIZE;
+    const endX   = vMouseX + EFFECT_RADIUS;
+    const endY   = vMouseY + EFFECT_RADIUS;
+
+    for (let bx = startX; bx < endX; bx += PIXEL_SIZE) {
+      for (let by = startY; by < endY; by += PIXEL_SIZE) {
+        const cx = bx + PIXEL_SIZE / 2;
+        const cy = by + PIXEL_SIZE / 2;
+        const dx = cx - vMouseX;
+        const dy = cy - vMouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > EFFECT_RADIUS) continue;
+
+        // Fade at edges of effect
+        const strength = 1 - dist / EFFECT_RADIUS;
+        const alpha = Math.pow(strength, 0.6);
+
+        // Sample color from video frame
+        const sx = Math.floor(cx * scaleX);
+        const sy = Math.floor(cy * scaleY);
+        const clampedSx = Math.max(0, Math.min(SAMPLE_W - 1, sx));
+        const clampedSy = Math.max(0, Math.min(SAMPLE_H - 1, sy));
+        const idx = (clampedSy * SAMPLE_W + clampedSx) * 4;
+        const r = frameData.data[idx];
+        const g = frameData.data[idx + 1];
+        const b = frameData.data[idx + 2];
+
+        pxCtx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+        pxCtx.fillRect(bx, by, PIXEL_SIZE - 1, PIXEL_SIZE - 1);
+      }
+    }
+
+    // Draw a subtle crosshair at cursor center
+    pxCtx.strokeStyle = `rgba(255,255,255,0.25)`;
+    pxCtx.lineWidth = 0.5;
+    pxCtx.beginPath();
+    pxCtx.moveTo(vMouseX - 12, vMouseY);
+    pxCtx.lineTo(vMouseX + 12, vMouseY);
+    pxCtx.moveTo(vMouseX, vMouseY - 12);
+    pxCtx.lineTo(vMouseX, vMouseY + 12);
+    pxCtx.stroke();
+
+    requestAnimationFrame(drawPixelEffect);
+  }
+  drawPixelEffect();
+}
+
+/* ── VIDEO PROGRESS BAR + TIME ── */
+const videoEl      = document.getElementById('showreel');
+const progressBar  = document.getElementById('videoProgressBar');
+const videoTime    = document.getElementById('videoTime');
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+}
+
+videoEl.addEventListener('timeupdate', () => {
+  if (!videoEl.duration) return;
+  const pct = (videoEl.currentTime / videoEl.duration) * 100;
+  progressBar.style.width = pct + '%';
+  videoTime.textContent = formatTime(videoEl.currentTime);
+});
 </script>
