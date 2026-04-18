@@ -324,13 +324,96 @@ const menuClose   = document.getElementById('menuClose');
 menuBtn.addEventListener('click', () => menuOverlay.classList.add('open'));
 menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
 
-/* ── LOADING SCREEN ── */
-const GLITCH_CHARS_LOAD = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
-const loadScreen = document.getElementById('loadScreen');
-const loadBar    = document.getElementById('loadBar');
-const line1      = document.getElementById('loadLine1');
+/* ── SHARED CONSTANTS ── */
+const isMobile = window.innerWidth <= 768;
+const CHARS    = '@#FRT43%=+-.';
+const COLS     = isMobile ? 160 : 195;
+const ROWS     = isMobile ? 42  : 48;
+const CHAR_W   = isMobile ? 6   : 7;
+const CHAR_H   = isMobile ? 9   : 10;
+const FONT_S   = isMobile ? 140 : 112;
+const NAME     = 'André Larsen';
 
-function glitchText(el, finalText, startDelay) {
+function rand(x, y, s) {
+  const v = Math.sin(x * 127.1 + y * 311.7 + s) * 43758.5453;
+  return v - Math.floor(v);
+}
+
+/* ── BUILD SHARED CANVAS (used by both load screen + home) ── */
+const canvas = document.createElement('canvas');
+canvas.width  = COLS * CHAR_W;
+canvas.height = ROWS * CHAR_H;
+const ctx = canvas.getContext('2d');
+ctx.font = `900 italic ${FONT_S}px Arial Black, Arial, sans-serif`;
+ctx.fillStyle = '#fff';
+ctx.textBaseline = 'middle';
+const tw = ctx.measureText(NAME).width;
+ctx.fillText(NAME, (canvas.width - tw) / 2, canvas.height / 2);
+const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+const cellOffset = new Float32Array(COLS * ROWS);
+const cellSpeed  = new Float32Array(COLS * ROWS);
+for (let i = 0; i < COLS * ROWS; i++) {
+  cellOffset[i] = Math.random() * 100;
+  cellSpeed[i]  = 0.5 + Math.random() * 1.0;
+}
+
+/* ── ASCII RENDER FUNCTION (shared) ── */
+function renderAscii(targetEl, t, mouseCol, mouseRow) {
+  const breath    = 0.5 + 0.5 * Math.sin(t * 0.018);
+  const threshold = 30 + breath * 40;
+  const REPEL_RADIUS = (mouseCol !== -999 && !isMobile) ? 14 : 0;
+  let out = '';
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      let srcCol = c, srcRow = r;
+      if (REPEL_RADIUS > 0) {
+        const dx = c - mouseCol;
+        const dy = (r - mouseRow) * 2.2;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < REPEL_RADIUS && dist > 0.5) {
+          const force = Math.pow((REPEL_RADIUS - dist) / REPEL_RADIUS, 1.4);
+          srcCol = c - (dx / dist) * force * REPEL_RADIUS * 0.85;
+          srcRow = r - ((r - mouseRow) / dist) * force * REPEL_RADIUS * 0.85;
+        }
+      }
+      const px = Math.floor(srcCol * CHAR_W + CHAR_W / 2);
+      const py = Math.floor(srcRow * CHAR_H + CHAR_H / 2);
+      const inB  = px >= 0 && py >= 0 && px < canvas.width && py < canvas.height;
+      const alpha = inB ? imgData[(py * canvas.width + px) * 4 + 3] : 0;
+      if (alpha < threshold) { out += ' '; continue; }
+      const idx = Math.floor(rand(srcCol, srcRow, Math.floor(t * cellSpeed[r * COLS + c] + cellOffset[r * COLS + c])) * CHARS.length);
+      out += CHARS[Math.max(0, Math.min(CHARS.length - 1, idx))];
+    }
+    out += '\n';
+  }
+  targetEl.textContent = out;
+}
+
+/* ── LOADING SCREEN ── */
+const loadScreen  = document.getElementById('loadScreen');
+const loadBar     = document.getElementById('loadBar');
+const loadLine1   = document.getElementById('loadLine1');
+const loadAsciiEl = document.getElementById('loadAscii');
+const GLITCH_CHARS_LOAD = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
+
+// Apply same font style to load ascii so it looks identical
+loadAsciiEl.style.fontSize      = isMobile ? '5.5px' : '8.6px';
+loadAsciiEl.style.lineHeight    = '1.13';
+loadAsciiEl.style.letterSpacing = isMobile ? '0.04em' : '0.06em';
+
+// Scale load ascii to fit screen width
+function scaleLoadAscii() {
+  const screenW = window.innerWidth;
+  const w = loadAsciiEl.scrollWidth;
+  if (w > 0) {
+    const scale = (screenW * 0.90) / w;
+    loadAsciiEl.style.transform = `scale(${scale})`;
+    loadAsciiEl.style.transformOrigin = 'center center';
+  }
+}
+
+function glitchLine(el, finalText, startDelay) {
   const scrambled = Array.from(finalText).map(c =>
     (c === ' ' || c === ':' || c === '/') ? c :
     GLITCH_CHARS_LOAD[Math.floor(Math.random() * GLITCH_CHARS_LOAD.length)]
@@ -348,16 +431,14 @@ function glitchText(el, finalText, startDelay) {
         scrambled[i] = finalText[i];
         el.textContent = scrambled.join('');
         i++;
-      } else {
-        el.textContent = finalText;
-        clearInterval(iv);
-      }
+      } else { el.textContent = finalText; clearInterval(iv); }
     }, 40);
   }, startDelay);
 }
 
-glitchText(line1, ':/ INITIALISING', 100);
+glitchLine(loadLine1, ':/ INITIALISING', 100);
 
+// Progress bar
 let progress = 0;
 const loadInterval = setInterval(() => {
   progress += 1.4 + Math.random() * 2;
@@ -365,190 +446,76 @@ const loadInterval = setInterval(() => {
   loadBar.style.width = progress + '%';
 }, 28);
 
-setTimeout(() => {
-  loadScreen.classList.add('hide');
-  setTimeout(() => loadScreen.remove(), 800);
-}, 2400);
-
-
-/* ── ASCII — responsive ── */
-const isMobile = window.innerWidth <= 768;
-
-const COLS   = isMobile ? 160 : 195;
-const ROWS   = isMobile ? 42  : 48;
-const CHAR_W = isMobile ? 6   : 7;
-const CHAR_H = isMobile ? 9   : 10;
-const FONT_S = isMobile ? 140 : 112;
-
-const canvas = document.createElement('canvas');
-canvas.width  = COLS * CHAR_W;
-canvas.height = ROWS * CHAR_H;
-const ctx = canvas.getContext('2d');
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-ctx.font = `900 italic ${FONT_S}px Arial Black, Arial, sans-serif`;
-ctx.fillStyle = '#fff';
-ctx.textBaseline = 'middle';
-const NAME = 'André Larsen';
-const tw = ctx.measureText(NAME).width;
-ctx.fillText(NAME, (canvas.width - tw) / 2, canvas.height / 2);
-const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-/* ── LOADING SCREEN ASCII — same renderer, smaller font ── */
-const loadAsciiEl = document.getElementById('loadAscii');
-const LCOLS = isMobile ? 100 : 130;
-const LROWS = isMobile ? 20  : 26;
-const LCHAR_W = 6, LCHAR_H = 9;
-const LFONT  = isMobile ? 80 : 100;
-
-const lCanvas = document.createElement('canvas');
-lCanvas.width  = LCOLS * LCHAR_W;
-lCanvas.height = LROWS * LCHAR_H;
-const lCtx = lCanvas.getContext('2d');
-lCtx.font = `900 italic ${LFONT}px Arial Black, Arial, sans-serif`;
-lCtx.fillStyle = '#fff';
-lCtx.textBaseline = 'middle';
-const ltw = lCtx.measureText(NAME).width;
-lCtx.fillText(NAME, (lCanvas.width - ltw) / 2, lCanvas.height / 2);
-const lImgData = lCtx.getImageData(0, 0, lCanvas.width, lCanvas.height).data;
-
-const lOffset = new Float32Array(LCOLS * LROWS);
-const lSpeed  = new Float32Array(LCOLS * LROWS);
-for (let i = 0; i < LCOLS * LROWS; i++) {
-  lOffset[i] = Math.random() * 100;
-  lSpeed[i]  = 0.5 + Math.random() * 1.0;
-}
-
+// Drive loading screen with shared renderer
 let lt = 0;
-let loadAnimActive = true;
+let loadActive = true;
+let loadScaled = false;
 function loadFrame() {
-  if (!loadAnimActive) return;
-  const breath = 0.5 + 0.5 * Math.sin(lt * 0.018);
-  const threshold = 30 + breath * 40;
-  let out = '';
-  for (let r = 0; r < LROWS; r++) {
-    for (let c = 0; c < LCOLS; c++) {
-      const px = Math.floor(c * LCHAR_W + LCHAR_W / 2);
-      const py = Math.floor(r * LCHAR_H + LCHAR_H / 2);
-      const inB = px >= 0 && py >= 0 && px < lCanvas.width && py < lCanvas.height;
-      const a = inB ? lImgData[(py * lCanvas.width + px) * 4 + 3] : 0;
-      if (a < threshold) { out += ' '; continue; }
-      const i = r * LCOLS + c;
-      const tick = Math.floor(lt * lSpeed[i] + lOffset[i]);
-      const idx = Math.floor(rand(c, r, tick) * CHARS.length);
-      out += CHARS[Math.max(0, Math.min(CHARS.length - 1, idx))];
-    }
-    out += '\n';
-  }
-  if (loadAsciiEl) loadAsciiEl.textContent = out;
+  if (!loadActive) return;
+  renderAscii(loadAsciiEl, lt, -999, -999);
+  if (!loadScaled) { scaleLoadAscii(); loadScaled = true; }
   lt += 0.05;
   requestAnimationFrame(loadFrame);
 }
 loadFrame();
-// stop load animation when screen is removed
-setTimeout(() => { loadAnimActive = false; }, 3200);
 
-function isLit(col, row) {
-  const px = Math.floor(col * CHAR_W + CHAR_W / 2);
-  const py = Math.floor(row * CHAR_H + CHAR_H / 2);
-  if (px < 0 || py < 0 || px >= canvas.width || py >= canvas.height) return false;
-  return imgData[(py * canvas.width + px) * 4 + 3] > 50;
+setTimeout(() => {
+  loadActive = false;
+  loadScreen.classList.add('hide');
+  setTimeout(() => loadScreen.remove(), 800);
+}, 2400);
+
+/* ── HOME ASCII ── */
+const asciiEl = document.getElementById('asciiOut');
+
+if (isMobile) {
+  asciiEl.style.fontSize      = '5.5px';
+  asciiEl.style.lineHeight    = '1.10';
+  asciiEl.style.letterSpacing = '0.04em';
 }
 
-const CHARS = '@#FRT43%=+-.';
-const cellOffset = new Float32Array(COLS * ROWS);
-const cellSpeed  = new Float32Array(COLS * ROWS);
-for (let i = 0; i < COLS * ROWS; i++) {
-  cellOffset[i] = Math.random() * 100;
-  cellSpeed[i]  = 0.5 + Math.random() * 1.0;
-}
-
-let mouseCol = -999, mouseRow = -999;
-const area = document.getElementById('area');
-area.addEventListener('mousemove', e => {
-  const rect = document.getElementById('asciiOut').getBoundingClientRect();
-  mouseCol = (e.clientX - rect.left) / (rect.width / COLS);
-  mouseRow = (e.clientY - rect.top)  / (rect.height / ROWS);
-});
-area.addEventListener('mouseleave', () => { mouseCol = -999; mouseRow = -999; });
-
-/* Scale ASCII to fit screen width on mobile */
 function scaleAscii() {
   if (!isMobile) return;
-  const el = document.getElementById('asciiOut');
-  const wrap = document.getElementById('area');
   const screenW = window.innerWidth;
-  const asciiW  = el.scrollWidth;
-  if (asciiW > 0) {
-    const scale = (screenW * 0.90) / asciiW;
+  const w = asciiEl.scrollWidth;
+  if (w > 0) {
+    const scale = (screenW * 0.90) / w;
+    const wrap = document.getElementById('area');
     wrap.style.transform = `translate(-50%, -50%) scale(${scale})`;
     wrap.style.transformOrigin = 'center center';
   }
 }
 
-function rand(x, y, s) {
-  const v = Math.sin(x * 127.1 + y * 311.7 + s) * 43758.5453;
-  return v - Math.floor(v);
-}
+let mouseCol = -999, mouseRow = -999;
+const area = document.getElementById('area');
+area.addEventListener('mousemove', e => {
+  const rect = asciiEl.getBoundingClientRect();
+  mouseCol = (e.clientX - rect.left) / (rect.width / COLS);
+  mouseRow = (e.clientY - rect.top)  / (rect.height / ROWS);
+});
+area.addEventListener('mouseleave', () => { mouseCol = -999; mouseRow = -999; });
 
 let t = 0;
-const el = document.getElementById('asciiOut');
 let scaled = false;
-
 function frame() {
-  // breathing: pulse the alpha threshold to make density swell and recede
-  const breath = 0.5 + 0.5 * Math.sin(t * 0.018);
-  const threshold = 30 + breath * 40; // oscillates 30–70
-
-  let out = '';
-  const REPEL_RADIUS = isMobile ? 0 : 14;
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const dx = c - mouseCol;
-      const dy = (r - mouseRow) * 2.2;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      let srcCol = c, srcRow = r;
-      if (dist < REPEL_RADIUS && dist > 0.5) {
-        const force = Math.pow((REPEL_RADIUS - dist) / REPEL_RADIUS, 1.4);
-        const nx = dx / dist;
-        const ny = (r - mouseRow) / dist;
-        srcCol = c - nx * force * REPEL_RADIUS * 0.85;
-        srcRow = r - ny * force * REPEL_RADIUS * 0.85;
-      }
-      const px = Math.floor(srcCol * CHAR_W + CHAR_W / 2);
-      const py = Math.floor(srcRow * CHAR_H + CHAR_H / 2);
-      const inBounds = px >= 0 && py >= 0 && px < canvas.width && py < canvas.height;
-      const alpha = inBounds ? imgData[(py * canvas.width + px) * 4 + 3] : 0;
-      if (alpha < threshold) { out += ' '; continue; }
-      const i = r * COLS + c;
-      const tick = Math.floor(t * cellSpeed[i] + cellOffset[i]);
-      const idx = Math.floor(rand(srcCol, srcRow, tick) * CHARS.length);
-      out += CHARS[Math.max(0, Math.min(CHARS.length - 1, idx))];
-    }
-    out += '\n';
-  }
-  el.textContent = out;
-  t += 0.05;
+  renderAscii(asciiEl, t, mouseCol, mouseRow);
   if (!scaled) { scaleAscii(); scaled = true; }
+  t += 0.05;
   requestAnimationFrame(frame);
 }
 frame();
 
-/* Set mobile font size */
-if (isMobile) {
-  el.style.fontSize   = '5.5px';
-  el.style.lineHeight = '1.10';
-  el.style.letterSpacing = '0.04em';
-}
-
+/* ── NAV GLITCH INTRO ── */
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
-
 const logo = document.querySelector('.nav-logo');
-let blinks = 0;
-const blinkInterval = setInterval(() => {
-  logo.style.opacity = logo.style.opacity === '0' ? '1' : '0';
-  blinks++;
-  if (blinks >= 4) { clearInterval(blinkInterval); logo.style.opacity = '1'; }
-}, 130);
+if (logo) {
+  let blinks = 0;
+  const blinkInterval = setInterval(() => {
+    logo.style.opacity = logo.style.opacity === '0' ? '1' : '0';
+    blinks++;
+    if (blinks >= 4) { clearInterval(blinkInterval); logo.style.opacity = '1'; }
+  }, 130);
+}
 
 function typewriterGlitch(el, delay) {
   const final = el.textContent;
@@ -566,16 +533,12 @@ function typewriterGlitch(el, delay) {
         scrambled[i] = final[i];
         el.textContent = scrambled.join('');
         i++;
-      } else {
-        el.textContent = final;
-        clearInterval(interval);
-      }
+      } else { el.textContent = final; clearInterval(interval); }
     }, 38);
   }, delay);
 }
 
-const typeTargets = document.querySelectorAll('.nav-links a, .nav-center a');
-typeTargets.forEach((el, i) => {
+document.querySelectorAll('.nav-links a, .nav-center a').forEach((el, i) => {
   typewriterGlitch(el, 1500 + i * 100);
 });
 
@@ -616,8 +579,8 @@ function drawParticles() {
   partCtx.clearRect(0, 0, partCanvas.width, partCanvas.height);
   for (let e of embers) {
     e.y -= e.speedY; e.x += e.speedX; e.life += 0.0025;
-    const progress = e.life / e.maxLife;
-    const alpha = progress < 0.2 ? progress / 0.2 : 1 - ((progress - 0.2) / 0.8);
+    const prog = e.life / e.maxLife;
+    const alpha = prog < 0.2 ? prog / 0.2 : 1 - ((prog - 0.2) / 0.8);
     if (alpha <= 0 || e.life >= e.maxLife) { Object.assign(e, spawnEmber()); continue; }
     partCtx.beginPath();
     partCtx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
@@ -643,5 +606,4 @@ function animateFlicker() {
   requestAnimationFrame(animateFlicker);
 }
 animateFlicker();
-
 </script>
