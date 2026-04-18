@@ -191,6 +191,49 @@
     text-transform: uppercase;
   }
 
+  /* ── LOADING SCREEN ── */
+  #loadScreen {
+    position: fixed;
+    inset: 0;
+    background: #0a0604;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 48px 32px;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+  }
+  #loadScreen.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #loadLine1, #loadLine2 {
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  #loadLine1 { font-size: 11px; margin-bottom: 6px; }
+  #loadLine2 { font-size: 11px; opacity: 0.4; }
+  .load-bar-wrap {
+    margin-top: 32px;
+    width: 120px;
+    height: 1px;
+    background: rgba(255,255,255,0.12);
+    position: relative;
+    overflow: hidden;
+  }
+  .load-bar {
+    position: absolute;
+    left: 0; top: 0; height: 100%;
+    width: 0%;
+    background: rgba(255,255,255,0.7);
+    transition: width 0.05s linear;
+  }
+
   /* ── MOBILE STYLES ── */
   @media (max-width: 768px) {
     nav {
@@ -201,16 +244,22 @@
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* ASCII: centered on screen */
+    /* ASCII: lower on screen, into the darker body area */
     .ascii-wrap {
       bottom: auto;
-      top: 50%;
+      top: 62%;
       left: 50%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
     }
   }
 </style>
+
+<div id="loadScreen">
+  <div id="loadLine1">:/ INITIALISING</div>
+  <div id="loadLine2">ANDRE LARSEN — PORTFOLIO</div>
+  <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+</div>
 
 <div class="site">
   <img class="bg-img" src="IMG_5937.JPG" alt="" />
@@ -261,14 +310,63 @@ const menuClose   = document.getElementById('menuClose');
 menuBtn.addEventListener('click', () => menuOverlay.classList.add('open'));
 menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
 
+/* ── LOADING SCREEN ── */
+const GLITCH_CHARS_LOAD = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
+const loadScreen = document.getElementById('loadScreen');
+const loadBar    = document.getElementById('loadBar');
+const line1      = document.getElementById('loadLine1');
+const line2      = document.getElementById('loadLine2');
+
+function glitchText(el, finalText, startDelay) {
+  const scrambled = Array.from(finalText).map(c =>
+    (c === ' ' || c === ':' || c === '/' || c === '—') ? c :
+    GLITCH_CHARS_LOAD[Math.floor(Math.random() * GLITCH_CHARS_LOAD.length)]
+  );
+  el.textContent = scrambled.join('');
+  let i = 0;
+  setTimeout(() => {
+    const iv = setInterval(() => {
+      if (i < finalText.length) {
+        for (let j = i; j < finalText.length; j++) {
+          const c = finalText[j];
+          if (c !== ' ' && c !== ':' && c !== '/' && c !== '—')
+            scrambled[j] = GLITCH_CHARS_LOAD[Math.floor(Math.random() * GLITCH_CHARS_LOAD.length)];
+        }
+        scrambled[i] = finalText[i];
+        el.textContent = scrambled.join('');
+        i++;
+      } else {
+        el.textContent = finalText;
+        clearInterval(iv);
+      }
+    }, 40);
+  }, startDelay);
+}
+
+glitchText(line1, ':/ INITIALISING', 100);
+glitchText(line2, 'ANDRE LARSEN — PORTFOLIO', 400);
+
+let progress = 0;
+const loadInterval = setInterval(() => {
+  progress += 1.4 + Math.random() * 2;
+  if (progress >= 100) { progress = 100; clearInterval(loadInterval); }
+  loadBar.style.width = progress + '%';
+}, 28);
+
+setTimeout(() => {
+  loadScreen.classList.add('hide');
+  setTimeout(() => loadScreen.remove(), 700);
+}, 2000);
+
+
 /* ── ASCII — responsive ── */
 const isMobile = window.innerWidth <= 768;
 
-const COLS   = isMobile ? 80  : 195;
-const ROWS   = isMobile ? 22  : 48;
+const COLS   = isMobile ? 110 : 195;
+const ROWS   = isMobile ? 28  : 48;
 const CHAR_W = isMobile ? 6   : 7;
 const CHAR_H = isMobile ? 9   : 10;
-const FONT_S = isMobile ? 56  : 112;
+const FONT_S = isMobile ? 88  : 112;
 
 const canvas = document.createElement('canvas');
 canvas.width  = COLS * CHAR_W;
@@ -315,7 +413,7 @@ function scaleAscii() {
   const screenW = window.innerWidth;
   const asciiW  = el.scrollWidth;
   if (asciiW > 0) {
-    const scale = (screenW * 0.92) / asciiW;
+    const scale = (screenW * 0.96) / asciiW;
     wrap.style.transform = `translate(-50%, -50%) scale(${scale})`;
     wrap.style.transformOrigin = 'center center';
   }
