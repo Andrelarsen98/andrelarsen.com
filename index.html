@@ -241,14 +241,14 @@
       padding: 22px 20px 0;
       align-items: center;
     }
-    .nav-logo { font-size: 13px; }
+    .nav-logo { font-size: 13px; display: none; }
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* ASCII: at the green-marked spot — just below hands/camera */
+    /* ASCII: at the white-marked spot */
     .ascii-wrap {
       bottom: auto;
-      top: 57%;
+      top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
@@ -363,11 +363,11 @@ setTimeout(() => {
 /* ── ASCII — responsive ── */
 const isMobile = window.innerWidth <= 768;
 
-const COLS   = isMobile ? 120 : 195;
-const ROWS   = isMobile ? 32  : 48;
+const COLS   = isMobile ? 140 : 195;
+const ROWS   = isMobile ? 38  : 48;
 const CHAR_W = isMobile ? 6   : 7;
 const CHAR_H = isMobile ? 9   : 10;
-const FONT_S = isMobile ? 100 : 112;
+const FONT_S = isMobile ? 120 : 112;
 
 const canvas = document.createElement('canvas');
 canvas.width  = COLS * CHAR_W;
