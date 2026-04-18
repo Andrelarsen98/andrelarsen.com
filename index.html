@@ -117,12 +117,13 @@
 
   /* ── ASCII ── */
   .ascii-wrap {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     bottom: 11%;
-    z-index: 20;
+    z-index: 210;
     cursor: crosshair;
+    pointer-events: none;
   }
   #asciiOut {
     font-size: 8.6px;
@@ -201,8 +202,9 @@
     z-index: 200;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
+    padding-bottom: 38vh;
     opacity: 1;
     transition: opacity 0.8s ease;
   }
@@ -258,20 +260,25 @@
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* ASCII: between the two marked spots ~54% */
+    /* ASCII: fixed position on mobile */
     .ascii-wrap {
       bottom: auto;
       top: 54%;
       left: 50%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
+      pointer-events: none;
     }
   }
 </style>
 
+<!-- Single ASCII — fixed in place, persists through load → home transition -->
+<div class="ascii-wrap" id="area">
+  <div id="asciiOut"></div>
+</div>
+
 <div id="loadScreen">
   <div id="loadLine1">:/ INITIALISING</div>
-  <div id="loadAscii"></div>
   <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
 </div>
 
@@ -284,10 +291,6 @@
   <div class="sky-drift"></div>
   <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;"></canvas>
   <canvas id="grainCanvas"    style="position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;opacity:0.35;"></canvas>
-
-  <div class="ascii-wrap" id="area">
-    <div id="asciiOut"></div>
-  </div>
 
   <nav>
     <div class="nav-logo">andré <em>larsen</em></div>
@@ -327,11 +330,11 @@ menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
 /* ── SHARED CONSTANTS ── */
 const isMobile = window.innerWidth <= 768;
 const CHARS    = '@#FRT43%=+-.';
-const COLS     = isMobile ? 160 : 195;
-const ROWS     = isMobile ? 42  : 48;
+const COLS     = isMobile ? 140 : 195;
+const ROWS     = isMobile ? 36  : 48;
 const CHAR_W   = isMobile ? 6   : 7;
 const CHAR_H   = isMobile ? 9   : 10;
-const FONT_S   = isMobile ? 140 : 112;
+const FONT_S   = isMobile ? 120 : 112;
 const NAME     = 'André Larsen';
 
 function rand(x, y, s) {
@@ -394,24 +397,7 @@ function renderAscii(targetEl, t, mouseCol, mouseRow) {
 const loadScreen  = document.getElementById('loadScreen');
 const loadBar     = document.getElementById('loadBar');
 const loadLine1   = document.getElementById('loadLine1');
-const loadAsciiEl = document.getElementById('loadAscii');
 const GLITCH_CHARS_LOAD = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
-
-// Apply same font style to load ascii so it looks identical
-loadAsciiEl.style.fontSize      = isMobile ? '5.5px' : '8.6px';
-loadAsciiEl.style.lineHeight    = '1.13';
-loadAsciiEl.style.letterSpacing = isMobile ? '0.04em' : '0.06em';
-
-// Scale load ascii to fit screen width
-function scaleLoadAscii() {
-  const screenW = window.innerWidth;
-  const w = loadAsciiEl.scrollWidth;
-  if (w > 0) {
-    const scale = (screenW * 0.90) / w;
-    loadAsciiEl.style.transform = `scale(${scale})`;
-    loadAsciiEl.style.transformOrigin = 'center center';
-  }
-}
 
 function glitchLine(el, finalText, startDelay) {
   const scrambled = Array.from(finalText).map(c =>
@@ -438,7 +424,6 @@ function glitchLine(el, finalText, startDelay) {
 
 glitchLine(loadLine1, ':/ INITIALISING', 100);
 
-// Progress bar
 let progress = 0;
 const loadInterval = setInterval(() => {
   progress += 1.4 + Math.random() * 2;
@@ -446,26 +431,13 @@ const loadInterval = setInterval(() => {
   loadBar.style.width = progress + '%';
 }, 28);
 
-// Drive loading screen with shared renderer
-let lt = 0;
-let loadActive = true;
-let loadScaled = false;
-function loadFrame() {
-  if (!loadActive) return;
-  renderAscii(loadAsciiEl, lt, -999, -999);
-  if (!loadScaled) { scaleLoadAscii(); loadScaled = true; }
-  lt += 0.05;
-  requestAnimationFrame(loadFrame);
-}
-loadFrame();
-
+// Fade out load screen — ASCII stays fixed in place, perfectly continuous
 setTimeout(() => {
-  loadActive = false;
   loadScreen.classList.add('hide');
   setTimeout(() => loadScreen.remove(), 800);
 }, 2400);
 
-/* ── HOME ASCII ── */
+/* ── SINGLE ASCII (persists through load → home) ── */
 const asciiEl = document.getElementById('asciiOut');
 
 if (isMobile) {
@@ -479,9 +451,8 @@ function scaleAscii() {
   const screenW = window.innerWidth;
   const w = asciiEl.scrollWidth;
   if (w > 0) {
-    const scale = (screenW * 0.90) / w;
     const wrap = document.getElementById('area');
-    wrap.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    wrap.style.transform = `translate(-50%, -50%) scale(${(screenW * 0.90) / w})`;
     wrap.style.transformOrigin = 'center center';
   }
 }
