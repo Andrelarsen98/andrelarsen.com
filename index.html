@@ -1,4 +1,5 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preload" as="image" href="IMG_5937.JPG">
 
 <style>
   html, body {
@@ -708,16 +709,20 @@ const site       = document.getElementById('site');
 
 glitchLine(loadLine1, ':/ INITIALISING', 100);
 
+
 let progress = 0;
 const loadInterval = setInterval(() => {
-  progress += 2.8 + Math.random() * 3.5;
+  progress += 1.4 + Math.random() * 2;
   if (progress >= 100) { progress = 100; clearInterval(loadInterval); }
   loadBar.style.width = progress + '%';
-}, 18);
+}, 28);
 
-setTimeout(() => {
+/* Preload the lava image so it's fully decoded before we reveal the site */
+const bgPreload = new Image();
+bgPreload.src = 'IMG_5937.JPG';
+
+function doReveal() {
   loadUi.classList.add('hide');
-  // Brief pause then fade
   setTimeout(() => {
     area.classList.add('hidden');
     loadScreen.classList.add('hide');
@@ -726,10 +731,24 @@ setTimeout(() => {
       setTimeout(() => {
         loadScreen.remove();
         asciiRunning = false;
-      }, 900);
-    }, 300);
-  }, 400);
-}, 1400);
+      }, 1200);
+    }, 500);
+  }, 1000);
+}
+
+// Wait for BOTH the 2.4s timer AND the image to be loaded before revealing
+let timerDone = false;
+let imageDone = false;
+function checkReveal() {
+  if (timerDone && imageDone) doReveal();
+}
+setTimeout(() => { timerDone = true; checkReveal(); }, 2400);
+if (bgPreload.complete) {
+  imageDone = true;
+} else {
+  bgPreload.onload = bgPreload.onerror = () => { imageDone = true; checkReveal(); };
+}
+
 
 /* ── POSITION loadUi just above the visible ascii letters ── */
 function positionLoadUi() {
