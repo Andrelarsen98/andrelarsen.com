@@ -14,10 +14,9 @@
     position: fixed;
     inset: 0;
     overflow-y: scroll;
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    /* Smoother on mobile */
     will-change: scroll-position;
   }
 
@@ -443,8 +442,8 @@
       transform-origin: center center;
     }
 
-    /* Mobile: show full video, no crop */
-    #showreel { object-fit: contain; background: #000; }
+    /* Mobile: full width video, no black bars */
+    #showreel { object-fit: cover; width: 100%; height: 100%; }
     .video-vignette { display: none; }
 
     /* Softer snap on mobile */
@@ -696,15 +695,17 @@ function scaleAscii() {
   }
 }
 
-/* Hide ASCII when scrolled to video section */
+/* Hide/pause ASCII when scrolled to video section */
 const scrollContainer = document.getElementById('scrollContainer');
+let onLandingPage = true;
 scrollContainer.addEventListener('scroll', () => {
   const scrolled = scrollContainer.scrollTop;
   const vh = window.innerHeight;
-  const ratio = scrolled / vh; // 0 = landing, 1 = video
+  const ratio = scrolled / vh;
+  onLandingPage = ratio < 0.5;
   area.style.opacity = Math.max(0, 1 - ratio * 3).toString();
   scrollHint.style.opacity = Math.max(0, 1 - ratio * 5).toString();
-});
+}, { passive: true });
 
 let mouseCol = -999, mouseRow = -999;
 area.addEventListener('mousemove', e => {
@@ -718,13 +719,15 @@ let t = 0;
 let scaled = false;
 let uiPositioned = false;
 function frame() {
-  renderAscii(asciiEl, t, mouseCol, mouseRow);
+  if (onLandingPage) {
+    renderAscii(asciiEl, t, mouseCol, mouseRow);
+    t += 0.05;
+  }
   if (!scaled) { scaleAscii(); scaled = true; }
   if (!uiPositioned && asciiEl.getBoundingClientRect().height > 0) {
     positionLoadUi();
     uiPositioned = true;
   }
-  t += 0.05;
   requestAnimationFrame(frame);
 }
 frame();
@@ -869,10 +872,16 @@ if (!isMobile) {
   sampleCanvas.width  = SAMPLE_W;
   sampleCanvas.height = SAMPLE_H;
 
-  const PIXEL_SIZE   = 18;  // size of each pixel block
+  const PIXEL_SIZE    = 18;  // size of each pixel block
   const EFFECT_RADIUS = 130; // px radius of effect
+  let pixelFrame = 0;
 
   function drawPixelEffect() {
+    pixelFrame++;
+    // Only re-sample video frame every 3 rAF ticks (~20fps) for performance
+    const shouldSample = pixelFrame % 3 === 0;
+
+    if (!shouldSample) { requestAnimationFrame(drawPixelEffect); return; }
     pxCtx.clearRect(0, 0, pxCanvas.width, pxCanvas.height);
 
     if (vMouseX === -999 || video.readyState < 2) {
