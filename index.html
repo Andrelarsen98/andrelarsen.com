@@ -145,14 +145,9 @@
     text-shadow: 0 0 14px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,1);
   }
 
-  /* ── LOADING UI ──
-     position: absolute so it has ZERO effect on ascii layout.
-     bottom: 100% = sits directly above the ascii block with a gap.
-     Hiding it (opacity 0 / remove) cannot shift the ascii position.
-  ── */
+  /* ── LOADING UI — fixed position, JS places it right above ascii letters ── */
   #loadUi {
-    position: absolute;
-    top: -28px;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -162,6 +157,7 @@
     opacity: 1;
     transition: opacity 0.5s ease;
     pointer-events: none;
+    z-index: 211;
   }
   #loadUi.hide { opacity: 0; }
 
@@ -444,7 +440,16 @@ setTimeout(() => {
   }, 500);
 }, 2400);
 
-/* ── ASCII SETUP ── */
+/* ── POSITION loadUi just above the visible ascii letters ── */
+function positionLoadUi() {
+  const rect = asciiEl.getBoundingClientRect();
+  // rect.top is top of the full pre block (includes blank rows).
+  // We want just above the block's top — but since letters are centered
+  // in the pre block, offset down by ~35% of block height to get near letters.
+  const visualTop = rect.top + rect.height * 0.32;
+  loadUi.style.top = (visualTop - loadUi.offsetHeight - 8) + 'px';
+}
+
 const asciiEl = document.getElementById('asciiOut');
 const area    = document.getElementById('area');
 
@@ -476,9 +481,14 @@ area.addEventListener('mouseleave', () => { mouseCol = -999; mouseRow = -999; })
 
 let t = 0;
 let scaled = false;
+let uiPositioned = false;
 function frame() {
   renderAscii(asciiEl, t, mouseCol, mouseRow);
   if (!scaled) { scaleAscii(); scaled = true; }
+  if (!uiPositioned && asciiEl.getBoundingClientRect().height > 0) {
+    positionLoadUi();
+    uiPositioned = true;
+  }
   t += 0.05;
   requestAnimationFrame(frame);
 }
