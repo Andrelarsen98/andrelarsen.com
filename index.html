@@ -635,9 +635,10 @@ const aC        = document.getElementById('asciiCanvas');
 const aCtx      = aC.getContext('2d');
 
 // Character cell size in screen pixels
-const S_CW = isMobile ? 7  : 8;   // cell width  (px)
-const S_CH = isMobile ? 11 : 12;  // cell height (px)
-const S_FS = isMobile ? 6  : 7;   // font size   (px)
+// Mobile: smaller cells so the name fits within the viewport width
+const S_CW = isMobile ? 5  : 8;   // cell width  (px)
+const S_CH = isMobile ? 8  : 12;  // cell height (px)
+const S_FS = isMobile ? 5  : 7;   // font size   (px)
 
 function resizeAsciiCanvas() {
   aC.width  = window.innerWidth;
@@ -653,61 +654,74 @@ const SC_COLS = () => Math.ceil(window.innerWidth  / S_CW);
 const SC_ROWS = () => Math.ceil(window.innerHeight / S_CH);
 
 // ── Build name mask at screen coordinates ──
-// Re-sample the name canvas into screen space
+// Scale name block so it never exceeds 92% of viewport width on mobile
 function buildNameCells() {
-  // Where the name block sits on screen (centered, vertically ~50%)
   const cols = SC_COLS(), rows = SC_ROWS();
-  const namePixW = canvas.width;   // name canvas pixel width
+  const namePixW = canvas.width;
   const namePixH = canvas.height;
 
-  // Name block occupies the same cols/rows as the original COLS×ROWS grid
-  // centered in the screen grid
-  const blockCols = COLS;
-  const blockRows = ROWS;
+  // Raw name block size in screen cells
+  let blockCols = COLS;
+  let blockRows = ROWS;
+
+  // On mobile, shrink the block so it fits inside the screen width
+  const maxCols = Math.floor(cols * 0.92);
+  let scale = 1;
+  if (isMobile && blockCols > maxCols) {
+    scale = maxCols / blockCols;
+    blockCols = maxCols;
+    blockRows = Math.round(ROWS * scale);
+  }
+
   const offC = Math.round((cols - blockCols) / 2);
   const offR = Math.round((rows - blockRows) / 2);
 
   const cells = [];
-  for (let r = 0; r < blockRows; r++) {
-    for (let c = 0; c < blockCols; c++) {
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
       const px = Math.floor(c * CHAR_W + CHAR_W / 2);
       const py = Math.floor(r * CHAR_H + CHAR_H / 2);
       if (px < 0 || py < 0 || px >= namePixW || py >= namePixH) continue;
       if (imgData[(py * namePixW + px) * 4 + 3] >= 28) {
-        cells.push({
-          sc: offC + c,   // screen column (final)
-          sr: offR + r,   // screen row    (final)
-        });
+        // Map original grid cell → scaled screen cell
+        const sc = offC + Math.round(c * scale);
+        const sr = offR + Math.round(r * scale);
+        cells.push({ sc, sr });
       }
     }
   }
-  return { cells, offC, offR };
+
+  // Deduplicate cells that map to the same screen position after scaling
+  const seen = new Set();
+  return cells.filter(({ sc, sr }) => {
+    const key = sc * 10000 + sr;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
-const { cells: nameCells } = buildNameCells();
+const nameCells = buildNameCells();
 
 // ── Particles — one per name cell, origin anywhere on screen ──
 const particles = nameCells.map(({ sc, sr }) => {
   const cols = SC_COLS(), rows = SC_ROWS();
-  // Spawn from random position across the entire screen
   const startC = Math.random() * cols;
   const startR = Math.random() * rows;
   return {
-    sc, sr,           // target screen cell
+    sc, sr,
     curC: startC,
     curR: startR,
-    arrived: false,   // in final position (but still animating char)
+    arrived: false,
     lockFlicker: 0,
     charOffset: Math.random() * 100,
     charSpeed: 0.4 + Math.random() * 0.9,
-    // depth: subtle opacity variation for parallax feel
-    depth: 0.55 + Math.random() * 0.45,
-    // locked char (set on arrival)
+    depth: 0.82 + Math.random() * 0.18,  // high base — near full white
     lockedChar: '',
   };
 });
 
-// Shuffle arrival order so chars assemble from all over simultaneously
+// Shuffle arrival order
 const lockOrder = particles.map((_, i) => i);
 for (let i = lockOrder.length - 1; i > 0; i--) {
   const j = Math.floor(Math.random() * (i + 1));
@@ -717,14 +731,12 @@ for (let i = lockOrder.length - 1; i > 0; i--) {
 function renderAscii(_el, t) {
   const cols = SC_COLS(), rows = SC_ROWS();
 
-  // How many should be arrived based on progress
   const arriveTarget = Math.floor((progress / 100) * particles.length);
 
-  // Trigger arrivals
   for (let k = 0; k < arriveTarget; k++) {
     const p = particles[lockOrder[k]];
     if (!p.arrived) {
-      p.arrived     = true;
+      p.arrived    = true;
       p.lockFlicker = 8;
       p.curC        = p.sc;
       p.curR        = p.sr;
@@ -732,7 +744,6 @@ function renderAscii(_el, t) {
     }
   }
 
-  // Move travelling particles
   for (let i = 0; i < particles.length; i++) {
     const p = particles[i];
     if (p.arrived) continue;
@@ -740,13 +751,11 @@ function renderAscii(_el, t) {
     const dr   = p.sr - p.curR;
     const dist = Math.sqrt(dc * dc + dr * dr);
     if (dist < 0.25) { p.curC = p.sc; p.curR = p.sr; continue; }
-    // Ease: gentle far away, pulls harder within 12 cells
     const ease = dist > 12 ? 0.018 : 0.018 + (1 - dist / 12) * 0.07;
     p.curC += dc * ease;
     p.curR += dr * ease;
   }
 
-  // Draw
   aCtx.clearRect(0, 0, aC.width, aC.height);
   aCtx.font = `${S_FS}px "Courier New", Courier, monospace`;
   aCtx.textBaseline = 'top';
@@ -765,24 +774,22 @@ function renderAscii(_el, t) {
           ? p.lockedChar
           : CHARS[Math.floor(rand(p.sc, p.sr, t + p.lockFlicker) * CHARS.length)];
       } else {
-        // Stay alive: slow symbol drift after arriving
         const slowT = Math.floor(t * 0.18 * p.charSpeed + p.charOffset);
         ch = CHARS[Math.floor(rand(p.sc, p.sr, slowT) * CHARS.length)];
       }
     } else {
-      // Travelling: fast char cycling
       ch = CHARS[Math.floor(rand(cc, rc, Math.floor(t * p.charSpeed + p.charOffset)) * CHARS.length)];
     }
 
-    // Opacity: arrived chars at full depth, travelling slightly dimmer
-    const alpha = p.arrived ? p.depth : p.depth * 0.65;
+    // Arrived = full white punch; travelling = slightly dimmer but still visible
+    const alpha = p.arrived ? p.depth : p.depth * 0.5;
     aCtx.fillStyle = `rgba(255,255,255,${alpha})`;
     aCtx.fillText(ch, cc * S_CW, rc * S_CH);
   }
 }
 
 // Hide the old <pre> element — canvas does all drawing now
-function renderAsciiLegacy() {}  // no-op stub so old call sites don't break
+function renderAsciiLegacy() {}
 
 /* ── GLITCH TEXT ── */
 const GLITCH_CHARS_LOAD = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
