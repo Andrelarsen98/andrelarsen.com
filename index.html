@@ -122,18 +122,15 @@
   #loadScreen.hide { opacity: 0; }
 
   /* ── ASCII WRAP — NEVER MOVES ── */
-  /* Desktop: bottom 11%. Mobile: top 52% via media query. Neither changes. */
+  /* Desktop: bottom 8%. Mobile: top 63% via media query. Neither changes. */
   .ascii-wrap {
     position: fixed;
     left: 50%;
-    bottom: 11%;
+    bottom: 8%;
     transform: translateX(-50%);
     z-index: 210;
     cursor: crosshair;
     pointer-events: none;
-    /* position:relative needed so #loadUi absolute child anchors to this */
-    /* Note: fixed already creates a containing block, so absolute children
-       of a fixed element are positioned relative to it — this is correct. */
   }
 
   #asciiOut {
@@ -158,7 +155,7 @@
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    padding-bottom: 18px;
+    padding-bottom: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -259,10 +256,10 @@
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* Mobile: ASCII at 52% from top — fixed, never changes */
+    /* Mobile: ASCII at 63% from top — in darker zone, fixed, never changes */
     .ascii-wrap {
       bottom: auto;
-      top: 52%;
+      top: 63%;
       left: 50%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
