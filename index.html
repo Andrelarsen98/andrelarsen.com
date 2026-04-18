@@ -418,7 +418,7 @@
   /* ASCII name — full width canvas rendered here */
   .footer-ascii-wrap {
     width: 100%;
-    padding: 60px 0 40px;
+    padding: 40px 0 0;
     display: flex;
     justify-content: center;
     overflow: hidden;
@@ -441,14 +441,14 @@
   .footer-info {
     display: flex;
     justify-content: space-between;
-    padding: 32px 32px 0;
+    padding: 14px 32px 0;
     border-top: 1px solid rgba(255,255,255,0.08);
     font-family: 'Courier New', monospace;
-    font-size: 9.5px;
-    letter-spacing: 0.14em;
-    color: rgba(255,255,255,0.45);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.35);
     text-transform: uppercase;
-    line-height: 1.8;
+    line-height: 1.6;
   }
   .footer-info a {
     color: rgba(255,255,255,0.45);
@@ -457,9 +457,9 @@
   .footer-info a:hover { color: #fff; }
   .footer-col { display: flex; flex-direction: column; }
   .footer-col-label {
-    color: rgba(255,255,255,0.2);
-    font-size: 8px;
-    margin-bottom: 6px;
+    color: rgba(255,255,255,0.15);
+    font-size: 7px;
+    margin-bottom: 4px;
     letter-spacing: 0.2em;
   }
 
@@ -468,13 +468,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px 32px;
-    margin-top: 32px;
+    padding: 10px 32px;
+    margin-top: 16px;
     border-top: 1px solid rgba(255,255,255,0.08);
     font-family: 'Courier New', monospace;
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 0.22em;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.35);
     text-transform: uppercase;
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease;
@@ -1037,7 +1037,7 @@ videoEl.addEventListener('timeupdate', () => {
   // Each char is ~6px wide at font-size 5.5px
   const CHAR_PX   = 5.5;
   const F_COLS    = Math.floor(window.innerWidth / (CHAR_PX * 0.62));
-  const F_ROWS    = 28;
+  const F_ROWS    = 38;
   const F_CHAR_W  = Math.floor(window.innerWidth / F_COLS);
   const F_CHAR_H  = 10;
   const F_FONT_S  = 160; // large so name fills width
@@ -1052,7 +1052,7 @@ videoEl.addEventListener('timeupdate', () => {
   let fontSize = F_FONT_S;
   fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
   let nameW = fCtx.measureText(FOOTER_NAME).width;
-  const targetW = fCanvas.width * 0.92;
+  const targetW = fCanvas.width * 0.99;
   fontSize = fontSize * (targetW / nameW);
   fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
 
