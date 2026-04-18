@@ -45,19 +45,13 @@
   .overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(0,0,0,0.38) 0%,
-      rgba(0,0,0,0.10) 40%,
-      rgba(0,0,0,0.10) 60%,
-      rgba(0,0,0,0.52) 100%
-    );
+    background: none;
     z-index: 1;
   }
   .overlay-center {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 60% 30% at 50% 72%, rgba(0,0,0,0.45) 0%, transparent 100%);
+    background: none;
     z-index: 2;
   }
   .flicker {
@@ -72,9 +66,8 @@
   }
   .sky-drift {
     position: absolute; top: 0; left: 0; right: 0; height: 55%;
-    background: radial-gradient(ellipse 60% 80% at 70% 20%, rgba(20,5,40,0.18) 0%, transparent 70%);
+    background: none;
     z-index: 3; pointer-events: none;
-    animation: skyDrift 18s ease-in-out infinite alternate;
   }
   @keyframes skyDrift {
     from { transform: translateX(0px) scale(1); opacity: 0.6; }
@@ -717,26 +710,26 @@ glitchLine(loadLine1, ':/ INITIALISING', 100);
 
 let progress = 0;
 const loadInterval = setInterval(() => {
-  progress += 1.4 + Math.random() * 2;
+  progress += 2.8 + Math.random() * 3.5;
   if (progress >= 100) { progress = 100; clearInterval(loadInterval); }
   loadBar.style.width = progress + '%';
-}, 28);
+}, 18);
 
 setTimeout(() => {
   loadUi.classList.add('hide');
-  // Let ASCII shine alone for 1 extra second before fading
+  // Brief pause then fade
   setTimeout(() => {
-    area.classList.add('hidden'); // fade ASCII out
+    area.classList.add('hidden');
     loadScreen.classList.add('hide');
     setTimeout(() => {
       site.classList.add('visible');
       setTimeout(() => {
         loadScreen.remove();
-        asciiRunning = false; // stop ASCII rAF — frees CPU permanently
-      }, 1200);
-    }, 500);
-  }, 1000);
-}, 2400);
+        asciiRunning = false;
+      }, 900);
+    }, 300);
+  }, 400);
+}, 1400);
 
 /* ── POSITION loadUi just above the visible ascii letters ── */
 function positionLoadUi() {
