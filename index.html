@@ -4,8 +4,10 @@
   html, body {
     background: #0a0604;
     margin: 0; padding: 0;
+    overflow: hidden;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
 
   .site {
     min-height: 100vh;
@@ -415,7 +417,7 @@ function scaleAscii() {
   const screenW = window.innerWidth;
   const asciiW  = el.scrollWidth;
   if (asciiW > 0) {
-    const scale = (screenW * 0.96) / asciiW;
+    const scale = (screenW * 0.90) / asciiW;
     wrap.style.transform = `translate(-50%, -50%) scale(${scale})`;
     wrap.style.transformOrigin = 'center center';
   }
