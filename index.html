@@ -274,6 +274,7 @@
   <div class="sky-drift"></div>
   <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;"></canvas>
   <canvas id="grainCanvas"    style="position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;opacity:0.35;"></canvas>
+  <canvas id="scanlineCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none;opacity:0.18;"></canvas>
 
   <div class="ascii-wrap" id="area">
     <div id="asciiOut"></div>
@@ -314,16 +315,41 @@ const menuClose   = document.getElementById('menuClose');
 menuBtn.addEventListener('click', () => menuOverlay.classList.add('open'));
 menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
 
-/* ── LOADING SCREEN ── */
+/* ── LOADING SCREEN — ASCII assembly ── */
 const GLITCH_CHARS_LOAD = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
 const loadScreen = document.getElementById('loadScreen');
 const loadBar    = document.getElementById('loadBar');
 const line1      = document.getElementById('loadLine1');
 const line2      = document.getElementById('loadLine2');
 
+// line2 assembles character by character like the name is being typed out of static
+function assembleText(el, finalText, startDelay, onDone) {
+  const arr = Array.from(finalText).map(() => ' ');
+  el.textContent = arr.join('');
+  let i = 0;
+  setTimeout(() => {
+    const iv = setInterval(() => {
+      if (i < finalText.length) {
+        // scramble remaining
+        for (let j = i; j < finalText.length; j++) {
+          arr[j] = finalText[j] === ' ' ? ' ' :
+            GLITCH_CHARS_LOAD[Math.floor(Math.random() * GLITCH_CHARS_LOAD.length)];
+        }
+        arr[i] = finalText[i];
+        el.textContent = arr.join('');
+        i++;
+      } else {
+        el.textContent = finalText;
+        clearInterval(iv);
+        if (onDone) onDone();
+      }
+    }, 55);
+  }, startDelay);
+}
+
 function glitchText(el, finalText, startDelay) {
   const scrambled = Array.from(finalText).map(c =>
-    (c === ' ' || c === ':' || c === '/' || c === '—') ? c :
+    (c === ' ' || c === ':' || c === '/') ? c :
     GLITCH_CHARS_LOAD[Math.floor(Math.random() * GLITCH_CHARS_LOAD.length)]
   );
   el.textContent = scrambled.join('');
@@ -333,7 +359,7 @@ function glitchText(el, finalText, startDelay) {
       if (i < finalText.length) {
         for (let j = i; j < finalText.length; j++) {
           const c = finalText[j];
-          if (c !== ' ' && c !== ':' && c !== '/' && c !== '—')
+          if (c !== ' ' && c !== ':' && c !== '/')
             scrambled[j] = GLITCH_CHARS_LOAD[Math.floor(Math.random() * GLITCH_CHARS_LOAD.length)];
         }
         scrambled[i] = finalText[i];
@@ -348,7 +374,7 @@ function glitchText(el, finalText, startDelay) {
 }
 
 glitchText(line1, ':/ INITIALISING', 100);
-glitchText(line2, 'ANDRE LARSEN', 400);
+assembleText(line2, 'ANDRE LARSEN', 500);
 
 let progress = 0;
 const loadInterval = setInterval(() => {
@@ -360,7 +386,7 @@ const loadInterval = setInterval(() => {
 setTimeout(() => {
   loadScreen.classList.add('hide');
   setTimeout(() => loadScreen.remove(), 700);
-}, 2000);
+}, 2200);
 
 
 /* ── ASCII — responsive ── */
@@ -433,6 +459,10 @@ const el = document.getElementById('asciiOut');
 let scaled = false;
 
 function frame() {
+  // breathing: pulse the alpha threshold to make density swell and recede
+  const breath = 0.5 + 0.5 * Math.sin(t * 0.018);
+  const threshold = 30 + breath * 40; // oscillates 30–70
+
   let out = '';
   const REPEL_RADIUS = isMobile ? 0 : 14;
   for (let r = 0; r < ROWS; r++) {
@@ -448,7 +478,11 @@ function frame() {
         srcCol = c - nx * force * REPEL_RADIUS * 0.85;
         srcRow = r - ny * force * REPEL_RADIUS * 0.85;
       }
-      if (!isLit(srcCol, srcRow)) { out += ' '; continue; }
+      const px = Math.floor(srcCol * CHAR_W + CHAR_W / 2);
+      const py = Math.floor(srcRow * CHAR_H + CHAR_H / 2);
+      const inBounds = px >= 0 && py >= 0 && px < canvas.width && py < canvas.height;
+      const alpha = inBounds ? imgData[(py * canvas.width + px) * 4 + 3] : 0;
+      if (alpha < threshold) { out += ' '; continue; }
       const i = r * COLS + c;
       const tick = Math.floor(t * cellSpeed[i] + cellOffset[i]);
       const idx = Math.floor(rand(srcCol, srcRow, tick) * CHARS.length);
@@ -532,7 +566,7 @@ const partCanvas = document.getElementById('particleCanvas');
 const partCtx = partCanvas.getContext('2d');
 function resizePart() { partCanvas.width = window.innerWidth; partCanvas.height = window.innerHeight; }
 resizePart(); window.addEventListener('resize', resizePart);
-const embers = Array.from({ length: 28 }, () => spawnEmber());
+const embers = Array.from({ length: 13 }, () => spawnEmber());
 function spawnEmber() {
   const w = partCanvas.width, h = partCanvas.height;
   return {
@@ -573,4 +607,58 @@ function animateFlicker() {
   requestAnimationFrame(animateFlicker);
 }
 animateFlicker();
+
+/* ── SCANLINES ── */
+const scanlineCanvas = document.getElementById('scanlineCanvas');
+const scanCtx = scanlineCanvas.getContext('2d');
+function resizeScan() { scanlineCanvas.width = window.innerWidth; scanlineCanvas.height = window.innerHeight; }
+resizeScan(); window.addEventListener('resize', resizeScan);
+function drawScanlines() {
+  const w = scanlineCanvas.width, h = scanlineCanvas.height;
+  scanCtx.clearRect(0, 0, w, h);
+  scanCtx.fillStyle = 'rgba(0,0,0,0.55)';
+  for (let y = 0; y < h; y += 3) {
+    scanCtx.fillRect(0, y, w, 1);
+  }
+}
+drawScanlines();
+window.addEventListener('resize', drawScanlines);
+
+/* ── GYROSCOPE PARALLAX (mobile) ── */
+if (isMobile && window.DeviceOrientationEvent) {
+  const bgImg = document.querySelector('.bg-img');
+  let gyroX = 0, gyroY = 0;
+  let targetX = 0, targetY = 0;
+
+  // Request permission on iOS 13+
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    // Need a user gesture — attach to menu button tap as trigger
+    document.addEventListener('click', function askGyro() {
+      DeviceOrientationEvent.requestPermission().then(state => {
+        if (state === 'granted') enableGyro();
+      }).catch(() => {});
+      document.removeEventListener('click', askGyro);
+    }, { once: true });
+  } else {
+    enableGyro();
+  }
+
+  function enableGyro() {
+    window.addEventListener('deviceorientation', e => {
+      // gamma = left/right tilt (-90 to 90), beta = front/back (-180 to 180)
+      targetX = (e.gamma || 0) / 30; // normalise to roughly -3 to 3
+      targetY = ((e.beta  || 0) - 45) / 30;
+    });
+
+    function animateParallax() {
+      gyroX += (targetX - gyroX) * 0.06;
+      gyroY += (targetY - gyroY) * 0.06;
+      const shiftX = gyroX * 12; // max ~12px drift
+      const shiftY = gyroY * 8;
+      bgImg.style.transform = `translate(${shiftX}px, ${shiftY}px) scale(1.06)`;
+      requestAnimationFrame(animateParallax);
+    }
+    animateParallax();
+  }
+}
 </script>
