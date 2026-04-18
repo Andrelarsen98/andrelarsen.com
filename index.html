@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="André Larsen portfolio landing page with interactive ASCII and ambient animation." />
+  <title>André Larsen</title>
+  <style>
+    /* Prevent any white flash before CSS loads */
+    html, body {
+      background: #0a0604;
+      margin: 0; padding: 0;
+    }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  .site {
+    min-height: 100vh;
+    font-family: 'Courier New', Courier, monospace;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-color: #0a0604;
+    opacity: 0;
+    animation: fadeIn 1.4s ease forwards;
+  }
+  @keyframes fadeIn {
+    0%   { opacity: 0; }
+    30%  { opacity: 0; }   /* hold dark for a beat before revealing */
+    100% { opacity: 1; }
+  }
+
+  .bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    z-index: 0;
+  }
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.38) 0%,
+      rgba(0,0,0,0.10) 40%,
+      rgba(0,0,0,0.10) 60%,
+      rgba(0,0,0,0.52) 100%
+    );
+    z-index: 1;
+  }
+  .overlay-center {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 60% 30% at 50% 72%,
+      rgba(0,0,0,0.45) 0%,
+      transparent 100%
+    );
+    z-index: 2;
+  }
+  .flicker {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 28% 32% at 22% 38%, rgba(255,80,10,0.15) 0%, transparent 70%);
+    z-index: 3; pointer-events: none;
+  }
+  .flicker-right {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 22% 28% at 78% 55%, rgba(255,70,5,0.11) 0%, transparent 70%);
+    z-index: 3; pointer-events: none;
+  }
+  .sky-drift {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 55%;
+    background: radial-gradient(ellipse 60% 80% at 70% 20%, rgba(20,5,40,0.18) 0%, transparent 70%);
+    z-index: 3; pointer-events: none;
+    animation: skyDrift 18s ease-in-out infinite alternate;
+  }
+  @keyframes skyDrift {
+    from { transform: translateX(0px) scale(1); opacity: 0.6; }
+    to   { transform: translateX(30px) scale(1.04); opacity: 1; }
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 26px 32px 0;
+    position: relative;
+    z-index: 20;
+  }
+  .nav-logo {
+    font-size: 15px;
+    font-weight: 900;
+    font-family: 'Arial Black', Arial, sans-serif;
+    line-height: 1;
+    text-transform: lowercase;
+    letter-spacing: -0.01em;
+  }
+  .nav-logo em { font-style: italic; }
+  .nav-links, .nav-center { display: flex; flex-direction: column; gap: 3px; }
+  .nav-links a, .nav-center a {
+    color: #fff; text-decoration: none;
+    font-size: 10.5px; letter-spacing: 0.1em;
+  }
+
+  .spacer { flex: 1; }
+
+  /* ── ASCII block — absolutely positioned on the page ── */
+  .ascii-wrap {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 11%;
+    z-index: 20;
+    cursor: crosshair;
+  }
+  #asciiOut {
+    font-size: 8.6px;
+    line-height: 1.13;
+    letter-spacing: 0.06em;
+    white-space: pre;
+    color: #ffffff;
+    font-family: 'Courier New', Courier, monospace;
+    user-select: none;
+    text-shadow: 0 0 12px rgba(255,255,255,0.6);
+  }
+</style>
+
+<div class="site">
+  <img class="bg-img" src="IMG_5937.JPG" alt="" />
+  <div class="overlay"></div>
+  <div class="overlay-center"></div>
+  <div class="flicker" id="flicker"></div>
+  <div class="flicker-right" id="flickerRight"></div>
+  <div class="sky-drift"></div>
+  <canvas id="particleCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:4;pointer-events:none;"></canvas>
+  <canvas id="grainCanvas"    style="position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;opacity:0.35;"></canvas>
+
+  <!-- ASCII sits directly on .site, not inside footer -->
+  <div class="ascii-wrap" id="area">
+    <div id="asciiOut"></div>
+  </div>
+
+  <nav>
+    <div class="nav-logo">andré <em>larsen</em></div>
+    <div class="nav-links">
+      <a href="works.html">WORKS</a>
+      <a href="#">ABOUT</a>
+    </div>
+    <div class="nav-center">
+      <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
+      <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+    </div>
+  </nav>
+
+  <div class="spacer"></div>
+</div>
+
+<script>
+const COLS = 195;
+const ROWS = 48;
+const CHAR_W = 7;
+const CHAR_H = 10;
+
+const canvas = document.createElement('canvas');
+canvas.width = COLS * CHAR_W;
+canvas.height = ROWS * CHAR_H;
+const ctx = canvas.getContext('2d');
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+ctx.font = `900 italic 112px Arial Black, Arial, sans-serif`;
+ctx.fillStyle = '#fff';
+ctx.textBaseline = 'middle';
+const NAME = 'André Larsen';
+const tw = ctx.measureText(NAME).width;
+ctx.fillText(NAME, (canvas.width - tw) / 2, canvas.height / 2);
+const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+function isLit(col, row) {
+  const px = Math.floor(col * CHAR_W + CHAR_W / 2);
+  const py = Math.floor(row * CHAR_H + CHAR_H / 2);
+  if (px < 0 || py < 0 || px >= canvas.width || py >= canvas.height) return false;
+  return imgData[(py * canvas.width + px) * 4 + 3] > 50;
+}
+
+const CHARS = '@#FRT43%=+-.';
+const cellOffset = new Float32Array(COLS * ROWS);
+const cellSpeed  = new Float32Array(COLS * ROWS);
+for (let i = 0; i < COLS * ROWS; i++) {
+  cellOffset[i] = Math.random() * 100;
+  cellSpeed[i]  = 0.5 + Math.random() * 1.0;
+}
+
+let mouseCol = -999, mouseRow = -999;
+const area = document.getElementById('area');
+area.addEventListener('mousemove', e => {
+  const rect = document.getElementById('asciiOut').getBoundingClientRect();
+  mouseCol = (e.clientX - rect.left) / (rect.width / COLS);
+  mouseRow = (e.clientY - rect.top)  / (rect.height / ROWS);
+});
+area.addEventListener('mouseleave', () => { mouseCol = -999; mouseRow = -999; });
+
+function rand(x, y, s) {
+  const v = Math.sin(x * 127.1 + y * 311.7 + s) * 43758.5453;
+  return v - Math.floor(v);
+}
+
+let t = 0;
+const el = document.getElementById('asciiOut');
+
+function frame() {
+  let out = '';
+  const REPEL_RADIUS = 14;
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const dx = c - mouseCol;
+      const dy = (r - mouseRow) * 2.2;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      let srcCol = c, srcRow = r;
+      if (dist < REPEL_RADIUS && dist > 0.5) {
+        const force = Math.pow((REPEL_RADIUS - dist) / REPEL_RADIUS, 1.4);
+        const nx = dx / dist;
+        const ny = (r - mouseRow) / dist;
+        srcCol = c - nx * force * REPEL_RADIUS * 0.85;
+        srcRow = r - ny * force * REPEL_RADIUS * 0.85;
+      }
+      if (!isLit(srcCol, srcRow)) { out += ' '; continue; }
+      const i = r * COLS + c;
+      const tick = Math.floor(t * cellSpeed[i] + cellOffset[i]);
+      const idx = Math.floor(rand(srcCol, srcRow, tick) * CHARS.length);
+      out += CHARS[Math.max(0, Math.min(CHARS.length - 1, idx))];
+    }
+    out += '\n';
+  }
+  el.textContent = out;
+  t += 0.05;
+  requestAnimationFrame(frame);
+}
+frame();
+
+const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
+
+// Logo blink on load
+const logo = document.querySelector('.nav-logo');
+let blinks = 0;
+const blinkInterval = setInterval(() => {
+  logo.style.opacity = logo.style.opacity === '0' ? '1' : '0';
+  blinks++;
+  if (blinks >= 4) { clearInterval(blinkInterval); logo.style.opacity = '1'; }
+}, 130);
+
+// Typewriter glitch — fires after the page fade completes
+function typewriterGlitch(el, delay) {
+  const final = el.textContent;
+  const scrambled = Array.from(final).map(c =>
+    (c === ' ' || c === '\n') ? c : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]
+  );
+  el.textContent = scrambled.join('');
+  let i = 0;
+  setTimeout(() => {
+    const interval = setInterval(() => {
+      if (i < final.length) {
+        for (let j = i; j < final.length; j++) {
+          if (final[j] !== ' ') scrambled[j] = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+        }
+        scrambled[i] = final[i];
+        el.textContent = scrambled.join('');
+        i++;
+      } else {
+        el.textContent = final;
+        clearInterval(interval);
+      }
+    }, 38);
+  }, delay);
+}
+
+// Delay typewriter until after the dark fade resolves (~1400ms)
+const typeTargets = document.querySelectorAll('.nav-links a, .nav-center a');
+typeTargets.forEach((el, i) => {
+  typewriterGlitch(el, 1500 + i * 100);
+});
+
+// ── FILM GRAIN ──
+const grainCanvas = document.getElementById('grainCanvas');
+const grainCtx = grainCanvas.getContext('2d');
+function resizeGrain() { grainCanvas.width = window.innerWidth; grainCanvas.height = window.innerHeight; }
+resizeGrain(); window.addEventListener('resize', resizeGrain);
+function drawGrain() {
+  const w = grainCanvas.width, h = grainCanvas.height;
+  const imageData = grainCtx.createImageData(w, h);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const v = Math.random() > 0.45 ? Math.floor(Math.random() * 120) : 0;
+    data[i] = data[i+1] = data[i+2] = v;
+    data[i+3] = v > 0 ? 85 : 0;
+  }
+  grainCtx.putImageData(imageData, 0, 0);
+}
+setInterval(drawGrain, 42);
+
+// ── LAVA EMBER PARTICLES ──
+const partCanvas = document.getElementById('particleCanvas');
+const partCtx = partCanvas.getContext('2d');
+function resizePart() { partCanvas.width = window.innerWidth; partCanvas.height = window.innerHeight; }
+resizePart(); window.addEventListener('resize', resizePart);
+const embers = Array.from({ length: 28 }, () => spawnEmber());
+function spawnEmber() {
+  const w = partCanvas.width, h = partCanvas.height;
+  return {
+    x: w * Math.random(), y: h * (0.58 + Math.random() * 0.38),
+    size: 0.7 + Math.random() * 1.2, speedY: 0.12 + Math.random() * 0.28,
+    speedX: (Math.random() - 0.5) * 0.18, life: Math.random(),
+    maxLife: 0.7 + Math.random() * 0.5, hue: 12 + Math.random() * 18
+  };
+}
+function drawParticles() {
+  partCtx.clearRect(0, 0, partCanvas.width, partCanvas.height);
+  for (let e of embers) {
+    e.y -= e.speedY; e.x += e.speedX; e.life += 0.0025;
+    const progress = e.life / e.maxLife;
+    const alpha = progress < 0.2 ? progress / 0.2 : 1 - ((progress - 0.2) / 0.8);
+    if (alpha <= 0 || e.life >= e.maxLife) { Object.assign(e, spawnEmber()); continue; }
+    partCtx.beginPath();
+    partCtx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+    partCtx.fillStyle = `hsla(${e.hue}, 100%, 58%, ${alpha * 0.7})`;
+    partCtx.fill();
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ── VOLCANO LIGHT FLICKER ──
+const flicker = document.getElementById('flicker');
+const flickerRight = document.getElementById('flickerRight');
+let flickerTarget = 0.13, flickerCurrent = 0.13;
+let flickerRTarget = 0.11, flickerRCurrent = 0.11;
+function animateFlicker() {
+  if (Math.random() < 0.04) flickerTarget  = 0.04 + Math.random() * 0.22;
+  if (Math.random() < 0.03) flickerRTarget = 0.03 + Math.random() * 0.18;
+  flickerCurrent  += (flickerTarget  - flickerCurrent)  * 0.06;
+  flickerRCurrent += (flickerRTarget - flickerRCurrent) * 0.05;
+  flicker.style.opacity      = flickerCurrent  / 0.13;
+  flickerRight.style.opacity = flickerRCurrent / 0.11;
+  requestAnimationFrame(animateFlicker);
+}
+animateFlicker();
+</script>
+</body>
+</html>
