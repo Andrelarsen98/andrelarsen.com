@@ -1,5 +1,4 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preload" as="image" href="IMG_5937.JPG">
 
 <style>
   html, body {
@@ -46,13 +45,19 @@
   .overlay {
     position: absolute;
     inset: 0;
-    background: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.38) 0%,
+      rgba(0,0,0,0.10) 40%,
+      rgba(0,0,0,0.10) 60%,
+      rgba(0,0,0,0.52) 100%
+    );
     z-index: 1;
   }
   .overlay-center {
     position: absolute;
     inset: 0;
-    background: none;
+    background: radial-gradient(ellipse 60% 30% at 50% 72%, rgba(0,0,0,0.45) 0%, transparent 100%);
     z-index: 2;
   }
   .flicker {
@@ -67,8 +72,9 @@
   }
   .sky-drift {
     position: absolute; top: 0; left: 0; right: 0; height: 55%;
-    background: none;
+    background: radial-gradient(ellipse 60% 80% at 70% 20%, rgba(20,5,40,0.18) 0%, transparent 70%);
     z-index: 3; pointer-events: none;
+    animation: skyDrift 18s ease-in-out infinite alternate;
   }
   @keyframes skyDrift {
     from { transform: translateX(0px) scale(1); opacity: 0.6; }
@@ -125,22 +131,34 @@
   }
   #loadScreen.hide { opacity: 0; }
 
-  /* ── ASCII CANVAS — full screen ── */
-  #asciiCanvas {
+  /* ── ASCII WRAP — loading screen only ── */
+  .ascii-wrap {
     position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    left: 50%;
+    bottom: 8%;
+    transform: translateX(-50%);
     z-index: 210;
     pointer-events: none;
     opacity: 1;
     transition: opacity 1.2s ease;
   }
-  #asciiCanvas.hidden { opacity: 0; }
+  .ascii-wrap.hidden { opacity: 0; }
 
-  /* keep the old wrap/out for compat — hidden */
-  .ascii-wrap { display: none; }
-  #asciiOut   { display: none; }
+  #asciiOut {
+    display: block;
+    font-size: 8.6px;
+    line-height: 1.13;
+    letter-spacing: 0.06em;
+    white-space: pre;
+    color: #ffffff;
+    font-family: 'Courier New', Courier, monospace;
+    user-select: none;
+    text-shadow:
+      0 0 6px rgba(255,255,255,1),
+      0 0 14px rgba(255,255,255,1),
+      0 0 28px rgba(255,255,255,0.9),
+      0 0 50px rgba(255,255,255,0.6);
+  }
 
   /* ── LOADING UI ── */
   #loadUi {
@@ -488,8 +506,6 @@
 
 <!-- Black backdrop -->
 <div id="loadScreen"></div>
-<!-- Full-screen ASCII canvas -->
-<canvas id="asciiCanvas"></canvas>
 
 <!-- ASCII — fixed in place forever -->
 <div class="ascii-wrap" id="area">
@@ -534,7 +550,7 @@
 
   <!-- SECTION 2: Showreel Video -->
   <div class="video-section" id="videoSection">
-    <video id="showreel" autoplay muted loop playsinline preload="metadata">
+    <video id="showreel" autoplay muted loop playsinline preload="auto">
       <source src="showreel.mp4" type="video/mp4">
     </video>
 
@@ -602,178 +618,69 @@ menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
 
 /* ── SHARED CONSTANTS ── */
 const isMobile = window.innerWidth <= 768;
-const CHARS    = 'ABCDEFRT34FR3T4R3TRF4T3R43RT3';const NAME     = 'André Larsen';
+const CHARS    = '@#FRT43%=+-.';
+const COLS     = isMobile ? 140 : 195;
+const ROWS     = isMobile ? 36  : 48;
+const CHAR_W   = isMobile ? 6   : 7;
+const CHAR_H   = isMobile ? 9   : 10;
+const FONT_S   = isMobile ? 100 : 96;
+const NAME     = 'André Larsen';
 
 function rand(x, y, s) {
   const v = Math.sin(x * 127.1 + y * 311.7 + s) * 43758.5453;
   return v - Math.floor(v);
 }
 
-/* ══════════════════════════════════════
-   ── FULL-SCREEN ASCII CANVAS SYSTEM ──
-   Artefakt-style: name fills ~40% of
-   screen height, characters dense & white
-══════════════════════════════════════ */
+/* ── BUILD CANVAS ── */
+const canvas = document.createElement('canvas');
+canvas.width  = COLS * CHAR_W;
+canvas.height = ROWS * CHAR_H;
+const ctx = canvas.getContext('2d');
+ctx.font = `900 italic ${FONT_S}px Arial Black, Arial, sans-serif`;
+ctx.fillStyle = '#fff';
+ctx.textBaseline = 'middle';
+const tw = ctx.measureText(NAME).width;
+ctx.fillText(NAME, (canvas.width - tw) / 2, canvas.height / 2);
+const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
-const aC   = document.getElementById('asciiCanvas');
-const aCtx = aC.getContext('2d');
-
-// ── Cell size: small enough to be dense, large enough to read ──
-const S_CW = isMobile ? 5.5 : 7;    // cell width  px
-const S_CH = isMobile ? 8.5 : 10;   // cell height px
-const S_FS = isMobile ? 6   : 8;    // font size   px — bold and readable
-
-function SC_COLS() { return Math.ceil(window.innerWidth  / S_CW); }
-function SC_ROWS() { return Math.ceil(window.innerHeight / S_CH); }
-
-function resizeAsciiCanvas() {
-  aC.width  = window.innerWidth;
-  aC.height = window.innerHeight;
+const cellOffset = new Float32Array(COLS * ROWS);
+const cellSpeed  = new Float32Array(COLS * ROWS);
+for (let i = 0; i < COLS * ROWS; i++) {
+  cellOffset[i] = Math.random() * 100;
+  cellSpeed[i]  = 0.5 + Math.random() * 1.0;
 }
-resizeAsciiCanvas();
-window.addEventListener('resize', resizeAsciiCanvas);
 
-// ── Render name into an off-screen canvas sized to the SCREEN ──
-// Name block targets 38% of screen height (like artefakt)
-function buildParticles() {
-  const sw = window.innerWidth;
-  const sh = window.innerHeight;
-
-  // Target: name fills 42% of screen height on desktop, 32% on mobile
-  const targetH = sh * (isMobile ? 0.32 : 0.42);
-
-  // Figure out font size so name fits both in height AND width
-  const tempC = document.createElement('canvas');
-  const tempX = tempC.getContext('2d');
-  let fontSize = targetH * 0.72; // rough ratio: font-size to rendered height
-  tempX.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
-  let nameW = tempX.measureText(NAME).width;
-  // Clamp to 90% of screen width
-  const maxW = sw * 0.95;
-  if (nameW > maxW) { fontSize *= maxW / nameW; nameW = maxW; }
-
-  // Build name canvas at screen pixel resolution
-  const NC_W = sw;
-  const NC_H = sh;
-  const nc   = document.createElement('canvas');
-  nc.width   = NC_W;
-  nc.height  = NC_H;
-  const nx   = nc.getContext('2d');
-  nx.font          = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
-  nx.fillStyle     = '#fff';
-  nx.textBaseline  = 'middle';
-  const tw = nx.measureText(NAME).width;
-  // Center horizontally, center vertically
-  nx.fillText(NAME, (NC_W - tw) / 2, NC_H / 2);
-  const imgD = nx.getImageData(0, 0, NC_W, NC_H).data;
-
-  // Sample every cell on the screen grid — collect name cells
-  const cols = SC_COLS(), rows = SC_ROWS();
-  const cells = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const px = Math.floor(c * S_CW + S_CW / 2);
-      const py = Math.floor(r * S_CH + S_CH / 2);
-      if (px >= NC_W || py >= NC_H) continue;
-      if (imgD[(py * NC_W + px) * 4 + 3] >= 8) {
-        cells.push({ sc: c, sr: r });
+/* ── ASCII RENDER ── */
+function renderAscii(targetEl, t, mouseCol, mouseRow) {
+  const breath    = 0.5 + 0.5 * Math.sin(t * 0.018);
+  const threshold = 30 + breath * 40;
+  const REPEL_RADIUS = (mouseCol !== -999 && !isMobile) ? 14 : 0;
+  const parts = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      let srcCol = c, srcRow = r;
+      if (REPEL_RADIUS > 0) {
+        const dx = c - mouseCol;
+        const dy = (r - mouseRow) * 2.2;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < REPEL_RADIUS && dist > 0.5) {
+          const force = Math.pow((REPEL_RADIUS - dist) / REPEL_RADIUS, 1.4);
+          srcCol = c - (dx / dist) * force * REPEL_RADIUS * 0.85;
+          srcRow = r - ((r - mouseRow) / dist) * force * REPEL_RADIUS * 0.85;
+        }
       }
+      const px = Math.floor(srcCol * CHAR_W + CHAR_W / 2);
+      const py = Math.floor(srcRow * CHAR_H + CHAR_H / 2);
+      const inB  = px >= 0 && py >= 0 && px < canvas.width && py < canvas.height;
+      const alpha = inB ? imgData[(py * canvas.width + px) * 4 + 3] : 0;
+      if (alpha < threshold) { parts.push(' '); continue; }
+      const idx = Math.floor(rand(srcCol, srcRow, Math.floor(t * cellSpeed[r * COLS + c] + cellOffset[r * COLS + c])) * CHARS.length);
+      parts.push(CHARS[Math.max(0, Math.min(CHARS.length - 1, idx))]);
     }
+    parts.push('\n');
   }
-
-  // Build particles — each spawns from a random full-screen position
-  const parts = cells.map(({ sc, sr }) => ({
-    sc, sr,
-    curC: Math.random() * cols,
-    curR: Math.random() * rows,
-    arrived: false,
-    lockFlicker: 0,
-    charOffset: Math.random() * 100,
-    charSpeed:  0.4 + Math.random() * 0.8,
-    depth: 1.0,   // pure white — no dimming
-    lockedChar: '',
-  }));
-
-  // Shuffle arrival order
-  const order = parts.map((_, i) => i);
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
-
-  return { parts, order };
+  targetEl.textContent = parts.join('');
 }
-
-let { parts: particles, order: lockOrder } = buildParticles();
-
-// Rebuild on resize so name stays correctly sized
-window.addEventListener('resize', () => {
-  const r = buildParticles();
-  particles = r.parts;
-  lockOrder = r.order;
-});
-
-function renderAscii(_el, t) {
-  const cols = SC_COLS(), rows = SC_ROWS();
-  const arriveTarget = Math.floor((progress / 100) * particles.length);
-
-  // Trigger arrivals
-  for (let k = 0; k < arriveTarget; k++) {
-    const p = particles[lockOrder[k]];
-    if (!p.arrived) {
-      p.arrived    = true;
-      p.lockFlicker = 10;
-      p.curC        = p.sc;
-      p.curR        = p.sr;
-      p.lockedChar  = CHARS[Math.floor(rand(p.sc, p.sr, 77) * CHARS.length)];
-    }
-  }
-
-  // Move travelling particles
-  for (let i = 0; i < particles.length; i++) {
-    const p = particles[i];
-    if (p.arrived) continue;
-    const dc = p.sc - p.curC, dr = p.sr - p.curR;
-    const dist = Math.sqrt(dc * dc + dr * dr);
-    if (dist < 0.2) { p.curC = p.sc; p.curR = p.sr; continue; }
-    const ease = dist > 15 ? 0.016 : 0.016 + (1 - dist / 15) * 0.072;
-    p.curC += dc * ease;
-    p.curR += dr * ease;
-  }
-
-  // Draw
-  aCtx.clearRect(0, 0, aC.width, aC.height);
-  aCtx.font         = `bold ${S_FS}px "Courier New", Courier, monospace`;
-  aCtx.textBaseline = 'top';
-
-  for (let i = 0; i < particles.length; i++) {
-    const p  = particles[i];
-    const rc = Math.round(p.curR);
-    const cc = Math.round(p.curC);
-    if (rc < 0 || rc >= rows || cc < 0 || cc >= cols) continue;
-
-    let ch;
-    if (p.arrived) {
-      if (p.lockFlicker > 0) {
-        p.lockFlicker--;
-        ch = p.lockFlicker % 2 === 0
-          ? p.lockedChar
-          : CHARS[Math.floor(rand(p.sc, p.sr, t + p.lockFlicker) * CHARS.length)];
-      } else {
-        // Very slow drift — keeps name readable, just barely alive
-        ch = CHARS[Math.floor(rand(p.sc, p.sr, Math.floor(t * 0.04 * p.charSpeed + p.charOffset)) * CHARS.length)];
-      }
-    } else {
-      ch = CHARS[Math.floor(rand(cc, rc, Math.floor(t * p.charSpeed + p.charOffset)) * CHARS.length)];
-    }
-
-    const alpha = p.arrived ? 1.0 : 0.35;
-    aCtx.fillStyle = p.arrived ? '#ffffff' : `rgba(255,255,255,0.35)`;
-    aCtx.fillText(ch, cc * S_CW, rc * S_CH);
-  }
-}
-
-function renderAsciiLegacy() {}
 
 /* ── GLITCH TEXT ── */
 const GLITCH_CHARS_LOAD = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
@@ -809,77 +716,82 @@ const site       = document.getElementById('site');
 glitchLine(loadLine1, ':/ INITIALISING', 100);
 
 let progress = 0;
-let barDone = false;
 const loadInterval = setInterval(() => {
   progress += 1.4 + Math.random() * 2;
-  if (progress >= 100) {
-    progress = 100;
-    clearInterval(loadInterval);
-    loadBar.style.width = '100%';
-    setTimeout(() => { barDone = true; checkReveal(); }, 300);
-  }
+  if (progress >= 100) { progress = 100; clearInterval(loadInterval); }
   loadBar.style.width = progress + '%';
 }, 28);
 
-/* Preload the lava image so it's fully decoded before we reveal the site */
-const bgPreload = new Image();
-bgPreload.src = 'IMG_5937.JPG';
-
-function doReveal() {
+setTimeout(() => {
   loadUi.classList.add('hide');
+  // Let ASCII shine alone for 1 extra second before fading
   setTimeout(() => {
-    aC.classList.add('hidden');
+    area.classList.add('hidden'); // fade ASCII out
     loadScreen.classList.add('hide');
     setTimeout(() => {
       site.classList.add('visible');
       setTimeout(() => {
         loadScreen.remove();
-        asciiRunning = false;
-        aC.remove();
+        asciiRunning = false; // stop ASCII rAF — frees CPU permanently
       }, 1200);
     }, 500);
-  }, 600);
-}
+  }, 1000);
+}, 2400);
 
-// Wait for BOTH bar at 100% AND image loaded before revealing
-let imageDone = false;
-function checkReveal() {
-  if (barDone && imageDone) doReveal();
-}
-if (bgPreload.complete) {
-  imageDone = true;
-} else {
-  bgPreload.onload = bgPreload.onerror = () => { imageDone = true; checkReveal(); };
-}
-
-
-/* ── POSITION loadUi at vertical center of screen ── */
+/* ── POSITION loadUi just above the visible ascii letters ── */
 function positionLoadUi() {
-  loadUi.style.top  = (window.innerHeight * 0.62) + 'px';
+  const rect = asciiEl.getBoundingClientRect();
+  const visualTop = rect.top + rect.height * 0.32;
+  loadUi.style.top = (visualTop - loadUi.offsetHeight - 8) + 'px';
 }
-positionLoadUi();
-window.addEventListener('resize', positionLoadUi);
 
-const asciiEl = document.getElementById('asciiOut'); // kept for compat, not used
-const area    = document.getElementById('area');     // kept for compat, not used
+const asciiEl = document.getElementById('asciiOut');
+const area    = document.getElementById('area');
+
+if (isMobile) {
+  asciiEl.style.fontSize      = '4.8px';
+  asciiEl.style.lineHeight    = '1.10';
+  asciiEl.style.letterSpacing = '0.04em';
+}
+
+function scaleAscii() {
+  if (!isMobile) return;
+  const screenW = window.innerWidth;
+  const w = asciiEl.scrollWidth;
+  if (w > 0) {
+    const scale = (screenW * 0.90) / w;
+    area.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    area.style.transformOrigin = 'center center';
+  }
+}
 
 const scrollContainer = document.getElementById('scrollContainer');
 
-let t = 0;
-let asciiRunning = true;
-let lastAsciiFrame = 0;
-const ASCII_FPS = 24;
-const ASCII_INTERVAL = 1000 / ASCII_FPS;
+let mouseCol = -999, mouseRow = -999;
+area.addEventListener('mousemove', e => {
+  const rect = asciiEl.getBoundingClientRect();
+  mouseCol = (e.clientX - rect.left) / (rect.width / COLS);
+  mouseRow = (e.clientY - rect.top)  / (rect.height / ROWS);
+});
+area.addEventListener('mouseleave', () => { mouseCol = -999; mouseRow = -999; });
 
-function frame(now) {
-  if (asciiRunning && (now - lastAsciiFrame) >= ASCII_INTERVAL) {
-    renderAscii(null, t);
+let t = 0;
+let scaled = false;
+let uiPositioned = false;
+let asciiRunning = true;
+function frame() {
+  if (asciiRunning) {
+    renderAscii(asciiEl, t, mouseCol, mouseRow);
     t += 0.05;
-    lastAsciiFrame = now;
+  }
+  if (!scaled) { scaleAscii(); scaled = true; }
+  if (!uiPositioned && asciiEl.getBoundingClientRect().height > 0) {
+    positionLoadUi();
+    uiPositioned = true;
   }
   requestAnimationFrame(frame);
 }
-frame(0);
+frame();
 
 /* ── NAV GLITCH INTRO ── */
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
@@ -1114,7 +1026,6 @@ videoEl.addEventListener('timeupdate', () => {
   const pct = (videoEl.currentTime / videoEl.duration) * 100;
   progressBar.style.width = pct + '%';
   videoTime.textContent = formatTime(videoEl.currentTime);
-
 });
 
 /* ══════════════════════════════════════
