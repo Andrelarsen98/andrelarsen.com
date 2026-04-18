@@ -240,15 +240,16 @@
     nav {
       padding: 22px 20px 0;
       align-items: center;
+      justify-content: flex-end;
     }
-    .nav-logo { font-size: 13px; display: none; }
+    .nav-logo { display: none; }
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* ASCII: at the white-marked spot */
+    /* ASCII: between the two marked spots ~54% */
     .ascii-wrap {
       bottom: auto;
-      top: 50%;
+      top: 54%;
       left: 50%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
@@ -363,11 +364,11 @@ setTimeout(() => {
 /* ── ASCII — responsive ── */
 const isMobile = window.innerWidth <= 768;
 
-const COLS   = isMobile ? 140 : 195;
-const ROWS   = isMobile ? 38  : 48;
+const COLS   = isMobile ? 160 : 195;
+const ROWS   = isMobile ? 42  : 48;
 const CHAR_W = isMobile ? 6   : 7;
 const CHAR_H = isMobile ? 9   : 10;
-const FONT_S = isMobile ? 120 : 112;
+const FONT_S = isMobile ? 140 : 112;
 
 const canvas = document.createElement('canvas');
 canvas.width  = COLS * CHAR_W;
