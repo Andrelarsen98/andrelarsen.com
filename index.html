@@ -17,6 +17,8 @@
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+    /* Smoother on mobile */
+    will-change: scroll-position;
   }
 
   /* ── SITE SECTION 1 — Landing ── */
@@ -440,6 +442,13 @@
       transform: translate(-50%, -50%);
       transform-origin: center center;
     }
+
+    /* Mobile: show full video, no crop */
+    #showreel { object-fit: contain; background: #000; }
+    .video-vignette { display: none; }
+
+    /* Softer snap on mobile */
+    #scrollContainer { scroll-snap-type: y proximity; }
 
     .video-label-tl, .video-label-tr { font-size: 8px; letter-spacing: 0.14em; }
     .video-label-tl { left: 16px; top: 20px; }
