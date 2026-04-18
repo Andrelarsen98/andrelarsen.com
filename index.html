@@ -435,72 +435,70 @@
     font-family: 'Courier New', Courier, monospace;
     color: #ffffff;
     user-select: none;
-    line-height: 1.13;
-    letter-spacing: 0.04em;
-    text-shadow:
-      0 0 6px rgba(255,255,255,1),
-      0 0 14px rgba(255,255,255,0.9),
-      0 0 28px rgba(255,255,255,0.6);
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+    /* No glow/blur — Artefakt is pure sharp white, no text-shadow */
   }
 
-  /* Info row — sits at the bottom */
+  /* ── Info bar — single line at bottom, exactly like Artefakt ── */
   .footer-info {
     display: flex;
     justify-content: space-between;
-    padding: 14px 32px 14px;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    align-items: flex-start;
+    padding: 16px 28px 18px;
+    border-top: 1px solid rgba(255,255,255,0.12);
     font-family: 'Courier New', monospace;
-    font-size: 8px;
-    letter-spacing: 0.12em;
-    color: rgba(255,255,255,0.35);
+    font-size: 8.5px;
+    letter-spacing: 0.13em;
+    color: rgba(255,255,255,0.55);
     text-transform: uppercase;
-    line-height: 1.6;
+    line-height: 1.7;
     flex-shrink: 0;
   }
   .footer-info a {
-    color: rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.55);
     text-decoration: none;
+    display: block;
   }
   .footer-info a:hover { color: #fff; }
-  .footer-col { display: flex; flex-direction: column; }
+  /* Each column stacks its lines vertically, no box */
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+  }
   .footer-col-label {
-    color: rgba(255,255,255,0.15);
-    font-size: 7px;
-    margin-bottom: 4px;
-    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.55);
+    font-size: 8.5px;
+    margin-bottom: 2px;
+    letter-spacing: 0.13em;
   }
 
-  /* Back to top */
+  /* Back to top — thin gray bar, no hover background fill, just color change */
   .footer-back {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px 32px;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 9px 32px;
+    border-top: 1px solid rgba(255,255,255,0.10);
     font-family: 'Courier New', monospace;
     font-size: 8px;
     letter-spacing: 0.22em;
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.30);
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: color 0.2s ease;
     user-select: none;
     flex-shrink: 0;
+    background: transparent;
   }
-  .footer-back:hover {
-    background: #1a6bff;
-    color: #fff;
-  }
+  .footer-back:hover { color: rgba(255,255,255,0.75); background: transparent; }
 
   @media (max-width: 768px) {
-    .footer {
-      min-height: 100vh;
-      height: 100vh;
-    }
+    .footer { min-height: 100vh; height: 100vh; }
     .footer-info {
       flex-direction: column;
       gap: 20px;
-      padding: 18px 20px;
+      padding: 20px 20px 18px;
     }
     .footer-back { padding: 14px 20px; }
   }
@@ -580,20 +578,17 @@
 
   <div class="footer-info">
     <div class="footer-col">
-      <span class="footer-col-label">■ Studio</span>
-      <span>André Larsen</span>
+      <span class="footer-col-label">■ André Larsen</span>
       <span>Dubai, UAE</span>
       <span>Worldwide</span>
     </div>
     <div class="footer-col">
       <span class="footer-col-label">■ Get in touch</span>
       <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
-      <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
     </div>
     <div class="footer-col">
       <span class="footer-col-label">■ </span>
       <span>© 2026 André Larsen</span>
-      <span>Visual Artist</span>
     </div>
   </div>
 
@@ -1041,20 +1036,21 @@ videoEl.addEventListener('timeupdate', () => {
   if (!footerEl) return;
 
   const FOOTER_NAME  = 'André Larsen';
-  const FOOTER_CHARS = '@#FRT43%=+-.';
+  // Artefakt uses dense alphanumeric chars — mostly numbers and letters, very readable
+  const FOOTER_CHARS = 'RT34FR3T4R3TRF4T3R43RT3';
 
-  // Footer fills full viewport. Reserve ~80px for info row + back-to-top bar.
-  const FOOTER_RESERVED = 80;
+  // Footer fills full viewport. Reserve ~85px for info row + back-to-top bar.
+  const FOOTER_RESERVED = 85;
   const availH = window.innerHeight - FOOTER_RESERVED;
 
-  // Choose char size so we get a dense grid that fills the available area
-  const F_CHAR_H  = isMobile ? 8  : 10;
-  const F_CHAR_W  = isMobile ? 6  : 7;
+  // Choose char size — slightly larger for readability like Artefakt
+  const F_CHAR_H  = isMobile ? 8  : 11;
+  const F_CHAR_W  = isMobile ? 5  : 7;
   const F_COLS    = Math.floor(window.innerWidth / F_CHAR_W);
   const F_ROWS    = Math.floor(availH / F_CHAR_H);
 
   // Set font size on the pre element
-  footerEl.style.fontSize   = F_CHAR_W * 0.88 + 'px';
+  footerEl.style.fontSize   = (F_CHAR_W * 0.92) + 'px';
   footerEl.style.lineHeight = F_CHAR_H + 'px';
 
   // Build canvas with name sized to fill width
@@ -1100,8 +1096,8 @@ videoEl.addEventListener('timeupdate', () => {
 
   function renderFooterAscii() {
     if (!footerVisible) { requestAnimationFrame(renderFooterAscii); return; }
-    const breath    = 0.5 + 0.5 * Math.sin(ft * 0.014);
-    const threshold = 8 + breath * 18;
+    // Fixed low threshold — chars are always solid, never dimming out like Artefakt
+    const threshold = 12;
     const parts = [];
     for (let r = 0; r < F_ROWS; r++) {
       for (let c = 0; c < F_COLS; c++) {
