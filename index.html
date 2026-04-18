@@ -130,7 +130,7 @@
     color: #ffffff;
     font-family: 'Courier New', Courier, monospace;
     user-select: none;
-    text-shadow: 0 0 12px rgba(255,255,255,0.6);
+    text-shadow: 0 0 14px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,1);
   }
 
   /* ── MOBILE FULL-SCREEN MENU OVERLAY ── */
@@ -200,7 +200,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     padding: 48px 32px;
     opacity: 1;
     transition: opacity 0.6s ease;
@@ -213,6 +213,7 @@
     font-family: 'Courier New', monospace;
     color: #fff;
     letter-spacing: 0.12em;
+    text-align: center;
     text-transform: uppercase;
     opacity: 0.85;
   }
@@ -220,7 +221,7 @@
   #loadLine2 { font-size: 11px; opacity: 0.4; }
   .load-bar-wrap {
     margin-top: 32px;
-    width: 120px;
+    width: 160px;
     height: 1px;
     background: rgba(255,255,255,0.12);
     position: relative;
@@ -244,10 +245,10 @@
     .nav-links, .nav-center { display: none; }
     .nav-menu-btn { display: block; }
 
-    /* ASCII: lower on screen, into the darker body area */
+    /* ASCII: at the green-marked spot — just below hands/camera */
     .ascii-wrap {
       bottom: auto;
-      top: 62%;
+      top: 57%;
       left: 50%;
       transform: translate(-50%, -50%);
       transform-origin: center center;
@@ -257,7 +258,7 @@
 
 <div id="loadScreen">
   <div id="loadLine1">:/ INITIALISING</div>
-  <div id="loadLine2">ANDRE LARSEN — PORTFOLIO</div>
+  <div id="loadLine2">ANDRE LARSEN</div>
   <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
 </div>
 
@@ -344,7 +345,7 @@ function glitchText(el, finalText, startDelay) {
 }
 
 glitchText(line1, ':/ INITIALISING', 100);
-glitchText(line2, 'ANDRE LARSEN — PORTFOLIO', 400);
+glitchText(line2, 'ANDRE LARSEN', 400);
 
 let progress = 0;
 const loadInterval = setInterval(() => {
@@ -362,11 +363,11 @@ setTimeout(() => {
 /* ── ASCII — responsive ── */
 const isMobile = window.innerWidth <= 768;
 
-const COLS   = isMobile ? 110 : 195;
-const ROWS   = isMobile ? 28  : 48;
+const COLS   = isMobile ? 120 : 195;
+const ROWS   = isMobile ? 32  : 48;
 const CHAR_W = isMobile ? 6   : 7;
 const CHAR_H = isMobile ? 9   : 10;
-const FONT_S = isMobile ? 88  : 112;
+const FONT_S = isMobile ? 100 : 112;
 
 const canvas = document.createElement('canvas');
 canvas.width  = COLS * CHAR_W;
