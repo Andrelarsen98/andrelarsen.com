@@ -125,7 +125,47 @@
   }
   #loadScreen.hide { opacity: 0; }
 
-  /* ── ASCII WRAP — loading screen only ── */
+  /* ── BRAIN CANVAS ── */
+  #burstCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 151;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.4s ease, filter 1.2s ease;
+    filter: blur(0px);
+  }
+  #burstCanvas.visible { opacity: 1; }
+  #burstCanvas.hide    { opacity: 0; filter: blur(8px); }
+
+  /* ASCII reacts to brain — subtle blue glow when brain is active */
+  #asciiOut {
+    display: block;
+    font-size: 8.6px;
+    line-height: 1.13;
+    letter-spacing: 0.06em;
+    white-space: pre;
+    color: #ffffff;
+    font-family: 'Courier New', Courier, monospace;
+    user-select: none;
+    transition: text-shadow 0.8s ease;
+    text-shadow:
+      0 0 6px rgba(255,255,255,0.9),
+      0 0 14px rgba(255,255,255,0.7),
+      0 0 28px rgba(255,255,255,0.5);
+  }
+  #asciiOut.brain-pulse {
+    text-shadow:
+      0 0 6px rgba(180,220,255,1),
+      0 0 18px rgba(100,180,255,0.9),
+      0 0 40px rgba(60,140,255,0.6),
+      0 0 70px rgba(40,100,255,0.3);
+  }
+
+
+  /* ── ASCII WRAP — loading screen ── */
   .ascii-wrap {
     position: fixed;
     left: 50%;
@@ -137,22 +177,6 @@
     transition: opacity 1.2s ease;
   }
   .ascii-wrap.hidden { opacity: 0; }
-
-  #asciiOut {
-    display: block;
-    font-size: 8.6px;
-    line-height: 1.13;
-    letter-spacing: 0.06em;
-    white-space: pre;
-    color: #ffffff;
-    font-family: 'Courier New', Courier, monospace;
-    user-select: none;
-    text-shadow:
-      0 0 6px rgba(255,255,255,1),
-      0 0 14px rgba(255,255,255,1),
-      0 0 28px rgba(255,255,255,0.9),
-      0 0 50px rgba(255,255,255,0.6);
-  }
 
   /* ── LOADING UI ── */
   #loadUi {
@@ -498,8 +522,13 @@
   }
 </style>
 
+<!-- Three.js for neural brain animation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <!-- Black backdrop -->
 <div id="loadScreen"></div>
+<!-- Brain canvas -->
+<canvas id="burstCanvas"></canvas>
 
 <!-- ASCII — fixed in place forever -->
 <div class="ascii-wrap" id="area">
@@ -717,7 +746,6 @@ const loadInterval = setInterval(() => {
     progress = 100;
     clearInterval(loadInterval);
     loadBar.style.width = '100%';
-    // Small pause so user sees 100% before reveal
     setTimeout(() => { barDone = true; checkReveal(); }, 300);
   }
   loadBar.style.width = progress + '%';
@@ -813,6 +841,374 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 frame(0);
+
+/* ══════════════════════════════════════
+   ── NEURAL BRAIN — Three.js loading screen
+   TWEAKS: PULSE_SPEED, SIGNAL_SPEED, GLOW_INTENSITY, BRAIN_COLOR below
+══════════════════════════════════════ */
+(function() {
+  if (typeof THREE === 'undefined') return;
+
+  // ── TWEAK THESE ──────────────────────
+  const PULSE_SPEED    = 0.022;   // heartbeat oscillation speed
+  const SIGNAL_SPEED   = 0.012;   // neural signal travel speed
+  const GLOW_INTENSITY = 0.72;    // 0.0–1.0
+  const BRAIN_COLOR    = new THREE.Color(0.25, 0.65, 1.0); // blue
+  const ACCENT_COLOR   = new THREE.Color(1.0,  0.55, 0.15); // warm orange accent
+  // ─────────────────────────────────────
+
+  const bc = document.getElementById('burstCanvas');
+  const renderer = new THREE.WebGLRenderer({ canvas: bc, alpha: true, antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0.3, 4.5);
+
+  window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
+
+  // ── Build brain shape: cross-section silhouette points ──
+  // Cerebrum lobes as parametric outline, mirrored
+  function brainProfile(t) {
+    // t: 0–1, maps to angle around a rough brain cross-section
+    const a = t * Math.PI * 2;
+    // Distorted ellipse with frontal/parietal/occipital bulges
+    const r = 1.0
+      + 0.18 * Math.cos(2 * a)
+      + 0.10 * Math.cos(3 * a + 0.3)
+      + 0.07 * Math.cos(5 * a + 1.1)
+      + 0.05 * Math.sin(4 * a - 0.5);
+    return new THREE.Vector2(
+      r * Math.cos(a) * 1.15,
+      r * Math.sin(a) * 0.88 + 0.12   // slightly taller than wide, shifted up
+    );
+  }
+
+  // ── NODE PARTICLES ──
+  const NODE_COUNT = isMobile ? 380 : 620;
+  const nodePositions = [];
+  const nodeSizes = [];
+  const nodeOpacities = [];
+
+  for (let i = 0; i < NODE_COUNT; i++) {
+    // Place points within the brain profile using rejection sampling
+    let x, y, inside = false, attempts = 0;
+    while (!inside && attempts < 40) {
+      x = (Math.random() - 0.5) * 2.6;
+      y = (Math.random() - 0.5) * 2.0;
+      // Check if inside the profile by angle
+      const angle = Math.atan2(y - 0.12, x / 1.15);
+      const t = (angle / (Math.PI * 2) + 1) % 1;
+      const p = brainProfile(t);
+      const dist = Math.sqrt(x * x + (y - 0.12) * (y - 0.12));
+      const pDist = Math.sqrt(p.x * p.x + (p.y - 0.12) * (p.y - 0.12));
+      inside = dist < pDist * 0.95;
+      attempts++;
+    }
+    // Add slight z depth for 3D feel
+    const z = (Math.random() - 0.5) * 0.8;
+    nodePositions.push(x || 0, y || 0, z);
+    nodeSizes.push(0.008 + Math.random() * 0.018);
+    nodeOpacities.push(0.3 + Math.random() * 0.7);
+  }
+
+  // Outline particles along brain profile
+  const OUTLINE_COUNT = 160;
+  for (let i = 0; i < OUTLINE_COUNT; i++) {
+    const t = i / OUTLINE_COUNT;
+    const p = brainProfile(t);
+    const jitter = (Math.random() - 0.5) * 0.04;
+    nodePositions.push(p.x + jitter, p.y + jitter, (Math.random() - 0.5) * 0.2);
+    nodeSizes.push(0.012 + Math.random() * 0.012);
+    nodeOpacities.push(0.7 + Math.random() * 0.3);
+  }
+
+  const totalNodes = NODE_COUNT + OUTLINE_COUNT;
+  const nodeGeo = new THREE.BufferGeometry();
+  nodeGeo.setAttribute('position', new THREE.Float32BufferAttribute(nodePositions, 3));
+  nodeGeo.setAttribute('size',     new THREE.Float32BufferAttribute(nodeSizes, 1));
+  nodeGeo.setAttribute('opacity',  new THREE.Float32BufferAttribute(nodeOpacities, 1));
+
+  const nodeMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uColor:   { value: BRAIN_COLOR },
+      uAccent:  { value: ACCENT_COLOR },
+      uPulse:   { value: 0.0 },
+      uGlow:    { value: GLOW_INTENSITY },
+    },
+    vertexShader: `
+      attribute float size;
+      attribute float opacity;
+      varying float vOpacity;
+      uniform float uPulse;
+      void main() {
+        vOpacity = opacity;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = size * (1.0 + uPulse * 0.35) * 320.0 / -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      varying float vOpacity;
+      uniform vec3 uColor;
+      uniform vec3 uAccent;
+      uniform float uPulse;
+      uniform float uGlow;
+      void main() {
+        vec2 uv = gl_PointCoord - 0.5;
+        float d = length(uv);
+        if (d > 0.5) discard;
+        float core  = 1.0 - smoothstep(0.0, 0.18, d);
+        float bloom = 1.0 - smoothstep(0.0, 0.5,  d);
+        vec3 col = mix(uColor, uAccent, uPulse * 0.4);
+        float alpha = (core * 0.9 + bloom * 0.35 * uGlow) * vOpacity * (0.7 + uPulse * 0.3);
+        gl_FragColor = vec4(col, alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const nodesMesh = new THREE.Points(nodeGeo, nodeMat);
+  scene.add(nodesMesh);
+
+  // ── CONNECTION LINES between nearby nodes ──
+  const LINE_PAIRS = isMobile ? 180 : 320;
+  const linePositions = [];
+  const lineOpacities = [];
+
+  const posArr = nodePositions;
+  for (let i = 0; i < LINE_PAIRS; i++) {
+    const a = Math.floor(Math.random() * totalNodes);
+    const b = Math.floor(Math.random() * totalNodes);
+    const ax = posArr[a*3], ay = posArr[a*3+1], az = posArr[a*3+2];
+    const bx2 = posArr[b*3], by2 = posArr[b*3+1], bz2 = posArr[b*3+2];
+    const dist = Math.sqrt((ax-bx2)**2+(ay-by2)**2+(az-bz2)**2);
+    if (dist < 0.55) {
+      linePositions.push(ax, ay, az, bx2, by2, bz2);
+      lineOpacities.push(0.08 + Math.random() * 0.14, 0.08 + Math.random() * 0.14);
+    }
+  }
+
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+  lineGeo.setAttribute('opacity',  new THREE.Float32BufferAttribute(lineOpacities, 1));
+
+  const lineMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uColor: { value: BRAIN_COLOR },
+      uPulse: { value: 0.0 },
+    },
+    vertexShader: `
+      attribute float opacity;
+      varying float vOpacity;
+      void main() {
+        vOpacity = opacity;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying float vOpacity;
+      uniform vec3 uColor;
+      uniform float uPulse;
+      void main() {
+        gl_FragColor = vec4(uColor, vOpacity * (0.6 + uPulse * 0.4));
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const linesMesh = new THREE.LineSegments(lineGeo, lineMat);
+  scene.add(linesMesh);
+
+  // ── NEURAL SIGNAL PULSES ──
+  // Bright dots that travel along a path through the brain
+  const SIGNAL_COUNT = isMobile ? 5 : 9;
+  const signals = [];
+
+  function makeSignalPath() {
+    const pts = [];
+    const startT = Math.random();
+    const steps = 18 + Math.floor(Math.random() * 20);
+    for (let s = 0; s < steps; s++) {
+      const frac = s / steps;
+      const t = (startT + frac * 0.6) % 1;
+      const p = brainProfile(t);
+      const inward = 0.3 + Math.random() * 0.55;
+      pts.push(new THREE.Vector3(
+        p.x * inward + (Math.random()-0.5)*0.15,
+        p.y * inward + (Math.random()-0.5)*0.15,
+        (Math.random()-0.5)*0.4
+      ));
+    }
+    return pts;
+  }
+
+  for (let i = 0; i < SIGNAL_COUNT; i++) {
+    signals.push({
+      path:     makeSignalPath(),
+      progress: Math.random(),
+      speed:    SIGNAL_SPEED * (0.7 + Math.random() * 0.8),
+      warm:     Math.random() < 0.25,
+    });
+  }
+
+  const signalGeo = new THREE.BufferGeometry();
+  const signalPos = new Float32Array(SIGNAL_COUNT * 3);
+  signalGeo.setAttribute('position', new THREE.BufferAttribute(signalPos, 3));
+
+  const signalMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `
+      void main() {
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = 6.0 * 320.0 / -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }
+    `,
+    fragmentShader: `
+      void main() {
+        vec2 uv = gl_PointCoord - 0.5;
+        float d = length(uv);
+        if (d > 0.5) discard;
+        float a = 1.0 - smoothstep(0.0, 0.5, d);
+        gl_FragColor = vec4(0.7, 0.9, 1.0, a * 0.95);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const signalMesh = new THREE.Points(signalGeo, signalMat);
+  scene.add(signalMesh);
+
+  // ── SOFT AMBIENT GLOW (billboard sprite) ──
+  const glowGeo = new THREE.PlaneGeometry(3.8, 2.8);
+  const glowMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uColor: { value: BRAIN_COLOR },
+      uPulse: { value: 0.0 },
+      uGlow:  { value: GLOW_INTENSITY },
+    },
+    vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform vec3 uColor;
+      uniform float uPulse;
+      uniform float uGlow;
+      void main() {
+        vec2 c = vUv - 0.5;
+        float d = length(c * vec2(1.0, 1.3));
+        float g = 1.0 - smoothstep(0.0, 0.5, d);
+        g = g * g;
+        float alpha = g * 0.18 * uGlow * (0.7 + uPulse * 0.3);
+        gl_FragColor = vec4(uColor, alpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+  });
+  const glowMesh = new THREE.Mesh(glowGeo, glowMat);
+  glowMesh.position.set(0, 0.1, -0.5);
+  scene.add(glowMesh);
+
+  // ── ANIMATION LOOP ──
+  let brainRunning = true;
+  let bt = 0;
+  let buildUp = 0; // 0→1 as page loads, controls intro fade-in
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function animate() {
+    if (!brainRunning) return;
+    bt++;
+    buildUp = Math.min(1, buildUp + 0.004);
+
+    // Heartbeat: strong pulse every ~2s
+    const heartbeat = Math.pow(Math.abs(Math.sin(bt * PULSE_SPEED)), 3.5);
+
+    // Slow organic rotation
+    nodesMesh.rotation.y = Math.sin(bt * 0.0018) * 0.12;
+    nodesMesh.rotation.x = Math.sin(bt * 0.0011) * 0.06;
+    linesMesh.rotation.copy(nodesMesh.rotation);
+    signalMesh.rotation.copy(nodesMesh.rotation);
+    glowMesh.rotation.copy(nodesMesh.rotation);
+
+    // Parallax drift
+    nodesMesh.position.y = Math.sin(bt * 0.0009) * 0.04;
+    linesMesh.position.y = nodesMesh.position.y;
+
+    // Update uniforms
+    nodeMat.uniforms.uPulse.value = heartbeat * buildUp;
+    lineMat.uniforms.uPulse.value = heartbeat * buildUp;
+    glowMat.uniforms.uPulse.value = heartbeat * buildUp;
+
+    // Scale pulse on heartbeat
+    const scale = 1.0 + heartbeat * 0.04 * buildUp;
+    nodesMesh.scale.setScalar(scale);
+    linesMesh.scale.setScalar(scale);
+
+    // ── Update signal pulses
+    for (let i = 0; i < signals.length; i++) {
+      const sig = signals[i];
+      sig.progress += sig.speed;
+      if (sig.progress >= 1) {
+        sig.progress = 0;
+        sig.path = makeSignalPath();
+      }
+      const idx = Math.min(sig.path.length - 2, Math.floor(sig.progress * sig.path.length));
+      const frac = (sig.progress * sig.path.length) % 1;
+      const pa = sig.path[idx];
+      const pb = sig.path[Math.min(idx + 1, sig.path.length - 1)];
+      signalPos[i*3]   = lerp(pa.x, pb.x, frac);
+      signalPos[i*3+1] = lerp(pa.y, pb.y, frac);
+      signalPos[i*3+2] = lerp(pa.z, pb.z, frac);
+    }
+    signalGeo.attributes.position.needsUpdate = true;
+
+    // ASCII pulse reaction
+    const asciiEl = document.getElementById('asciiOut');
+    if (asciiEl && buildUp > 0.5) {
+      if (heartbeat > 0.7) asciiEl.classList.add('brain-pulse');
+      else asciiEl.classList.remove('brain-pulse');
+    }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+
+  // Fade in brain smoothly
+  setTimeout(() => { bc.classList.add('visible'); }, 200);
+  animate();
+
+  // Stop on reveal
+  const loadScreenEl = document.getElementById('loadScreen');
+  const mo = new MutationObserver(() => {
+    if (loadScreenEl.classList.contains('hide')) {
+      bc.classList.remove('visible');
+      bc.classList.add('hide');
+      setTimeout(() => {
+        brainRunning = false;
+        renderer.dispose();
+        bc.remove();
+      }, 1400);
+      mo.disconnect();
+    }
+  });
+  mo.observe(loadScreenEl, { attributes: true, attributeFilter: ['class'] });
+})();
 
 /* ── NAV GLITCH INTRO ── */
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
