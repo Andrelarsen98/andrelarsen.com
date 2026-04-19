@@ -181,6 +181,14 @@
     line-height: 1.15;
   }
 
+  /* Per-char spans used by reveal sequence */
+  .sc-char, .sc-space {
+    display: inline;
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+  }
+
   /* Mobile hamburger — hidden on desktop */
   .nav-menu-btn {
     display: none;
@@ -265,6 +273,7 @@
     -webkit-font-smoothing: none;
     font-smooth: never;
     opacity: 0;
+    word-break: break-word;
   }
 
   .spacer { display: none; }
@@ -1077,72 +1086,50 @@ function wrapNavChars(el) {
   });
 }
 
-/* ── NAV REVEAL SEQUENCE — triggered after site photo fades in ── */
+/* ── NAV REVEAL SEQUENCE — artefakt style ── */
+// Chars used for scramble
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
 
-function typewriterGlitch(el, delay, onDone) {
-  const final = el.textContent;
-  const scrambled = Array.from(final).map(c =>
-    (c === ' ' || c === '\n') ? c : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]
-  );
-  setTimeout(() => {
-    el.style.opacity = '1';
-    el.textContent = scrambled.join('');
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < final.length) {
-        for (let j = i; j < final.length; j++) {
-          if (final[j] !== ' ') scrambled[j] = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
-        }
-        scrambled[i] = final[i];
-        el.textContent = scrambled.join('');
-        i++;
-      } else {
-        el.textContent = final;
-        clearInterval(interval);
-        if (onDone) onDone();
-      }
-    }, 38);
-  }, delay);
-}
-function typewriterLogo(el, delay) {
-  const savedHTML = el.innerHTML;
+/* Split element into per-char spans, return array of spans */
+function splitToCharSpans(el) {
   const text = el.textContent;
-  el.textContent = '';
-  el.style.opacity = '1';
-  let i = 0;
-  setTimeout(() => {
-    const iv = setInterval(() => {
-      i++;
-      el.textContent = text.slice(0, i);
-      if (i >= text.length) { clearInterval(iv); el.innerHTML = savedHTML; }
-    }, 48);
-  }, delay);
+  el.innerHTML = Array.from(text).map(c =>
+    c === ' ' ? '<span class="sc-space"> </span>'
+              : `<span class="sc-char">${GLITCH_CHARS[Math.floor(Math.random()*GLITCH_CHARS.length)]}</span>`
+  ).join('');
+  return { chars: [...el.querySelectorAll('.sc-char')], originals: Array.from(text).filter(c => c !== ' ') };
 }
 
-function glitchResolve(el, intervalMs, onDone) {
-  const final     = el.textContent;
-  const scrambled = Array.from(final).map(c =>
-    (c === ' ' || c === '\n') ? c : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]
-  );
-  el.style.opacity = '1';
-  el.textContent   = scrambled.join('');
-  let i = 0;
+/* Resolve a single char span to its final character */
+function resolveChar(span, finalChar, iterations) {
+  let count = 0;
   const iv = setInterval(() => {
-    if (i < final.length) {
-      for (let j = i; j < final.length; j++) {
-        if (final[j] !== ' ' && final[j] !== '\n')
-          scrambled[j] = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
-      }
-      scrambled[i] = final[i];
-      el.textContent = scrambled.join('');
-      i++;
-    } else {
-      el.textContent = final;
+    count++;
+    if (count >= iterations) {
+      span.textContent = finalChar;
       clearInterval(iv);
-      if (onDone) onDone();
+    } else {
+      span.textContent = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
     }
-  }, intervalMs);
+  }, 16);
+}
+
+/* After reveal, wrap nav link chars for hover effect */
+function wrapNavCharsHover(el) {
+  const GHOVER = '@#FRT43%=+-.<>!?|~^$3R4T&*()[]{}/:;,!§±°€£¥×÷√∞≠';
+  el.querySelectorAll('.sc-char').forEach(span => {
+    const orig = span.textContent;
+    span.dataset.orig = orig;
+    span.addEventListener('mouseenter', () => {
+      let count = 0;
+      const total = 5 + Math.floor(Math.random() * 2);
+      const iv = setInterval(() => {
+        span.textContent = GHOVER[Math.floor(Math.random() * GHOVER.length)];
+        count++;
+        if (count >= total) { clearInterval(iv); setTimeout(() => { span.textContent = span.dataset.orig; }, 60); }
+      }, 55);
+    });
+  });
 }
 
 function startNavSequence() {
@@ -1153,27 +1140,36 @@ function startNavSequence() {
   const bioEl     = document.getElementById('landingBio');
   const indicator = document.getElementById('scrollIndicator');
 
-  // All elements including logo and bio
+  // All elements that get the char-by-char reveal
   const allEls = [logo, ...navLinks, ...navCenter, ...navRight];
   if (bioEl) allEls.push(bioEl);
 
-  // Target: everything resolves in ~900ms — artefakt feel
-  // Each element's interval is tuned to its own length so all finish together
-  const TARGET_MS = 900;
+  // Step 1: split all elements into char spans and make them visible (showing scrambled)
+  const splitData = allEls.map(el => {
+    el.style.opacity = '1';
+    return { el, ...splitToCharSpans(el) };
+  });
 
-  setTimeout(() => {
-    allEls.forEach(el => {
-      const len      = el.textContent.length;
-      const ivMs     = Math.max(6, Math.round(TARGET_MS / len));
-      const isLink   = el.matches && el.matches('.nav-links a, .nav-center a');
-      glitchResolve(el, ivMs, isLink ? () => wrapNavChars(el) : null);
+  // Step 2: stagger each CHAR across ALL elements at 10ms apart — artefakt style
+  // Collect all chars from all elements in order, then stagger globally
+  const CHAR_STAGGER_MS = 10;   // 10ms between each char — matches artefakt stagger:0.01
+  const SCRAMBLE_ITER   = 6;    // how many scramble frames before resolving
+
+  let globalCharIndex = 0;
+  splitData.forEach(({ el, chars, originals }) => {
+    chars.forEach((span, i) => {
+      const delay = globalCharIndex * CHAR_STAGGER_MS;
+      setTimeout(() => resolveChar(span, originals[i], SCRAMBLE_ITER), delay);
+      globalCharIndex++;
     });
-  }, 0);
+  });
 
-  // Scroll arrow after everything lands
+  // Step 3: after all chars resolve, wrap hover effect on nav links
+  const totalDuration = globalCharIndex * CHAR_STAGGER_MS + SCRAMBLE_ITER * 16 + 100;
   setTimeout(() => {
+    [...navLinks, ...navCenter].forEach(el => wrapNavCharsHover(el));
     if (indicator) indicator.style.opacity = '1';
-  }, TARGET_MS + 300);
+  }, totalDuration);
 }
 window.addEventListener('navReveal', startNavSequence);
 
