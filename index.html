@@ -620,7 +620,7 @@ const isMobile = window.innerWidth <= 768;
   const site       = document.getElementById('site');
 
   const CW = 5, CH = 7.5;
-  const MOUSE_R = 80;
+  const MOUSE_R = 140;
   let cols, rows, mask, cellChar, cellTimer, nameBottomPx;
   let loaderProgress = 0, loaderAnimId, loaderBarId;
   let mouseX = -999, mouseY = -999;
@@ -1093,15 +1093,15 @@ videoEl.addEventListener('timeupdate', () => {
 
   const FOOTER_NAME  = 'André Larsen';
   // Artefakt uses dense alphanumeric chars — mostly numbers and letters, very readable
-  const FOOTER_CHARS = 'RT34FR3T4R3TRF4T3R43RT3';
+  const FOOTER_CHARS = '3RT4FR@#T4R3T%RF4T=3R+43RT3:F4R*3T#@R43TF%R3T4R3T#4F@R3TR4%3TF#R3T4R@3TRF43RT#@%R3T4FR3@T#R4F3T%R4T3F#@R3T4';
 
   // Footer fills full viewport. Reserve ~85px for info row + back-to-top bar.
   const FOOTER_RESERVED = 85;
   const availH = window.innerHeight - FOOTER_RESERVED;
 
   // Choose char size — slightly larger for readability like Artefakt
-  const F_CHAR_H  = isMobile ? 8  : 11;
-  const F_CHAR_W  = isMobile ? 5  : 7;
+  const F_CHAR_H  = isMobile ? 7.5 : 7.5;
+  const F_CHAR_W  = isMobile ? 5   : 5;
   const F_COLS    = Math.floor(window.innerWidth / F_CHAR_W);
   const F_ROWS    = Math.floor(availH / F_CHAR_H);
 
@@ -1119,7 +1119,7 @@ videoEl.addEventListener('timeupdate', () => {
   let fontSize = 200;
   fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
   let nameW = fCtx.measureText(FOOTER_NAME).width;
-  const targetW = fCanvas.width * 0.99;
+  const targetW = fCanvas.width * 0.78;
   fontSize = fontSize * (targetW / nameW);
   fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
 
