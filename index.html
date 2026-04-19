@@ -264,6 +264,7 @@
     max-width: 380px;
     -webkit-font-smoothing: none;
     font-smooth: never;
+    opacity: 0;
   }
 
   .spacer { display: none; }
@@ -1136,13 +1137,16 @@ function startNavSequence() {
     typewriterGlitch(el, 200 + i * 140, isLink ? () => wrapNavChars(el) : null);
   });
 
-  // Bio text — same glitch typewriter as nav, faster interval for long sentence
-  const bioEl    = document.getElementById('landingBio');
-  const bioDelay = 200 + allItems.length * 140 + 200;
+  // Bio — starts same moment as WORKS (delay 200ms), interval tuned so it
+  // finishes exactly when ANDRE@ANDRELARSEN.COM finishes (index 3 * 140 + 200 + 22*38 ≈ 1456ms)
+  const bioEl = document.getElementById('landingBio');
   if (bioEl) {
-    const finalText = bioEl.textContent;
-    const GLITCH    = GLITCH_CHARS;
-    const scrambled = Array.from(finalText).map(c =>
+    const finalText  = bioEl.textContent;
+    const emailDone  = 200 + 3 * 140 + 22 * 38; // ~1456ms — when email finishes
+    const bioStart   = 200;                        // starts with WORKS
+    const bioInterval = Math.max(6, Math.floor((emailDone - bioStart) / finalText.length));
+    const GLITCH     = GLITCH_CHARS;
+    const scrambled  = Array.from(finalText).map(c =>
       (c === ' ') ? c : GLITCH[Math.floor(Math.random() * GLITCH.length)]
     );
     setTimeout(() => {
@@ -1161,16 +1165,15 @@ function startNavSequence() {
           bioEl.textContent = finalText;
           clearInterval(iv);
         }
-      }, 18);
-    }, bioDelay);
+      }, bioInterval);
+    }, bioStart);
   }
 
-  // Scroll arrow appears after bio finishes
-  const bioLength  = bioEl ? bioEl.textContent.length : 0;
-  const arrowDelay = bioDelay + bioLength * 18 + 300;
+  // Scroll arrow appears after everything lands
+  const emailDoneMs = 200 + 3 * 140 + 22 * 38 + 400;
   setTimeout(() => {
     if (indicator) indicator.style.opacity = '1';
-  }, arrowDelay);
+  }, emailDoneMs);
 }
 
 window.addEventListener('navReveal', startNavSequence);
