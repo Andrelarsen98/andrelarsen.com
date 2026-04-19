@@ -781,19 +781,22 @@ const isMobile = window.innerWidth <= 768;
   }
 
   function doReveal() {
+    // 1. Hide the loading bar UI immediately
     loadUi.classList.add('hide');
     setTimeout(() => {
+      // 2. Fade out the ASCII canvas (1.2s transition defined in CSS)
       aC.classList.add('hidden');
-      loadScreen.classList.add('hide');
+      // 3. Once ASCII is fully faded, fade in the main page
       setTimeout(() => {
+        loadScreen.classList.add('hide');
         site.classList.add('visible');
         setTimeout(() => {
           loadScreen.remove();
           cancelAnimationFrame(loaderAnimId);
           aC.remove();
         }, 1200);
-      }, 500);
-    }, 600);
+      }, 1200); // wait for ASCII fade to complete
+    }, 300);
   }
 
   let barDone = false, imageDone = false;
