@@ -380,45 +380,37 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(6,3,1,0.97);
-    z-index: 100;
+    background: #000;
+    z-index: 300;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: flex-start;
-    padding: 60px 40px;
+    padding: 0 0 40px 0;
     opacity: 0;
     transition: opacity 0.3s ease;
   }
   .menu-overlay.open { display: flex; opacity: 1; }
-  .menu-overlay a {
-    color: #fff;
-    text-decoration: none;
-    font-family: 'Arial Black', Arial, sans-serif;
-    font-size: 36px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: -0.01em;
-    line-height: 1.3;
-    opacity: 0.9;
-  }
-  .menu-overlay a + a { margin-top: 8px; }
-  .menu-overlay .menu-sub {
-    margin-top: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .menu-overlay .menu-sub a {
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.15em;
-    opacity: 0.45;
-  }
-  .menu-close {
+
+  /* Top bar — logo + close button */
+  .menu-top {
     position: absolute;
-    top: 26px; right: 24px;
-    background: none;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 20px 0;
+  }
+  .menu-logo {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: lowercase;
+    letter-spacing: -0.01em;
+  }
+  .menu-logo em { font-style: italic; }
+  .menu-close {
+    background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.4);
     color: #fff;
     font-family: 'VT323', monospace;
@@ -428,6 +420,64 @@
     cursor: pointer;
     text-transform: uppercase;
     -webkit-font-smoothing: none;
+  }
+
+  /* Main nav links */
+  .menu-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 36px;
+    margin-bottom: 48px;
+  }
+  .menu-nav a {
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 64px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  /* Bottom bar — info left, contact button right */
+  .menu-bottom {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 36px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 20px;
+  }
+  .menu-bottom-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .menu-bottom-left a,
+  .menu-bottom-left span {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    -webkit-font-smoothing: none;
+  }
+  .menu-contact-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.35);
+    color: #fff;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    padding: 8px 16px;
+    text-decoration: none;
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    white-space: nowrap;
   }
 
   /* ══════════════════════════════════════
@@ -847,12 +897,21 @@ CRAFTED.</div>
 
 <!-- Mobile full-screen menu -->
 <div class="menu-overlay" id="menuOverlay">
-  <button class="menu-close" id="menuClose">✕ CLOSE</button>
-  <a href="works.html">WORKS</a>
-  <a href="#">ABOUT</a>
-  <div class="menu-sub">
-    <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
-    <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+  <div class="menu-top">
+    <div class="menu-logo">andré <em>larsen</em></div>
+    <button class="menu-close" id="menuClose">✕ CLOSE</button>
+  </div>
+  <div class="menu-nav">
+    <a href="/">HOME</a>
+    <a href="works.html">WORKS</a>
+    <a href="#">ABOUT</a>
+  </div>
+  <div class="menu-bottom">
+    <div class="menu-bottom-left">
+      <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
+      <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+    </div>
+    <a href="mailto:andre@andrelarsen.com" class="menu-contact-btn">&gt; CONTACT</a>
   </div>
 </div>
 
@@ -861,8 +920,16 @@ CRAFTED.</div>
 const menuBtn     = document.getElementById('menuBtn');
 const menuOverlay = document.getElementById('menuOverlay');
 const menuClose   = document.getElementById('menuClose');
-menuBtn.addEventListener('click', () => menuOverlay.classList.add('open'));
-menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
+menuBtn.addEventListener('click', () => {
+  menuOverlay.classList.add('open');
+  menuBtn.style.opacity = '0';
+  menuBtn.style.pointerEvents = 'none';
+});
+menuClose.addEventListener('click', () => {
+  menuOverlay.classList.remove('open');
+  menuBtn.style.opacity = '1';
+  menuBtn.style.pointerEvents = 'all';
+});
 
 /* ── SHARED ── */
 const isMobile = window.innerWidth <= 768;
