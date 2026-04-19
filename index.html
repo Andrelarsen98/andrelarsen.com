@@ -82,7 +82,8 @@
   .nav-logo,
   .nav-links a,
   .nav-center a,
-  .nav-right span {
+  .nav-right span,
+  .nav-menu-btn {
     opacity: 0;
   }
 
@@ -608,10 +609,12 @@
       font-size: 13px;
       line-height: 1.2;
       order: 1;
+      flex-shrink: 0;
     }
     .landing-bottom-right {
       position: static;
       order: 2;
+      flex-shrink: 0;
     }
     .landing-bottom-right,
     .landing-bio-ghost,
@@ -1236,6 +1239,9 @@ function startNavSequence() {
   setTimeout(() => {
     [...navLinks, ...navCenter].forEach(el => wrapNavCharsHover(el));
     if (indicator) indicator.style.opacity = '1';
+    // Fade in mobile menu button
+    const menuBtn = document.getElementById('menuBtn');
+    if (menuBtn) { menuBtn.style.transition = 'opacity 0.5s ease'; menuBtn.style.opacity = '1'; }
   }, totalDuration);
 }
 window.addEventListener('navReveal', startNavSequence);
