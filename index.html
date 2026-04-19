@@ -1,5 +1,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preload" as="image" href="IMG_5937.JPG">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
 <style>
   html, body {
@@ -75,14 +78,25 @@
     to   { transform: translateX(30px) scale(1.04); opacity: 1; }
   }
 
+  /* ── VGA / BITMAP FONT GLOBAL ── */
+  .vga {
+    font-family: 'VT323', monospace;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    font-smooth: never;
+    text-rendering: optimizeSpeed;
+  }
+
   /* ── DESKTOP NAV ── */
   nav {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    align-items: start;
     padding: 26px 32px 0;
     position: relative;
     z-index: 20;
   }
+  /* Col 1 — logo */
   .nav-logo {
     font-size: 15px;
     font-weight: 900;
@@ -92,24 +106,99 @@
     letter-spacing: -0.01em;
   }
   .nav-logo em { font-style: italic; }
-  .nav-links, .nav-center { display: flex; flex-direction: column; gap: 3px; }
-  .nav-links a, .nav-center a {
+
+  /* Col 2 — WORKS / ABOUT */
+  .nav-links { display: flex; flex-direction: column; gap: 1px; }
+  .nav-links a {
     color: #fff; text-decoration: none;
-    font-size: 10.5px; letter-spacing: 0.1em;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    line-height: 1.15;
   }
+  .nav-links a:hover { opacity: 0.6; }
+
+  /* Col 3 — INSTAGRAM / EMAIL */
+  .nav-center { display: flex; flex-direction: column; gap: 1px; }
+  .nav-center a {
+    color: #fff; text-decoration: none;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    line-height: 1.15;
+  }
+  .nav-center a:hover { opacity: 0.6; }
+
+  /* Col 4 — VISUAL ARTIST / DUBAI, UAE */
+  .nav-right { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+  .nav-right span {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    line-height: 1.15;
+  }
+
+  /* Mobile hamburger — hidden on desktop */
   .nav-menu-btn {
     display: none;
     background: none;
     border: 1px solid rgba(255,255,255,0.5);
     color: #fff;
-    font-family: 'Courier New', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    padding: 7px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+    padding: 5px 14px;
     cursor: pointer;
     text-transform: uppercase;
+    -webkit-font-smoothing: none;
   }
-  .spacer { flex: 1; }
+
+  /* ── LANDING BOTTOM TEXT (like artefakt) ── */
+  .landing-bottom {
+    position: absolute;
+    bottom: 28px;
+    left: 32px;
+    right: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .landing-bottom-left {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    line-height: 1.2;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+  }
+  .landing-bottom-right {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.35;
+    text-align: right;
+    max-width: 420px;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+  }
+
+  .spacer { display: none; }
 
 
 
@@ -158,13 +247,14 @@
   }
   #loadUi.hide { opacity: 0; }
   #loadLine1 {
-    font-family: 'Courier New', monospace;
+    font-family: 'VT323', monospace;
     color: #fff;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
     text-align: center;
     text-transform: uppercase;
-    font-size: 9px;
+    font-size: 14px;
     opacity: 0.85;
+    -webkit-font-smoothing: none;
   }
   .load-bar-wrap {
     width: 200px;
@@ -179,10 +269,11 @@
     background: #fff;
   }
   #loadPct {
-    font-family: 'Courier New', monospace;
-    font-size: 8px;
-    letter-spacing: 0.18em;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    letter-spacing: 0.14em;
     color: rgba(255,255,255,0.4);
+    -webkit-font-smoothing: none;
   }
   /* compat — hidden */
   .ascii-wrap { display: none; }
@@ -234,12 +325,13 @@
     background: none;
     border: 1px solid rgba(255,255,255,0.4);
     color: #fff;
-    font-family: 'Courier New', monospace;
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    padding: 7px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+    padding: 5px 14px;
     cursor: pointer;
     text-transform: uppercase;
+    -webkit-font-smoothing: none;
   }
 
   /* ══════════════════════════════════════
@@ -291,12 +383,13 @@
     top: 28px;
     left: 32px;
     z-index: 10;
-    font-family: 'Courier New', monospace;
-    font-size: 9px;
-    letter-spacing: 0.22em;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 0.12em;
     color: rgba(255,255,255,0.5);
     text-transform: uppercase;
     pointer-events: none;
+    -webkit-font-smoothing: none;
   }
 
   /* Top-right label */
@@ -305,12 +398,13 @@
     top: 28px;
     right: 32px;
     z-index: 10;
-    font-family: 'Courier New', monospace;
-    font-size: 9px;
-    letter-spacing: 0.22em;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 0.12em;
     color: rgba(255,255,255,0.5);
     text-transform: uppercase;
     pointer-events: none;
+    -webkit-font-smoothing: none;
   }
 
   /* Bottom progress bar */
@@ -337,11 +431,12 @@
     bottom: 18px;
     left: 32px;
     z-index: 10;
-    font-family: 'Courier New', monospace;
-    font-size: 9px;
-    letter-spacing: 0.18em;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 0.12em;
     color: rgba(255,255,255,0.35);
     pointer-events: none;
+    -webkit-font-smoothing: none;
   }
 
   /* Bottom-right: ANDRÉ LARSEN */
@@ -363,12 +458,13 @@
   /* ── MOBILE ── */
   @media (max-width: 768px) {
     nav {
+      display: flex;
       padding: 22px 20px 0;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
     }
-    .nav-logo { display: none; }
-    .nav-links, .nav-center { display: none; }
+    .nav-logo { display: block; }
+    .nav-links, .nav-center, .nav-right { display: none; }
     .nav-menu-btn { display: block; }
 
     .ascii-wrap {
@@ -425,18 +521,21 @@
     align-items: flex-start;
     padding: 16px 28px 18px;
     border-top: 1px solid rgba(255,255,255,0.12);
-    font-family: 'Courier New', monospace;
-    font-size: 8.5px;
-    letter-spacing: 0.13em;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
     color: rgba(255,255,255,0.55);
     text-transform: uppercase;
-    line-height: 1.7;
+    line-height: 1.5;
     flex-shrink: 0;
+    -webkit-font-smoothing: none;
   }
   .footer-info a {
     color: rgba(255,255,255,0.55);
     text-decoration: none;
     display: block;
+    font-family: 'VT323', monospace;
+    -webkit-font-smoothing: none;
   }
   .footer-info a:hover { color: #fff; }
   /* Each column stacks its lines vertically, no box */
@@ -446,9 +545,9 @@
   }
   .footer-col-label {
     color: rgba(255,255,255,0.55);
-    font-size: 8.5px;
+    font-size: 14px;
     margin-bottom: 2px;
-    letter-spacing: 0.13em;
+    letter-spacing: 0.1em;
   }
 
   /* Back to top — thin gray bar, no hover background fill, just color change */
@@ -458,9 +557,9 @@
     justify-content: center;
     padding: 9px 32px;
     border-top: 1px solid rgba(255,255,255,0.10);
-    font-family: 'Courier New', monospace;
-    font-size: 8px;
-    letter-spacing: 0.22em;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.18em;
     color: rgba(255,255,255,0.30);
     text-transform: uppercase;
     cursor: pointer;
@@ -468,6 +567,7 @@
     user-select: none;
     flex-shrink: 0;
     background: transparent;
+    -webkit-font-smoothing: none;
   }
   .footer-back:hover { color: rgba(255,255,255,0.75); background: transparent; }
 
@@ -516,14 +616,23 @@
         <a href="#">ABOUT</a>
       </div>
       <div class="nav-center">
-        <a href="https://instagram.com" target="_blank">INSTAGRAM</a>
+        <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
         <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+      </div>
+      <div class="nav-right">
+        <span>VISUAL ARTIST</span>
+        <span>DUBAI, UAE</span>
       </div>
       <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
     </nav>
 
     <div class="spacer"></div>
 
+    <!-- Artefakt-style bottom text -->
+    <div class="landing-bottom">
+      <div class="landing-bottom-left">VISUAL ARTIST.<br>CINEMATOGRAPHER.</div>
+      <div class="landing-bottom-right">CINEMATIC &amp; AERIAL STORYTELLING<br>DUBAI · WORLDWIDE</div>
+    </div>
 
   </div>
 
