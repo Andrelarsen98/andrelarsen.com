@@ -78,6 +78,14 @@
     to   { transform: translateX(30px) scale(1.04); opacity: 1; }
   }
 
+  /* ── NAV — all elements start hidden, revealed by JS sequence ── */
+  .nav-logo,
+  .nav-links a,
+  .nav-center a,
+  .nav-right span {
+    opacity: 0;
+  }
+
   /* ── VGA / BITMAP FONT GLOBAL ── */
   .vga {
     font-family: 'VT323', monospace;
@@ -190,7 +198,7 @@
     gap: 4px;
     pointer-events: none;
     opacity: 0;
-    animation: scrollFadeIn 1s ease 2.5s forwards;
+    transition: opacity 0.8s ease;
   }
   .scroll-arrow {
     font-family: 'VT323', monospace;
@@ -953,6 +961,9 @@ const isMobile = window.innerWidth <= 768;
         loadScreen.classList.add('hide');  // fades out dark backdrop (0.9s)
         site.classList.add('visible');     // fades in main page (1.0s)
 
+        // Fire nav reveal sequence ~1s after site appears
+        setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), 1000);
+
         // Clean up after both are done
         setTimeout(() => {
           loadScreen.remove();
@@ -1027,26 +1038,18 @@ function wrapNavChars(el) {
   });
 }
 
-/* ── NAV GLITCH INTRO ── */
+/* ── NAV REVEAL SEQUENCE — triggered after site photo fades in ── */
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
-const logo = document.querySelector('.nav-logo');
-if (logo) {
-  let blinks = 0;
-  const blinkInterval = setInterval(() => {
-    logo.style.opacity = logo.style.opacity === '0' ? '1' : '0';
-    blinks++;
-    if (blinks >= 4) { clearInterval(blinkInterval); logo.style.opacity = '1'; }
-  }, 130);
-}
 
 function typewriterGlitch(el, delay, onDone) {
   const final = el.textContent;
   const scrambled = Array.from(final).map(c =>
     (c === ' ' || c === '\n') ? c : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]
   );
-  el.textContent = scrambled.join('');
-  let i = 0;
   setTimeout(() => {
+    el.style.opacity = '1';
+    el.textContent = scrambled.join('');
+    let i = 0;
     const interval = setInterval(() => {
       if (i < final.length) {
         for (let j = i; j < final.length; j++) {
@@ -1063,10 +1066,45 @@ function typewriterGlitch(el, delay, onDone) {
     }, 38);
   }, delay);
 }
+function typewriterLogo(el, delay) {
+  const savedHTML = el.innerHTML;
+  const text = el.textContent;
+  el.textContent = '';
+  el.style.opacity = '1';
+  let i = 0;
+  setTimeout(() => {
+    const iv = setInterval(() => {
+      i++;
+      el.textContent = text.slice(0, i);
+      if (i >= text.length) { clearInterval(iv); el.innerHTML = savedHTML; }
+    }, 48);
+  }, delay);
+}
 
-document.querySelectorAll('.nav-links a, .nav-center a').forEach((el, i) => {
-  typewriterGlitch(el, 1500 + i * 100, () => wrapNavChars(el));
-});
+function startNavSequence() {
+  const logo      = document.querySelector('.nav-logo');
+  const navLinks  = [...document.querySelectorAll('.nav-links a')];
+  const navCenter = [...document.querySelectorAll('.nav-center a')];
+  const navRight  = [...document.querySelectorAll('.nav-right span')];
+  const indicator = document.getElementById('scrollIndicator');
+
+  // Logo types in first
+  typewriterLogo(logo, 0);
+
+  // All text nav items staggered after logo
+  const allItems = [...navLinks, ...navCenter, ...navRight];
+  allItems.forEach((el, i) => {
+    const isLink = el.matches('.nav-links a, .nav-center a');
+    typewriterGlitch(el, 200 + i * 140, isLink ? () => wrapNavChars(el) : null);
+  });
+
+  // Scroll arrow appears after everything settles
+  setTimeout(() => {
+    if (indicator) indicator.style.opacity = '1';
+  }, 200 + allItems.length * 140 + 600);
+}
+
+window.addEventListener('navReveal', startNavSequence);
 
 /* ── SCROLL INDICATOR — hide on first scroll ── */
 const scrollIndicator = document.getElementById('scrollIndicator');
