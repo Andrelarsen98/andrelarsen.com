@@ -814,13 +814,26 @@
     .footer-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto;
-      gap: 16px 12px;
-      padding: 16px 20px 16px;
+      gap: 10px 12px;
+      padding: 10px 20px 10px;
       align-items: start;
     }
-    .footer-col.footer-col-wide {
+    /* Row 1 col 1: André Larsen */
+    .footer-col:nth-child(1) { grid-column: 1; grid-row: 1; }
+    /* Row 1 col 2: Get in touch */
+    .footer-col.footer-col-center { grid-column: 2; grid-row: 1; align-items: flex-start; text-align: left; }
+    /* Row 2: Website made left, © right */
+    .footer-col.footer-col-right {
       grid-column: 1 / -1;
+      grid-row: 2;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .footer-col.footer-col-right span:last-child {
+      text-align: right;
     }
     .footer-back { padding: 11px 20px; font-size: 16px; }
     .footer-spacer { height: 0; }
@@ -1598,7 +1611,7 @@ videoEl.addEventListener('timeupdate', () => {
   let ft = 0, footerVisible = false, animId;
 
   function buildFooterMask() {
-    const FOOTER_RESERVED = 140;
+    const FOOTER_RESERVED = 160;
     const availH = window.innerHeight - FOOTER_RESERVED;
     const W = window.innerWidth;
     const H = availH;
