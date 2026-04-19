@@ -730,72 +730,83 @@
     display: block;
   }
 
-  /* ── Info bar — pinned to bottom, no border lines ── */
+  /* ── Info bar ── */
   .footer-info {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-    padding: 0 28px 6px;
+    align-items: flex-start;
+    padding: 14px 28px 14px;
     border-top: none;
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.55);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #fff;
     text-transform: uppercase;
-    line-height: 1.5;
+    line-height: 1.7;
     flex-shrink: 0;
     -webkit-font-smoothing: none;
   }
   .footer-info a {
-    color: rgba(255,255,255,0.55);
+    color: #fff;
     text-decoration: none;
     display: block;
-    font-family: 'VT323', monospace;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
     -webkit-font-smoothing: none;
   }
-  .footer-info a:hover { color: #fff; }
-  /* Each column stacks its lines vertically, no box */
+  .footer-info a:hover { opacity: 0.6; }
   .footer-col {
     display: flex;
     flex-direction: column;
   }
   .footer-col-label {
-    color: rgba(255,255,255,0.55);
-    font-size: 14px;
-    margin-bottom: 2px;
-    letter-spacing: 0.1em;
+    color: #fff;
+    font-size: 11px;
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 0;
+    letter-spacing: 0.08em;
   }
 
-  /* Back to top — full width gray box, blue on hover, artefakt style */
+  /* Back to top — full width gray box, blue on hover, black space below */
   .footer-back {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 11px 32px;
-    border-top: none;
-    font-family: 'VT323', monospace;
-    font-size: 14px;
+    padding: 13px 32px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
     letter-spacing: 0.18em;
     color: #fff;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease;
+    transition: background 0.2s ease;
     user-select: none;
     flex-shrink: 0;
     background: rgba(255,255,255,0.13);
     -webkit-font-smoothing: none;
     width: 100%;
+    box-sizing: border-box;
   }
-  .footer-back:hover { background: #1a2fff; color: #fff; }
+  .footer-back:hover { background: #1a2fff; }
+
+  /* Black space under button */
+  .footer-spacer {
+    flex-shrink: 0;
+    height: 32px;
+    background: #0a0604;
+  }
 
   @media (max-width: 768px) {
     .footer { min-height: 100vh; height: 100vh; }
     .footer-info {
-      flex-direction: column;
-      gap: 20px;
-      padding: 0 20px 6px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px 12px;
+      padding: 16px 20px 16px;
+      align-items: start;
     }
-    .footer-back { padding: 11px 20px; }
+    .footer-back { padding: 13px 20px; font-size: 11px; }
+    .footer-spacer { height: 24px; }
   }
 </style>
 
@@ -908,6 +919,7 @@ CRAFTED.</div>
   </div>
 
   <div class="footer-back" id="footerBackTop">:/ BACK TO TOP</div>
+  <div class="footer-spacer"></div>
 </footer>
 
 </div><!-- end scrollContainer -->
