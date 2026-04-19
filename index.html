@@ -961,9 +961,9 @@ menuBtn.addEventListener('click', () => {
 });
 menuClose.addEventListener('click', () => {
   menuOverlay.style.opacity = '0';
-  menuBtn.style.transition = 'opacity 0.4s ease';
   setTimeout(() => {
     menuOverlay.style.display = 'none';
+    menuBtn.style.transition = 'none';
     menuBtn.style.opacity = '1';
     menuBtn.style.pointerEvents = 'all';
   }, 620);
