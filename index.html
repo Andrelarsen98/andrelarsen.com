@@ -133,16 +133,11 @@
     height: 100%;
     z-index: 210;
     pointer-events: all;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 1.2s ease;
     image-rendering: pixelated;
-    animation: asciiReveal 0.9s ease 0.35s forwards;
   }
-  @keyframes asciiReveal {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-  }
-  #asciiCanvas.hidden { opacity: 0 !important; animation: none; pointer-events: none; }
+  #asciiCanvas.hidden { opacity: 0; pointer-events: none; }
 
   /* ── LOADING UI — positioned by JS below name ── */
   #loadUi {
@@ -153,13 +148,12 @@
     align-items: center;
     gap: 10px;
     white-space: nowrap;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.5s ease;
     pointer-events: none;
     z-index: 211;
-    animation: asciiReveal 0.9s ease 0.7s forwards;
   }
-  #loadUi.hide { opacity: 0 !important; animation: none; }
+  #loadUi.hide { opacity: 0; }
   #loadLine1 {
     font-family: 'Courier New', monospace;
     color: #fff;
@@ -649,7 +643,7 @@ const isMobile = window.innerWidth <= 768;
     let fs = H * 0.40;
     nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
     let nw = nx.measureText(NAME).width;
-    if (nw > W * 0.78) { fs *= (W * 0.78) / nw; }
+    if (nw > W * 0.85) { fs *= (W * 0.85) / nw; }
     nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
     const tw = nx.measureText(NAME).width;
     nx.fillStyle = '#fff';
@@ -800,13 +794,13 @@ const isMobile = window.innerWidth <= 768;
   function checkReveal() { if (barDone && imageDone) doReveal(); }
 
   loaderBarId = setInterval(() => {
-    loaderProgress += 1.4 + Math.random() * 2;
+    loaderProgress += 0.7 + Math.random() * 1.0;
     if (loaderProgress >= 100) {
       loaderProgress = 100;
       clearInterval(loaderBarId);
-      setTimeout(() => { barDone = true; checkReveal(); }, 300);
+      setTimeout(() => { barDone = true; checkReveal(); }, 900);
     }
-  }, 28);
+  }, 38);
 
   const bgPreload = new Image();
   bgPreload.src = 'IMG_5937.JPG';
