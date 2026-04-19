@@ -1842,211 +1842,106 @@ videoEl.addEventListener('timeupdate', () => {
     'work9.mp4','work10.mp4','work11.mp4','work12.mp4'
   ];
 
-  const canvas  = document.getElementById('cubeCanvas');
-  const counter = document.getElementById('cubeCounter');
   const section = document.getElementById('cubeSection');
-  if (!canvas || !section) return;
+  const counter = document.getElementById('cubeCounter');
+  const oldCanvas = document.getElementById('cubeCanvas');
+  if (!section || !oldCanvas) return;
 
-  // ── Three.js via CDN ──
-  const script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-  script.onload = initCube;
-  document.head.appendChild(script);
+  // Replace canvas with a div-based scene for reliability
+  const scene = document.createElement('div');
+  scene.id = 'cubeScene';
+  scene.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;perspective:900px;overflow:hidden;z-index:1;';
+  oldCanvas.replaceWith(scene);
 
-  function initCube() {
-    const W = canvas.clientWidth;
-    const H = canvas.clientHeight;
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:relative;width:520px;height:292px;transform-style:preserve-3d;';
+  scene.appendChild(wrapper);
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(W, H);
-    renderer.setClearColor(0x000000, 1);
+  // Create 12 video cards scattered in 3D
+  const cards = [];
+  const configs = [
+    // [translateX, translateY, translateZ, rotateX, rotateY, rotateZ, scale]
+    [  0,    0,    260,   0,    0,    0,    1    ],  // front
+    [  0,    0,   -260,   0,  180,    0,    1    ],  // back
+    [ 260,   0,    0,     0,   90,    0,    1    ],  // right
+    [-260,   0,    0,     0,  -90,    0,    1    ],  // left
+    [  0,  146,    0,    90,    0,    0,    1    ],  // top
+    [  0, -146,    0,   -90,    0,    0,    1    ],  // bottom
+    // scattered extra 6
+    [ 160,  120,  160,  -20,   35,   10,  0.85  ],
+    [-160,  120, -160,   20,  -35,  -10,  0.85  ],
+    [ 160, -120,  160,   20,   35,  -10,  0.85  ],
+    [-160, -120, -160,  -20,  -35,   10,  0.85  ],
+    [ 160,  120, -160,  -20,  -35,   10,  0.85  ],
+    [-160, -120,  160,   20,   35,  -10,  0.85  ],
+  ];
 
-    // Scene + Camera
-    const scene  = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
-    camera.position.z = 4.5;
+  configs.forEach((cfg, i) => {
+    const card = document.createElement('div');
+    const [tx, ty, tz, rx, ry, rz, sc] = cfg;
+    card.style.cssText = `
+      position:absolute;
+      width:520px; height:292px;
+      transform: translateX(${tx}px) translateY(${ty}px) translateZ(${tz}px)
+                 rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)
+                 scale(${sc});
+      transform-style:preserve-3d;
+      backface-visibility:hidden;
+      border-radius:4px;
+      overflow:hidden;
+      box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    `;
 
-    // Motion blur via accumulation (render to target, blend with previous)
-    const rtA = new THREE.WebGLRenderTarget(W * Math.min(window.devicePixelRatio,2), H * Math.min(window.devicePixelRatio,2));
-    const rtB = new THREE.WebGLRenderTarget(W * Math.min(window.devicePixelRatio,2), H * Math.min(window.devicePixelRatio,2));
-    const blurScene  = new THREE.Scene();
-    const blurCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
-    const blurGeo    = new THREE.PlaneGeometry(2,2);
+    const vid = document.createElement('video');
+    vid.src = CLIPS[i];
+    vid.muted = true;
+    vid.loop = true;
+    vid.playsInline = true;
+    vid.autoplay = true;
+    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+    vid.play().catch(() => {});
 
-    const blurMat = new THREE.ShaderMaterial({
-      uniforms: {
-        tCurrent: { value: null },
-        tPrev:    { value: null },
-        blend:    { value: 0.55 }
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main(){ vUv=uv; gl_Position=vec4(position,1.0); }
-      `,
-      fragmentShader: `
-        uniform sampler2D tCurrent;
-        uniform sampler2D tPrev;
-        uniform float blend;
-        varying vec2 vUv;
-        void main(){
-          vec4 curr = texture2D(tCurrent, vUv);
-          vec4 prev = texture2D(tPrev, vUv);
-          gl_FragColor = mix(curr, prev, blend);
-        }
-      `
-    });
-    blurScene.add(new THREE.Mesh(blurGeo, blurMat));
+    card.appendChild(vid);
+    wrapper.appendChild(card);
+    cards.push({ card, vid });
+  });
 
-    // ── Video elements ──
-    const videos = CLIPS.map((src, i) => {
-      const v = document.createElement('video');
-      v.src = src;
-      v.muted = true;
-      v.loop  = true;
-      v.playsInline = true;
-      v.preload = i < 6 ? 'auto' : 'metadata';
-      v.crossOrigin = 'anonymous';
-      // start playing silently — will be used as texture
-      v.play().catch(() => {});
-      return v;
-    });
+  // Rotation state
+  let rotX = 0, rotY = 0, rotZ = 0;
+  let time = 0;
+  let currentFace = 0;
+  let visible = false;
 
-    // ── Video textures ──
-    const textures = videos.map(v => {
-      const t = new THREE.VideoTexture(v);
-      t.minFilter = THREE.LinearFilter;
-      t.magFilter = THREE.LinearFilter;
-      t.format    = THREE.RGBFormat;
-      return t;
-    });
-
-    // ── Build group of 12 planes arranged like tumbling cards ──
-    const group = new THREE.Group();
-    scene.add(group);
-
-    const PLANE_W = 1.6; // 16:9
-    const PLANE_H = 0.9;
-
-    // Distribute 12 planes across faces of an icosahedron-ish arrangement
-    // We use 6 pairs, each pair on opposite sides
-    const positions = [
-      // face positions + rotations  [px, py, pz, rx, ry, rz]
-      [  0,      0,     1.1,    0,       0,       0      ], // front
-      [  0,      0,    -1.1,    0,       Math.PI, 0      ], // back
-      [  1.1,    0,     0,      0,       Math.PI/2, 0    ], // right
-      [ -1.1,    0,     0,      0,      -Math.PI/2, 0    ], // left
-      [  0,      1.1*0.5625,  0,  -Math.PI/2, 0,   0    ], // top (narrower)
-      [  0,     -1.1*0.5625,  0,   Math.PI/2, 0,   0    ], // bottom
-      // extra 6 at tilted angles for a scattered look
-      [  0.78,  0.78,   0.78,  -0.4,  0.8,  0.2 ],
-      [ -0.78,  0.78,  -0.78,   0.4, -0.8, -0.2 ],
-      [  0.78, -0.78,   0.78,   0.4,  0.8, -0.2 ],
-      [ -0.78, -0.78,  -0.78,  -0.4, -0.8,  0.2 ],
-      [  0.78,  0.78,  -0.78,  -0.4, -0.8,  0.2 ],
-      [ -0.78, -0.78,   0.78,   0.4,  0.8, -0.2 ],
-    ];
-
-    const planes = positions.map((pos, i) => {
-      const geo = new THREE.PlaneGeometry(PLANE_W, PLANE_H);
-      const mat = new THREE.MeshBasicMaterial({
-        map: textures[i],
-        side: THREE.FrontSide,
-        toneMapped: false
-      });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(pos[0], pos[1], pos[2]);
-      mesh.rotation.set(pos[3], pos[4], pos[5]);
-      group.add(mesh);
-      return mesh;
-    });
-
-    // ── Rotation physics ──
-    let velX = 0.008;
-    let velY = 0.013;
-    let velZ = 0.003;
-    let time  = 0;
-    let currentFace = 0;
-
-    // Easing: slow → fast → slow → fast cycle
-    function getSpeedMult(t) {
-      // Breathe between 0.15x and 1.8x on a ~8s cycle
-      const cycle = (Math.sin(t * 0.7) * 0.5 + 0.5); // 0..1
-      return 0.15 + cycle * 1.65;
-    }
-
-    // ── Which video face is most "front" ──
-    const worldDir = new THREE.Vector3();
-    function updateCounter() {
-      let best = -1, bestDot = -2;
-      planes.forEach((p, i) => {
-        p.getWorldDirection(worldDir);
-        // dot with camera direction (0,0,1) from world
-        const dot = worldDir.dot(new THREE.Vector3(0, 0, 1));
-        if (dot > bestDot) { bestDot = dot; best = i; }
-      });
-      if (best !== currentFace) {
-        currentFace = best;
-        counter.textContent = String(currentFace + 1).padStart(2, '0');
-      }
-    }
-
-    // ── Resize ──
-    window.addEventListener('resize', () => {
-      const w = canvas.clientWidth;
-      const h = canvas.clientHeight;
-      renderer.setSize(w, h);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      rtA.setSize(w * Math.min(window.devicePixelRatio,2), h * Math.min(window.devicePixelRatio,2));
-      rtB.setSize(w * Math.min(window.devicePixelRatio,2), h * Math.min(window.devicePixelRatio,2));
-    });
-
-    // ── IntersectionObserver — only animate when visible ──
-    let visible = false;
-    const obs = new IntersectionObserver(e => { visible = e[0].isIntersecting; }, { threshold: 0.1 });
-    obs.observe(section);
-
-    // ── Render loop ──
-    let prevTarget = rtB;
-    let currTarget = rtA;
-
-    function animate() {
-      requestAnimationFrame(animate);
-      if (!visible) return;
-
-      time += 0.016;
-      const spd = getSpeedMult(time);
-
-      group.rotation.x += velX * spd;
-      group.rotation.y += velY * spd;
-      group.rotation.z += velZ * spd;
-
-      // Update video textures
-      textures.forEach(t => { if (t.image && t.image.readyState >= 2) t.needsUpdate = true; });
-
-      // 1. Render scene into currTarget
-      renderer.setRenderTarget(currTarget);
-      renderer.render(scene, camera);
-
-      // 2. Blend curr + prev into screen
-      blurMat.uniforms.tCurrent.value = currTarget.texture;
-      blurMat.uniforms.tPrev.value    = prevTarget.texture;
-      // More blur when spinning fast, less when slow
-      blurMat.uniforms.blend.value    = 0.35 + (spd / 1.8) * 0.35;
-
-      renderer.setRenderTarget(null);
-      renderer.render(blurScene, blurCamera);
-
-      // Swap targets
-      const tmp = prevTarget; prevTarget = currTarget; currTarget = tmp;
-
-      updateCounter();
-    }
-
-    animate();
+  // Breathing speed
+  function getSpeed(t) {
+    return 0.12 + (Math.sin(t * 0.5) * 0.5 + 0.5) * 1.1;
   }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!visible) return;
+    time += 0.016;
+    const spd = getSpeed(time);
+    rotX += 0.45 * spd;
+    rotY += 0.72 * spd;
+    rotZ += 0.18 * spd;
+    wrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+
+    // Update counter — which face is most facing viewer (lowest abs rotY mod 360)
+    const face = Math.floor(((rotY % 360) + 360) % 360 / 60) % 12;
+    if (face !== currentFace) {
+      currentFace = face;
+      if (counter) counter.textContent = String((currentFace % 12) + 1).padStart(2, '0');
+    }
+  }
+
+  const obs = new IntersectionObserver(e => {
+    visible = e[0].isIntersecting;
+    if (visible) cards.forEach(c => c.vid.play().catch(() => {}));
+  }, { threshold: 0.1 });
+  obs.observe(section);
+
+  animate();
 })();
 
 </script>
