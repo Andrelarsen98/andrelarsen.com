@@ -838,6 +838,97 @@
     .footer-back { padding: 11px 20px; font-size: 16px; }
     .footer-spacer { height: 0; }
   }
+
+  /* ══════════════════════════════════════
+     ── CUBE SECTION ──
+  ══════════════════════════════════════ */
+  .cube-section {
+    width: 100%;
+    min-height: 100vh;
+    height: 100vh;
+    position: relative;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #cubeCanvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .cube-ui {
+    position: absolute;
+    top: 28px;
+    left: 32px;
+    right: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .cube-suptitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+  }
+
+  .cube-counter {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.7);
+    -webkit-font-smoothing: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .cube-total {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35);
+    -webkit-font-smoothing: none;
+  }
+
+  .cube-headline {
+    position: absolute;
+    bottom: 56px;
+    left: 32px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .cube-title {
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-size: clamp(28px, 5vw, 72px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: #fff;
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    .cube-ui { top: 20px; left: 20px; right: 20px; }
+    .cube-headline { bottom: 40px; left: 20px; }
+    .cube-title { font-size: clamp(22px, 8vw, 40px); }
+  }
 </style>
 
 <!-- Loader backdrop -->
@@ -925,6 +1016,22 @@ CRAFTED.</div>
 
     <div class="video-time" id="videoTime">00:00</div>
   </div>
+
+  <!-- ── SECTION 3: SPINNING CUBE ── -->
+  <section class="cube-section" id="cubeSection">
+    <div class="cube-ui">
+      <div class="cube-suptitle">
+        <span class="cube-square">■</span>
+        <span class="cube-label">Selected Work</span>
+      </div>
+      <div class="cube-counter" id="cubeCounter">01</div>
+      <div class="cube-total">/12</div>
+    </div>
+    <div class="cube-headline">
+      <h2 class="cube-title" id="cubeTitle">I FRAME.<br>THE WORLD<br>DELIVERS.</h2>
+    </div>
+    <canvas id="cubeCanvas"></canvas>
+  </section>
 
   <!-- ── FOOTER ── -->
   <footer class="footer">
@@ -1722,6 +1829,224 @@ videoEl.addEventListener('timeupdate', () => {
   document.getElementById('footerBackTop').addEventListener('click', () => {
     document.getElementById('scrollContainer').scrollTo({ top: 0, behavior: 'smooth' });
   });
+})();
+
+
+/* ══════════════════════════════════════
+   ── SPINNING VIDEO CUBE (Three.js) ──
+══════════════════════════════════════ */
+(function() {
+  const CLIPS = [
+    'work1.mp4','work2.mp4','work3.mp4','work4.mp4',
+    'work5.mp4','work6.mp4','work7.mp4','work8.mp4',
+    'work9.mp4','work10.mp4','work11.mp4','work12.mp4'
+  ];
+
+  const canvas  = document.getElementById('cubeCanvas');
+  const counter = document.getElementById('cubeCounter');
+  const section = document.getElementById('cubeSection');
+  if (!canvas || !section) return;
+
+  // ── Three.js via CDN ──
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+  script.onload = initCube;
+  document.head.appendChild(script);
+
+  function initCube() {
+    const W = canvas.clientWidth;
+    const H = canvas.clientHeight;
+
+    // Renderer
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(W, H);
+    renderer.setClearColor(0x000000, 1);
+
+    // Scene + Camera
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+    camera.position.z = 4.5;
+
+    // Motion blur via accumulation (render to target, blend with previous)
+    const rtA = new THREE.WebGLRenderTarget(W * Math.min(window.devicePixelRatio,2), H * Math.min(window.devicePixelRatio,2));
+    const rtB = new THREE.WebGLRenderTarget(W * Math.min(window.devicePixelRatio,2), H * Math.min(window.devicePixelRatio,2));
+    const blurScene  = new THREE.Scene();
+    const blurCamera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+    const blurGeo    = new THREE.PlaneGeometry(2,2);
+
+    const blurMat = new THREE.ShaderMaterial({
+      uniforms: {
+        tCurrent: { value: null },
+        tPrev:    { value: null },
+        blend:    { value: 0.55 }
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main(){ vUv=uv; gl_Position=vec4(position,1.0); }
+      `,
+      fragmentShader: `
+        uniform sampler2D tCurrent;
+        uniform sampler2D tPrev;
+        uniform float blend;
+        varying vec2 vUv;
+        void main(){
+          vec4 curr = texture2D(tCurrent, vUv);
+          vec4 prev = texture2D(tPrev, vUv);
+          gl_FragColor = mix(curr, prev, blend);
+        }
+      `
+    });
+    blurScene.add(new THREE.Mesh(blurGeo, blurMat));
+
+    // ── Video elements ──
+    const videos = CLIPS.map((src, i) => {
+      const v = document.createElement('video');
+      v.src = src;
+      v.muted = true;
+      v.loop  = true;
+      v.playsInline = true;
+      v.preload = i < 6 ? 'auto' : 'metadata';
+      v.crossOrigin = 'anonymous';
+      // start playing silently — will be used as texture
+      v.play().catch(() => {});
+      return v;
+    });
+
+    // ── Video textures ──
+    const textures = videos.map(v => {
+      const t = new THREE.VideoTexture(v);
+      t.minFilter = THREE.LinearFilter;
+      t.magFilter = THREE.LinearFilter;
+      t.format    = THREE.RGBFormat;
+      return t;
+    });
+
+    // ── Build group of 12 planes arranged like tumbling cards ──
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const PLANE_W = 1.6; // 16:9
+    const PLANE_H = 0.9;
+
+    // Distribute 12 planes across faces of an icosahedron-ish arrangement
+    // We use 6 pairs, each pair on opposite sides
+    const positions = [
+      // face positions + rotations  [px, py, pz, rx, ry, rz]
+      [  0,      0,     1.1,    0,       0,       0      ], // front
+      [  0,      0,    -1.1,    0,       Math.PI, 0      ], // back
+      [  1.1,    0,     0,      0,       Math.PI/2, 0    ], // right
+      [ -1.1,    0,     0,      0,      -Math.PI/2, 0    ], // left
+      [  0,      1.1*0.5625,  0,  -Math.PI/2, 0,   0    ], // top (narrower)
+      [  0,     -1.1*0.5625,  0,   Math.PI/2, 0,   0    ], // bottom
+      // extra 6 at tilted angles for a scattered look
+      [  0.78,  0.78,   0.78,  -0.4,  0.8,  0.2 ],
+      [ -0.78,  0.78,  -0.78,   0.4, -0.8, -0.2 ],
+      [  0.78, -0.78,   0.78,   0.4,  0.8, -0.2 ],
+      [ -0.78, -0.78,  -0.78,  -0.4, -0.8,  0.2 ],
+      [  0.78,  0.78,  -0.78,  -0.4, -0.8,  0.2 ],
+      [ -0.78, -0.78,   0.78,   0.4,  0.8, -0.2 ],
+    ];
+
+    const planes = positions.map((pos, i) => {
+      const geo = new THREE.PlaneGeometry(PLANE_W, PLANE_H);
+      const mat = new THREE.MeshBasicMaterial({
+        map: textures[i],
+        side: THREE.FrontSide,
+        toneMapped: false
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(pos[0], pos[1], pos[2]);
+      mesh.rotation.set(pos[3], pos[4], pos[5]);
+      group.add(mesh);
+      return mesh;
+    });
+
+    // ── Rotation physics ──
+    let velX = 0.008;
+    let velY = 0.013;
+    let velZ = 0.003;
+    let time  = 0;
+    let currentFace = 0;
+
+    // Easing: slow → fast → slow → fast cycle
+    function getSpeedMult(t) {
+      // Breathe between 0.15x and 1.8x on a ~8s cycle
+      const cycle = (Math.sin(t * 0.7) * 0.5 + 0.5); // 0..1
+      return 0.15 + cycle * 1.65;
+    }
+
+    // ── Which video face is most "front" ──
+    const worldDir = new THREE.Vector3();
+    function updateCounter() {
+      let best = -1, bestDot = -2;
+      planes.forEach((p, i) => {
+        p.getWorldDirection(worldDir);
+        // dot with camera direction (0,0,1) from world
+        const dot = worldDir.dot(new THREE.Vector3(0, 0, 1));
+        if (dot > bestDot) { bestDot = dot; best = i; }
+      });
+      if (best !== currentFace) {
+        currentFace = best;
+        counter.textContent = String(currentFace + 1).padStart(2, '0');
+      }
+    }
+
+    // ── Resize ──
+    window.addEventListener('resize', () => {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      rtA.setSize(w * Math.min(window.devicePixelRatio,2), h * Math.min(window.devicePixelRatio,2));
+      rtB.setSize(w * Math.min(window.devicePixelRatio,2), h * Math.min(window.devicePixelRatio,2));
+    });
+
+    // ── IntersectionObserver — only animate when visible ──
+    let visible = false;
+    const obs = new IntersectionObserver(e => { visible = e[0].isIntersecting; }, { threshold: 0.1 });
+    obs.observe(section);
+
+    // ── Render loop ──
+    let prevTarget = rtB;
+    let currTarget = rtA;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!visible) return;
+
+      time += 0.016;
+      const spd = getSpeedMult(time);
+
+      group.rotation.x += velX * spd;
+      group.rotation.y += velY * spd;
+      group.rotation.z += velZ * spd;
+
+      // Update video textures
+      textures.forEach(t => { if (t.image && t.image.readyState >= 2) t.needsUpdate = true; });
+
+      // 1. Render scene into currTarget
+      renderer.setRenderTarget(currTarget);
+      renderer.render(scene, camera);
+
+      // 2. Blend curr + prev into screen
+      blurMat.uniforms.tCurrent.value = currTarget.texture;
+      blurMat.uniforms.tPrev.value    = prevTarget.texture;
+      // More blur when spinning fast, less when slow
+      blurMat.uniforms.blend.value    = 0.35 + (spd / 1.8) * 0.35;
+
+      renderer.setRenderTarget(null);
+      renderer.render(blurScene, blurCamera);
+
+      // Swap targets
+      const tmp = prevTarget; prevTarget = currTarget; currTarget = tmp;
+
+      updateCounter();
+    }
+
+    animate();
+  }
 })();
 
 </script>
