@@ -730,13 +730,13 @@
     display: block;
   }
 
-  /* ── Info bar — single line at bottom, exactly like Artefakt ── */
+  /* ── Info bar — pinned to bottom, no border lines ── */
   .footer-info {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding: 16px 28px 18px;
-    border-top: 1px solid rgba(255,255,255,0.12);
+    align-items: flex-end;
+    padding: 0 28px 6px;
+    border-top: none;
     font-family: 'VT323', monospace;
     font-size: 14px;
     letter-spacing: 0.1em;
@@ -766,17 +766,17 @@
     letter-spacing: 0.1em;
   }
 
-  /* Back to top — thin gray bar, no hover background fill, just color change */
+  /* Back to top — no border, tiny, sits just above footer-info */
   .footer-back {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 9px 32px;
-    border-top: 1px solid rgba(255,255,255,0.10);
+    padding: 4px 32px;
+    border-top: none;
     font-family: 'VT323', monospace;
-    font-size: 14px;
+    font-size: 10px;
     letter-spacing: 0.18em;
-    color: rgba(255,255,255,0.30);
+    color: rgba(255,255,255,0.20);
     text-transform: uppercase;
     cursor: pointer;
     transition: color 0.2s ease;
@@ -792,9 +792,9 @@
     .footer-info {
       flex-direction: column;
       gap: 20px;
-      padding: 20px 20px 18px;
+      padding: 0 20px 6px;
     }
-    .footer-back { padding: 14px 20px; }
+    .footer-back { padding: 4px 20px; }
   }
 </style>
 
