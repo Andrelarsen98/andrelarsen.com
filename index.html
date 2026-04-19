@@ -106,9 +106,11 @@
     left: 0;
     right: 0;
     z-index: 200;
-    mix-blend-mode: difference;
+    mix-blend-mode: normal;
     pointer-events: none;
   }
+  /* Blend mode activates once user scrolls past the landing section */
+  nav.blend { mix-blend-mode: difference; }
   /* Re-enable pointer events on interactive children */
   nav a, nav button { pointer-events: all; }
 
@@ -532,7 +534,7 @@
       top: 0;
       left: 0;
       right: 0;
-      mix-blend-mode: difference;
+      mix-blend-mode: normal;
       z-index: 200;
     }
     .nav-logo { display: none; }
@@ -782,6 +784,20 @@ menuClose.addEventListener('click', () => menuOverlay.classList.remove('open'));
 
 /* ── SHARED ── */
 const isMobile = window.innerWidth <= 768;
+
+/* ── NAV BLEND MODE — activates once landing section scrolls out ── */
+(function() {
+  const navEl   = document.querySelector('nav');
+  const landing = document.getElementById('site');
+  const observer = new IntersectionObserver(entries => {
+    if (!entries[0].isIntersecting) {
+      navEl.classList.add('blend');
+    } else {
+      navEl.classList.remove('blend');
+    }
+  }, { threshold: 0.02 });
+  observer.observe(landing);
+})();
 
 /* ══════════════════════════════════════
    ── ASCII LOADER — Artefakt style ──
