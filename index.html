@@ -1120,62 +1120,61 @@ function typewriterLogo(el, delay) {
   }, delay);
 }
 
+function glitchResolve(el, intervalMs, onDone) {
+  const final     = el.textContent;
+  const scrambled = Array.from(final).map(c =>
+    (c === ' ' || c === '\n') ? c : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]
+  );
+  el.style.opacity = '1';
+  el.textContent   = scrambled.join('');
+  let i = 0;
+  const iv = setInterval(() => {
+    if (i < final.length) {
+      for (let j = i; j < final.length; j++) {
+        if (final[j] !== ' ' && final[j] !== '\n')
+          scrambled[j] = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+      }
+      scrambled[i] = final[i];
+      el.textContent = scrambled.join('');
+      i++;
+    } else {
+      el.textContent = final;
+      clearInterval(iv);
+      if (onDone) onDone();
+    }
+  }, intervalMs);
+}
+
 function startNavSequence() {
   const logo      = document.querySelector('.nav-logo');
   const navLinks  = [...document.querySelectorAll('.nav-links a')];
   const navCenter = [...document.querySelectorAll('.nav-center a')];
   const navRight  = [...document.querySelectorAll('.nav-right span')];
+  const bioEl     = document.getElementById('landingBio');
   const indicator = document.getElementById('scrollIndicator');
 
-  // Logo types in first
-  typewriterLogo(logo, 0);
+  // All elements including logo and bio
+  const allEls = [logo, ...navLinks, ...navCenter, ...navRight];
+  if (bioEl) allEls.push(bioEl);
 
-  // All text nav items staggered after logo
-  const allItems = [...navLinks, ...navCenter, ...navRight];
-  allItems.forEach((el, i) => {
-    const isLink = el.matches('.nav-links a, .nav-center a');
-    typewriterGlitch(el, 200 + i * 140, isLink ? () => wrapNavChars(el) : null);
-  });
+  // Target: everything resolves in ~900ms — artefakt feel
+  // Each element's interval is tuned to its own length so all finish together
+  const TARGET_MS = 900;
 
-  // Bio — starts same moment as WORKS (delay 200ms), interval tuned so it
-  // finishes exactly when ANDRE@ANDRELARSEN.COM finishes (index 3 * 140 + 200 + 22*38 ≈ 1456ms)
-  const bioEl = document.getElementById('landingBio');
-  if (bioEl) {
-    const finalText  = bioEl.textContent;
-    const emailDone  = 200 + 3 * 140 + 22 * 38; // ~1456ms — when email finishes
-    const bioStart   = 200;                        // starts with WORKS
-    const bioInterval = Math.max(6, Math.floor((emailDone - bioStart) / finalText.length));
-    const GLITCH     = GLITCH_CHARS;
-    const scrambled  = Array.from(finalText).map(c =>
-      (c === ' ') ? c : GLITCH[Math.floor(Math.random() * GLITCH.length)]
-    );
-    setTimeout(() => {
-      bioEl.style.opacity = '1';
-      bioEl.textContent = scrambled.join('');
-      let i = 0;
-      const iv = setInterval(() => {
-        if (i < finalText.length) {
-          for (let j = i; j < finalText.length; j++) {
-            if (finalText[j] !== ' ') scrambled[j] = GLITCH[Math.floor(Math.random() * GLITCH.length)];
-          }
-          scrambled[i] = finalText[i];
-          bioEl.textContent = scrambled.join('');
-          i++;
-        } else {
-          bioEl.textContent = finalText;
-          clearInterval(iv);
-        }
-      }, bioInterval);
-    }, bioStart);
-  }
+  setTimeout(() => {
+    allEls.forEach(el => {
+      const len      = el.textContent.length;
+      const ivMs     = Math.max(6, Math.round(TARGET_MS / len));
+      const isLink   = el.matches && el.matches('.nav-links a, .nav-center a');
+      glitchResolve(el, ivMs, isLink ? () => wrapNavChars(el) : null);
+    });
+  }, 0);
 
-  // Scroll arrow appears after everything lands
-  const emailDoneMs = 200 + 3 * 140 + 22 * 38 + 400;
+  // Scroll arrow after everything lands
   setTimeout(() => {
     if (indicator) indicator.style.opacity = '1';
-  }, emailDoneMs);
+  }, TARGET_MS + 300);
 }
-
 window.addEventListener('navReveal', startNavSequence);
 
 /* ── SCROLL INDICATOR — hide on first scroll ── */
