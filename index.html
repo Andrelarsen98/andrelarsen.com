@@ -386,6 +386,7 @@
   /* ── MOBILE FULL-SCREEN MENU ── */
   .menu-overlay {
     display: none;
+    opacity: 0;
     position: fixed;
     inset: 0;
     background: rgba(10, 6, 4, 0.92);
@@ -637,7 +638,7 @@
     }
     .nav-logo {
       display: block;
-      opacity: 1;
+      opacity: 0;
       font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
       font-size: 18px;
       font-weight: 700;
@@ -949,14 +950,20 @@ const menuBtn     = document.getElementById('menuBtn');
 const menuOverlay = document.getElementById('menuOverlay');
 const menuClose   = document.getElementById('menuClose');
 menuBtn.addEventListener('click', () => {
-  menuOverlay.classList.add('open');
+  menuOverlay.style.transition = 'opacity 0.5s cubic-bezier(0.23,1,0.32,1)';
+  menuOverlay.style.display = 'flex';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    menuOverlay.style.opacity = '1';
+  }));
   menuBtn.style.opacity = '0';
   menuBtn.style.pointerEvents = 'none';
 });
 menuClose.addEventListener('click', () => {
-  menuOverlay.classList.remove('open');
+  menuOverlay.style.transition = 'opacity 0.5s cubic-bezier(0.23,1,0.32,1)';
+  menuOverlay.style.opacity = '0';
   menuBtn.style.opacity = '1';
   menuBtn.style.pointerEvents = 'all';
+  setTimeout(() => { menuOverlay.style.display = 'none'; }, 520);
 });
 
 /* ── SHARED ── */
@@ -1170,9 +1177,11 @@ const isMobile = window.innerWidth <= 768;
         loadScreen.classList.add('hide');  // fades out dark backdrop (0.9s)
         site.classList.add('visible');     // fades in main page (1.0s)
 
-        // Show mobile menu button immediately when image appears
+        // Show mobile menu button and logo immediately when image appears
         const menuBtnEl = document.getElementById('menuBtn');
-        if (menuBtnEl) { menuBtnEl.style.transition = 'opacity 0.5s ease'; menuBtnEl.style.opacity = '1'; }
+        if (menuBtnEl) { menuBtnEl.style.transition = 'none'; menuBtnEl.style.opacity = '1'; }
+        const navLogoEl = document.querySelector('.nav-logo');
+        if (navLogoEl) { navLogoEl.style.opacity = '1'; }
 
         // Fire nav reveal sequence ~1s after site appears
         setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), isMobile ? 300 : 1000);
