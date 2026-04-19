@@ -90,7 +90,7 @@
   /* ── DESKTOP NAV ── */
   nav {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1.5fr 1fr 1fr 0.8fr;
     align-items: start;
     padding: 26px 32px 0;
     position: relative;
@@ -118,8 +118,14 @@
     -webkit-font-smoothing: none;
     font-smooth: never;
     line-height: 1.15;
+    display: inline-block;
+    padding: 1px 5px;
+    outline: 1px solid transparent;
+    transition: outline-color 0.05s;
   }
-  .nav-links a:hover { opacity: 0.6; }
+  .nav-links a:hover {
+    outline: 1px solid rgba(255,255,255,0.85);
+  }
 
   /* Col 3 — INSTAGRAM / EMAIL */
   .nav-center { display: flex; flex-direction: column; gap: 1px; }
@@ -132,8 +138,14 @@
     -webkit-font-smoothing: none;
     font-smooth: never;
     line-height: 1.15;
+    display: inline-block;
+    padding: 1px 5px;
+    outline: 1px solid transparent;
+    transition: outline-color 0.05s;
   }
-  .nav-center a:hover { opacity: 0.6; }
+  .nav-center a:hover {
+    outline: 1px solid rgba(255,255,255,0.85);
+  }
 
   /* Col 4 — VISUAL ARTIST / DUBAI, UAE */
   .nav-right { display: flex; flex-direction: column; gap: 1px; text-align: right; }
@@ -461,11 +473,15 @@
       display: flex;
       padding: 22px 20px 0;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
     }
-    .nav-logo { display: block; }
+    .nav-logo { display: none; }
     .nav-links, .nav-center, .nav-right { display: none; }
-    .nav-menu-btn { display: block; }
+    .nav-menu-btn {
+      display: block;
+      border: 1px solid rgba(255,255,255,0.38);
+      background: rgba(255,255,255,0.07);
+    }
 
     .ascii-wrap {
       bottom: auto;
@@ -949,6 +965,27 @@ const isMobile = window.innerWidth <= 768;
 })();
 
 const scrollContainer = document.getElementById('scrollContainer');
+
+/* ── NAV HOVER GLITCH (white box + scrambling chars) ── */
+(function() {
+  const GLITCH = '@#FRT43%=+-.<>!?|~^$3R4T';
+  function attachNavGlitch(el) {
+    const original = el.textContent;
+    let interval = null;
+    el.addEventListener('mouseenter', () => {
+      interval = setInterval(() => {
+        el.textContent = Array.from(original).map(c =>
+          c === ' ' ? c : GLITCH[Math.floor(Math.random() * GLITCH.length)]
+        ).join('');
+      }, 55);
+    });
+    el.addEventListener('mouseleave', () => {
+      clearInterval(interval);
+      el.textContent = original;
+    });
+  }
+  document.querySelectorAll('.nav-links a, .nav-center a').forEach(attachNavGlitch);
+})();
 
 /* ── NAV GLITCH INTRO ── */
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
