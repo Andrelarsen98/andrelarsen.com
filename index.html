@@ -9,16 +9,21 @@
     background: #000;
     margin: 0; padding: 0;
     overflow: hidden;
+    max-width: 100%;
+    overscroll-behavior: none;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
   *::-webkit-scrollbar { display: none; }
+  body { overflow-x: hidden; }
 
   /* ── SCROLL CONTAINER ── */
   #scrollContainer {
     position: fixed;
     inset: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: none;
   }
 
   /* ── SITE SECTION 1 — Landing ── */
@@ -1073,7 +1078,7 @@
   .services-section {
     width: 100%;
     background: #000;
-    padding: 0 32px;
+    padding: 0 32px 48px;
     position: relative;
   }
 
@@ -1081,8 +1086,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 28px 0 48px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 28px 0 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    margin-bottom: 0;
   }
 
   .services-header-left {
@@ -1107,14 +1113,14 @@
 
   .service-block {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-    padding: 48px 0;
+    grid-template-columns: 200px 1fr 60px;
+    align-items: baseline;
+    padding: 18px 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    gap: 40px;
+    gap: 20px;
     opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
   }
 
   .service-block.visible {
@@ -1124,71 +1130,75 @@
 
   .service-left {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0;
   }
 
   .service-number {
-    font-family: 'VT323', monospace;
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    color: rgba(255,255,255,0.3);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
+    display: none;
   }
 
   .service-title {
-    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
-    font-size: clamp(42px, 5vw, 80px);
-    font-weight: 700;
-    line-height: 0.95;
-    letter-spacing: -0.02em;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
     color: #fff;
     text-transform: uppercase;
     margin: 0;
+    -webkit-font-smoothing: none;
   }
 
   .service-right {
     display: flex;
-    align-items: center;
-    padding-top: 8px;
+    align-items: baseline;
   }
 
   .service-desc {
     font-family: 'VT323', monospace;
-    font-size: 19px;
+    font-size: 16px;
     letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.45);
     text-transform: uppercase;
-    line-height: 1.4;
+    line-height: 1.3;
+    -webkit-font-smoothing: none;
+  }
+
+  .service-num-right {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.25);
+    text-align: right;
     -webkit-font-smoothing: none;
   }
 
   .services-footer {
-    padding: 32px 0 64px;
+    padding: 20px 0 0;
     display: flex;
     justify-content: flex-end;
   }
 
   .services-footer-text {
     font-family: 'VT323', monospace;
-    font-size: 15px;
+    font-size: 14px;
     letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.15);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
   }
 
   @media (max-width: 768px) {
-    .services-section { padding: 0 20px; }
+    .services-section { padding: 0 20px 40px; }
     .service-block {
-      grid-template-columns: 1fr;
-      gap: 16px;
-      padding: 36px 0;
+      grid-template-columns: 140px 1fr 40px;
+      gap: 12px;
+      padding: 16px 0;
     }
-    .service-title { font-size: clamp(48px, 14vw, 72px); }
-    .service-desc { font-size: 17px; }
-    .services-header { padding: 24px 0 36px; }
+    .service-title { font-size: 20px; }
+    .service-desc { font-size: 14px; }
   }
 </style>
 
@@ -1313,42 +1323,42 @@ Dubai, worldwide.</div>
 
     <div class="service-block">
       <div class="service-left">
-        <span class="service-number">(01)</span>
         <h3 class="service-title">FLY</h3>
       </div>
       <div class="service-right">
-        <p class="service-desc">Where cameras don't go.<br>I do. If it can be flown,<br>I'll find the line.</p>
+        <p class="service-desc">Where cameras don't go. I do.<br>If it can be flown, I'll find the line.</p>
       </div>
+      <div class="service-num-right">(01)</div>
     </div>
 
     <div class="service-block">
       <div class="service-left">
-        <span class="service-number">(02)</span>
         <h3 class="service-title">EXECUTE</h3>
       </div>
       <div class="service-right">
-        <p class="service-desc">No second takes.<br>We either get it —<br>or we don't.</p>
+        <p class="service-desc">No second takes.<br>We either get it — or we don't.</p>
       </div>
+      <div class="service-num-right">(02)</div>
     </div>
 
     <div class="service-block">
       <div class="service-left">
-        <span class="service-number">(03)</span>
         <h3 class="service-title">DELIVER</h3>
       </div>
       <div class="service-right">
-        <p class="service-desc">What you saw is<br>what you get.<br>Clean. Fast. Done.</p>
+        <p class="service-desc">What you saw is what you get.<br>Clean. Fast. Done.</p>
       </div>
+      <div class="service-num-right">(03)</div>
     </div>
 
     <div class="service-block">
       <div class="service-left">
-        <span class="service-number">(04)</span>
         <h3 class="service-title">IMPACT</h3>
       </div>
       <div class="service-right">
-        <p class="service-desc">Different shots.<br>Different results.<br>That's the whole point.</p>
+        <p class="service-desc">Different shots. Different results.<br>That's the whole point.</p>
       </div>
+      <div class="service-num-right">(04)</div>
     </div>
 
     <div class="services-footer">
