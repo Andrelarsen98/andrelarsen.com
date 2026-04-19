@@ -134,7 +134,6 @@
     z-index: 210;
     pointer-events: all;
     opacity: 0;
-    transition: opacity 1.2s ease;
     image-rendering: pixelated;
     animation: asciiReveal 0.9s ease 0.35s forwards;
   }
@@ -142,7 +141,6 @@
     from { opacity: 0; }
     to   { opacity: 1; }
   }
-  #asciiCanvas.hidden { opacity: 0 !important; animation: none; pointer-events: none; }
 
   /* ── LOADING UI — positioned by JS below name ── */
   #loadUi {
@@ -153,13 +151,12 @@
     align-items: center;
     gap: 10px;
     white-space: nowrap;
-    opacity: 0;
+    opacity: 1;
     transition: opacity 0.5s ease;
     pointer-events: none;
     z-index: 211;
-    animation: asciiReveal 0.9s ease 0.7s forwards;
   }
-  #loadUi.hide { opacity: 0 !important; animation: none; }
+  #loadUi.hide { opacity: 0; }
   #loadLine1 {
     font-family: 'Courier New', monospace;
     color: #fff;
@@ -781,33 +778,43 @@ const isMobile = window.innerWidth <= 768;
   }
 
   function doReveal() {
-    // 1. Hide the loading bar UI immediately
+    // Step 1: hide loading bar UI instantly
     loadUi.classList.add('hide');
+
+    // Step 2: fade out ASCII canvas
     setTimeout(() => {
-      // 2. Fade out the ASCII canvas (1.2s transition defined in CSS)
-      aC.classList.add('hidden');
-      // 3. Once ASCII is fully faded, fade in the main page
-      setTimeout(() => {
-        loadScreen.classList.add('hide');
+      const currentOpacity = parseFloat(window.getComputedStyle(aC).opacity);
+      aC.style.animation = 'none';
+      aC.style.opacity = currentOpacity;
+      aC.getBoundingClientRect();
+      aC.style.transition = 'opacity 1.0s ease';
+      aC.getBoundingClientRect();
+      aC.style.opacity = '0';
+
+      // Step 3: wait for ASCII to fully fade, then show main page
+      aC.addEventListener('transitionend', function onFadeOut() {
+        aC.removeEventListener('transitionend', onFadeOut);
         site.classList.add('visible');
         setTimeout(() => {
           loadScreen.remove();
           cancelAnimationFrame(loaderAnimId);
           aC.remove();
         }, 1200);
-      }, 1200); // wait for ASCII fade to complete
+      });
     }, 300);
   }
 
   let barDone = false, imageDone = false;
   function checkReveal() { if (barDone && imageDone) doReveal(); }
 
+  loaderProgress = 1;
+
   loaderBarId = setInterval(() => {
     loaderProgress += 0.7 + Math.random() * 1.0;
     if (loaderProgress >= 100) {
       loaderProgress = 100;
       clearInterval(loaderBarId);
-      setTimeout(() => { barDone = true; checkReveal(); }, 900);
+      barDone = true; checkReveal();
     }
   }, 38);
 
