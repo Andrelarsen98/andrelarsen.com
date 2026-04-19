@@ -730,29 +730,31 @@
     display: block;
   }
 
-  /* ── Info bar ── */
+  /* Info bar */
   .footer-info {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 14px 28px 14px;
+    padding: 16px 28px 16px;
     border-top: none;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
     letter-spacing: 0.08em;
     color: #fff;
     text-transform: uppercase;
-    line-height: 1.7;
+    line-height: 1.4;
     flex-shrink: 0;
     -webkit-font-smoothing: none;
+    font-smooth: never;
   }
   .footer-info a {
     color: #fff;
     text-decoration: none;
     display: block;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
     -webkit-font-smoothing: none;
+    font-smooth: never;
   }
   .footer-info a:hover { opacity: 0.6; }
   .footer-col {
@@ -761,20 +763,22 @@
   }
   .footer-col-label {
     color: #fff;
-    font-size: 11px;
-    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    font-family: 'VT323', monospace;
     margin-bottom: 0;
     letter-spacing: 0.08em;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
   }
 
-  /* Back to top — full width gray box, blue on hover, black space below */
+  /* Back to top */
   .footer-back {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 13px 32px;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 11px;
+    padding: 11px 32px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
     letter-spacing: 0.18em;
     color: #fff;
     text-transform: uppercase;
@@ -784,6 +788,7 @@
     flex-shrink: 0;
     background: rgba(255,255,255,0.13);
     -webkit-font-smoothing: none;
+    font-smooth: never;
     width: 100%;
     box-sizing: border-box;
   }
@@ -801,12 +806,16 @@
     .footer-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px 12px;
+      grid-template-rows: auto auto;
+      gap: 16px 12px;
       padding: 16px 20px 16px;
       align-items: start;
     }
-    .footer-back { padding: 13px 20px; font-size: 11px; }
-    .footer-spacer { height: 24px; }
+    .footer-col.footer-col-wide {
+      grid-column: 1 / -1;
+    }
+    .footer-back { padding: 11px 20px; font-size: 16px; }
+    .footer-spacer { height: 0; }
   }
 </style>
 
@@ -912,8 +921,8 @@ CRAFTED.</div>
       <span class="footer-col-label">■ Get in touch</span>
       <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
     </div>
-    <div class="footer-col">
-      <span class="footer-col-label">■ </span>
+    <div class="footer-col footer-col-wide">
+      <span class="footer-col-label">■ Website made by André Larsen</span>
       <span>© 2026 André Larsen</span>
     </div>
   </div>
@@ -1581,7 +1590,7 @@ videoEl.addEventListener('timeupdate', () => {
   let ft = 0, footerVisible = false, animId;
 
   function buildFooterMask() {
-    const FOOTER_RESERVED = 85;
+    const FOOTER_RESERVED = 140;
     const availH = window.innerHeight - FOOTER_RESERVED;
     const W = window.innerWidth;
     const H = availH;
