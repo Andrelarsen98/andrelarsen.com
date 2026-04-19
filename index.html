@@ -1834,6 +1834,7 @@ videoEl.addEventListener('timeupdate', () => {
 
 /* ══════════════════════════════════════
    ── ORBITAL VIDEO CLUSTER ──
+   Cards billboard to always face camera
 ══════════════════════════════════════ */
 (function() {
   const CLIPS = [
@@ -1867,51 +1868,55 @@ videoEl.addEventListener('timeupdate', () => {
   ].join('');
   scene.appendChild(wrapper);
 
-  /* ── Orbital positions — scattered sphere-ish cloud ── */
-  // Each entry: [phi°, theta°, radius, tiltX°, tiltY°, tiltZ°, scale, aspect(w/h)]
-  // Cards are 16:9 (320×180) by default; some slightly wider/taller for variety
+  /* ── Orbital positions: [phi°, theta°, radius, scale, w, h]
+     No more per-card rx/ry/rz — billboarding handles facing        ── */
   const CONFIGS = [
-    //  phi   theta   r     rx    ry    rz    sc    w    h
-    [   15,    20,   310,   8,   12,    3,  1.00, 320, 180],
-    [  -25,   130,   290,  -5,  175,   -4,  0.92, 300, 170],
-    [   40,   250,   320,  10,  248,    6,  0.95, 320, 180],
-    [  -40,   310,   280,  -8,  305,    5,  0.88, 290, 165],
-    [   70,    70,   260,  65,   68,    8,  0.90, 310, 175],
-    [  -65,   190,   270, -62,  188,   -7,  0.90, 310, 175],
-    [   20,   165,   340,   5,  162,    2,  0.85, 280, 160],
-    [  -15,   290,   330, -10,  288,   -3,  0.85, 280, 160],
-    [   55,   340,   300,  48,  338,    9,  0.88, 300, 170],
-    [  -50,    50,   295, -45,   52,   -8,  0.88, 300, 170],
-    [   30,   225,   350,  25,  222,    4,  0.82, 260, 148],
-    [  -35,   100,   340, -30,   98,   -5,  0.82, 260, 148],
+    //  phi   theta    r     sc    w    h
+    [   15,    20,   310,  1.00, 320, 180],
+    [  -25,   130,   290,  0.92, 300, 170],
+    [   40,   250,   320,  0.95, 320, 180],
+    [  -40,   310,   280,  0.88, 290, 165],
+    [   70,    70,   260,  0.90, 310, 175],
+    [  -65,   190,   270,  0.90, 310, 175],
+    [   20,   165,   340,  0.85, 280, 160],
+    [  -15,   290,   330,  0.85, 280, 160],
+    [   55,   340,   300,  0.88, 300, 170],
+    [  -50,    50,   295,  0.88, 300, 170],
+    [   30,   225,   350,  0.82, 260, 148],
+    [  -35,   100,   340,  0.82, 260, 148],
   ];
 
   const cards = [];
 
   CONFIGS.forEach((cfg, i) => {
-    const [phi, theta, r, rx, ry, rz, sc, W, H] = cfg;
-    // Convert spherical to cartesian
+    const [phi, theta, r, sc, W, H] = cfg;
     const phiR   = phi   * Math.PI / 180;
     const thetaR = theta * Math.PI / 180;
     const tx = r * Math.cos(phiR) * Math.sin(thetaR);
     const ty = r * Math.sin(phiR);
     const tz = r * Math.cos(phiR) * Math.cos(thetaR);
 
-    const card = document.createElement('div');
-    card.style.cssText = [
+    /* Outer anchor — positions the card in 3D space */
+    const anchor = document.createElement('div');
+    anchor.style.cssText = [
+      'position:absolute;',
+      'width:1px;height:1px;',
+      `transform:translateX(${tx}px) translateY(${ty}px) translateZ(${tz}px);`,
+      'transform-style:preserve-3d;',
+    ].join('');
+
+    /* Inner billboard — counter-rotates every frame to face camera */
+    const billboard = document.createElement('div');
+    billboard.style.cssText = [
       'position:absolute;',
       `width:${W}px;height:${H}px;`,
       `margin-left:${-W/2}px;margin-top:${-H/2}px;`,
-      `transform:translateX(${tx}px) translateY(${ty}px) translateZ(${tz}px)`,
-      ` rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`,
-      ` scale(${sc});`,
-      'transform-style:preserve-3d;',
-      'backface-visibility:hidden;',
+      `transform:scale(${sc});`,
+      'transform-origin:center center;',
       'border-radius:6px;',
       'overflow:hidden;',
       'box-shadow:0 8px 60px rgba(0,0,0,0.85);',
       'will-change:transform;',
-      'transition:box-shadow 0.4s ease;'
     ].join('');
 
     const vid = document.createElement('video');
@@ -1923,9 +1928,10 @@ videoEl.addEventListener('timeupdate', () => {
     vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
     vid.play().catch(() => {});
 
-    card.appendChild(vid);
-    wrapper.appendChild(card);
-    cards.push({ card, vid, baseW: W, baseH: H, baseTx: tx, baseTy: ty, baseTz: tz, baseRx: rx, baseRy: ry, baseRz: rz, baseSc: sc });
+    billboard.appendChild(vid);
+    anchor.appendChild(billboard);
+    wrapper.appendChild(anchor);
+    cards.push({ anchor, billboard, vid, baseTx: tx, baseTy: ty, baseTz: tz, baseSc: sc, baseW: W, baseH: H });
   });
 
   /* ── State ── */
@@ -1933,38 +1939,55 @@ videoEl.addEventListener('timeupdate', () => {
   let time = 0;
   let visible = false;
 
-  // Zoom state
+  /* ── Zoom state ── */
   let zooming      = false;
   let zoomTarget   = -1;
-  let zoomPhase    = 'idle'; // 'in' | 'hold' | 'out'
+  let zoomPhase    = 'idle';
   let zoomProgress = 0;
   let holdTimer    = 0;
-  const ZOOM_IN_DUR  = 0.9;  // seconds
-  const HOLD_DUR     = 3.2;  // seconds showing clip
-  const ZOOM_OUT_DUR = 0.7;
-  const ZOOM_INTERVAL = 9.0; // seconds between zooms
-  let nextZoomAt   = ZOOM_INTERVAL;
+  const ZOOM_IN_DUR   = 0.9;
+  const HOLD_DUR      = 3.2;
+  const ZOOM_OUT_DUR  = 0.7;
+  const ZOOM_INTERVAL = 9.0;
+  let nextZoomAt = ZOOM_INTERVAL;
 
   /* ── Easing ── */
   function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
   function easeOut(t)   { return 1 - Math.pow(1-t, 3); }
 
-  /* ── Speed breathing — fast bursts, slow drifts ── */
+  /* ── Speed breathing ── */
   function getSpeed(t) {
-    // Compound of two sine waves + occasional fast burst
-    const base  = 0.18;
-    const slow  = Math.sin(t * 0.28) * 0.5 + 0.5;   // 0–1 slow drift
-    const fast  = Math.max(0, Math.sin(t * 1.4));      // 0–1 fast pulse
+    const base = 0.18;
+    const slow = Math.sin(t * 0.28) * 0.5 + 0.5;
+    const fast = Math.max(0, Math.sin(t * 1.4));
     return base + slow * 0.55 + fast * 1.4;
   }
 
-  /* ── Motion blur via filter ── */
-  function setBlur(spd) {
-    const b = Math.min(spd * 1.2, 3.5);
-    wrapper.style.filter = b > 0.3 ? `blur(${b.toFixed(2)}px)` : '';
+  /* ── Billboard: counter-rotate card against wrapper spin ──
+     CSS 3D applies transforms right-to-left, so we negate
+     the wrapper rotations in reverse order: Z → Y → X        ── */
+  function billboardCard(card, rX, rY, rZ, extraZ, extraSc, bright) {
+    const { baseTx, baseTy, baseTz, baseSc } = card;
+
+    // Anchor stays at its orbital position + zoom Z offset
+    card.anchor.style.transform = [
+      `translateX(${baseTx}px)`,
+      `translateY(${baseTy}px)`,
+      `translateZ(${baseTz + extraZ}px)`,
+    ].join(' ');
+
+    // Billboard counter-rotates then scales
+    card.billboard.style.transform = [
+      `rotateZ(${-rZ}deg)`,
+      `rotateY(${-rY}deg)`,
+      `rotateX(${-rX}deg)`,
+      `scale(${baseSc * extraSc})`,
+    ].join(' ');
+
+    card.billboard.style.filter = bright !== 1 ? `brightness(${bright.toFixed(2)})` : '';
   }
 
-  /* ── Zoom a card toward viewer ── */
+  /* ── Zoom helpers ── */
   function startZoom() {
     if (zooming) return;
     zoomTarget   = Math.floor(Math.random() * 12);
@@ -1974,54 +1997,16 @@ videoEl.addEventListener('timeupdate', () => {
     holdTimer    = 0;
   }
 
-  function applyZoom(card, t, phase) {
-    // Push targeted card forward & scale up toward camera
-    // We animate its Z and scale in local space
-    const { baseTx, baseTy, baseTz, baseRx, baseRy, baseRz, baseSc, baseW, baseH } = card;
-
-    let extraZ = 0, extraSc = 1, bright = 1;
+  function getZoomParams(phase, t) {
     if (phase === 'in') {
       const e = easeInOut(t);
-      extraZ  = e * 480;
-      extraSc = 1 + e * 1.05;
-      bright  = 1 + e * 0.18;
+      return { extraZ: e * 480, extraSc: 1 + e * 1.05, bright: 1 + e * 0.18 };
     } else if (phase === 'hold') {
-      extraZ  = 480;
-      extraSc = 2.05;
-      bright  = 1.18;
-    } else if (phase === 'out') {
+      return { extraZ: 480, extraSc: 2.05, bright: 1.18 };
+    } else {
       const e = easeOut(t);
-      extraZ  = (1 - e) * 480;
-      extraSc = 1 + (1 - e) * 1.05;
-      bright  = 1 + (1 - e) * 0.18;
+      return { extraZ: (1-e) * 480, extraSc: 1 + (1-e) * 1.05, bright: 1 + (1-e) * 0.18 };
     }
-
-    card.card.style.transform = [
-      `translateX(${baseTx}px)`,
-      `translateY(${baseTy}px)`,
-      `translateZ(${baseTz + extraZ}px)`,
-      `rotateX(${baseRx}deg)`,
-      `rotateY(${baseRy}deg)`,
-      `rotateZ(${baseRz}deg)`,
-      `scale(${baseSc * extraSc})`
-    ].join(' ');
-    card.card.style.filter = `brightness(${bright.toFixed(2)})`;
-    card.card.style.zIndex = phase !== 'idle' ? '5' : '';
-  }
-
-  function resetCardTransform(card) {
-    const { baseTx, baseTy, baseTz, baseRx, baseRy, baseRz, baseSc } = card;
-    card.card.style.transform = [
-      `translateX(${baseTx}px)`,
-      `translateY(${baseTy}px)`,
-      `translateZ(${baseTz}px)`,
-      `rotateX(${baseRx}deg)`,
-      `rotateY(${baseRy}deg)`,
-      `rotateZ(${baseRz}deg)`,
-      `scale(${baseSc})`
-    ].join(' ');
-    card.card.style.filter = '';
-    card.card.style.zIndex = '';
   }
 
   /* ── Main loop ── */
@@ -2036,7 +2021,7 @@ videoEl.addEventListener('timeupdate', () => {
     last = now;
     time += dt;
 
-    /* Speed & rotation (pause spin slightly during hold) */
+    /* Rotation */
     const holdFactor = (zooming && zoomPhase === 'hold') ? 0.08 : 1;
     const spd = getSpeed(time) * holdFactor;
 
@@ -2046,9 +2031,20 @@ videoEl.addEventListener('timeupdate', () => {
 
     wrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
 
-    /* Motion blur only when spinning fast */
-    if (!zooming || zoomPhase !== 'hold') setBlur(spd - 0.5);
-    else wrapper.style.filter = '';
+    /* Update all cards with billboard counter-rotation */
+    cards.forEach((card, idx) => {
+      let extraZ = 0, extraSc = 1, bright = 1;
+
+      if (zooming && idx === zoomTarget) {
+        const p = getZoomParams(zoomPhase, zoomProgress);
+        extraZ = p.extraZ; extraSc = p.extraSc; bright = p.bright;
+        card.billboard.style.zIndex = '5';
+      } else {
+        card.billboard.style.zIndex = '';
+      }
+
+      billboardCard(card, rotX, rotY, rotZ, extraZ, extraSc, bright);
+    });
 
     /* Counter */
     const face = Math.floor(((rotY % 360) + 360) % 360 / 30) % 12;
@@ -2062,20 +2058,15 @@ videoEl.addEventListener('timeupdate', () => {
       if (zoomPhase === 'in') {
         zoomProgress += dt / ZOOM_IN_DUR;
         if (zoomProgress >= 1) { zoomProgress = 1; zoomPhase = 'hold'; }
-        applyZoom(cards[zoomTarget], zoomProgress, 'in');
       } else if (zoomPhase === 'hold') {
-        applyZoom(cards[zoomTarget], 1, 'hold');
         holdTimer += dt;
         if (holdTimer >= HOLD_DUR) { zoomPhase = 'out'; zoomProgress = 0; }
       } else if (zoomPhase === 'out') {
         zoomProgress += dt / ZOOM_OUT_DUR;
         if (zoomProgress >= 1) {
-          resetCardTransform(cards[zoomTarget]);
-          zooming      = false;
-          zoomPhase    = 'idle';
-          nextZoomAt   = ZOOM_INTERVAL + Math.random() * 3;
-        } else {
-          applyZoom(cards[zoomTarget], zoomProgress, 'out');
+          zooming    = false;
+          zoomPhase  = 'idle';
+          nextZoomAt = ZOOM_INTERVAL + Math.random() * 3;
         }
       }
     }
