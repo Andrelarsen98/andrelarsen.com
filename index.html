@@ -732,8 +732,8 @@
 
   /* Info bar */
   .footer-info {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     align-items: flex-start;
     padding: 16px 28px 16px;
     border-top: none;
@@ -760,6 +760,10 @@
   .footer-col {
     display: flex;
     flex-direction: column;
+  }
+  .footer-col-center {
+    align-items: center;
+    text-align: center;
   }
   .footer-col-label {
     color: #fff;
@@ -917,8 +921,7 @@ CRAFTED.</div>
       <span>Dubai, UAE</span>
       <span>Worldwide</span>
     </div>
-    <div class="footer-col">
-      <span class="footer-col-label">■ Get in touch</span>
+    <div class="footer-col footer-col-center">
       <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
     </div>
     <div class="footer-col footer-col-wide">
