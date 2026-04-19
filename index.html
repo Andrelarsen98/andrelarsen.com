@@ -1949,7 +1949,7 @@ videoEl.addEventListener('timeupdate', () => {
 ══════════════════════════════════════ */
 (function() {
   const NUM_VIDEOS   = 16;
-  const RADIUS       = 230;
+  const RADIUS       = window.innerWidth <= 768 ? 110 : 230;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
   const section   = document.getElementById('cubeSection');
