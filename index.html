@@ -123,6 +123,7 @@
     text-transform: lowercase;
     letter-spacing: -0.02em;
     color: #fff;
+    opacity: 0;
   }
   .nav-logo em { font-style: italic; }
 
@@ -544,11 +545,12 @@
     pointer-events: none;
   }
 
-  /* Top-left label: SHOWREEL — 2025 */
+  /* Left-center label: SHOWREEL — 2025 */
   .video-label-tl {
     position: absolute;
-    top: 28px;
+    top: 50%;
     left: 32px;
+    transform: translateY(-50%);
     z-index: 10;
     font-family: 'VT323', monospace;
     font-size: 15px;
@@ -887,7 +889,7 @@ CRAFTED.</div>
     <div class="video-vignette"></div>
 
     <div class="video-label-tl">SHOWREEL — 2025</div>
-    <div class="video-label-tr">VISUAL ARTIST</div>
+
 
     <div class="video-progress-wrap">
       <div class="video-progress-bar" id="videoProgressBar"></div>
