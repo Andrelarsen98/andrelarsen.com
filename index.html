@@ -938,6 +938,29 @@
     z-index: 10;
     border-radius: 50%;
   }
+  /* Glitch overlay — triggered by JS when videos loop */
+  .vs-glitch {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0;
+    mix-blend-mode: screen;
+  }
+  .vs-glitch.active {
+    animation: vsGlitch 0.45s steps(1) forwards;
+  }
+  @keyframes vsGlitch {
+    0%   { opacity: 1; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.06) 3px, rgba(255,255,255,0.06) 4px); clip-path: inset(10% 0 80% 0); }
+    10%  { clip-path: inset(60% 0 20% 0); background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,200,255,0.08) 2px, rgba(0,200,255,0.08) 3px); transform: translateX(-4px); }
+    20%  { clip-path: inset(30% 0 55% 0); transform: translateX(5px); background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,0,100,0.07) 4px, rgba(255,0,100,0.07) 5px); }
+    30%  { clip-path: inset(75% 0 10% 0); transform: translateX(-3px); }
+    40%  { clip-path: inset(5% 0 70% 0);  transform: translateX(4px);  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 3px); }
+    55%  { clip-path: inset(45% 0 40% 0); transform: translateX(-6px); }
+    70%  { clip-path: inset(20% 0 65% 0); transform: translateX(3px); }
+    85%  { clip-path: inset(0% 0 0% 0);   transform: translateX(0); opacity: 0.3; }
+    100% { opacity: 0; transform: translateX(0); clip-path: inset(0); }
+  }
 
   .cube-ui {
     display: flex;
@@ -1914,17 +1937,12 @@ videoEl.addEventListener('timeupdate', () => {
 
 /* ══════════════════════════════════════
    ── VIDEO SPHERE ──
-   16 Fibonacci-distributed cards on a
-   draggable, auto-rotating sphere
+   16 Fibonacci-distributed cards,
+   multi-axis rotation, glitch on loop
 ══════════════════════════════════════ */
 (function() {
   const NUM_VIDEOS   = 16;
   const RADIUS       = 230;
-  const AUTO_ROT_Y   = 20;       // faster spin
-  const DRIFT_AMP    = 10;       // more organic X tilt
-  const DRIFT_PERIOD = 12;
-  const INERTIA      = 0.90;
-  const DRAG_SENS    = 0.38;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
   const section   = document.getElementById('cubeSection');
@@ -1932,7 +1950,7 @@ videoEl.addEventListener('timeupdate', () => {
   const cubeRight = document.getElementById('cubeRight');
   if (!section || !cubeRight) return;
 
-  /* ── Build DOM structure ── */
+  /* ── DOM structure ── */
   const glow = document.createElement('div');
   glow.className = 'vs-glow';
 
@@ -1945,12 +1963,17 @@ videoEl.addEventListener('timeupdate', () => {
   const vignette = document.createElement('div');
   vignette.className = 'vs-vignette';
 
+  /* Glitch overlay */
+  const glitchEl = document.createElement('div');
+  glitchEl.className = 'vs-glitch';
+
   scene.appendChild(sphere);
   scene.appendChild(vignette);
+  scene.appendChild(glitchEl);
   cubeRight.appendChild(glow);
   cubeRight.appendChild(scene);
 
-  /* ── Build cards — Fibonacci sphere distribution ── */
+  /* ── Cards — Fibonacci sphere distribution ── */
   for (let i = 0; i < NUM_VIDEOS; i++) {
     const t      = i / (NUM_VIDEOS - 1);
     const y      = 1 - t * 2;
@@ -1961,7 +1984,7 @@ videoEl.addEventListener('timeupdate', () => {
     const ny     = y;
 
     const azimuth   =  Math.atan2(nx, nz) * (180 / Math.PI);
-    const elevation = -Math.atan2(ny, Math.sqrt(nx * nx + nz * nz)) * (180 / Math.PI);
+    const elevation = -Math.atan2(ny, Math.sqrt(nx*nx + nz*nz)) * (180 / Math.PI);
 
     const card = document.createElement('div');
     card.className = 'vs-card';
@@ -1979,19 +2002,39 @@ videoEl.addEventListener('timeupdate', () => {
     vid.autoplay    = true;
     vid.play().catch(() => {});
 
+    /* Glitch trigger: fire ~0.4s before the video loops */
+    vid.addEventListener('timeupdate', () => {
+      if (vid.duration && vid.currentTime > vid.duration - 0.4) {
+        triggerGlitch();
+      }
+    });
+
     card.appendChild(vid);
     sphere.appendChild(card);
   }
 
+  /* ── Glitch trigger — debounced so rapid timeupdate calls don't stack ── */
+  let glitchCooldown = false;
+  function triggerGlitch() {
+    if (glitchCooldown) return;
+    glitchCooldown = true;
+    glitchEl.classList.remove('active');
+    void glitchEl.offsetWidth; // force reflow
+    glitchEl.classList.add('active');
+    setTimeout(() => { glitchEl.classList.remove('active'); }, 460);
+    setTimeout(() => { glitchCooldown = false; }, 1200);
+  }
+
   /* ── State ── */
-  let rotX = 8, rotY = 0, velX = 0, velY = 0;
+  let rotX = 8, rotY = 0, rotZ = 0;
+  let velX = 0, velY = 0;
   let dragging = false, prevX = 0, prevY = 0;
   let lastDX = 0, lastDY = 0;
   let touchStartX = 0, touchStartY = 0;
   let elapsed = 0, lastTime = performance.now();
   let visible = false;
 
-  /* ── Drag handlers ── */
+  /* ── Drag ── */
   function dragStart(x, y) {
     dragging = true; prevX = x; prevY = y;
     lastDX = 0; lastDY = 0; velX = 0; velY = 0;
@@ -2000,25 +2043,23 @@ videoEl.addEventListener('timeupdate', () => {
   function dragMove(x, y) {
     if (!dragging) return;
     lastDX = x - prevX; lastDY = y - prevY;
-    rotY += lastDX * DRAG_SENS;
-    rotX += lastDY * DRAG_SENS;
+    rotY += lastDX * 0.38;
+    rotX += lastDY * 0.38;
     rotX = Math.max(-70, Math.min(70, rotX));
     prevX = x; prevY = y;
   }
   function dragEnd() {
     if (!dragging) return;
     dragging = false;
-    velY = lastDX * DRAG_SENS; velX = lastDY * DRAG_SENS;
+    velY = lastDX * 0.38; velX = lastDY * 0.38;
     lastDX = 0; lastDY = 0;
     scene.classList.remove('dragging');
   }
 
-  /* Mouse */
   scene.addEventListener('mousedown',  e => dragStart(e.clientX, e.clientY));
   window.addEventListener('mousemove', e => dragMove(e.clientX, e.clientY));
   window.addEventListener('mouseup',   dragEnd);
 
-  /* Touch — only hijack horizontal swipes so vertical page scrolling still works */
   scene.addEventListener('touchstart', e => {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
@@ -2043,27 +2084,39 @@ videoEl.addEventListener('timeupdate', () => {
 
     const dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
+    elapsed += dt;
+    const t = elapsed;
 
     if (!dragging) {
-      elapsed += dt;
-      rotY += AUTO_ROT_Y * dt;
-      const driftTarget = Math.sin((elapsed / DRIFT_PERIOD) * 2 * Math.PI) * DRIFT_AMP;
-      rotX += (driftTarget - rotX) * 0.6 * dt;
-      const decay = Math.pow(INERTIA, dt * 60);
+      /* Y — base spin + slow pulse */
+      const ySpeed = 22 + Math.sin(t * 0.17) * 8 + Math.sin(t * 0.41) * 5;
+      rotY += ySpeed * dt;
+
+      /* X — layered sine drifts at different periods */
+      const xTarget = Math.sin(t * 0.13) * 14
+                    + Math.sin(t * 0.37) * 7
+                    + Math.sin(t * 0.07) * 5;
+      rotX += (xTarget - rotX) * 0.5 * dt;
+
+      /* Z — slow rolling tilt */
+      rotZ = Math.sin(t * 0.11) * 9 + Math.sin(t * 0.29) * 4;
+
+      /* Inertia decay from drag */
+      const decay = Math.pow(0.90, dt * 60);
       velX *= decay; velY *= decay;
       rotX += velX; rotY += velY;
     }
 
-    sphere.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+    sphere.style.transform =
+      `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
 
-    /* Update counter */
+    /* Counter */
     if (counter) {
       const face = Math.floor(((rotY % 360) + 360) % 360 / (360 / NUM_VIDEOS)) % NUM_VIDEOS;
       counter.textContent = String(face + 1).padStart(2, '0');
     }
   }
 
-  /* Only animate when section is visible */
   const obs = new IntersectionObserver(e => {
     visible = e[0].isIntersecting;
     if (visible) {
@@ -2075,8 +2128,6 @@ videoEl.addEventListener('timeupdate', () => {
 
   requestAnimationFrame(animate);
 })();
-
-
 
 
 </script>
