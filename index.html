@@ -909,6 +909,7 @@
     border-radius: 6px;
     overflow: hidden;
     background: #0a0a0a;
+    will-change: transform;
     box-shadow:
       0 0 0 1px rgba(255,255,255,0.07),
       0 2px 8px  rgba(0,0,0,0.6),
@@ -1029,8 +1030,9 @@
     .cube-right { min-height: 70vw; order: 1; }
     .cube-headline { display: block; }
     .cube-title { font-size: clamp(22px, 8vw, 40px); }
-    .vs-sphere { width: 300px; height: 300px; }
-    .vs-glow { width: 300px; height: 300px; }
+    .vs-sphere { width: 220px; height: 220px; }
+    .vs-glow { width: 220px; height: 220px; }
+    .vs-card { width: 100px; height: 56px; margin-top: -28px; margin-left: -50px; }
   }
 </style>
 
@@ -2094,20 +2096,20 @@ videoEl.addEventListener('timeupdate', () => {
 
     if (!dragging) {
       /* Y — base spin + slow pulse */
-      const ySpeed = 22 + Math.sin(t * 0.17) * 8 + Math.sin(t * 0.41) * 5;
+      const ySpeed = 32 + Math.sin(t * 0.17) * 6 + Math.sin(t * 0.41) * 4;
       rotY += ySpeed * dt;
 
       /* X — layered sine drifts at different periods */
       const xTarget = Math.sin(t * 0.13) * 14
                     + Math.sin(t * 0.37) * 7
                     + Math.sin(t * 0.07) * 5;
-      rotX += (xTarget - rotX) * 0.5 * dt;
+      rotX += (xTarget - rotX) * 0.8 * dt;
 
       /* Z — slow rolling tilt */
       rotZ = Math.sin(t * 0.11) * 9 + Math.sin(t * 0.29) * 4;
 
       /* Inertia decay from drag */
-      const decay = Math.pow(0.90, dt * 60);
+      const decay = Math.pow(0.92, dt * 60);
       velX *= decay; velY *= decay;
       rotX += velX; rotY += velY;
     }
