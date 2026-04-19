@@ -600,21 +600,22 @@
       bottom: 16px;
       left: 20px;
       right: 20px;
-      flex-direction: column;
+      flex-direction: column-reverse;
       align-items: flex-start;
-      justify-content: flex-end;
+      justify-content: flex-start;
       gap: 4px;
     }
     .landing-bottom-left {
       font-size: 13px;
       line-height: 1.2;
-      order: 1;
+      order: 2;
       flex-shrink: 0;
     }
     .landing-bottom-right {
       position: static;
-      order: 2;
+      order: 1;
       flex-shrink: 0;
+      min-height: 80px;
     }
     .landing-bottom-right,
     .landing-bio-ghost,
@@ -1073,6 +1074,10 @@ const isMobile = window.innerWidth <= 768;
         // Both happen at the same time — no black pause
         loadScreen.classList.add('hide');  // fades out dark backdrop (0.9s)
         site.classList.add('visible');     // fades in main page (1.0s)
+
+        // Show mobile menu button immediately when image appears
+        const menuBtnEl = document.getElementById('menuBtn');
+        if (menuBtnEl) { menuBtnEl.style.transition = 'opacity 0.5s ease'; menuBtnEl.style.opacity = '1'; }
 
         // Fire nav reveal sequence ~1s after site appears
         setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), isMobile ? 300 : 1000);
