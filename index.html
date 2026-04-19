@@ -6,7 +6,7 @@
 
 <style>
   html, body {
-    background: #0a0604;
+    background: #000;
     margin: 0; padding: 0;
     overflow: hidden;
   }
@@ -31,7 +31,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    background-color: #0a0604;
+    background-color: #000;
     opacity: 0;
     transition: opacity 1.0s ease;
   }
@@ -302,8 +302,7 @@
   #loadScreen {
     position: fixed;
     inset: 0;
-    background: #0a0604;
-    z-index: 150;
+    background: #000;
     opacity: 1;
     transition: opacity 0.9s ease;
     pointer-events: none;
@@ -706,7 +705,7 @@
      ── FOOTER ──
   ══════════════════════════════════════ */
   .footer {
-    background: #0a0604;
+    background: #000;
     width: 100%;
     min-height: 100vh;
     height: 100vh;
@@ -806,11 +805,7 @@
   .footer-spacer {
     flex-shrink: 0;
     height: 32px;
-    background: #0a0604;
-  }
-
-  @media (max-width: 768px) {
-    .footer { min-height: 100vh; height: 100vh; }
+    background: #000;
     .footer-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1985,6 +1980,7 @@ videoEl.addEventListener('timeupdate', () => {
   let rotX = 8, rotY = 0, velX = 0, velY = 0;
   let dragging = false, prevX = 0, prevY = 0;
   let lastDX = 0, lastDY = 0;
+  let touchStartX = 0, touchStartY = 0;
   let elapsed = 0, lastTime = performance.now();
   let visible = false;
 
@@ -2014,15 +2010,25 @@ videoEl.addEventListener('timeupdate', () => {
   scene.addEventListener('mousedown',  e => dragStart(e.clientX, e.clientY));
   window.addEventListener('mousemove', e => dragMove(e.clientX, e.clientY));
   window.addEventListener('mouseup',   dragEnd);
-  /* Touch */
+
+  /* Touch — only hijack horizontal swipes so vertical scrolling still works */
   scene.addEventListener('touchstart', e => {
-    dragStart(e.touches[0].clientX, e.touches[0].clientY);
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    dragStart(touchStartX, touchStartY);
   }, { passive: true });
-  window.addEventListener('touchmove', e => {
+
+  scene.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    /* If the gesture is more vertical than horizontal, let the page scroll */
+    if (dy > dx) { dragEnd(); return; }
     e.preventDefault();
     dragMove(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: false });
-  window.addEventListener('touchend', dragEnd);
+
+  scene.addEventListener('touchend', dragEnd);
 
   /* ── Animation loop ── */
   function animate(now) {
