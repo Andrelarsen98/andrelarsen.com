@@ -1090,19 +1090,21 @@ function wrapNavChars(el) {
 // Chars used for scramble
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
 
-/* Split element into per-char spans, return array of spans */
+/* Split element into per-char spans — chars start invisible */
 function splitToCharSpans(el) {
   const text = el.textContent;
   el.innerHTML = Array.from(text).map(c =>
     c === ' ' ? '<span class="sc-space"> </span>'
-              : `<span class="sc-char">${GLITCH_CHARS[Math.floor(Math.random()*GLITCH_CHARS.length)]}</span>`
+              : `<span class="sc-char" style="opacity:0"> </span>`
   ).join('');
   return { chars: [...el.querySelectorAll('.sc-char')], originals: Array.from(text).filter(c => c !== ' ') };
 }
 
-/* Resolve a single char span to its final character */
+/* Resolve a single char: scramble briefly then snap to final — only visible during resolve */
 function resolveChar(span, finalChar, iterations) {
   let count = 0;
+  span.style.opacity = '1';
+  span.textContent = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
   const iv = setInterval(() => {
     count++;
     if (count >= iterations) {
