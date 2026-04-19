@@ -968,26 +968,29 @@ const isMobile = window.innerWidth <= 768;
 
 const scrollContainer = document.getElementById('scrollContainer');
 
-/* ── NAV HOVER GLITCH (white box + scrambling chars) ── */
-(function() {
+/* ── NAV HOVER GLITCH — per character, 3-flash burst then restore ── */
+function wrapNavChars(el) {
   const GLITCH = '@#FRT43%=+-.<>!?|~^$3R4T';
-  function attachNavGlitch(el) {
-    const original = el.textContent;
-    let interval = null;
-    el.addEventListener('mouseenter', () => {
-      interval = setInterval(() => {
-        el.textContent = Array.from(original).map(c =>
-          c === ' ' ? c : GLITCH[Math.floor(Math.random() * GLITCH.length)]
-        ).join('');
-      }, 55);
+  const text = el.textContent;
+  el.innerHTML = Array.from(text).map(c =>
+    c === ' ' ? ' ' : `<span class="nav-char" data-orig="${c}">${c}</span>`
+  ).join('');
+
+  el.querySelectorAll('.nav-char').forEach(span => {
+    span.addEventListener('mouseenter', () => {
+      const orig = span.dataset.orig;
+      let count = 0;
+      const iv = setInterval(() => {
+        span.textContent = GLITCH[Math.floor(Math.random() * GLITCH.length)];
+        count++;
+        if (count >= 3) {
+          clearInterval(iv);
+          setTimeout(() => { span.textContent = orig; }, 60);
+        }
+      }, 60);
     });
-    el.addEventListener('mouseleave', () => {
-      clearInterval(interval);
-      el.textContent = original;
-    });
-  }
-  document.querySelectorAll('.nav-links a, .nav-center a').forEach(attachNavGlitch);
-})();
+  });
+}
 
 /* ── NAV GLITCH INTRO ── */
 const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
@@ -1001,7 +1004,7 @@ if (logo) {
   }, 130);
 }
 
-function typewriterGlitch(el, delay) {
+function typewriterGlitch(el, delay, onDone) {
   const final = el.textContent;
   const scrambled = Array.from(final).map(c =>
     (c === ' ' || c === '\n') ? c : GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]
@@ -1017,13 +1020,17 @@ function typewriterGlitch(el, delay) {
         scrambled[i] = final[i];
         el.textContent = scrambled.join('');
         i++;
-      } else { el.textContent = final; clearInterval(interval); }
+      } else {
+        el.textContent = final;
+        clearInterval(interval);
+        if (onDone) onDone();
+      }
     }, 38);
   }, delay);
 }
 
 document.querySelectorAll('.nav-links a, .nav-center a').forEach((el, i) => {
-  typewriterGlitch(el, 1500 + i * 100);
+  typewriterGlitch(el, 1500 + i * 100, () => wrapNavChars(el));
 });
 
 /* ── FILM GRAIN ── */
