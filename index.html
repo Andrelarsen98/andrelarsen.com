@@ -177,6 +177,41 @@
     -webkit-font-smoothing: none;
   }
 
+  /* ── SCROLL INDICATOR ── */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: none;
+    opacity: 0;
+    animation: scrollFadeIn 1s ease 2.5s forwards;
+  }
+  .scroll-arrow {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: rgba(255,255,255,0.5);
+    -webkit-font-smoothing: none;
+    animation: scrollBounce 1.6s ease-in-out infinite;
+    line-height: 1;
+  }
+  @keyframes scrollBounce {
+    0%, 100% { transform: translateY(0px);    opacity: 0.4; }
+    50%       { transform: translateY(7px);   opacity: 0.9; }
+  }
+  @keyframes scrollFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* hide once user scrolls */
+  .scroll-indicator.hidden { opacity: 0; transition: opacity 0.4s ease; }
+
   /* ── LANDING BOTTOM TEXT (like artefakt) ── */
   .landing-bottom {
     position: absolute;
@@ -646,10 +681,9 @@
 
     <div class="spacer"></div>
 
-    <!-- Artefakt-style bottom text -->
-    <div class="landing-bottom">
-      <div class="landing-bottom-left">VISUAL ARTIST.<br>CINEMATOGRAPHER.</div>
-      <div class="landing-bottom-right">CINEMATIC &amp; AERIAL STORYTELLING<br>DUBAI · WORLDWIDE</div>
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator" id="scrollIndicator">
+      <div class="scroll-arrow">↓</div>
     </div>
 
   </div>
@@ -1034,7 +1068,16 @@ document.querySelectorAll('.nav-links a, .nav-center a').forEach((el, i) => {
   typewriterGlitch(el, 1500 + i * 100, () => wrapNavChars(el));
 });
 
-/* ── FILM GRAIN ── */
+/* ── SCROLL INDICATOR — hide on first scroll ── */
+const scrollIndicator = document.getElementById('scrollIndicator');
+if (scrollIndicator) {
+  scrollContainer.addEventListener('scroll', function hideArrow() {
+    scrollIndicator.classList.add('hidden');
+    scrollContainer.removeEventListener('scroll', hideArrow);
+  }, { passive: true });
+}
+
+
 const grainCanvas = document.getElementById('grainCanvas');
 const grainCtx = grainCanvas.getContext('2d');
 function resizeGrain() { grainCanvas.width = window.innerWidth; grainCanvas.height = window.innerHeight; }
