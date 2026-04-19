@@ -133,11 +133,16 @@
     height: 100%;
     z-index: 210;
     pointer-events: all;
-    opacity: 1;
+    opacity: 0;
     transition: opacity 1.2s ease;
     image-rendering: pixelated;
+    animation: asciiReveal 0.9s ease 0.35s forwards;
   }
-  #asciiCanvas.hidden { opacity: 0; pointer-events: none; }
+  @keyframes asciiReveal {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  #asciiCanvas.hidden { opacity: 0 !important; animation: none; pointer-events: none; }
 
   /* ── LOADING UI — positioned by JS below name ── */
   #loadUi {
@@ -148,12 +153,13 @@
     align-items: center;
     gap: 10px;
     white-space: nowrap;
-    opacity: 1;
+    opacity: 0;
     transition: opacity 0.5s ease;
     pointer-events: none;
     z-index: 211;
+    animation: asciiReveal 0.9s ease 0.7s forwards;
   }
-  #loadUi.hide { opacity: 0; }
+  #loadUi.hide { opacity: 0 !important; animation: none; }
   #loadLine1 {
     font-family: 'Courier New', monospace;
     color: #fff;
@@ -643,7 +649,7 @@ const isMobile = window.innerWidth <= 768;
     let fs = H * 0.40;
     nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
     let nw = nx.measureText(NAME).width;
-    if (nw > W * 0.85) { fs *= (W * 0.85) / nw; }
+    if (nw > W * 0.78) { fs *= (W * 0.78) / nw; }
     nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
     const tw = nx.measureText(NAME).width;
     nx.fillStyle = '#fff';
