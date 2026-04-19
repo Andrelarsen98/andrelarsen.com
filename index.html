@@ -260,6 +260,8 @@
     line-height: 1.15;
     -webkit-font-smoothing: none;
     font-smooth: never;
+    opacity: 0;
+    white-space: pre-line;
   }
   .landing-bottom-right {
     font-family: 'VT323', monospace;
@@ -757,7 +759,8 @@
 
     <!-- Landing bottom bio -->
     <div class="landing-bottom">
-      <div class="landing-bottom-left"></div>
+      <div class="landing-bottom-left" id="landingTagline">VISUAL WORK.
+CRAFTED.</div>
       <div class="landing-bottom-right" id="landingBioWrap">
         <!-- Ghost reserves space so text never reflows during reveal -->
         <div class="landing-bio-ghost">André Larsen is a visual artist and cinematographer creating cinematic and aerial work that moves between the commercial and the personal.</div>
@@ -1134,10 +1137,11 @@ const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
 function splitToCharSpans(el) {
   const text = el.textContent;
   el.innerHTML = Array.from(text).map(c =>
-    c === ' ' ? '<span class="sc-space"> </span>'
-              : `<span class="sc-char" style="opacity:0"> </span>`
+    c === '\n' ? '<br>'
+    : c === ' ' ? '<span class="sc-space"> </span>'
+                : `<span class="sc-char" style="opacity:0"> </span>`
   ).join('');
-  return { chars: [...el.querySelectorAll('.sc-char')], originals: Array.from(text).filter(c => c !== ' ') };
+  return { chars: [...el.querySelectorAll('.sc-char')], originals: Array.from(text).filter(c => c !== ' ' && c !== '\n') };
 }
 
 /* Resolve a single char: scramble briefly then snap to final — only visible during resolve */
@@ -1183,7 +1187,9 @@ function startNavSequence() {
   const indicator = document.getElementById('scrollIndicator');
 
   // All elements that get the char-by-char reveal
+  const taglineEl = document.getElementById('landingTagline');
   const allEls = [logo, ...navLinks, ...navCenter, ...navRight];
+  if (taglineEl) allEls.push(taglineEl);
   if (bioEl) allEls.push(bioEl);
 
   // Step 1: split all elements into char spans and make them visible (showing scrambled)
