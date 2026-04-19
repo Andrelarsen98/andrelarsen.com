@@ -1016,17 +1016,18 @@
 
   .cube-drag-label {
     position: absolute;
-    bottom: 18px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'VT323', monospace;
-    font-size: 15px;
-    letter-spacing: 0.18em;
+    font-size: 16px;
+    letter-spacing: 0.22em;
     color: rgba(255,255,255,0.35);
     text-transform: uppercase;
     pointer-events: none;
     -webkit-font-smoothing: none;
     white-space: nowrap;
+    z-index: 20;
   }
 
   @media (max-width: 768px) {
@@ -1045,7 +1046,7 @@
       gap: 12px;
       order: 2;
     }
-    .cube-right { min-height: 380px; height: 380px; order: 1; overflow: visible; }
+    .cube-right { min-height: 420px; height: 420px; order: 1; overflow: visible; padding-bottom: 40px; }
     .cube-headline { display: block; }
     .cube-title { font-size: clamp(22px, 8vw, 40px); }
     .vs-sphere { width: 220px; height: 220px; }
@@ -1158,7 +1159,7 @@ Dubai, worldwide.</div>
       </div>
     </div>
     <div class="cube-right" id="cubeRight">
-      <div class="cube-drag-label">↓ DRAG</div>
+      <div class="cube-drag-label">DRAG TO EXPLORE</div>
     </div>
   </section>
 
