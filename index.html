@@ -414,15 +414,8 @@
     overflow: hidden;
     padding: 0;
   }
-  #footerAsciiOut {
+  #footerAsciiCanvas {
     display: block;
-    white-space: pre;
-    font-family: 'Courier New', Courier, monospace;
-    color: #ffffff;
-    user-select: none;
-    line-height: 1.1;
-    letter-spacing: 0.05em;
-    /* No glow/blur — Artefakt is pure sharp white, no text-shadow */
   }
 
   /* ── Info bar — single line at bottom, exactly like Artefakt ── */
@@ -559,7 +552,7 @@
   <!-- ── FOOTER ── -->
   <footer class="footer">
   <div class="footer-ascii-wrap">
-    <pre id="footerAsciiOut"></pre>
+    <canvas id="footerAsciiCanvas"></canvas>
   </div>
 
   <div class="footer-info">
@@ -1085,93 +1078,129 @@ videoEl.addEventListener('timeupdate', () => {
 });
 
 /* ══════════════════════════════════════
-   ── FOOTER ASCII — full width, animated
+   ── FOOTER ASCII — canvas, matches loader
 ══════════════════════════════════════ */
 (function() {
-  const footerEl = document.getElementById('footerAsciiOut');
-  if (!footerEl) return;
-
-  const FOOTER_NAME  = 'André Larsen';
-  // Artefakt uses dense alphanumeric chars — mostly numbers and letters, very readable
-  const FOOTER_CHARS = '3RT4FR@#T4R3T%RF4T=3R+43RT3:F4R*3T#@R43TF%R3T4R3T#4F@R3TR4%3TF#R3T4R@3TRF43RT#@%R3T4FR3@T#R4F3T%R4T3F#@R3T4';
-
-  // Footer fills full viewport. Reserve ~85px for info row + back-to-top bar.
-  const FOOTER_RESERVED = 85;
-  const availH = window.innerHeight - FOOTER_RESERVED;
-
-  // Choose char size — slightly larger for readability like Artefakt
-  const F_CHAR_H  = isMobile ? 7.5 : 7.5;
-  const F_CHAR_W  = isMobile ? 5   : 5;
-  const F_COLS    = Math.floor(window.innerWidth / F_CHAR_W);
-  const F_ROWS    = Math.floor(availH / F_CHAR_H);
-
-  // Set font size on the pre element
-  footerEl.style.fontSize   = (F_CHAR_W * 0.92) + 'px';
-  footerEl.style.lineHeight = F_CHAR_H + 'px';
-
-  // Build canvas with name sized to fill width
-  const fCanvas = document.createElement('canvas');
-  fCanvas.width  = F_COLS * F_CHAR_W;
-  fCanvas.height = F_ROWS * F_CHAR_H;
+  const fCanvas = document.getElementById('footerAsciiCanvas');
+  if (!fCanvas) return;
   const fCtx = fCanvas.getContext('2d');
 
-  // Scale font so name spans full canvas width
-  let fontSize = 200;
-  fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
-  let nameW = fCtx.measureText(FOOTER_NAME).width;
-  const targetW = fCanvas.width * 0.78;
-  fontSize = fontSize * (targetW / nameW);
-  fCtx.font = `900 italic ${fontSize}px Arial Black, Arial, sans-serif`;
+  const FOOTER_NAME  = 'André Larsen';
+  const FOOTER_CHARS = '3RT4FR@#T4R3T%RF4T=3R+43RT3:F4R*3T#@R43TF%R3T4R3T#4F@R3TR4%3TF#R3T4R@3TRF43RT#@%R3T4FR3@T#R4F3T%R4T3F#@R3T4';
+  const CW = 5, CH = 7.5;
+  const MOUSE_R = 140;
 
-  fCtx.fillStyle = '#fff';
-  fCtx.textBaseline = 'middle';
-  nameW = fCtx.measureText(FOOTER_NAME).width;
-  fCtx.fillText(FOOTER_NAME, (fCanvas.width - nameW) / 2, fCanvas.height / 2);
-  const fImgData = fCtx.getImageData(0, 0, fCanvas.width, fCanvas.height).data;
+  let cols, rows, mask, cellChar, cellTimer;
+  let fMouseX = -999, fMouseY = -999;
+  let ft = 0, footerVisible = false, animId;
 
-  const fCellOffset = new Float32Array(F_COLS * F_ROWS);
-  const fCellSpeed  = new Float32Array(F_COLS * F_ROWS);
-  for (let i = 0; i < F_COLS * F_ROWS; i++) {
-    fCellOffset[i] = Math.random() * 100;
-    fCellSpeed[i]  = 0.4 + Math.random() * 0.9;
+  function buildFooterMask() {
+    const FOOTER_RESERVED = 85;
+    const availH = window.innerHeight - FOOTER_RESERVED;
+    const W = window.innerWidth;
+    const H = availH;
+    const dpr = window.devicePixelRatio || 1;
+
+    cols = Math.floor(W / CW);
+    rows = Math.floor(H / CH);
+
+    fCanvas.width  = W * dpr;
+    fCanvas.height = H * dpr;
+    fCanvas.style.width  = W + 'px';
+    fCanvas.style.height = H + 'px';
+    fCtx.setTransform(1,0,0,1,0,0);
+    fCtx.scale(dpr, dpr);
+
+    // Draw name to off-screen canvas to build mask
+    const nc = document.createElement('canvas');
+    nc.width = W; nc.height = H;
+    const nx = nc.getContext('2d');
+    let fs = H * 0.55;
+    nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
+    let nw = nx.measureText(FOOTER_NAME).width;
+    if (nw > W * 0.78) { fs *= (W * 0.78) / nw; }
+    nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
+    const tw = nx.measureText(FOOTER_NAME).width;
+    nx.fillStyle = '#fff';
+    nx.textBaseline = 'middle';
+    for (let ox = -2; ox <= 2; ox++)
+      for (let oy = -2; oy <= 2; oy++)
+        nx.fillText(FOOTER_NAME, (W - tw) / 2 + ox, H / 2 + oy);
+
+    const d = nx.getImageData(0, 0, W, H).data;
+    mask      = new Uint8Array(cols * rows);
+    cellChar  = new Uint8Array(cols * rows);
+    cellTimer = new Uint8Array(cols * rows);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const i  = r * cols + c;
+        const px = Math.floor(c * CW + CW / 2);
+        const py = Math.floor(r * CH + CH / 2);
+        if (px < W && py < H && d[(py * W + px) * 4 + 3] >= 40) mask[i] = 1;
+        cellChar[i]  = Math.floor(Math.random() * FOOTER_CHARS.length);
+        cellTimer[i] = Math.floor(Math.random() * 6) + 2;
+      }
+    }
   }
 
-  function fRand(x, y, s) {
-    const v = Math.sin(x * 127.1 + y * 311.7 + s) * 43758.5453;
-    return v - Math.floor(v);
+  function renderFooter() {
+    if (!footerVisible) { animId = requestAnimationFrame(renderFooter); return; }
+    const W = fCanvas.style.width  ? parseInt(fCanvas.style.width)  : window.innerWidth;
+    const H = fCanvas.style.height ? parseInt(fCanvas.style.height) : window.innerHeight;
+    fCtx.clearRect(0, 0, W, H);
+    const fs = Math.round(CH * 0.92);
+    fCtx.font = `bold ${fs}px "Courier New",Courier,monospace`;
+    fCtx.textBaseline = 'top';
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c;
+        if (mask[i] !== 1) continue;
+        const cx = c * CW + CW / 2, cy = r * CH + CH / 2;
+        let drawX = c * CW, drawY = r * CH;
+
+        // Mouse push — same as loader
+        if (!isMobile && fMouseX > 0) {
+          const dx = cx - fMouseX, dy = cy - fMouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MOUSE_R && dist > 0) {
+            const strength = (1 - dist / MOUSE_R);
+            const push = strength * strength * CW * 3.5;
+            drawX += (dx / dist) * push;
+            drawY += (dy / dist) * push;
+          }
+        }
+
+        cellTimer[i]--;
+        if (cellTimer[i] <= 0) {
+          cellChar[i]  = Math.floor(Math.random() * FOOTER_CHARS.length);
+          cellTimer[i] = Math.floor(Math.random() * 5) + 2;
+        }
+        fCtx.fillStyle = '#ffffff';
+        fCtx.fillText(FOOTER_CHARS[cellChar[i]], drawX, drawY);
+      }
+    }
+    ft += 0.05;
+    animId = requestAnimationFrame(renderFooter);
   }
 
-  let ft = 0;
-  let footerVisible = false;
+  // Mouse tracking relative to footer canvas
+  fCanvas.addEventListener('mousemove', e => {
+    const rect = fCanvas.getBoundingClientRect();
+    fMouseX = e.clientX - rect.left;
+    fMouseY = e.clientY - rect.top;
+  });
+  fCanvas.addEventListener('mouseleave', () => { fMouseX = -999; fMouseY = -999; });
 
-  // Only animate when footer is in view (IntersectionObserver)
   const footerObserver = new IntersectionObserver(entries => {
     footerVisible = entries[0].isIntersecting;
   }, { threshold: 0.1 });
-  footerObserver.observe(footerEl);
+  footerObserver.observe(fCanvas);
 
-  function renderFooterAscii() {
-    if (!footerVisible) { requestAnimationFrame(renderFooterAscii); return; }
-    // Fixed low threshold — chars are always solid, never dimming out like Artefakt
-    const threshold = 12;
-    const parts = [];
-    for (let r = 0; r < F_ROWS; r++) {
-      for (let c = 0; c < F_COLS; c++) {
-        const px = Math.floor(c * F_CHAR_W + F_CHAR_W / 2);
-        const py = Math.floor(r * F_CHAR_H + F_CHAR_H / 2);
-        const inB  = px >= 0 && py >= 0 && px < fCanvas.width && py < fCanvas.height;
-        const alpha = inB ? fImgData[(py * fCanvas.width + px) * 4 + 3] : 0;
-        if (alpha < threshold) { parts.push(' '); continue; }
-        const idx = Math.floor(fRand(c, r, Math.floor(ft * fCellSpeed[r * F_COLS + c] + fCellOffset[r * F_COLS + c])) * FOOTER_CHARS.length);
-        parts.push(FOOTER_CHARS[Math.max(0, Math.min(FOOTER_CHARS.length - 1, idx))]);
-      }
-      parts.push('\n');
-    }
-    footerEl.textContent = parts.join('');
-    ft += 0.05;
-    requestAnimationFrame(renderFooterAscii);
-  }
-  renderFooterAscii();
+  buildFooterMask();
+  window.addEventListener('resize', buildFooterMask);
+  renderFooter();
 
   // Back to top
   document.getElementById('footerBackTop').addEventListener('click', () => {
