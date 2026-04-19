@@ -587,6 +587,27 @@
     .video-label-tr { right: 16px; top: 20px; }
     .video-time { left: 16px; bottom: 14px; }
     .video-name { right: 16px; bottom: 14px; font-size: 9px; }
+
+    /* Mobile landing — pull bio text up so it's fully visible without scrolling */
+    .site {
+      height: 100dvh;
+      min-height: 100dvh;
+    }
+    .landing-bottom {
+      bottom: 16px;
+      left: 20px;
+      right: 20px;
+    }
+    .landing-bottom-right,
+    .landing-bio-ghost,
+    #landingBio {
+      font-size: 13px;
+      max-width: 100%;
+      line-height: 1.2;
+    }
+    .bg-img {
+      object-position: center 20%;
+    }
   }
 
   /* ══════════════════════════════════════
@@ -1029,7 +1050,7 @@ const isMobile = window.innerWidth <= 768;
         site.classList.add('visible');     // fades in main page (1.0s)
 
         // Fire nav reveal sequence ~1s after site appears
-        setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), 1000);
+        setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), isMobile ? 300 : 1000);
 
         // Clean up after both are done
         setTimeout(() => {
