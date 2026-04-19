@@ -889,7 +889,7 @@
     justify-content: center;
     perspective: 1000px;
     cursor: grab;
-    overflow: hidden;
+    overflow: visible;
     z-index: 1;
   }
   .vs-scene.dragging { cursor: grabbing; }
@@ -1033,27 +1033,39 @@
   @media (max-width: 768px) {
     .cube-section {
       grid-template-columns: 1fr;
-      grid-template-rows: auto auto auto;
-      height: auto;
-      min-height: unset;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+      min-height: 100vh;
       overflow: visible;
+      display: flex;
+      flex-direction: column;
     }
     .cube-left {
-      padding: 28px 20px 8px;
+      padding: 24px 20px 12px;
       flex-direction: column;
       align-items: flex-start;
       justify-content: flex-start;
       gap: 8px;
       order: 1;
+      flex-shrink: 0;
     }
-    /* On mobile: headline first, then counter below it */
     .cube-ui { order: 2; }
     .cube-headline { order: 1; display: block; }
-    .cube-right { min-height: 420px; height: 420px; order: 2; overflow: visible; padding-bottom: 40px; }
+    .cube-right {
+      flex: 1;
+      order: 2;
+      overflow: visible;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+    }
     .cube-title { font-size: clamp(28px, 9vw, 48px); }
     .vs-sphere { width: 220px; height: 220px; }
     .vs-glow { width: 220px; height: 220px; }
     .vs-card { width: 100px; height: 56px; margin-top: -28px; margin-left: -50px; }
+    .cube-drag-label { bottom: 16px; }
   }
 </style>
 
