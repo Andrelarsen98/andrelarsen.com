@@ -375,6 +375,15 @@
   .ascii-wrap { display: none; }
   #asciiOut   { display: none; }
 
+  /* ── DRUK WIDE FONT ── */
+  @font-face {
+    font-family: 'DrukWide';
+    src: url('DrukWide-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
   /* ── MOBILE FULL-SCREEN MENU ── */
   .menu-overlay {
     display: none;
@@ -383,22 +392,37 @@
     background: #000;
     z-index: 300;
     flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
-    padding: 0 0 40px 0;
+    justify-content: space-between;
+    align-items: stretch;
     opacity: 0;
     transition: opacity 0.3s ease;
+    overflow: hidden;
   }
   .menu-overlay.open { display: flex; opacity: 1; }
 
-  /* Top bar — logo + close button */
-  .menu-top {
+  /* Scanline dot overlay — exact artefakt */
+  .menu-overlay::after {
+    content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.07;
+    background:
+      linear-gradient(90deg, #000 calc(3px - 2px), transparent 1%) center / 3px 3px,
+      linear-gradient(#000 calc(3px - 2px), transparent 1%) center / 3px 3px,
+      #fff;
+    z-index: 0;
+  }
+
+  /* Top bar */
+  .menu-top {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 22px 20px 0;
+    flex-shrink: 0;
   }
   .menu-logo {
     font-family: 'Arial Black', Arial, sans-serif;
@@ -420,36 +444,42 @@
     cursor: pointer;
     text-transform: uppercase;
     -webkit-font-smoothing: none;
+    position: relative;
+    z-index: 1;
   }
 
-  /* Main nav links */
+  /* Main nav links — centered vertically */
   .menu-nav {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 0 36px;
-    margin-bottom: 48px;
+    justify-content: center;
+    padding: 0 20px;
+    flex: 1;
+    position: relative;
+    z-index: 1;
   }
   .menu-nav a {
     color: #fff;
     text-decoration: none;
-    font-family: 'Arial Black', Arial, sans-serif;
-    font-size: 64px;
-    font-weight: 900;
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-size: 12vw;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    letter-spacing: -0.2rem;
+    line-height: 1.0;
   }
 
-  /* Bottom bar — info left, contact button right */
+  /* Bottom bar */
   .menu-bottom {
+    position: relative;
+    z-index: 1;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    padding: 0 36px;
-    border-top: 1px solid rgba(255,255,255,0.12);
-    padding-top: 20px;
+    padding: 16px 20px 36px;
+    flex-shrink: 0;
   }
   .menu-bottom-left {
     display: flex;
@@ -462,13 +492,14 @@
     font-size: 14px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
+    color: #fff;
     text-decoration: none;
     -webkit-font-smoothing: none;
+    opacity: 1;
   }
   .menu-contact-btn {
     background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.35);
+    border: 1px solid rgba(255,255,255,0.4);
     color: #fff;
     font-family: 'VT323', monospace;
     font-size: 15px;
