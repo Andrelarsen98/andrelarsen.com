@@ -948,7 +948,8 @@
     mix-blend-mode: screen;
   }
   .vs-glitch.active {
-    animation: vsGlitch 0.45s steps(1) forwards;
+    animation: none;
+    opacity: 0;
   }
   @keyframes vsGlitch {
     0%   { opacity: 1; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.06) 3px, rgba(255,255,255,0.06) 4px); clip-path: inset(10% 0 80% 0); }
@@ -1028,6 +1029,8 @@
     .cube-right { min-height: 70vw; order: 1; }
     .cube-headline { display: block; }
     .cube-title { font-size: clamp(22px, 8vw, 40px); }
+    .vs-sphere { width: 300px; height: 300px; }
+    .vs-glow { width: 300px; height: 300px; }
   }
 </style>
 
