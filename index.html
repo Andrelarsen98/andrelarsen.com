@@ -970,7 +970,7 @@ const scrollContainer = document.getElementById('scrollContainer');
 
 /* ── NAV HOVER GLITCH — per character, 3-flash burst then restore ── */
 function wrapNavChars(el) {
-  const GLITCH = '@#FRT43%=+-.<>!?|~^$3R4T';
+  const GLITCH = '@#FRT43%=+-.<>!?|~^$3R4T&*()[]{}/:;,!§±°€£¥×÷√∞≠';
   const text = el.textContent;
   el.innerHTML = Array.from(text).map(c =>
     c === ' ' ? ' ' : `<span class="nav-char" data-orig="${c}">${c}</span>`
@@ -980,14 +980,15 @@ function wrapNavChars(el) {
     span.addEventListener('mouseenter', () => {
       const orig = span.dataset.orig;
       let count = 0;
+      const total = 5 + Math.floor(Math.random() * 2); // 5 or 6
       const iv = setInterval(() => {
         span.textContent = GLITCH[Math.floor(Math.random() * GLITCH.length)];
         count++;
-        if (count >= 3) {
+        if (count >= total) {
           clearInterval(iv);
           setTimeout(() => { span.textContent = orig; }, 60);
         }
-      }, 60);
+      }, 55);
     });
   });
 }
