@@ -778,28 +778,33 @@ const isMobile = window.innerWidth <= 768;
   }
 
   function doReveal() {
-    // Step 1: hide loading bar UI instantly
+    // Step 1: hide loading bar UI
     loadUi.classList.add('hide');
 
-    // Step 2: fade out ASCII canvas
+    // Step 2: fade out ASCII canvas (same 0.9s as fade in)
     setTimeout(() => {
       const currentOpacity = parseFloat(window.getComputedStyle(aC).opacity);
       aC.style.animation = 'none';
       aC.style.opacity = currentOpacity;
       aC.getBoundingClientRect();
-      aC.style.transition = 'opacity 1.0s ease';
+      aC.style.transition = 'opacity 0.9s ease';
       aC.getBoundingClientRect();
       aC.style.opacity = '0';
 
-      // Step 3: wait for ASCII to fully fade, then show main page
+      // Step 3: the moment ASCII is gone, crossfade loadScreen out and site in simultaneously
       aC.addEventListener('transitionend', function onFadeOut() {
         aC.removeEventListener('transitionend', onFadeOut);
-        site.classList.add('visible');
+
+        // Both happen at the same time — no black pause
+        loadScreen.classList.add('hide');  // fades out dark backdrop (0.9s)
+        site.classList.add('visible');     // fades in main page (1.0s)
+
+        // Clean up after both are done
         setTimeout(() => {
           loadScreen.remove();
           cancelAnimationFrame(loaderAnimId);
           aC.remove();
-        }, 1200);
+        }, 1100);
       });
     }, 300);
   }
