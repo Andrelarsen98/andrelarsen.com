@@ -260,14 +260,11 @@
     text-transform: uppercase;
     color: #fff;
     line-height: 1.15;
-    text-align: right;
+    text-align: left;
     max-width: 380px;
     -webkit-font-smoothing: none;
     font-smooth: never;
-    opacity: 0;
-    transition: opacity 0.9s ease;
   }
-  .landing-bottom-right.visible { opacity: 1; }
 
   .spacer { display: none; }
 
@@ -1139,17 +1136,41 @@ function startNavSequence() {
     typewriterGlitch(el, 200 + i * 140, isLink ? () => wrapNavChars(el) : null);
   });
 
-  // Bio text — smooth fade-in after nav settles
+  // Bio text — same glitch typewriter as nav, faster interval for long sentence
   const bioEl    = document.getElementById('landingBio');
-  const bioDelay = 200 + allItems.length * 140 + 300;
+  const bioDelay = 200 + allItems.length * 140 + 200;
   if (bioEl) {
-    setTimeout(() => bioEl.classList.add('visible'), bioDelay);
+    const finalText = bioEl.textContent;
+    const GLITCH    = GLITCH_CHARS;
+    const scrambled = Array.from(finalText).map(c =>
+      (c === ' ') ? c : GLITCH[Math.floor(Math.random() * GLITCH.length)]
+    );
+    setTimeout(() => {
+      bioEl.style.opacity = '1';
+      bioEl.textContent = scrambled.join('');
+      let i = 0;
+      const iv = setInterval(() => {
+        if (i < finalText.length) {
+          for (let j = i; j < finalText.length; j++) {
+            if (finalText[j] !== ' ') scrambled[j] = GLITCH[Math.floor(Math.random() * GLITCH.length)];
+          }
+          scrambled[i] = finalText[i];
+          bioEl.textContent = scrambled.join('');
+          i++;
+        } else {
+          bioEl.textContent = finalText;
+          clearInterval(iv);
+        }
+      }, 18);
+    }, bioDelay);
   }
 
-  // Scroll arrow appears shortly after bio fades in
+  // Scroll arrow appears after bio finishes
+  const bioLength  = bioEl ? bioEl.textContent.length : 0;
+  const arrowDelay = bioDelay + bioLength * 18 + 300;
   setTimeout(() => {
     if (indicator) indicator.style.opacity = '1';
-  }, bioDelay + 1100);
+  }, arrowDelay);
 }
 
 window.addEventListener('navReveal', startNavSequence);
