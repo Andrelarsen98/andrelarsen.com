@@ -1850,21 +1850,35 @@ videoEl.addEventListener('timeupdate', () => {
 
 
 /* ══════════════════════════════════════
-   ── ORBITAL VIDEO CLUSTER ──
-   Tumbling sphere — cards tilt naturally
-   but stay roughly readable
+   ── ORBITAL VIDEO SPHERE ──
+   Low BLEND tumble, motion blur, depth
+   opacity, glitch-masked 10s sync loop
 ══════════════════════════════════════ */
 (function() {
   const CLIPS = [
     'work1.mp4','work2.mp4','work3.mp4','work4.mp4',
-    'work5.mp4','work6.mp4','work7.mp4','work8.mp4',
-    'work9.mp4','work10.mp4','work11.mp4','work12.mp4'
+    'work5.mp4','work6.mp4','work7.mp4','work8.mp4'
   ];
+
+  /* ── Glitch CSS injected once ── */
+  const s = document.createElement('style');
+  s.textContent = `
+    @keyframes glitchBurst {
+      0%,100% { filter: none; }
+      14%  { filter: contrast(3)   hue-rotate(90deg)  blur(2px)   brightness(1.5); }
+      28%  { filter: contrast(2)   hue-rotate(210deg)             brightness(0.5); }
+      42%  { filter: contrast(4)   hue-rotate(320deg) blur(4px)   brightness(1.4); }
+      57%  { filter: contrast(1.8) hue-rotate(160deg) blur(1.5px); }
+      71%  { filter: contrast(2.2) hue-rotate(50deg)  blur(0.5px); }
+      85%  { filter: contrast(1.1) hue-rotate(10deg); }
+    }
+    #cubeScene.glitching { animation: glitchBurst 0.75s steps(6) forwards; }
+  `;
+  document.head.appendChild(s);
 
   const section  = document.getElementById('cubeSection');
   const counter  = document.getElementById('cubeCounter');
   const oldCanvas = document.getElementById('cubeCanvas');
-  // Use the right-side container
   const container = oldCanvas ? oldCanvas.parentElement : null;
   if (!section || !container) return;
 
@@ -1874,156 +1888,112 @@ videoEl.addEventListener('timeupdate', () => {
   scene.style.cssText = [
     'position:absolute;inset:0;',
     'display:flex;align-items:center;justify-content:center;',
-    'perspective:900px;',
-    'overflow:hidden;z-index:1;'
+    'perspective:900px;overflow:hidden;z-index:1;'
   ].join('');
   if (oldCanvas) oldCanvas.replaceWith(scene);
   else container.appendChild(scene);
 
   const wrapper = document.createElement('div');
   wrapper.style.cssText = [
-    'position:relative;',
-    'width:1px;height:1px;',
-    'transform-style:preserve-3d;',
-    'will-change:transform;'
+    'position:relative;width:1px;height:1px;',
+    'transform-style:preserve-3d;will-change:transform,filter;'
   ].join('');
   scene.appendChild(wrapper);
 
-  /* ── Card positions on a sphere ──
-     [phi°, theta°, radius, tiltBias°, scale, w, h]
-     tiltBias adds a small personal lean so each card
-     looks slightly different even after partial billboard  */
-  const CONFIGS = [
-    [  15,   20,  220,  12, 1.00, 260, 146],
-    [ -25,  130,  205,  -8, 0.92, 240, 135],
-    [  40,  250,  225,  15, 0.95, 260, 146],
-    [ -40,  310,  195,  -6, 0.88, 235, 132],
-    [  70,   70,  185,  20, 0.90, 250, 140],
-    [ -65,  190,  190, -18, 0.90, 250, 140],
-    [  20,  165,  240,   8, 0.85, 225, 127],
-    [ -15,  290,  235,  -9, 0.85, 225, 127],
-    [  55,  340,  210,  16, 0.88, 240, 135],
-    [ -50,   50,  208, -14, 0.88, 240, 135],
-    [  30,  225,  248,  11, 0.82, 210, 118],
-    [ -35,  100,  240, -10, 0.82, 210, 118],
-  ];
-
+  /* ── Fibonacci sphere — 8 cards evenly spread ── */
+  const NUM   = 8;
+  const RAD   = 300;
+  const CW    = 160;
+  const CH    = 90;
+  const PHI   = Math.PI * (3 - Math.sqrt(5));
   const cards = [];
 
-  CONFIGS.forEach((cfg, i) => {
-    const [phi, theta, r, tiltBias, sc, W, H] = cfg;
-    const phiR   = phi   * Math.PI / 180;
-    const thetaR = theta * Math.PI / 180;
-    const tx = r * Math.cos(phiR) * Math.sin(thetaR);
-    const ty = r * Math.sin(phiR);
-    const tz = r * Math.cos(phiR) * Math.cos(thetaR);
+  for (let i = 0; i < NUM; i++) {
+    const y  = 1 - (i / (NUM - 1)) * 2;
+    const r  = Math.sqrt(Math.max(0, 1 - y * y));
+    const px = Math.cos(PHI * i) * r * RAD;
+    const py = y * RAD;
+    const pz = Math.sin(PHI * i) * r * RAD;
+    const tiltBias = (i % 2 === 0 ? 1 : -1) * (7 + i * 1.8);
+    const sc = 0.80 + (i % 3) * 0.07;
 
-    /* Anchor positions card in orbital space */
     const anchor = document.createElement('div');
     anchor.style.cssText = [
-      'position:absolute;',
-      'width:1px;height:1px;',
-      `transform:translateX(${tx}px) translateY(${ty}px) translateZ(${tz}px);`,
-      'transform-style:preserve-3d;',
+      'position:absolute;width:1px;height:1px;',
+      `transform:translateX(${px}px) translateY(${py}px) translateZ(${pz}px);`,
+      'transform-style:preserve-3d;'
     ].join('');
 
-    /* Billboard with a personal tilt baked in */
     const billboard = document.createElement('div');
     billboard.style.cssText = [
       'position:absolute;',
-      `width:${W}px;height:${H}px;`,
-      `margin-left:${-W/2}px;margin-top:${-H/2}px;`,
-      `transform:scale(${sc});`,
-      'transform-origin:center center;',
-      'border-radius:5px;',
-      'overflow:hidden;',
-      'box-shadow:0 6px 40px rgba(0,0,0,0.9);',
-      'will-change:transform;',
+      `width:${CW}px;height:${CH}px;`,
+      `margin-left:${-CW/2}px;margin-top:${-CH/2}px;`,
+      'border-radius:4px;overflow:hidden;',
+      'box-shadow:0 4px 28px rgba(0,0,0,0.95);',
+      'will-change:transform,opacity;'
     ].join('');
 
     const vid = document.createElement('video');
     vid.src = CLIPS[i];
-    vid.muted = true;
-    vid.loop  = true;
-    vid.playsInline = true;
-    vid.autoplay    = true;
+    vid.muted = true; vid.loop = false;
+    vid.playsInline = true; vid.preload = 'auto';
     vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
-    vid.play().catch(() => {});
 
     billboard.appendChild(vid);
     anchor.appendChild(billboard);
     wrapper.appendChild(anchor);
-    cards.push({ anchor, billboard, vid, tx, ty, tz, sc, tiltBias, W, H });
-  });
-
-  /* ── State ── */
-  let rotX = 0, rotY = 0, rotZ = 0;
-  let time = 0;
-  let visible = false;
-
-  /* ── Zoom ── */
-  let zooming = false, zoomTarget = -1, zoomPhase = 'idle';
-  let zoomProgress = 0, holdTimer = 0;
-  const ZOOM_IN_DUR = 0.85, HOLD_DUR = 3.0, ZOOM_OUT_DUR = 0.65;
-  const ZOOM_INTERVAL = 8.0;
-  let nextZoomAt = ZOOM_INTERVAL;
-
-  function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
-  function easeOut(t)   { return 1 - Math.pow(1-t, 3); }
-
-  function getSpeed(t) {
-    const base = 0.15;
-    const slow = Math.sin(t * 0.25) * 0.5 + 0.5;
-    const fast = Math.max(0, Math.sin(t * 1.3));
-    return base + slow * 0.5 + fast * 1.2;
+    cards.push({ anchor, billboard, vid, px, py, pz, sc, tiltBias });
   }
 
-  /* ── Partial billboard ──
-     BLEND controls how much the card faces camera (0 = full tumble, 1 = full billboard).
-     At 0.55 cards stay roughly readable but visibly tilt as the sphere spins —
-     exactly the artefakt feel.                                                     */
-  const BLEND = 0.55;
+  /* ── Sync: reset all videos to 0 and play simultaneously ── */
+  function syncAll() {
+    cards.forEach(c => { c.vid.currentTime = 0; c.vid.play().catch(() => {}); });
+  }
 
-  function updateCard(card, rX, rY, rZ, extraZ, extraSc, bright) {
-    card.anchor.style.transform = [
-      `translateX(${card.tx}px)`,
-      `translateY(${card.ty}px)`,
-      `translateZ(${card.tz + extraZ}px)`,
-    ].join(' ');
+  /* Wait for all canplay events then sync, fallback after 3s */
+  let readyCount = 0, started = false;
+  cards.forEach(c => c.vid.addEventListener('canplay', () => {
+    if (++readyCount >= NUM && !started) { started = true; syncAll(); startCycle(); }
+  }, { once: true }));
+  setTimeout(() => { if (!started) { started = true; syncAll(); startCycle(); } }, 3000);
 
-    // Counter-rotate by BLEND fraction + add each card's personal tiltBias
+  /* ── Glitch + re-sync every 10s ── */
+  function triggerGlitch() {
+    syncAll(); // reset under cover of glitch
+    scene.classList.remove('glitching');
+    void scene.offsetWidth; // force reflow to restart animation
+    scene.classList.add('glitching');
+    scene.addEventListener('animationend', () => scene.classList.remove('glitching'), { once: true });
+  }
+  function startCycle() { setInterval(triggerGlitch, 10000); }
+
+  /* ── Rotation ── */
+  const BLEND = 0.15; // low = full tumble, barely readable
+  let rotX = 0, rotY = 0, rotZ = 0, time = 0;
+  let visible = false, last = performance.now();
+
+  /* Gentle sine wave speed — no spikes, range 0.28–0.52 */
+  function getSpeed(t) { return 0.40 + Math.sin(t * 0.18) * 0.12; }
+
+  function updateCard(card, rX, rY, rZ, spd) {
+    /* Compute rotated world-space Z for depth-based opacity */
+    const rXr = rX * Math.PI / 180, rYr = rY * Math.PI / 180;
+    const z1  = card.py * Math.sin(rXr) + card.pz * Math.cos(rXr);
+    const z2  = -card.px * Math.sin(rYr) + z1 * Math.cos(rYr);
+    const depth   = (z2 / RAD + 1) * 0.5;           // 0 (back) → 1 (front)
+    const opacity = (0.30 + depth * 0.70).toFixed(2); // 0.30 → 1.00
+
     const tilt = card.tiltBias;
+    card.billboard.style.opacity   = opacity;
     card.billboard.style.transform = [
       `rotateZ(${-rZ * BLEND}deg)`,
       `rotateY(${-rY * BLEND}deg)`,
-      `rotateX(${-rX * BLEND + tilt * 0.4}deg)`,
-      `rotateZ(${tilt * 0.3}deg)`,
-      `scale(${card.sc * extraSc})`,
+      `rotateX(${-rX * BLEND + tilt * 0.3}deg)`,
+      `rotateZ(${tilt * 0.2}deg)`,
+      `scale(${card.sc})`
     ].join(' ');
-
-    card.billboard.style.filter = bright !== 1 ? `brightness(${bright.toFixed(2)})` : '';
   }
-
-  function startZoom() {
-    if (zooming) return;
-    zoomTarget = Math.floor(Math.random() * 12);
-    zooming = true; zoomPhase = 'in'; zoomProgress = 0; holdTimer = 0;
-  }
-
-  function getZoomParams(phase, t) {
-    if (phase === 'in') {
-      const e = easeInOut(t);
-      return { extraZ: e * 380, extraSc: 1 + e * 0.9, bright: 1 + e * 0.15 };
-    } else if (phase === 'hold') {
-      return { extraZ: 380, extraSc: 1.9, bright: 1.15 };
-    } else {
-      const e = easeOut(t);
-      return { extraZ: (1-e)*380, extraSc: 1 + (1-e)*0.9, bright: 1 + (1-e)*0.15 };
-    }
-  }
-
-  /* ── Main loop ── */
-  let last = performance.now();
 
   function animate() {
     requestAnimationFrame(animate);
@@ -2031,61 +2001,28 @@ videoEl.addEventListener('timeupdate', () => {
 
     const now = performance.now();
     const dt  = Math.min((now - last) / 1000, 0.05);
-    last = now;
-    time += dt;
+    last = now; time += dt;
 
-    const holdFactor = (zooming && zoomPhase === 'hold') ? 0.08 : 1;
-    const spd = getSpeed(time) * holdFactor;
+    const spd = getSpeed(time);
+    rotX += 0.28 * spd * dt * 60;
+    rotY += 0.52 * spd * dt * 60;
+    rotZ += 0.07 * spd * dt * 60;
 
-    rotX += 0.35 * spd * dt * 60;
-    rotY += 0.60 * spd * dt * 60;
-    rotZ += 0.12 * spd * dt * 60;
-
+    /* Dynamic motion blur — scales gently with speed */
+    const blur = ((spd - 0.28) / 0.24) * 2.0;
+    wrapper.style.filter    = blur > 0.1 ? `blur(${blur.toFixed(2)}px)` : '';
     wrapper.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
 
-    cards.forEach((card, idx) => {
-      let extraZ = 0, extraSc = 1, bright = 1;
-      if (zooming && idx === zoomTarget) {
-        const p = getZoomParams(zoomPhase, zoomProgress);
-        extraZ = p.extraZ; extraSc = p.extraSc; bright = p.bright;
-        card.billboard.style.zIndex = '5';
-      } else {
-        card.billboard.style.zIndex = '';
-      }
-      updateCard(card, rotX, rotY, rotZ, extraZ, extraSc, bright);
-    });
+    cards.forEach(c => updateCard(c, rotX, rotY, rotZ, spd));
 
     /* Counter */
-    const face = Math.floor(((rotY % 360) + 360) % 360 / 30) % 12;
-    if (counter) counter.textContent = String((face % 12) + 1).padStart(2, '0');
-
-    /* Zoom sequencer */
-    if (!zooming) {
-      nextZoomAt -= dt;
-      if (nextZoomAt <= 0) startZoom();
-    } else {
-      if (zoomPhase === 'in') {
-        zoomProgress += dt / ZOOM_IN_DUR;
-        if (zoomProgress >= 1) { zoomProgress = 1; zoomPhase = 'hold'; }
-      } else if (zoomPhase === 'hold') {
-        holdTimer += dt;
-        if (holdTimer >= HOLD_DUR) { zoomPhase = 'out'; zoomProgress = 0; }
-      } else {
-        zoomProgress += dt / ZOOM_OUT_DUR;
-        if (zoomProgress >= 1) {
-          zooming = false; zoomPhase = 'idle';
-          nextZoomAt = ZOOM_INTERVAL + Math.random() * 3;
-        }
-      }
-    }
+    const face = Math.floor(((rotY % 360) + 360) % 360 / 45) % 8;
+    if (counter) counter.textContent = String(face + 1).padStart(2, '0');
   }
 
   const obs = new IntersectionObserver(e => {
     visible = e[0].isIntersecting;
-    if (visible) {
-      last = performance.now();
-      cards.forEach(c => c.vid.play().catch(() => {}));
-    }
+    if (visible) { last = performance.now(); cards.forEach(c => c.vid.play().catch(() => {})); }
   }, { threshold: 0.1 });
   obs.observe(section);
 
