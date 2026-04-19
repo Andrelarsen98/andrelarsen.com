@@ -118,11 +118,11 @@
   /* Col 1 — logo */
   .nav-logo {
     font-size: 15px;
-    font-weight: 900;
-    font-family: 'Arial Black', Arial, sans-serif;
+    font-weight: 700;
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
     line-height: 1;
     text-transform: lowercase;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     color: #fff;
   }
   .nav-logo em { font-style: italic; }
@@ -400,20 +400,6 @@
   }
   .menu-overlay.open { display: flex; opacity: 1; }
 
-  /* Scanline dot overlay — exact artefakt */
-  .menu-overlay::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.07;
-    background:
-      linear-gradient(90deg, #000 calc(3px - 2px), transparent 1%) center / 3px 3px,
-      linear-gradient(#000 calc(3px - 2px), transparent 1%) center / 3px 3px,
-      #fff;
-    z-index: 0;
-  }
-
   /* Top bar */
   .menu-top {
     position: relative;
@@ -425,14 +411,16 @@
     flex-shrink: 0;
   }
   .menu-logo {
-    font-family: 'Arial Black', Arial, sans-serif;
-    font-size: 20px;
-    font-weight: 900;
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
     color: #fff;
     text-transform: lowercase;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    line-height: 1;
   }
   .menu-logo em { font-style: italic; }
+
   .menu-close {
     background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.4);
@@ -448,7 +436,7 @@
     z-index: 1;
   }
 
-  /* Main nav links — centered vertically */
+  /* Main nav links — vertically centered, artefakt spacing */
   .menu-nav {
     display: flex;
     flex-direction: column;
@@ -458,6 +446,7 @@
     flex: 1;
     position: relative;
     z-index: 1;
+    gap: 0;
   }
   .menu-nav a {
     color: #fff;
@@ -466,8 +455,9 @@
     font-size: 12vw;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: -0.2rem;
-    line-height: 1.0;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    display: block;
   }
 
   /* Bottom bar */
@@ -498,13 +488,13 @@
     opacity: 1;
   }
   .menu-contact-btn {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.4);
     color: #fff;
     font-family: 'VT323', monospace;
-    font-size: 15px;
+    font-size: 16px;
     letter-spacing: 0.12em;
-    padding: 8px 16px;
+    padding: 5px 14px;
     text-decoration: none;
     text-transform: uppercase;
     -webkit-font-smoothing: none;
@@ -930,7 +920,7 @@ CRAFTED.</div>
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-top">
     <div class="menu-logo">andré <em>larsen</em></div>
-    <button class="menu-close" id="menuClose">✕ CLOSE</button>
+    <button class="menu-close" id="menuClose">:/ CLOSE</button>
   </div>
   <div class="menu-nav">
     <a href="/">HOME</a>
