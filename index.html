@@ -303,6 +303,7 @@
     position: fixed;
     inset: 0;
     background: #000;
+    z-index: 150;
     opacity: 1;
     transition: opacity 0.9s ease;
     pointer-events: none;
@@ -806,6 +807,10 @@
     flex-shrink: 0;
     height: 32px;
     background: #000;
+  }
+
+  @media (max-width: 768px) {
+    .footer { min-height: 100vh; height: 100vh; }
     .footer-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -897,9 +902,9 @@
   }
   .vs-card {
     position: absolute;
-    width: 172px; height: 97px;
+    width: 160px; height: 90px;
     top: 50%; left: 50%;
-    margin-top: -48.5px; margin-left: -86px;
+    margin-top: -45px; margin-left: -80px;
     transform-style: preserve-3d;
     border-radius: 6px;
     overflow: hidden;
@@ -987,16 +992,18 @@
   @media (max-width: 768px) {
     .cube-section {
       grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr;
+      grid-template-rows: 1fr auto;
     }
     .cube-left {
-      padding: 20px 20px 0;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
+      padding: 20px 20px 20px;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 12px;
+      order: 2;
     }
-    .cube-right { min-height: 70vw; }
-    .cube-headline { display: none; }
+    .cube-right { min-height: 70vw; order: 1; }
+    .cube-headline { display: block; }
     .cube-title { font-size: clamp(22px, 8vw, 40px); }
   }
 </style>
@@ -1096,7 +1103,7 @@ CRAFTED.</div>
           <span class="cube-label">Selected Work</span>
         </div>
         <div class="cube-counter" id="cubeCounter">01</div>
-        <div class="cube-total">/12</div>
+        <div class="cube-total">/16</div>
       </div>
       <div class="cube-headline">
         <h2 class="cube-title" id="cubeTitle">I FRAME.<br>THE WORLD<br>DELIVERS.</h2>
@@ -1907,14 +1914,14 @@ videoEl.addEventListener('timeupdate', () => {
 
 /* ══════════════════════════════════════
    ── VIDEO SPHERE ──
-   Fibonacci-distributed cards on a
+   16 Fibonacci-distributed cards on a
    draggable, auto-rotating sphere
 ══════════════════════════════════════ */
 (function() {
-  const NUM_VIDEOS   = 12;
-  const RADIUS       = 220;
-  const AUTO_ROT_Y   = 10.5;
-  const DRIFT_AMP    = 7;
+  const NUM_VIDEOS   = 16;
+  const RADIUS       = 230;
+  const AUTO_ROT_Y   = 20;       // faster spin
+  const DRIFT_AMP    = 10;       // more organic X tilt
   const DRIFT_PERIOD = 12;
   const INERTIA      = 0.90;
   const DRAG_SENS    = 0.38;
@@ -2011,7 +2018,7 @@ videoEl.addEventListener('timeupdate', () => {
   window.addEventListener('mousemove', e => dragMove(e.clientX, e.clientY));
   window.addEventListener('mouseup',   dragEnd);
 
-  /* Touch — only hijack horizontal swipes so vertical scrolling still works */
+  /* Touch — only hijack horizontal swipes so vertical page scrolling still works */
   scene.addEventListener('touchstart', e => {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
@@ -2022,7 +2029,6 @@ videoEl.addEventListener('timeupdate', () => {
     if (!dragging) return;
     const dx = Math.abs(e.touches[0].clientX - touchStartX);
     const dy = Math.abs(e.touches[0].clientY - touchStartY);
-    /* If the gesture is more vertical than horizontal, let the page scroll */
     if (dy > dx) { dragEnd(); return; }
     e.preventDefault();
     dragMove(e.touches[0].clientX, e.touches[0].clientY);
@@ -2052,8 +2058,8 @@ videoEl.addEventListener('timeupdate', () => {
 
     /* Update counter */
     if (counter) {
-      const face = Math.floor(((rotY % 360) + 360) % 360 / 30) % 12;
-      counter.textContent = String((face % 12) + 1).padStart(2, '0');
+      const face = Math.floor(((rotY % 360) + 360) % 360 / (360 / NUM_VIDEOS)) % NUM_VIDEOS;
+      counter.textContent = String(face + 1).padStart(2, '0');
     }
   }
 
@@ -2069,6 +2075,8 @@ videoEl.addEventListener('timeupdate', () => {
 
   requestAnimationFrame(animate);
 })();
+
+
 
 
 </script>
