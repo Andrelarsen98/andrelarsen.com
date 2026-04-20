@@ -1194,32 +1194,6 @@
     -webkit-font-smoothing: none;
   }
 
-
-  /* ══════════════════════════════════════
-     ── FILM STRIP / CLIENTS SECTION ──
-  ══════════════════════════════════════ */
-  .filmstrip-section{width:100%;background:#000;padding:72px 0 80px;overflow:hidden;position:relative;transform:rotate(-1deg);margin:-12px 0;box-sizing:border-box}
-  .filmstrip-grain{position:absolute;inset:0;pointer-events:none;z-index:20;opacity:0.55}
-  .filmstrip-header{position:absolute;top:18px;left:50%;transform:translateX(-50%) rotate(1deg);font-family:'VT323',monospace;font-size:13px;letter-spacing:0.22em;color:rgba(255,255,255,0.18);text-transform:uppercase;-webkit-font-smoothing:none;white-space:nowrap;z-index:10;pointer-events:none}
-  .filmstrip-row-wrap{overflow:hidden;position:relative}
-  .filmstrip-row-wrap::before,.filmstrip-row-wrap::after{content:'';position:absolute;left:-20px;right:-20px;height:12px;z-index:8;pointer-events:none;background-image:repeating-linear-gradient(90deg,transparent 0px,transparent 16px,rgba(255,255,255,0.07) 16px,rgba(255,255,255,0.07) 30px);filter:blur(0.4px)}
-  .filmstrip-row-wrap::before{top:0}.filmstrip-row-wrap::after{bottom:0}
-  .filmstrip-row-wrap+.filmstrip-row-wrap{margin-top:10px}
-  .filmstrip-track{display:flex;gap:10px;padding:14px 0;will-change:transform}
-  .fs-frame{flex-shrink:0;width:160px;height:90px;background:#0a0a0a;border:1px solid rgba(255,255,255,0.07);border-radius:3px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:border-color 0.3s ease}
-  .fs-frame:hover{border-color:rgba(255,255,255,0.18)}
-  .fs-frame.logo-frame img,.fs-frame.logo-frame svg{max-width:80px;max-height:40px;width:auto;height:auto;object-fit:contain;filter:brightness(0) invert(1);opacity:0.55;transition:opacity 0.3s ease}
-  .fs-frame.logo-frame:hover img,.fs-frame.logo-frame:hover svg{opacity:0.85}
-  .fs-logo-placeholder{font-family:'DrukWide','Arial Black',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.4);text-transform:uppercase;text-align:center;line-height:1.2;padding:0 8px}
-  .fs-frame.footage-frame{border-color:rgba(255,255,255,0.11)}
-  .fs-frame.footage-frame video,.fs-frame.footage-frame img.footage-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.65;filter:saturate(0.3) brightness(0.85)}
-  .fs-footage-label{position:absolute;bottom:7px;left:8px;font-family:'VT323',monospace;font-size:11px;letter-spacing:0.12em;color:rgba(255,255,255,0.28);text-transform:uppercase;-webkit-font-smoothing:none;z-index:5;pointer-events:none}
-  .fs-frame.abstract-frame{border-color:rgba(255,255,255,0.05)}
-  .fs-frame.abstract-frame .fs-abstract-fill{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 30% 50%,rgba(255,255,255,0.06) 0%,transparent 70%),radial-gradient(ellipse 40% 80% at 75% 30%,rgba(255,255,255,0.04) 0%,transparent 60%);opacity:0.7}
-  .filmstrip-section.reveal-pending .filmstrip-row-wrap{clip-path:inset(0 0 100% 0)}
-  .filmstrip-section.reveal-active .filmstrip-row-wrap{clip-path:inset(0 0 0% 0);transition:clip-path 0.85s cubic-bezier(0.16,1,0.3,1)}
-  .filmstrip-section.reveal-active .filmstrip-row-wrap:nth-child(3){transition-delay:0.12s}
-  @media(max-width:768px){.filmstrip-section{transform:rotate(-0.5deg);padding:56px 0 64px}.filmstrip-row-wrap:nth-child(3){display:none}.filmstrip-row-wrap::before,.filmstrip-row-wrap::after{display:none}.fs-frame{width:130px;height:73px}.fs-logo-placeholder{font-size:9px}}
   @media (max-width: 768px) {
     .services-section { padding: 0 20px 40px; }
     .service-block {
@@ -1229,6 +1203,122 @@
     }
     .service-title { font-size: 20px; }
     .service-desc { font-size: 14px; }
+  }
+
+  /* ══════════════════════════════════════
+     ── CLIENTS REVEAL SECTION ──
+  ══════════════════════════════════════ */
+  .clients-section {
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    background: #000;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 32px 80px;
+    overflow: hidden;
+  }
+  .clients-header {
+    position: absolute;
+    top: 28px; left: 32px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+  }
+  .clients-progress {
+    position: absolute;
+    top: 28px; right: 32px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.2);
+    -webkit-font-smoothing: none;
+  }
+  .clients-progress-line {
+    position: absolute;
+    right: 0; top: 0;
+    width: 1px; height: 100%;
+    background: rgba(255,255,255,0.05);
+  }
+  .clients-progress-fill {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 0%;
+    background: rgba(255,255,255,0.25);
+    transition: height 0.5s cubic-bezier(0.16,1,0.3,1);
+  }
+  .clients-hint {
+    position: absolute;
+    bottom: 28px; left: 32px;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.18);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    transition: opacity 0.5s ease;
+  }
+  /* ── Stacked list ── */
+  .clients-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+  }
+  .client-item {
+    display: flex;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    opacity: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .client-item:first-child { border-top: 1px solid rgba(255,255,255,0.05); }
+  .client-item img {
+    height: 28px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    opacity: 0;
+    display: block;
+  }
+  .client-item.revealed { opacity: 1; }
+  .client-item.revealed img { opacity: 0.45; transition: opacity 0.3s ease; }
+  .client-item.revealed:hover img { opacity: 0.9; transition: opacity 0.15s ease; }
+  .client-glitch {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(255,255,255,0.06);
+    mix-blend-mode: screen;
+  }
+  @keyframes clientGlitchFlash {
+    0%   { opacity: 1; clip-path: inset(10% 0 70% 0); transform: translateX(-4px); }
+    20%  { opacity: 1; clip-path: inset(60% 0 15% 0); transform: translateX(5px); }
+    40%  { opacity: 1; clip-path: inset(25% 0 50% 0); transform: translateX(-3px); }
+    60%  { opacity: 0.5; clip-path: inset(45% 0 35% 0); transform: translateX(2px); }
+    80%  { opacity: 0.2; clip-path: inset(0% 0 85% 0); }
+    100% { opacity: 0; clip-path: inset(0); transform: translateX(0); }
+  }
+  .client-glitch.active { animation: clientGlitchFlash 0.4s ease forwards; }
+  @media (max-width: 768px) {
+    .clients-section { padding: 70px 20px; }
+    .client-item { padding: 16px 0; }
+    .client-item img { height: 22px; max-width: 110px; }
+    .clients-header { left: 20px; }
+    .clients-progress { right: 20px; }
+    .clients-hint { left: 20px; bottom: 20px; }
   }
 </style>
 
@@ -1393,13 +1483,27 @@ Dubai, worldwide.</div>
 
   </section>
 
-
-  <!-- ── SECTION 5: FILM STRIP / CLIENTS ── -->
-  <section class="filmstrip-section reveal-pending" id="filmstripSection">
-    <canvas class="filmstrip-grain" id="filmstripGrain"></canvas>
-    <div class="filmstrip-header">&#9632; TRUSTED BY</div>
-    <div class="filmstrip-row-wrap" id="filmstripRow1"><div class="filmstrip-track" id="filmstripTrack1"></div></div>
-    <div class="filmstrip-row-wrap" id="filmstripRow2"><div class="filmstrip-track" id="filmstripTrack2"></div></div>
+  <!-- ── SECTION 5: CLIENTS REVEAL ── -->
+  <section class="clients-section" id="clientsSection">
+    <div class="clients-header"><span>&#9632;</span><span>TRUSTED BY</span></div>
+    <div class="clients-progress" id="clientsProgress">00 / 13</div>
+    <div class="clients-progress-line"><div class="clients-progress-fill" id="clientsProgressFill"></div></div>
+    <div class="clients-hint" id="clientsHint">:/ SCROLL TO REVEAL</div>
+    <div class="clients-grid" id="clientsGrid">
+      <div class="client-item"><img src="CLIENT 01.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 02.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 03.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 04.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 05.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 06.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 07.png" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 08.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 09.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 10.png" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 11.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 12.svg" alt=""><div class="client-glitch"></div></div>
+      <div class="client-item"><img src="CLIENT 13.svg" alt=""><div class="client-glitch"></div></div>
+    </div>
   </section>
 
   <!-- ── FOOTER ── -->
@@ -2408,7 +2512,98 @@ videoEl.addEventListener('timeupdate', () => {
 })();
 
 /* ══════════════════════════════════════
-   ── SHUFFLE CHARS REVEAL (Artefakt style) ──
+   ── CLIENTS SCROLL-LOCK REVEAL ENGINE ──
+══════════════════════════════════════ */
+(function() {
+  const CLIENTS      = Array.from(document.querySelectorAll('.client-item'));
+  const section      = document.getElementById('clientsSection');
+  const scroller     = document.getElementById('scrollContainer');
+  const progressEl   = document.getElementById('clientsProgress');
+  const progressFill = document.getElementById('clientsProgressFill');
+  const hintEl       = document.getElementById('clientsHint');
+  if (!section || !scroller || !CLIENTS.length) return;
+
+  const TOTAL = CLIENTS.length;
+  let revealed = 0, locked = false, entered = false;
+
+  function revealItem(item) {
+    const img    = item.querySelector('img');
+    const glitch = item.querySelector('.client-glitch');
+    if (!img) return;
+    item.style.opacity = '1';
+    glitch.classList.remove('active');
+    void glitch.offsetWidth;
+    glitch.classList.add('active');
+    let ticks = 0;
+    img.style.opacity = '1';
+    img.style.filter  = 'brightness(3) invert(1) contrast(2)';
+    const iv = setInterval(() => {
+      ticks++;
+      img.style.filter    = `brightness(${0.4 + Math.random()*3}) invert(1) contrast(2)`;
+      img.style.transform = `translateX(${(Math.random()-0.5)*6}px)`;
+      if (ticks >= 8) {
+        clearInterval(iv);
+        img.style.filter    = 'brightness(0) invert(1)';
+        img.style.transform = 'translateX(0)';
+        img.style.opacity   = '0.5';
+        item.classList.add('revealed');
+      }
+    }, 45);
+  }
+
+  function revealNext() {
+    if (revealed >= TOTAL) return false;
+    revealItem(CLIENTS[revealed]);
+    revealed++;
+    if (progressEl)   progressEl.textContent = String(revealed).padStart(2,'0') + ' / ' + String(TOTAL).padStart(2,'0');
+    if (progressFill) progressFill.style.height = (revealed / TOTAL * 100) + '%';
+    if (revealed === 1 && hintEl) hintEl.style.opacity = '0';
+    if (revealed >= TOTAL) {
+      setTimeout(() => {
+        locked = false;
+        scroller.removeEventListener('wheel', onWheel);
+        scroller.removeEventListener('touchstart', onTouchStart);
+        scroller.removeEventListener('touchmove',  onTouchMove);
+        if (hintEl) { hintEl.textContent = ':/ CONTINUE SCROLLING'; hintEl.style.opacity = '0.2'; }
+      }, 600);
+    }
+    return revealed < TOTAL;
+  }
+
+  let scrollAccum = 0;
+  function onWheel(e) {
+    if (!locked) return;
+    e.preventDefault();
+    scrollAccum += e.deltaY;
+    if (scrollAccum >= 55) { scrollAccum = 0; revealNext(); }
+  }
+
+  let touchY = 0;
+  function onTouchStart(e) { touchY = e.touches[0].clientY; }
+  function onTouchMove(e) {
+    if (!locked) return;
+    const dy = touchY - e.touches[0].clientY;
+    touchY = e.touches[0].clientY;
+    if (dy > 8) revealNext();
+    if (locked) e.preventDefault();
+  }
+
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !entered) {
+      entered = true; locked = true;
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => {
+        scroller.addEventListener('wheel',      onWheel,      { passive: false });
+        scroller.addEventListener('touchstart', onTouchStart, { passive: true  });
+        scroller.addEventListener('touchmove',  onTouchMove,  { passive: false });
+      }, 700);
+    }
+  }, { threshold: 0.5 });
+
+  obs.observe(section);
+})();
+
+</script>
    Exact timing from app-Cd2tpxcC.js:
    chars: ["!","@","#","$","%","&","*","F","K","T","_"]
    repeat: 5, duration: 30ms, repeatDelay: 25ms
@@ -2537,124 +2732,6 @@ videoEl.addEventListener('timeupdate', () => {
     observer.observe(b);
   });
   if (servicesSection) headerObserver.observe(servicesSection);
-})();
-
-
-(function(){
-  const D=[
-    {t:'logo',n:'CLIENT 01',s:'CLIENT 01.svg'},
-    {t:'logo',n:'CLIENT 02',s:'CLIENT 02.svg'},
-    {t:'logo',n:'CLIENT 03',s:'CLIENT 03.svg'},
-    {t:'logo',n:'CLIENT 04',s:'CLIENT 04.svg'},
-    {t:'logo',n:'CLIENT 05',s:'CLIENT 05.svg'},
-    {t:'logo',n:'CLIENT 06',s:'CLIENT 06.svg'},
-    {t:'logo',n:'CLIENT 07',s:'CLIENT 07.png'},
-    {t:'logo',n:'CLIENT 08',s:'CLIENT 08.svg'},
-    {t:'logo',n:'CLIENT 09',s:'CLIENT 09.svg'},
-    {t:'logo',n:'CLIENT 10',s:'CLIENT 10.png'},
-    {t:'logo',n:'CLIENT 11',s:'CLIENT 11.svg'},
-    {t:'logo',n:'CLIENT 12',s:'CLIENT 12.svg'},
-    {t:'logo',n:'CLIENT 13',s:'CLIENT 13.svg'},
-    {t:'logo',n:'CLIENT 01',s:'CLIENT 01.svg'},
-    {t:'logo',n:'CLIENT 02',s:'CLIENT 02.svg'},
-    {t:'logo',n:'CLIENT 03',s:'CLIENT 03.svg'},
-    {t:'logo',n:'CLIENT 04',s:'CLIENT 04.svg'},
-    {t:'logo',n:'CLIENT 05',s:'CLIENT 05.svg'},
-    {t:'logo',n:'CLIENT 06',s:'CLIENT 06.svg'},
-    {t:'logo',n:'CLIENT 07',s:'CLIENT 07.png'},
-    {t:'logo',n:'CLIENT 08',s:'CLIENT 08.svg'},
-    {t:'logo',n:'CLIENT 09',s:'CLIENT 09.svg'},
-    {t:'logo',n:'CLIENT 10',s:'CLIENT 10.png'},
-    {t:'logo',n:'CLIENT 11',s:'CLIENT 11.svg'},
-    {t:'logo',n:'CLIENT 12',s:'CLIENT 12.svg'},
-    {t:'logo',n:'CLIENT 13',s:'CLIENT 13.svg'},
-  ];
-  const S1=28,S2=30,SV=0.08;
-  function bF(d){
-    const f=document.createElement('div');
-    f.className='fs-frame';
-    if(d.t==='logo'){
-      f.classList.add('logo-frame');
-      if(d.s){const i=document.createElement('img');i.src=d.s;i.alt=d.n||'';f.appendChild(i);}
-      else{const p=document.createElement('div');p.className='fs-logo-placeholder';p.textContent=d.n;f.appendChild(p);}
-    } else if(d.t==='footage'){
-      f.classList.add('footage-frame');
-      if(d.s){const v=document.createElement('video');v.src=d.s;v.muted=true;v.loop=true;v.playsInline=true;v.autoplay=true;v.play().catch(()=>{});f.appendChild(v);}
-      if(d.l){const lb=document.createElement('div');lb.className='fs-footage-label';lb.textContent=d.l;f.appendChild(lb);}
-    } else {
-      f.classList.add('abstract-frame');
-      const fi=document.createElement('div');fi.className='fs-abstract-fill';f.appendChild(fi);
-      const st=document.createElement('div');
-      st.style.cssText='position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,0.035) 45%,rgba(255,255,255,0.06) 50%,rgba(255,255,255,0.035) 55%,transparent 80%)';
-      f.appendChild(st);
-    }
-    return f;
-  }
-  function pT(track,rev){
-    const ord=rev?[...D].reverse():D;
-    [...ord,...ord].forEach(d=>track.appendChild(bF(d)));
-  }
-  const t1=document.getElementById('filmstripTrack1');
-  const t2=document.getElementById('filmstripTrack2');
-  if(!t1||!t2)return;
-  pT(t1,false);pT(t2,true);
-  let p1=0,p2=0,lT=performance.now(),fsV=false;
-  function gW(track){
-    const c=track.children,h=Math.floor(c.length/2);
-    let w=0;for(let i=0;i<h;i++)w+=c[i].offsetWidth+10;return w;
-  }
-  let w1=0,w2=0;
-  function iW(){w1=gW(t1);w2=gW(t2);p2=w2*0.4;}
-  function aS(now){
-    requestAnimationFrame(aS);if(!fsV)return;
-    const dt=Math.min((now-lT)/1000,0.05);lT=now;
-    const tv=now/1000;
-    if(!w1){iW();return;}
-    const v1=S1*(1+Math.sin(tv*0.23)*SV+Math.sin(tv*0.07)*SV*0.5);
-    const v2=S2*(1+Math.sin(tv*0.19+1.2)*SV);
-    p1+=v1*dt;p2+=v2*dt;
-    if(p1>=w1)p1-=w1;if(p2>=w2)p2-=w2;
-    t1.style.transform=`translateX(${-p1}px)`;
-    t2.style.transform=`translateX(${p2-w2*0.4}px)`;
-  }
-  const sec=document.getElementById('filmstripSection');
-  new IntersectionObserver(e=>{
-    if(e[0].isIntersecting){
-      sec.classList.remove('reveal-pending');sec.classList.add('reveal-active');
-      fsV=true;lT=performance.now();if(!w1)iW();
-    }
-  },{threshold:0.15}).observe(sec);
-  requestAnimationFrame(aS);
-  let tX=0,tY=0,cX=0,cY=0;
-  document.addEventListener('mousemove',e=>{
-    if(!fsV)return;
-    tX=(e.clientY/window.innerHeight-0.5)*2*0.8;
-    tY=(e.clientX/window.innerWidth-0.5)*2*0.4;
-  });
-  (function tL(now){
-    requestAnimationFrame(tL);if(!fsV)return;
-    cX+=(tX-cX)*0.04;cY+=(tY-cY)*0.04;
-    sec.style.transform=`rotate(-1deg) rotateX(${cX}deg) rotateY(${cY}deg)`;
-  })(performance.now());
-  const gc=document.getElementById('filmstripGrain');
-  if(gc){
-    const ctx=gc.getContext('2d');
-    function rG(){gc.width=gc.offsetWidth;gc.height=gc.offsetHeight;}
-    rG();window.addEventListener('resize',rG);
-    let gT=0;
-    (function dG(){requestAnimationFrame(dG);if(++gT%3!==0)return;
-      const w=gc.width,h=gc.height;if(!w||!h)return;
-      const id=ctx.createImageData(w,h),da=id.data;
-      for(let i=0;i<da.length;i+=4){const v=Math.random()*255|0;da[i]=da[i+1]=da[i+2]=v;da[i+3]=Math.random()<0.18?18:0;}
-      ctx.putImageData(id,0,0);
-    })();
-  }
-  if(window.innerWidth<=768){
-    let dT=0;
-    (function dl(now){requestAnimationFrame(dl);dT=now/1000;
-      if(t1)t1.style.marginTop=Math.sin(dT*0.6)*1.5+'px';
-    })(performance.now());
-  }
 })();
 
 </script>
