@@ -91,8 +91,13 @@
   /* ── NAV — all elements start hidden, revealed by JS sequence ── */
   .nav-links a,
   .nav-center a,
-  .nav-right span,
   .nav-menu-btn {
+    opacity: 0;
+  }
+  .nav-right > span {
+    opacity: 1;
+  }
+  .nav-right > span .nr-inner {
     opacity: 0;
   }
 
@@ -181,7 +186,7 @@
 
   /* Col 4 — VISUAL ARTIST / DUBAI, UAE */
   .nav-right { display: flex; flex-direction: column; gap: 1px; text-align: right; }
-  .nav-right span {
+  .nav-right > span {
     font-family: 'VT323', monospace;
     font-size: 16px;
     letter-spacing: 0.08em;
@@ -190,6 +195,8 @@
     -webkit-font-smoothing: none;
     font-smooth: never;
     line-height: 1.15;
+    display: block;
+    text-align: right;
   }
 
   /* Per-char spans used by reveal sequence */
@@ -1980,13 +1987,22 @@ function startNavSequence() {
   const logo      = document.querySelector('.nav-logo');
   const navLinks  = [...document.querySelectorAll('.nav-links a')];
   const navCenter = [...document.querySelectorAll('.nav-center a')];
-  const navRight  = [...document.querySelectorAll('.nav-right span')];
+  const navRight  = [...document.querySelectorAll('.nav-right > span')];
+  navRight.forEach(el => {
+    const inner = document.createElement('span');
+    inner.className = 'nr-inner';
+    inner.style.cssText = 'display:inline-block;text-align:left;direction:ltr;';
+    inner.textContent = el.textContent.trim();
+    el.textContent = '';
+    el.appendChild(inner);
+  });
   const bioEl     = document.getElementById('landingBio');
   const indicator = document.getElementById('scrollIndicator');
 
   // All elements that get the char-by-char reveal
   const taglineEl = document.getElementById('landingTagline');
-  const allEls = [...navLinks, ...navCenter, ...navRight];
+  const navRightInners = navRight.map(el => el.querySelector('.nr-inner'));
+  const allEls = [...navLinks, ...navCenter, ...navRightInners];
   if (taglineEl) allEls.push(taglineEl);
   if (bioEl) allEls.push(bioEl);
 
