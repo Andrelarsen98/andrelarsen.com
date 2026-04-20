@@ -1117,41 +1117,42 @@
     @keyframes locationReveal { from { width: 0; } to { width: 100%; } }
   }
 
-  
+  @media (max-width: 768px) {
+    .cube-section {
       grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr;
       height: 100vh;
       min-height: 100vh;
-      overflow: visible;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
     }
     .cube-left {
-      padding: 72px 20px 12px;
+      padding: 72px 20px 0;
       flex-direction: column;
       align-items: flex-start;
       justify-content: flex-start;
-      gap: 8px;
+      gap: 6px;
       order: 1;
       flex-shrink: 0;
     }
-    .cube-ui { order: 2; }
-    .cube-headline { order: 1; display: block; }
+    .cube-ui { order: 1; }
+    .cube-telemetry { order: 2; }
+    .cube-headline { order: 4; display: block; }
     .cube-right {
-      flex: 1;
-      order: 2;
-      overflow: visible;
+      order: 3;
+      flex-shrink: 0;
+      height: 260px;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 0;
+      overflow: visible;
     }
     .cube-title { font-size: clamp(28px, 9vw, 48px); }
     .vs-sphere { width: 220px; height: 220px; }
     .vs-glow { width: 220px; height: 220px; }
     .vs-card { width: 100px; height: 56px; margin-top: -28px; margin-left: -50px; }
-    .cube-drag-label { bottom: 16px; }
+    .cube-drag-label { bottom: 4px; }
   }
   /* ══════════════════════════════════════
      ── SERVICES SECTION ──
@@ -2670,27 +2671,40 @@ videoEl.addEventListener('timeupdate', () => {
   };
 
   const BASE = { alt: 142, spd: 87, signal: 94, latency: 12 };
+  let t = 0;
 
   function update() {
+    t += 0.08;
     const vel = window._sphereVel || 0;
-    const spike = Math.min(vel / 4, 1); // 0–1 intensity
+    const spike = Math.min(vel / 4, 1);
 
-    const alt     = Math.round(BASE.alt     + spike * 180  + (Math.random() - 0.5) * 8);
-    const spd     = Math.round(BASE.spd     + spike * 240  + (Math.random() - 0.5) * 10);
-    const signal  = Math.round(BASE.signal  - spike * 30   + (Math.random() - 0.5) * 4);
-    const latency = Math.round(BASE.latency + spike * 80   + (Math.random() - 0.5) * 4);
+    // Idle drift using sine waves so values always move
+    const idleDrift = Math.sin(t * 0.7) * 6 + Math.sin(t * 1.3) * 3;
 
-    if (els.alt)     { els.alt.textContent     = alt + 'M';     els.alt.classList.toggle('glitch',     spike > 0.3); }
-    if (els.spd)     { els.spd.textContent     = spd + 'KM/H';  els.spd.classList.toggle('glitch',     spike > 0.3); }
-    if (els.signal)  { els.signal.textContent  = Math.max(0, Math.min(100, signal)) + '%'; els.signal.classList.toggle('glitch', spike > 0.5); }
-    if (els.latency) { els.latency.textContent = latency + 'MS'; els.latency.classList.toggle('glitch', spike > 0.3); }
+    const alt     = Math.round(BASE.alt     + spike * 180 + idleDrift          + (Math.random() - 0.5) * 4);
+    const spd     = Math.round(BASE.spd     + spike * 240 + Math.sin(t) * 8    + (Math.random() - 0.5) * 5);
+    const signal  = Math.round(BASE.signal  - spike * 30  + Math.sin(t*0.5)*3  + (Math.random() - 0.5) * 2);
+    const latency = Math.round(BASE.latency + spike * 80  + Math.abs(Math.sin(t*1.1))*4 + (Math.random() - 0.5) * 2);
+
+    if (els.alt)     { els.alt.textContent     = alt + 'M'; }
+    if (els.spd)     { els.spd.textContent     = spd + 'KM/H'; }
+    if (els.signal)  { els.signal.textContent  = Math.max(0, Math.min(100, signal)) + '%'; }
+    if (els.latency) { els.latency.textContent = latency + 'MS'; }
+
+    // Glitch flash on spike
+    const glitch = spike > 0.3;
+    [els.alt, els.spd, els.signal, els.latency].forEach(el => {
+      if (el) el.classList.toggle('glitch', glitch);
+    });
   }
 
-  setInterval(update, 80);
+  setInterval(update, 120);
 })();
 
 
 
+<script>
+/* Exact timing from app-Cd2tpxcC.js:
    chars: ["!","@","#","$","%","&","*","F","K","T","_"]
    repeat: 5, duration: 30ms, repeatDelay: 25ms
    cursor: scaleY 3→1, blinks then fades
