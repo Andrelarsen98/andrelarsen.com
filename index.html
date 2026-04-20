@@ -1725,45 +1725,149 @@ const isMobile = window.innerWidth <= 768;
     if (loadPct) loadPct.textContent = Math.floor(Math.min(loaderProgress, 100)) + '%';
   }
 
+  /* ══════════════════════════════════════
+     ── ARTEFAKT-EXACT LOGO SHUFFLE REVEAL ──
+     Load:  chars [a-z,!@#$%^&*-_+=;:<>,], repeat 3, duration 30ms, repeatDelay 25ms, stagger 10ms/char
+     Hover: chars [!@#$%&*FKT_], repeat 5, same timing
+  ══════════════════════════════════════ */
+  const SHUFFLE_LOAD_CHARS = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*-_+=;:<>,'.split('');
+  const SHUFFLE_HOVER_CHARS = '!@#$%&*FKT_'.split('');
+  const FRAME_MS = 30;
+  const REPEAT_DELAY_MS = 25;
+  const STAGGER_MS = 10;
+
+  function shuffleLogoIn() {
+    const logo = document.querySelector('.nav-logo');
+    if (!logo) return;
+
+    // --- Step 1: lightBlink (exact Artefakt opacity flash sequence) ---
+    logo.style.opacity = '0';
+    setTimeout(() => logo.style.opacity = '1', 0);
+    setTimeout(() => logo.style.opacity = '0', 60);
+    setTimeout(() => logo.style.opacity = '1', 120);
+    setTimeout(() => logo.style.opacity = '0', 230);
+    setTimeout(() => logo.style.opacity = '1', 300);
+
+    // --- Step 2: split into per-char spans and shuffle ---
+    setTimeout(() => {
+      // Parts: 'andré ' (normal) + 'larsen' (italic)
+      const parts = [
+        { text: 'andré ', italic: false },
+        { text: 'larsen', italic: true  }
+      ];
+      logo.innerHTML = '';
+      const allSpans = [];
+
+      parts.forEach(({ text, italic }) => {
+        Array.from(text).forEach(char => {
+          if (char === ' ') {
+            logo.appendChild(document.createTextNode('\u00a0')); // non-breaking space keeps width
+            return;
+          }
+          const span = document.createElement('span');
+          span.style.cssText = italic
+            ? 'display:inline;font-style:italic;'
+            : 'display:inline;font-style:normal;';
+          span.textContent = char;
+          span.dataset.orig = char;
+          logo.appendChild(span);
+          allSpans.push(span);
+        });
+      });
+
+      // Shuffle each char with exact Artefakt timing
+      allSpans.forEach((span, i) => {
+        setTimeout(() => {
+          let count = 0;
+          function tick() {
+            if (count < 3) { // repeat: 3
+              span.textContent = SHUFFLE_LOAD_CHARS[Math.floor(Math.random() * SHUFFLE_LOAD_CHARS.length)];
+              count++;
+              setTimeout(tick, FRAME_MS + REPEAT_DELAY_MS); // 30ms + 25ms = 55ms per frame
+            } else {
+              span.textContent = span.dataset.orig;
+              if (i === allSpans.length - 1) {
+                setTimeout(() => wireLogoHover(logo, allSpans), 150);
+              }
+            }
+          }
+          tick();
+        }, i * STAGGER_MS); // 10ms stagger per char
+      });
+    }, 200);
+  }
+
+  function wireLogoHover(logo, allSpans) {
+    let hovering = false;
+    logo.style.cursor = 'default';
+    logo.addEventListener('mouseenter', () => {
+      if (hovering) return;
+      hovering = true;
+      allSpans.forEach((span, i) => {
+        setTimeout(() => {
+          let count = 0;
+          function tick() {
+            if (count < 5) { // repeat: 5
+              span.textContent = SHUFFLE_HOVER_CHARS[Math.floor(Math.random() * SHUFFLE_HOVER_CHARS.length)];
+              count++;
+              setTimeout(tick, FRAME_MS + REPEAT_DELAY_MS);
+            } else {
+              span.textContent = span.dataset.orig;
+              if (i === allSpans.length - 1) hovering = false;
+            }
+          }
+          tick();
+        }, i * STAGGER_MS);
+      });
+    });
+  }
+
   function doReveal() {
     // Step 1: hide loading bar UI
     loadUi.classList.add('hide');
 
-    // Step 2: fade out ASCII canvas (same 0.9s as fade in)
+    // Step 2: fade out ASCII canvas
     setTimeout(() => {
-      const currentOpacity = parseFloat(window.getComputedStyle(aC).opacity);
+      // Kill any running CSS animation, force current opacity, then transition to 0
       aC.style.animation = 'none';
-      aC.style.opacity = currentOpacity;
-      aC.getBoundingClientRect();
-      aC.style.transition = 'opacity 0.9s ease';
-      aC.getBoundingClientRect();
+      aC.style.transition = 'none';
+      aC.style.opacity = '1';
+      // Force reflow so browser registers the above before we start transition
+      void aC.offsetWidth;
+      aC.style.transition = 'opacity 0.7s ease';
       aC.style.opacity = '0';
 
-      // Step 3: the moment ASCII is gone, crossfade loadScreen out and site in simultaneously
-      aC.addEventListener('transitionend', function onFadeOut() {
-        aC.removeEventListener('transitionend', onFadeOut);
+      // Step 3: fire crossfade after canvas fades — use both transitionend AND a setTimeout fallback
+      let revealed = false;
+      function onReveal() {
+        if (revealed) return;
+        revealed = true;
 
-        // Both happen at the same time — no black pause
-        loadScreen.classList.add('hide');  // fades out dark backdrop (0.9s)
-        site.classList.add('visible');     // fades in main page (1.0s)
+        // Crossfade: dark backdrop out, site in — simultaneously
+        loadScreen.classList.add('hide');
+        site.classList.add('visible');
 
-        // Show mobile menu button and logo immediately when image appears
+        // Show mobile menu button
         const menuBtnEl = document.getElementById('menuBtn');
         if (menuBtnEl) { menuBtnEl.style.transition = 'none'; menuBtnEl.style.opacity = '1'; }
-        const navLogoEl = document.querySelector('.nav-logo');
-        if (navLogoEl) { navLogoEl.style.opacity = '1'; }
 
-        // Fire nav reveal sequence ~1s after site appears
-        setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), isMobile ? 300 : 1000);
+        // Artefakt lightBlink + shuffle logo reveal
+        shuffleLogoIn();
 
-        // Clean up after both are done
+        // Nav reveal (other elements) slightly after logo starts
+        setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), isMobile ? 300 : 800);
+
+        // Clean up
         setTimeout(() => {
-          loadScreen.remove();
+          if (loadScreen.parentNode) loadScreen.remove();
           cancelAnimationFrame(loaderAnimId);
-          aC.remove();
-        }, 1100);
-      });
-    }, 300);
+          if (aC.parentNode) aC.remove();
+        }, 1200);
+      }
+
+      aC.addEventListener('transitionend', onReveal);
+      setTimeout(onReveal, 800); // fallback if transitionend doesn't fire
+    }, 200);
   }
 
   let barDone = false, imageDone = false;
