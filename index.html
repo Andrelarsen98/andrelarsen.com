@@ -1275,7 +1275,7 @@ Dubai, worldwide.</div>
 
   <!-- SECTION 2: Showreel Video -->
   <div class="video-section" id="videoSection">
-    <video id="showreel" autoplay muted loop playsinline preload="metadata">
+    <video id="showreel" autoplay muted loop playsinline preload="auto" webkit-playsinline x5-playsinline>
       <source src="showreel.mp4" type="video/mp4">
     </video>
 
@@ -1363,10 +1363,6 @@ Dubai, worldwide.</div>
         <p class="service-desc">Different shots. Different results.<br>That's the whole point.</p>
       </div>
       <div class="service-num-right">(04)</div>
-    </div>
-
-    <div class="services-footer">
-      <span class="services-footer-text">ANDRELARSEN.COM — 2025</span>
     </div>
 
   </section>
@@ -2024,6 +2020,19 @@ const videoEl      = document.getElementById('showreel');
 const progressBar  = document.getElementById('videoProgressBar');
 const videoTime    = document.getElementById('videoTime');
 
+// Force play immediately on load — mobile + desktop
+function forceVideoPlay() {
+  videoEl.muted = true;
+  videoEl.play().catch(() => {});
+}
+videoEl.addEventListener('canplay', forceVideoPlay, { once: true });
+document.addEventListener('DOMContentLoaded', forceVideoPlay);
+window.addEventListener('load', forceVideoPlay);
+// Also try on first user interaction for browsers that block autoplay
+document.addEventListener('touchstart', forceVideoPlay, { once: true });
+document.addEventListener('click', forceVideoPlay, { once: true });
+forceVideoPlay();
+
 function formatTime(s) {
   const m = Math.floor(s / 60);
   const sec = Math.floor(s % 60);
@@ -2035,7 +2044,6 @@ videoEl.addEventListener('timeupdate', () => {
   const pct = (videoEl.currentTime / videoEl.duration) * 100;
   progressBar.style.width = pct + '%';
   videoTime.textContent = formatTime(videoEl.currentTime);
-
 });
 
 /* ══════════════════════════════════════
