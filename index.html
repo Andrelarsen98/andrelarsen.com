@@ -1206,119 +1206,188 @@
   }
 
   /* ══════════════════════════════════════
-     ── CLIENTS REVEAL SECTION ──
+     ── CLIENTS MARQUEE SECTION ──
   ══════════════════════════════════════ */
   .clients-section {
     width: 100%;
-    height: 100vh;
     min-height: 100vh;
     background: #000;
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 80px 32px 80px;
     overflow: hidden;
+    padding: 0;
   }
-  .clients-header {
+
+  /* CRT scanline overlay */
+  .clients-scanlines {
     position: absolute;
-    top: 28px; left: 32px;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.012) 2px,
+      rgba(255,255,255,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* Header */
+  .clients-header-wrap {
+    padding: 0 32px;
+    margin-bottom: 56px;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-end;
+    justify-content: space-between;
+    position: relative;
+    z-index: 10;
+  }
+  .clients-eyebrow {
     font-family: 'VT323', monospace;
     font-size: 16px;
     letter-spacing: 0.1em;
     color: rgba(255,255,255,0.3);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
   }
-  .clients-progress {
-    position: absolute;
-    top: 28px; right: 32px;
+  .clients-big-title {
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-size: clamp(52px, 9vw, 130px);
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 0.88;
+    letter-spacing: -0.02em;
+  }
+  .clients-count {
     font-family: 'VT323', monospace;
     font-size: 16px;
     letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.2);
-    -webkit-font-smoothing: none;
-  }
-  .clients-progress-line {
-    position: absolute;
-    right: 0; top: 0;
-    width: 1px; height: 100%;
-    background: rgba(255,255,255,0.05);
-  }
-  .clients-progress-fill {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 0%;
-    background: rgba(255,255,255,0.25);
-    transition: height 0.5s cubic-bezier(0.16,1,0.3,1);
-  }
-  .clients-hint {
-    position: absolute;
-    bottom: 28px; left: 32px;
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    letter-spacing: 0.18em;
     color: rgba(255,255,255,0.18);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
-    transition: opacity 0.5s ease;
+    align-self: flex-end;
   }
-  /* ── Stacked list ── */
-  .clients-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    width: 100%;
-  }
-  .client-item {
-    display: flex;
-    align-items: center;
-    padding: 18px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    opacity: 0;
+
+  /* Marquee tracks container */
+  .clients-tracks {
     position: relative;
     overflow: hidden;
   }
-  .client-item:first-child { border-top: 1px solid rgba(255,255,255,0.05); }
-  .client-item img {
-    height: 28px;
+  /* Fade edges */
+  .clients-tracks::before,
+  .clients-tracks::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 120px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .clients-tracks::before {
+    left: 0;
+    background: linear-gradient(to right, #000 0%, transparent 100%);
+  }
+  .clients-tracks::after {
+    right: 0;
+    background: linear-gradient(to left, #000 0%, transparent 100%);
+  }
+
+  /* Each row */
+  .clients-track {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding: 28px 0;
+    overflow: hidden;
+  }
+  .clients-track:last-child {
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  /* Pause on hover */
+  .clients-track:hover .clients-track-inner {
+    animation-play-state: paused;
+  }
+
+  /* Inner strip (must be 2× wide — logos duplicated in HTML) */
+  .clients-track-inner {
+    display: flex;
+    align-items: center;
+    gap: 72px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    will-change: transform;
+  }
+
+  /* Row directions */
+  .clients-track--left  .clients-track-inner { animation: marqueeLeft  26s linear infinite; }
+  .clients-track--right .clients-track-inner { animation: marqueeRight 32s linear infinite; }
+
+  @keyframes marqueeLeft {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @keyframes marqueeRight {
+    from { transform: translateX(-50%); }
+    to   { transform: translateX(0); }
+  }
+
+  /* Logo images */
+  .clients-track-inner img {
+    height: 34px;
     width: auto;
-    max-width: 140px;
+    max-width: 160px;
     object-fit: contain;
     filter: brightness(0) invert(1);
-    opacity: 0;
+    opacity: 0.28;
+    flex-shrink: 0;
     display: block;
-  }
-  .client-item.revealed { opacity: 1; }
-  .client-item.revealed img { opacity: 0.45; transition: opacity 0.3s ease; }
-  .client-item.revealed:hover img { opacity: 0.9; transition: opacity 0.15s ease; }
-  .client-glitch {
-    position: absolute;
-    inset: 0;
+    transition: opacity 0.2s ease;
     pointer-events: none;
-    opacity: 0;
-    background: rgba(255,255,255,0.06);
-    mix-blend-mode: screen;
   }
-  @keyframes clientGlitchFlash {
-    0%   { opacity: 1; clip-path: inset(10% 0 70% 0); transform: translateX(-4px); }
-    20%  { opacity: 1; clip-path: inset(60% 0 15% 0); transform: translateX(5px); }
-    40%  { opacity: 1; clip-path: inset(25% 0 50% 0); transform: translateX(-3px); }
-    60%  { opacity: 0.5; clip-path: inset(45% 0 35% 0); transform: translateX(2px); }
-    80%  { opacity: 0.2; clip-path: inset(0% 0 85% 0); }
-    100% { opacity: 0; clip-path: inset(0); transform: translateX(0); }
+  .clients-track:hover .clients-track-inner img:hover {
+    opacity: 0.92;
+    pointer-events: all;
   }
-  .client-glitch.active { animation: clientGlitchFlash 0.4s ease forwards; }
+
+  /* ■ separators between logos */
+  .clients-sep {
+    font-family: 'VT323', monospace;
+    color: rgba(255,255,255,0.1);
+    font-size: 14px;
+    flex-shrink: 0;
+    -webkit-font-smoothing: none;
+  }
+
+  /* Bottom hint */
+  .clients-bottom-hint {
+    position: relative;
+    z-index: 10;
+    padding: 18px 32px 0;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    color: rgba(255,255,255,0.12);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+  }
+
   @media (max-width: 768px) {
-    .clients-section { padding: 70px 20px; }
-    .client-item { padding: 16px 0; }
-    .client-item img { height: 22px; max-width: 110px; }
-    .clients-header { left: 20px; }
-    .clients-progress { right: 20px; }
-    .clients-hint { left: 20px; bottom: 20px; }
+    .clients-header-wrap  { padding: 0 20px; margin-bottom: 36px; }
+    .clients-track        { padding: 22px 0; }
+    .clients-track-inner  { gap: 44px; }
+    .clients-track-inner img { height: 24px; }
+    .clients-bottom-hint  { padding: 14px 20px 0; }
+    .clients-big-title    { font-size: clamp(44px, 14vw, 80px); }
+    .clients-tracks::before,
+    .clients-tracks::after { width: 60px; }
   }
 </style>
 
@@ -1483,27 +1552,65 @@ Dubai, worldwide.</div>
 
   </section>
 
-  <!-- ── SECTION 5: CLIENTS REVEAL ── -->
+  <!-- ── SECTION 5: CLIENTS MARQUEE ── -->
   <section class="clients-section" id="clientsSection">
-    <div class="clients-header"><span>&#9632;</span><span>TRUSTED BY</span></div>
-    <div class="clients-progress" id="clientsProgress">00 / 13</div>
-    <div class="clients-progress-line"><div class="clients-progress-fill" id="clientsProgressFill"></div></div>
-    <div class="clients-hint" id="clientsHint">:/ SCROLL TO REVEAL</div>
-    <div class="clients-grid" id="clientsGrid">
-      <div class="client-item"><img src="CLIENT 01.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 02.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 03.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 04.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 05.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 06.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 07.png" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 08.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 09.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 10.png" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 11.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 12.svg" alt=""><div class="client-glitch"></div></div>
-      <div class="client-item"><img src="CLIENT 13.svg" alt=""><div class="client-glitch"></div></div>
+
+    <div class="clients-scanlines"></div>
+
+    <div class="clients-header-wrap">
+      <div>
+        <div class="clients-eyebrow"><span>&#9632;</span><span>TRUSTED BY</span></div>
+        <div class="clients-big-title">CLIENTS</div>
+      </div>
+      <div class="clients-count">13 BRANDS</div>
     </div>
+
+    <div class="clients-tracks">
+
+      <!-- ROW 1 — scrolls LEFT (logos 01–07, then duplicated for seamless loop) -->
+      <div class="clients-track clients-track--left">
+        <div class="clients-track-inner">
+          <img src="CLIENT 01.svg" alt="Client 01"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 02.svg" alt="Client 02"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 03.svg" alt="Client 03"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 04.svg" alt="Client 04"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 05.svg" alt="Client 05"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 06.svg" alt="Client 06"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 07.png" alt="Client 07"><span class="clients-sep">&#9632;</span>
+          <!-- duplicate for seamless loop -->
+          <img src="CLIENT 01.svg" alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 02.svg" alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 03.svg" alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 04.svg" alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 05.svg" alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 06.svg" alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 07.png" alt="">
+        </div>
+      </div>
+
+      <!-- ROW 2 — scrolls RIGHT (logos 08–13, then duplicated) -->
+      <div class="clients-track clients-track--right">
+        <div class="clients-track-inner">
+          <img src="CLIENT 08.svg"  alt="Client 08"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 09.svg"  alt="Client 09"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 10.png"  alt="Client 10"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 11.svg"  alt="Client 11"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 12.svg"  alt="Client 12"><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 13.svg"  alt="Client 13"><span class="clients-sep">&#9632;</span>
+          <!-- duplicate for seamless loop -->
+          <img src="CLIENT 08.svg"  alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 09.svg"  alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 10.png"  alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 11.svg"  alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 12.svg"  alt=""><span class="clients-sep">&#9632;</span>
+          <img src="CLIENT 13.svg"  alt="">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="clients-bottom-hint">&#9632; &nbsp;HOVER EITHER ROW TO PAUSE</div>
+
   </section>
 
   <!-- ── FOOTER ── -->
@@ -2511,97 +2618,7 @@ videoEl.addEventListener('timeupdate', () => {
   requestAnimationFrame(animate);
 })();
 
-/* ══════════════════════════════════════
-   ── CLIENTS SCROLL-LOCK REVEAL ENGINE ──
-══════════════════════════════════════ */
-(function() {
-  const CLIENTS      = Array.from(document.querySelectorAll('.client-item'));
-  const section      = document.getElementById('clientsSection');
-  const scroller     = document.getElementById('scrollContainer');
-  const progressEl   = document.getElementById('clientsProgress');
-  const progressFill = document.getElementById('clientsProgressFill');
-  const hintEl       = document.getElementById('clientsHint');
-  if (!section || !scroller || !CLIENTS.length) return;
-
-  const TOTAL = CLIENTS.length;
-  let revealed = 0, locked = false, entered = false;
-
-  function revealItem(item) {
-    const img    = item.querySelector('img');
-    const glitch = item.querySelector('.client-glitch');
-    if (!img) return;
-    item.style.opacity = '1';
-    glitch.classList.remove('active');
-    void glitch.offsetWidth;
-    glitch.classList.add('active');
-    let ticks = 0;
-    img.style.opacity = '1';
-    img.style.filter  = 'brightness(3) invert(1) contrast(2)';
-    const iv = setInterval(() => {
-      ticks++;
-      img.style.filter    = `brightness(${0.4 + Math.random()*3}) invert(1) contrast(2)`;
-      img.style.transform = `translateX(${(Math.random()-0.5)*6}px)`;
-      if (ticks >= 8) {
-        clearInterval(iv);
-        img.style.filter    = 'brightness(0) invert(1)';
-        img.style.transform = 'translateX(0)';
-        img.style.opacity   = '0.5';
-        item.classList.add('revealed');
-      }
-    }, 45);
-  }
-
-  function revealNext() {
-    if (revealed >= TOTAL) return false;
-    revealItem(CLIENTS[revealed]);
-    revealed++;
-    if (progressEl)   progressEl.textContent = String(revealed).padStart(2,'0') + ' / ' + String(TOTAL).padStart(2,'0');
-    if (progressFill) progressFill.style.height = (revealed / TOTAL * 100) + '%';
-    if (revealed === 1 && hintEl) hintEl.style.opacity = '0';
-    if (revealed >= TOTAL) {
-      setTimeout(() => {
-        locked = false;
-        scroller.removeEventListener('wheel', onWheel);
-        scroller.removeEventListener('touchstart', onTouchStart);
-        scroller.removeEventListener('touchmove',  onTouchMove);
-        if (hintEl) { hintEl.textContent = ':/ CONTINUE SCROLLING'; hintEl.style.opacity = '0.2'; }
-      }, 600);
-    }
-    return revealed < TOTAL;
-  }
-
-  let scrollAccum = 0;
-  function onWheel(e) {
-    if (!locked) return;
-    e.preventDefault();
-    scrollAccum += e.deltaY;
-    if (scrollAccum >= 55) { scrollAccum = 0; revealNext(); }
-  }
-
-  let touchY = 0;
-  function onTouchStart(e) { touchY = e.touches[0].clientY; }
-  function onTouchMove(e) {
-    if (!locked) return;
-    const dy = touchY - e.touches[0].clientY;
-    touchY = e.touches[0].clientY;
-    if (dy > 8) revealNext();
-    if (locked) e.preventDefault();
-  }
-
-  const obs = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting && !entered) {
-      entered = true; locked = true;
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => {
-        scroller.addEventListener('wheel',      onWheel,      { passive: false });
-        scroller.addEventListener('touchstart', onTouchStart, { passive: true  });
-        scroller.addEventListener('touchmove',  onTouchMove,  { passive: false });
-      }, 700);
-    }
-  }, { threshold: 0.5 });
-
-  obs.observe(section);
-})();
+/* clients section now uses pure-CSS marquee — no JS required */
 
 </script>
    Exact timing from app-Cd2tpxcC.js:
