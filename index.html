@@ -952,14 +952,7 @@
     display: block;
     border-radius: 6px;
   }
-  .vs-vignette {
-    position: absolute;
-    inset: -40px;
-    background: radial-gradient(ellipse 75% 75% at 50% 50%, transparent 35%, rgba(0,0,0,0.65) 100%);
-    pointer-events: none;
-    z-index: 10;
-    border-radius: 50%;
-  }
+
   /* Glitch overlay — triggered by JS when videos loop */
   .vs-glitch {
     position: absolute;
@@ -2406,15 +2399,11 @@ videoEl.addEventListener('timeupdate', () => {
   const sphere = document.createElement('div');
   sphere.className = 'vs-sphere';
 
-  const vignette = document.createElement('div');
-  vignette.className = 'vs-vignette';
-
   /* Glitch overlay */
   const glitchEl = document.createElement('div');
   glitchEl.className = 'vs-glitch';
 
   scene.appendChild(sphere);
-  scene.appendChild(vignette);
   scene.appendChild(glitchEl);
   cubeRight.appendChild(glow);
   cubeRight.appendChild(scene);
