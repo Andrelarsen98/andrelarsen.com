@@ -1194,6 +1194,32 @@
     -webkit-font-smoothing: none;
   }
 
+
+  /* ══════════════════════════════════════
+     ── FILM STRIP / CLIENTS SECTION ──
+  ══════════════════════════════════════ */
+  .filmstrip-section{width:100%;background:#000;padding:72px 0 80px;overflow:hidden;position:relative;transform:rotate(-1deg);margin:-12px 0;box-sizing:border-box}
+  .filmstrip-grain{position:absolute;inset:0;pointer-events:none;z-index:20;opacity:0.55}
+  .filmstrip-header{position:absolute;top:18px;left:50%;transform:translateX(-50%) rotate(1deg);font-family:'VT323',monospace;font-size:13px;letter-spacing:0.22em;color:rgba(255,255,255,0.18);text-transform:uppercase;-webkit-font-smoothing:none;white-space:nowrap;z-index:10;pointer-events:none}
+  .filmstrip-row-wrap{overflow:hidden;position:relative}
+  .filmstrip-row-wrap::before,.filmstrip-row-wrap::after{content:'';position:absolute;left:-20px;right:-20px;height:12px;z-index:8;pointer-events:none;background-image:repeating-linear-gradient(90deg,transparent 0px,transparent 16px,rgba(255,255,255,0.07) 16px,rgba(255,255,255,0.07) 30px);filter:blur(0.4px)}
+  .filmstrip-row-wrap::before{top:0}.filmstrip-row-wrap::after{bottom:0}
+  .filmstrip-row-wrap+.filmstrip-row-wrap{margin-top:10px}
+  .filmstrip-track{display:flex;gap:10px;padding:14px 0;will-change:transform}
+  .fs-frame{flex-shrink:0;width:160px;height:90px;background:#0a0a0a;border:1px solid rgba(255,255,255,0.07);border-radius:3px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;transition:border-color 0.3s ease}
+  .fs-frame:hover{border-color:rgba(255,255,255,0.18)}
+  .fs-frame.logo-frame img,.fs-frame.logo-frame svg{max-width:80px;max-height:40px;width:auto;height:auto;object-fit:contain;filter:brightness(0) invert(1);opacity:0.55;transition:opacity 0.3s ease}
+  .fs-frame.logo-frame:hover img,.fs-frame.logo-frame:hover svg{opacity:0.85}
+  .fs-logo-placeholder{font-family:'DrukWide','Arial Black',Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.4);text-transform:uppercase;text-align:center;line-height:1.2;padding:0 8px}
+  .fs-frame.footage-frame{border-color:rgba(255,255,255,0.11)}
+  .fs-frame.footage-frame video,.fs-frame.footage-frame img.footage-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.65;filter:saturate(0.3) brightness(0.85)}
+  .fs-footage-label{position:absolute;bottom:7px;left:8px;font-family:'VT323',monospace;font-size:11px;letter-spacing:0.12em;color:rgba(255,255,255,0.28);text-transform:uppercase;-webkit-font-smoothing:none;z-index:5;pointer-events:none}
+  .fs-frame.abstract-frame{border-color:rgba(255,255,255,0.05)}
+  .fs-frame.abstract-frame .fs-abstract-fill{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 30% 50%,rgba(255,255,255,0.06) 0%,transparent 70%),radial-gradient(ellipse 40% 80% at 75% 30%,rgba(255,255,255,0.04) 0%,transparent 60%);opacity:0.7}
+  .filmstrip-section.reveal-pending .filmstrip-row-wrap{clip-path:inset(0 0 100% 0)}
+  .filmstrip-section.reveal-active .filmstrip-row-wrap{clip-path:inset(0 0 0% 0);transition:clip-path 0.85s cubic-bezier(0.16,1,0.3,1)}
+  .filmstrip-section.reveal-active .filmstrip-row-wrap:nth-child(3){transition-delay:0.12s}
+  @media(max-width:768px){.filmstrip-section{transform:rotate(-0.5deg);padding:56px 0 64px}.filmstrip-row-wrap:nth-child(3){display:none}.filmstrip-row-wrap::before,.filmstrip-row-wrap::after{display:none}.fs-frame{width:130px;height:73px}.fs-logo-placeholder{font-size:9px}}
   @media (max-width: 768px) {
     .services-section { padding: 0 20px 40px; }
     .service-block {
@@ -1365,6 +1391,15 @@ Dubai, worldwide.</div>
       <div class="service-num-right">(04)</div>
     </div>
 
+  </section>
+
+
+  <!-- ── SECTION 5: FILM STRIP / CLIENTS ── -->
+  <section class="filmstrip-section reveal-pending" id="filmstripSection">
+    <canvas class="filmstrip-grain" id="filmstripGrain"></canvas>
+    <div class="filmstrip-header">&#9632; TRUSTED BY</div>
+    <div class="filmstrip-row-wrap" id="filmstripRow1"><div class="filmstrip-track" id="filmstripTrack1"></div></div>
+    <div class="filmstrip-row-wrap" id="filmstripRow2"><div class="filmstrip-track" id="filmstripTrack2"></div></div>
   </section>
 
   <!-- ── FOOTER ── -->
@@ -2502,6 +2537,130 @@ videoEl.addEventListener('timeupdate', () => {
     observer.observe(b);
   });
   if (servicesSection) headerObserver.observe(servicesSection);
+})();
+
+
+(function(){
+  const D=[
+    {t:'logo',n:'CLIENT 01',s:'Logos/CLIENT 01.svg'},
+    {t:'logo',n:'CLIENT 02',s:'Logos/CLIENT 02.svg'},
+    {t:'logo',n:'CLIENT 03',s:'Logos/CLIENT 03.svg'},
+    {t:'logo',n:'CLIENT 04',s:'Logos/CLIENT 04.svg'},
+    {t:'logo',n:'CLIENT 05',s:'Logos/CLIENT 05.svg'},
+    {t:'logo',n:'CLIENT 06',s:'Logos/CLIENT 06.svg'},
+    {t:'footage',s:'work5.mp4',l:'DUBAI / AUTOMOTIVE'},
+    {t:'logo',n:'CLIENT 07',s:'Logos/CLIENT 07.png'},
+    {t:'logo',n:'CLIENT 08',s:'Logos/CLIENT 08.svg'},
+    {t:'logo',n:'CLIENT 09',s:'Logos/CLIENT 09.svg'},
+    {t:'abstract'},
+    {t:'logo',n:'CLIENT 10',s:'Logos/CLIENT 10.png'},
+    {t:'logo',n:'CLIENT 11',s:'Logos/CLIENT 11.svg'},
+    {t:'logo',n:'CLIENT 12',s:'Logos/CLIENT 12.svg'},
+    {t:'footage',s:'work9.mp4',l:''},
+    {t:'logo',n:'CLIENT 13',s:'Logos/CLIENT 13.svg'},
+    {t:'logo',n:'CLIENT 01',s:'Logos/CLIENT 01.svg'},
+    {t:'logo',n:'CLIENT 02',s:'Logos/CLIENT 02.svg'},
+    {t:'footage',s:'work13.mp4',l:'UAE / COMMERCIAL'},
+    {t:'logo',n:'CLIENT 03',s:'Logos/CLIENT 03.svg'},
+    {t:'logo',n:'CLIENT 04',s:'Logos/CLIENT 04.svg'},
+    {t:'logo',n:'CLIENT 05',s:'Logos/CLIENT 05.svg'},
+    {t:'abstract'},
+    {t:'logo',n:'CLIENT 06',s:'Logos/CLIENT 06.svg'},
+    {t:'logo',n:'CLIENT 07',s:'Logos/CLIENT 07.png'},
+    {t:'logo',n:'CLIENT 08',s:'Logos/CLIENT 08.svg'},
+    {t:'logo',n:'CLIENT 09',s:'Logos/CLIENT 09.svg'},
+    {t:'footage',s:'work16.mp4',l:'NORWAY / TRAVEL'},
+    {t:'logo',n:'CLIENT 10',s:'Logos/CLIENT 10.png'},
+    {t:'logo',n:'CLIENT 11',s:'Logos/CLIENT 11.svg'},
+    {t:'logo',n:'CLIENT 12',s:'Logos/CLIENT 12.svg'},
+    {t:'logo',n:'CLIENT 13',s:'Logos/CLIENT 13.svg'},
+  ];
+  const S1=28,S2=30,SV=0.08;
+  function bF(d){
+    const f=document.createElement('div');
+    f.className='fs-frame';
+    if(d.t==='logo'){
+      f.classList.add('logo-frame');
+      if(d.s){const i=document.createElement('img');i.src=d.s;i.alt=d.n||'';f.appendChild(i);}
+      else{const p=document.createElement('div');p.className='fs-logo-placeholder';p.textContent=d.n;f.appendChild(p);}
+    } else if(d.t==='footage'){
+      f.classList.add('footage-frame');
+      if(d.s){const v=document.createElement('video');v.src=d.s;v.muted=true;v.loop=true;v.playsInline=true;v.autoplay=true;v.play().catch(()=>{});f.appendChild(v);}
+      if(d.l){const lb=document.createElement('div');lb.className='fs-footage-label';lb.textContent=d.l;f.appendChild(lb);}
+    } else {
+      f.classList.add('abstract-frame');
+      const fi=document.createElement('div');fi.className='fs-abstract-fill';f.appendChild(fi);
+      const st=document.createElement('div');
+      st.style.cssText='position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,0.035) 45%,rgba(255,255,255,0.06) 50%,rgba(255,255,255,0.035) 55%,transparent 80%)';
+      f.appendChild(st);
+    }
+    return f;
+  }
+  function pT(track,rev){
+    const ord=rev?[...D].reverse():D;
+    [...ord,...ord].forEach(d=>track.appendChild(bF(d)));
+  }
+  const t1=document.getElementById('filmstripTrack1');
+  const t2=document.getElementById('filmstripTrack2');
+  if(!t1||!t2)return;
+  pT(t1,false);pT(t2,true);
+  let p1=0,p2=0,lT=performance.now(),fsV=false;
+  function gW(track){
+    const c=track.children,h=Math.floor(c.length/2);
+    let w=0;for(let i=0;i<h;i++)w+=c[i].offsetWidth+10;return w;
+  }
+  let w1=0,w2=0;
+  function iW(){w1=gW(t1);w2=gW(t2);p2=w2*0.4;}
+  function aS(now){
+    requestAnimationFrame(aS);if(!fsV)return;
+    const dt=Math.min((now-lT)/1000,0.05);lT=now;
+    const tv=now/1000;
+    if(!w1){iW();return;}
+    const v1=S1*(1+Math.sin(tv*0.23)*SV+Math.sin(tv*0.07)*SV*0.5);
+    const v2=S2*(1+Math.sin(tv*0.19+1.2)*SV);
+    p1+=v1*dt;p2+=v2*dt;
+    if(p1>=w1)p1-=w1;if(p2>=w2)p2-=w2;
+    t1.style.transform=`translateX(${-p1}px)`;
+    t2.style.transform=`translateX(${p2-w2*0.4}px)`;
+  }
+  const sec=document.getElementById('filmstripSection');
+  new IntersectionObserver(e=>{
+    if(e[0].isIntersecting){
+      sec.classList.remove('reveal-pending');sec.classList.add('reveal-active');
+      fsV=true;lT=performance.now();if(!w1)iW();
+    }
+  },{threshold:0.15}).observe(sec);
+  requestAnimationFrame(aS);
+  let tX=0,tY=0,cX=0,cY=0;
+  document.addEventListener('mousemove',e=>{
+    if(!fsV)return;
+    tX=(e.clientY/window.innerHeight-0.5)*2*0.8;
+    tY=(e.clientX/window.innerWidth-0.5)*2*0.4;
+  });
+  (function tL(now){
+    requestAnimationFrame(tL);if(!fsV)return;
+    cX+=(tX-cX)*0.04;cY+=(tY-cY)*0.04;
+    sec.style.transform=`rotate(-1deg) rotateX(${cX}deg) rotateY(${cY}deg)`;
+  })(performance.now());
+  const gc=document.getElementById('filmstripGrain');
+  if(gc){
+    const ctx=gc.getContext('2d');
+    function rG(){gc.width=gc.offsetWidth;gc.height=gc.offsetHeight;}
+    rG();window.addEventListener('resize',rG);
+    let gT=0;
+    (function dG(){requestAnimationFrame(dG);if(++gT%3!==0)return;
+      const w=gc.width,h=gc.height;if(!w||!h)return;
+      const id=ctx.createImageData(w,h),da=id.data;
+      for(let i=0;i<da.length;i+=4){const v=Math.random()*255|0;da[i]=da[i+1]=da[i+2]=v;da[i+3]=Math.random()<0.18?18:0;}
+      ctx.putImageData(id,0,0);
+    })();
+  }
+  if(window.innerWidth<=768){
+    let dT=0;
+    (function dl(now){requestAnimationFrame(dl);dT=now/1000;
+      if(t1)t1.style.marginTop=Math.sin(dT*0.6)*1.5+'px';
+    })(performance.now());
+  }
 })();
 
 </script>
