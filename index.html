@@ -703,7 +703,14 @@
       position: static !important;
     }
     .bg-img {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       object-position: center 20%;
+      z-index: 0;
     }
   }
 
@@ -1205,190 +1212,10 @@
     .service-desc { font-size: 14px; }
   }
 
-  /* ══════════════════════════════════════
-     ── CLIENTS MARQUEE SECTION ──
-  ══════════════════════════════════════ */
-  .clients-section {
-    width: 100%;
-    min-height: 100vh;
-    background: #000;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
-    padding: 0;
-  }
-
-  /* CRT scanline overlay */
-  .clients-scanlines {
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255,255,255,0.012) 2px,
-      rgba(255,255,255,0.012) 4px
-    );
-    pointer-events: none;
-    z-index: 5;
-  }
-
-  /* Header */
-  .clients-header-wrap {
-    padding: 0 32px;
-    margin-bottom: 56px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    position: relative;
-    z-index: 10;
-  }
-  .clients-eyebrow {
-    font-family: 'VT323', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.3);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  .clients-big-title {
-    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
-    font-size: clamp(52px, 9vw, 130px);
-    font-weight: 700;
-    color: #fff;
-    text-transform: uppercase;
-    line-height: 0.88;
-    letter-spacing: -0.02em;
-  }
-  .clients-count {
-    font-family: 'VT323', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.18);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-    align-self: flex-end;
-  }
-
-  /* Marquee tracks container */
-  .clients-tracks {
-    position: relative;
-    overflow: hidden;
-  }
-  /* Fade edges */
-  .clients-tracks::before,
-  .clients-tracks::after {
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 120px;
-    z-index: 10;
-    pointer-events: none;
-  }
-  .clients-tracks::before {
-    left: 0;
-    background: linear-gradient(to right, #000 0%, transparent 100%);
-  }
-  .clients-tracks::after {
-    right: 0;
-    background: linear-gradient(to left, #000 0%, transparent 100%);
-  }
-
-  /* Each row */
-  .clients-track {
-    display: flex;
-    align-items: center;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    padding: 28px 0;
-    overflow: hidden;
-  }
-  .clients-track:last-child {
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
-  /* Pause on hover */
-  .clients-track:hover .clients-track-inner {
-    animation-play-state: paused;
-  }
-
-  /* Inner strip (must be 2× wide — logos duplicated in HTML) */
-  .clients-track-inner {
-    display: flex;
-    align-items: center;
-    gap: 72px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    will-change: transform;
-  }
-
-  /* Row directions */
-  .clients-track--left  .clients-track-inner { animation: marqueeLeft  26s linear infinite; }
-  .clients-track--right .clients-track-inner { animation: marqueeRight 32s linear infinite; }
-
-  @keyframes marqueeLeft {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
-  @keyframes marqueeRight {
-    from { transform: translateX(-50%); }
-    to   { transform: translateX(0); }
-  }
-
-  /* Logo images */
-  .clients-track-inner img {
-    height: 34px;
-    width: auto;
-    max-width: 160px;
-    object-fit: contain;
-    filter: brightness(0) invert(1);
-    opacity: 0.28;
-    flex-shrink: 0;
-    display: block;
-    transition: opacity 0.2s ease;
-    pointer-events: none;
-  }
-  .clients-track:hover .clients-track-inner img:hover {
-    opacity: 0.92;
-    pointer-events: all;
-  }
-
-  /* ■ separators between logos */
-  .clients-sep {
-    font-family: 'VT323', monospace;
-    color: rgba(255,255,255,0.1);
-    font-size: 14px;
-    flex-shrink: 0;
-    -webkit-font-smoothing: none;
-  }
-
-  /* Bottom hint */
-  .clients-bottom-hint {
-    position: relative;
-    z-index: 10;
-    padding: 18px 32px 0;
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    letter-spacing: 0.16em;
-    color: rgba(255,255,255,0.12);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-  }
-
-  @media (max-width: 768px) {
-    .clients-header-wrap  { padding: 0 20px; margin-bottom: 36px; }
-    .clients-track        { padding: 22px 0; }
-    .clients-track-inner  { gap: 44px; }
-    .clients-track-inner img { height: 24px; }
-    .clients-bottom-hint  { padding: 14px 20px 0; }
-    .clients-big-title    { font-size: clamp(44px, 14vw, 80px); }
-    .clients-tracks::before,
-    .clients-tracks::after { width: 60px; }
-  }
+  /* clients section removed */
+  .clients-section-REMOVED {
+    display: none;
+    }
 </style>
 
 <!-- Loader backdrop -->
@@ -1549,67 +1376,6 @@ Dubai, worldwide.</div>
       </div>
       <div class="service-num-right">(04)</div>
     </div>
-
-  </section>
-
-  <!-- ── SECTION 5: CLIENTS MARQUEE ── -->
-  <section class="clients-section" id="clientsSection">
-
-    <div class="clients-scanlines"></div>
-
-    <div class="clients-header-wrap">
-      <div>
-        <div class="clients-eyebrow"><span>&#9632;</span><span>TRUSTED BY</span></div>
-        <div class="clients-big-title">CLIENTS</div>
-      </div>
-      <div class="clients-count">13 BRANDS</div>
-    </div>
-
-    <div class="clients-tracks">
-
-      <!-- ROW 1 — scrolls LEFT (logos 01–07, then duplicated for seamless loop) -->
-      <div class="clients-track clients-track--left">
-        <div class="clients-track-inner">
-          <img src="CLIENT 01.svg" alt="Client 01"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 02.svg" alt="Client 02"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 03.svg" alt="Client 03"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 04.svg" alt="Client 04"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 05.svg" alt="Client 05"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 06.svg" alt="Client 06"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 07.png" alt="Client 07"><span class="clients-sep">&#9632;</span>
-          <!-- duplicate for seamless loop -->
-          <img src="CLIENT 01.svg" alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 02.svg" alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 03.svg" alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 04.svg" alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 05.svg" alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 06.svg" alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 07.png" alt="">
-        </div>
-      </div>
-
-      <!-- ROW 2 — scrolls RIGHT (logos 08–13, then duplicated) -->
-      <div class="clients-track clients-track--right">
-        <div class="clients-track-inner">
-          <img src="CLIENT 08.svg"  alt="Client 08"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 09.svg"  alt="Client 09"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 10.png"  alt="Client 10"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 11.svg"  alt="Client 11"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 12.svg"  alt="Client 12"><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 13.svg"  alt="Client 13"><span class="clients-sep">&#9632;</span>
-          <!-- duplicate for seamless loop -->
-          <img src="CLIENT 08.svg"  alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 09.svg"  alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 10.png"  alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 11.svg"  alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 12.svg"  alt=""><span class="clients-sep">&#9632;</span>
-          <img src="CLIENT 13.svg"  alt="">
-        </div>
-      </div>
-
-    </div>
-
-    <div class="clients-bottom-hint">&#9632; &nbsp;HOVER EITHER ROW TO PAUSE</div>
 
   </section>
 
@@ -2618,7 +2384,7 @@ videoEl.addEventListener('timeupdate', () => {
   requestAnimationFrame(animate);
 })();
 
-/* clients section now uses pure-CSS marquee — no JS required */
+
 
 </script>
    Exact timing from app-Cd2tpxcC.js:
