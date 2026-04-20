@@ -1348,6 +1348,95 @@
       linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
       var(--dot-color);
   }
+  /* ══════════════════════════════════════
+     ── STUDIO SECTION ──
+  ══════════════════════════════════════ */
+  .studio-section {
+    width: 100%;
+    background: #000;
+    position: relative;
+  }
+
+  .studio-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 32px 20px;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .studio-label-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+  }
+
+  .studio-label-right {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3);
+    -webkit-font-smoothing: none;
+  }
+
+  .studio-photo-wrap {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+  }
+
+  .studio-photo-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+  }
+
+  .studio-headline {
+    padding: 28px 32px 48px;
+  }
+
+  .studio-headline h2 {
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-size: clamp(32px, 5.5vw, 88px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1.0;
+    color: #fff;
+    margin: 0;
+  }
+
+  .studio-headline-sub {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    margin-top: 12px;
+    -webkit-font-smoothing: none;
+  }
+
+  @media (max-width: 768px) {
+    .studio-label-row { padding: 20px 20px 16px; }
+    .studio-photo-wrap {
+      aspect-ratio: 4/5;
+    }
+    .studio-photo-wrap img {
+      object-position: center 40%;
+    }
+    .studio-headline { padding: 20px 20px 36px; }
+    .studio-headline h2 { font-size: clamp(28px, 10vw, 52px); }
+  }
+
   /* Fixed variant for load screen */
   .scanline-fixed {
     pointer-events: none;
@@ -1554,6 +1643,28 @@ Dubai, worldwide.</div>
       <div class="service-num-right">(04)</div>
     </div>
 
+  </section>
+
+  <!-- ── SECTION 5: STUDIO / GEAR ── -->
+  <section class="studio-section">
+    <div class="scanline"></div>
+
+    <div class="studio-label-row">
+      <div class="studio-label-left">
+        <span>■</span>
+        <span>THE SETUP</span>
+      </div>
+      <div class="studio-label-right">05 TOOLS OF TRADE</div>
+    </div>
+
+    <div class="studio-photo-wrap">
+      <img src="studio_gear.jpg" alt="FPV drone studio setup — André Larsen" />
+    </div>
+
+    <div class="studio-headline">
+      <h2>BUILT TO FLY.<br>WIRED TO SHOOT.</h2>
+      <div class="studio-headline-sub">CUSTOM FPV RIG — CINEMA PAYLOAD — GOPRO CHALLENGE WINNER — DUBAI, UAE</div>
+    </div>
   </section>
 
   <!-- ── FOOTER ── -->
