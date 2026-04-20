@@ -1225,10 +1225,83 @@
   .clients-section-REMOVED {
     display: none;
     }
+
+  /* ── SCANLINE DOT-GRID (exact from artefakt.mov) ── */
+  .scanline {
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    z-index: 6;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+  }
+  .scanline:after {
+    top: 0;
+    left: 0;
+    opacity: .07;
+    --dot-bg: #000;
+    --dot-color: #fff;
+    --dot-size: 2px;
+    --dot-space: 3px;
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    content: "";
+  }
+  @media (min-width: 1280px) {
+    .scanline:after {
+      --dot-size: 4px;
+      --dot-space: 5px;
+    }
+  }
+  .scanline:after {
+    background:
+      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      var(--dot-color);
+  }
+  /* Fixed variant for load screen */
+  .scanline-fixed {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 209;
+    height: 100%;
+    width: 100%;
+  }
+  .scanline-fixed:after {
+    top: 0;
+    left: 0;
+    opacity: .07;
+    --dot-bg: #000;
+    --dot-color: #fff;
+    --dot-size: 2px;
+    --dot-space: 3px;
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    content: "";
+  }
+  @media (min-width: 1280px) {
+    .scanline-fixed:after {
+      --dot-size: 4px;
+      --dot-space: 5px;
+    }
+  }
+  .scanline-fixed:after {
+    background:
+      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      var(--dot-color);
+  }
 </style>
 
 <!-- Loader backdrop -->
-<div id="loadScreen"></div>
+<div id="loadScreen"><div class="scanline-fixed"></div></div>
 <!-- Full-screen ASCII canvas -->
 <canvas id="asciiCanvas"></canvas>
 <!-- Load UI — positioned by JS below name -->
@@ -1304,6 +1377,7 @@ Dubai, worldwide.</div>
     <canvas id="pixelCanvas"></canvas>
 
     <div class="video-vignette"></div>
+    <div class="scanline"></div>
 
     <div class="video-label-tl">SHOWREEL — 2025</div>
 
@@ -1317,6 +1391,7 @@ Dubai, worldwide.</div>
 
   <!-- ── SECTION 3: SPINNING CUBE ── -->
   <section class="cube-section" id="cubeSection">
+    <div class="scanline"></div>
     <div class="cube-left">
       <div class="cube-ui">
         <div class="cube-suptitle">
@@ -1337,7 +1412,7 @@ Dubai, worldwide.</div>
 
   <!-- ── SECTION 4: SERVICES ── -->
   <section class="services-section" style="position:relative;overflow:hidden;">
-    <canvas id="serviceNoiseCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.55;"></canvas>
+    <div class="scanline"></div>
 
     <div class="services-header">
       <div class="services-header-left">
@@ -1391,6 +1466,7 @@ Dubai, worldwide.</div>
 
   <!-- ── FOOTER ── -->
   <footer class="footer">
+  <div class="scanline"></div>
   <div class="footer-ascii-wrap">
     <canvas id="footerAsciiCanvas"></canvas>
   </div>
@@ -2528,88 +2604,4 @@ videoEl.addEventListener('timeupdate', () => {
   if (servicesSection) headerObserver.observe(servicesSection);
 })();
 
-</script>
-<script>
-/* ── ASCII NOISE BACKGROUND (artefakt-style) ── */
-(function() {
-  const canvas = document.getElementById('serviceNoiseCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-
-  const CHARS = ' .:-=+*#%@4RT3F';
-  const CELL  = 13;
-  const DENSITY    = 0.18;
-  const FLICKER_SPEED = 0.06;
-  const SCALE  = 29;
-
-  let W, H, cols, rows, t = 0;
-  let cells = [];
-
-  function rand(x, y) {
-    const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-    return s - Math.floor(s);
-  }
-
-  function resize() {
-    const rect = canvas.parentElement.getBoundingClientRect();
-    W = rect.width;
-    H = rect.height;
-    canvas.width  = W;
-    canvas.height = H;
-    cols = Math.ceil(W / CELL);
-    rows = Math.ceil(H / CELL);
-    cells = [];
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        cells.push({
-          active: rand(c, r) < DENSITY,
-          phase:  rand(c * 7.3, r * 3.1),
-          charIdx: 0,
-          brightness: 0
-        });
-      }
-    }
-  }
-
-  function draw() {
-    t += FLICKER_SPEED * 0.01;
-    ctx.clearRect(0, 0, W, H);
-    ctx.font = CELL + 'px monospace';
-    ctx.textBaseline = 'top';
-
-    const scrollY = window.scrollY || 0;
-
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const cell = cells[r * cols + c];
-        if (!cell.active) continue;
-
-        const life = (t * 5 + cell.phase * 10) % 1;
-        const appear    = Math.min(life / 0.25, 1);
-        const disappear = Math.max((life - 0.75) / 0.25, 0);
-        const wipe = appear * (1 - disappear);
-
-        // flicker
-        const frame = Math.floor(t * FLICKER_SPEED * 100 + cell.phase * 50);
-        const flick = rand(c * 17.3 + frame, r * 3.9 + frame);
-        const brightness = wipe * (flick > 0.5 ? 1 : 0) * (rand(c, r + t) * 0.9 + 0.1);
-
-        if (brightness < 0.05) continue;
-
-        const charIdx = Math.floor(brightness * (CHARS.length - 1));
-        const ch = CHARS[charIdx];
-        const alpha = brightness * 0.85;
-
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-        ctx.fillText(ch, c * CELL, r * CELL);
-      }
-    }
-
-    requestAnimationFrame(draw);
-  }
-
-  resize();
-  new ResizeObserver(resize).observe(canvas.parentElement);
-  draw();
-})();
 </script>
