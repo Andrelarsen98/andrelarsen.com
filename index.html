@@ -2576,9 +2576,9 @@ videoEl.addEventListener('timeupdate', () => {
 (function() {
   const SHUFFLE_CHARS = ['!', '@', '#', '$', '%', '&', '*', 'F', 'K', 'T', '_'];
   const REPEAT        = 6;
-  const FRAME_MS      = 55;   // slower = matches Artefakt feel
-  const REPEAT_DELAY  = 40;
-  const CHAR_STAGGER  = 80;   // ms between each char starting
+  const FRAME_MS      = 27;   // 2x speed
+  const REPEAT_DELAY  = 20;
+  const CHAR_STAGGER  = 40;   // ms between each char starting
 
   function revealEl(el, onDone) {
     const text = el.dataset.originalText;
