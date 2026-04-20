@@ -2633,6 +2633,10 @@ videoEl.addEventListener('timeupdate', () => {
     sphere.style.transform =
       `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
 
+    /* Expose velocity for telemetry */
+    window._sphereVel = Math.sqrt(velX * velX + velY * velY);
+    if (dragging) window._sphereVel = Math.sqrt(lastDX * lastDX + lastDY * lastDY) * 0.38;
+
     /* Counter */
     if (counter) {
       const face = Math.floor(((rotY % 360) + 360) % 360 / (360 / NUM_VIDEOS)) % NUM_VIDEOS;
@@ -2656,28 +2660,35 @@ videoEl.addEventListener('timeupdate', () => {
 
 </script>
 <script>
-/* ── TELEMETRY FLICKER ── */
+/* ── TELEMETRY FLICKER — velocity driven ── */
 (function() {
-  const vals = {
-    teleAlt:     { base: 142,  unit: 'M',    range: 8  },
-    teleSpd:     { base: 87,   unit: 'KM/H', range: 12 },
-    teleSignal:  { base: 94,   unit: '%',    range: 4  },
-    teleLatency: { base: 12,   unit: 'MS',   range: 5  },
+  const els = {
+    alt:     document.getElementById('teleAlt'),
+    spd:     document.getElementById('teleSpd'),
+    signal:  document.getElementById('teleSignal'),
+    latency: document.getElementById('teleLatency'),
   };
-  function flicker() {
-    Object.entries(vals).forEach(([id, cfg]) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      // Only update occasionally — feels organic
-      if (Math.random() > 0.35) return;
-      const v = cfg.base + Math.floor((Math.random() - 0.5) * 2 * cfg.range);
-      el.textContent = v + cfg.unit;
-      el.classList.add('glitch');
-      setTimeout(() => el.classList.remove('glitch'), 80);
-    });
+
+  const BASE = { alt: 142, spd: 87, signal: 94, latency: 12 };
+
+  function update() {
+    const vel = window._sphereVel || 0;
+    const spike = Math.min(vel / 4, 1); // 0–1 intensity
+
+    const alt     = Math.round(BASE.alt     + spike * 180  + (Math.random() - 0.5) * 8);
+    const spd     = Math.round(BASE.spd     + spike * 240  + (Math.random() - 0.5) * 10);
+    const signal  = Math.round(BASE.signal  - spike * 30   + (Math.random() - 0.5) * 4);
+    const latency = Math.round(BASE.latency + spike * 80   + (Math.random() - 0.5) * 4);
+
+    if (els.alt)     { els.alt.textContent     = alt + 'M';     els.alt.classList.toggle('glitch',     spike > 0.3); }
+    if (els.spd)     { els.spd.textContent     = spd + 'KM/H';  els.spd.classList.toggle('glitch',     spike > 0.3); }
+    if (els.signal)  { els.signal.textContent  = Math.max(0, Math.min(100, signal)) + '%'; els.signal.classList.toggle('glitch', spike > 0.5); }
+    if (els.latency) { els.latency.textContent = latency + 'MS'; els.latency.classList.toggle('glitch', spike > 0.3); }
   }
-  setInterval(flicker, 600);
+
+  setInterval(update, 80);
 })();
+
 
 
    chars: ["!","@","#","$","%","&","*","F","K","T","_"]
