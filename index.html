@@ -2654,6 +2654,11 @@ videoEl.addEventListener('timeupdate', () => {
     el.dataset.originalText = el.textContent.trim();
   });
 
+  // Store desc text (flatten <br> to space)
+  document.querySelectorAll('.service-desc').forEach(el => {
+    el.dataset.originalText = el.innerText.trim().replace(/\n+/g, ' ');
+  });
+
   // Observe service blocks
   const blocks = document.querySelectorAll('.service-block');
   const observer = new IntersectionObserver(entries => {
@@ -2664,12 +2669,11 @@ videoEl.addEventListener('timeupdate', () => {
         const num   = entry.target.querySelector('.service-num-right');
         const desc  = entry.target.querySelector('.service-desc');
         if (title) {
-          // fade in desc after title finishes
           if (desc) desc.style.opacity = '0';
           revealEl(title, () => {
             if (desc) {
-              desc.style.transition = 'opacity 0.5s ease';
               desc.style.opacity = '1';
+              revealEl(desc);
             }
           });
         }
