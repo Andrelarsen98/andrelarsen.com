@@ -24,6 +24,7 @@
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: none;
+    touch-action: pan-y;
   }
 
   /* ── SITE SECTION 1 — Landing ── */
@@ -44,12 +45,16 @@
 
   .bg-img {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center 30%;
     z-index: 0;
+    display: block;
   }
   .overlay {
     position: absolute;
@@ -655,7 +660,8 @@
     }
 
     /* Mobile: full width video, no black bars */
-    #showreel { object-fit: cover; width: 100%; height: 100%; }
+    #showreel { object-fit: cover; width: 100%; height: 100%; pointer-events: none; }
+    .video-section { touch-action: pan-y; }
     .video-vignette { display: none; }
 
     .video-label-tl, .video-label-tr { font-size: 8px; letter-spacing: 0.14em; }
@@ -705,7 +711,10 @@
     .bg-img {
       display: block;
       position: absolute;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -1174,7 +1183,7 @@
     text-transform: uppercase;
     line-height: 1.3;
     -webkit-font-smoothing: none;
-    opacity: 0;
+    opacity: 1;
   }
 
   .service-num-right {
