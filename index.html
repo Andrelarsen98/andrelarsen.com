@@ -881,18 +881,43 @@
     overflow: hidden;
   }
 
-  /* Left column — text */
+  .cube-section {
+    width: 100%;
+    min-height: 100vh;
+    height: 100vh;
+    position: relative;
+    background: #000;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+  }
+
+  /* Left column — counter + telemetry */
   .cube-left {
+    grid-column: 1;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 28px 32px 48px 32px;
+    padding: 28px 32px 32px 32px;
     position: relative;
     z-index: 10;
   }
 
+  /* Headline spans bottom-left */
+  .cube-headline {
+    grid-column: 1;
+    grid-row: 2;
+    padding: 0 32px 48px 32px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
   /* Right column — spinning cluster */
   .cube-right {
+    grid-column: 2;
+    grid-row: 1 / 3;
     position: relative;
     overflow: hidden;
   }
@@ -1020,10 +1045,6 @@
     -webkit-font-smoothing: none;
   }
 
-  .cube-headline {
-    pointer-events: none;
-  }
-
   .cube-title {
     font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
     font-size: clamp(28px, 4vw, 68px);
@@ -1056,12 +1077,6 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    opacity: 0;
-    animation: teleFadeIn 1s ease 1.2s forwards;
-  }
-  @keyframes teleFadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
   }
   .tele-row {
     display: flex;
@@ -1119,40 +1134,43 @@
 
   @media (max-width: 768px) {
     .cube-section {
+      display: grid;
       grid-template-columns: 1fr;
-      height: 100vh;
+      grid-template-rows: auto auto auto;
+      height: auto;
       min-height: 100vh;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
     }
     .cube-left {
-      padding: 72px 20px 0;
+      grid-column: 1;
+      grid-row: 1;
+      padding: 72px 20px 8px;
       flex-direction: column;
-      align-items: flex-start;
       justify-content: flex-start;
-      gap: 6px;
-      order: 1;
-      flex-shrink: 0;
+      gap: 8px;
     }
-    .cube-ui { order: 1; }
-    .cube-telemetry { order: 2; }
-    .cube-headline { order: 4; display: block; }
     .cube-right {
-      order: 3;
-      flex-shrink: 0;
-      height: 260px;
+      grid-column: 1;
+      grid-row: 2;
+      height: 300px;
+      width: 100%;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: visible;
     }
-    .cube-title { font-size: clamp(28px, 9vw, 48px); }
+    .cube-headline {
+      grid-column: 1;
+      grid-row: 3;
+      padding: 8px 20px 28px;
+    }
+    .cube-title { font-size: clamp(32px, 10vw, 52px); }
     .vs-sphere { width: 220px; height: 220px; }
     .vs-glow { width: 220px; height: 220px; }
     .vs-card { width: 100px; height: 56px; margin-top: -28px; margin-left: -50px; }
-    .cube-drag-label { bottom: 4px; }
+    .cube-drag-label { bottom: 4px; font-size: 13px; }
+    .tele-location { white-space: normal; width: auto; animation: none; opacity: 0.4; }
   }
   /* ══════════════════════════════════════
      ── SERVICES SECTION ──
@@ -1468,9 +1486,6 @@ Dubai, worldwide.</div>
         <div class="cube-counter" id="cubeCounter">01</div>
         <div class="cube-total">/16</div>
       </div>
-      <div class="cube-headline">
-        <h2 class="cube-title" id="cubeTitle">I FRAME.<br>THE WORLD<br>DELIVERS.</h2>
-      </div>
       <div class="cube-telemetry" id="cubeTelemetry">
         <div class="tele-row"><span class="tele-label">ALT</span><span class="tele-sep">:</span><span class="tele-val" id="teleAlt">142M</span></div>
         <div class="tele-row"><span class="tele-label">SPD</span><span class="tele-sep">:</span><span class="tele-val" id="teleSpd">87KM/H</span></div>
@@ -1481,6 +1496,9 @@ Dubai, worldwide.</div>
     </div>
     <div class="cube-right" id="cubeRight">
       <div class="cube-drag-label">DRAG TO EXPLORE</div>
+    </div>
+    <div class="cube-headline">
+      <h2 class="cube-title" id="cubeTitle">I FRAME.<br>THE WORLD<br>DELIVERS.</h2>
     </div>
   </section>
 
