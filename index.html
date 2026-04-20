@@ -1051,8 +1051,73 @@
     z-index: 20;
   }
 
+  /* ── TELEMETRY BLOCK ── */
+  .cube-telemetry {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    opacity: 0;
+    animation: teleFadeIn 1s ease 1.2s forwards;
+  }
+  @keyframes teleFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .tele-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    line-height: 1.3;
+  }
+  .tele-label {
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    min-width: 64px;
+  }
+  .tele-sep {
+    color: rgba(255,255,255,0.2);
+  }
+  .tele-val {
+    color: rgba(255,255,255,0.75);
+    text-transform: uppercase;
+    transition: color 0.1s;
+  }
+  .tele-val.glitch {
+    color: rgba(255,255,255,1);
+  }
+  .tele-location {
+    margin-top: 10px;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    animation: locationReveal 2s steps(40,end) 2s forwards;
+  }
+  @keyframes locationReveal {
+    from { width: 0; }
+    to   { width: 340px; }
+  }
+
   @media (max-width: 768px) {
-    .cube-section {
+    .cube-telemetry { gap: 1px; }
+    .tele-row { font-size: 13px; }
+    .tele-label { min-width: 52px; }
+    .tele-location { font-size: 11px; animation: locationReveal 2s steps(30,end) 2s forwards; }
+    @keyframes locationReveal { from { width: 0; } to { width: 100%; } }
+  }
+
+  
       grid-template-columns: 1fr;
       grid-template-rows: auto 1fr;
       height: 100vh;
@@ -1404,6 +1469,13 @@ Dubai, worldwide.</div>
       </div>
       <div class="cube-headline">
         <h2 class="cube-title" id="cubeTitle">I FRAME.<br>THE WORLD<br>DELIVERS.</h2>
+      </div>
+      <div class="cube-telemetry" id="cubeTelemetry">
+        <div class="tele-row"><span class="tele-label">ALT</span><span class="tele-sep">:</span><span class="tele-val" id="teleAlt">142M</span></div>
+        <div class="tele-row"><span class="tele-label">SPD</span><span class="tele-sep">:</span><span class="tele-val" id="teleSpd">87KM/H</span></div>
+        <div class="tele-row"><span class="tele-label">SIGNAL</span><span class="tele-sep">:</span><span class="tele-val" id="teleSignal">94%</span></div>
+        <div class="tele-row"><span class="tele-label">LATENCY</span><span class="tele-sep">:</span><span class="tele-val" id="teleLatency">12MS</span></div>
+        <div class="tele-location" id="teleLocation">DUBAI, UAE — 20.04.26 — 24°12'N 55°18'E</div>
       </div>
     </div>
     <div class="cube-right" id="cubeRight">
@@ -2584,7 +2656,30 @@ videoEl.addEventListener('timeupdate', () => {
 
 </script>
 <script>
-/* Exact timing from app-Cd2tpxcC.js:
+/* ── TELEMETRY FLICKER ── */
+(function() {
+  const vals = {
+    teleAlt:     { base: 142,  unit: 'M',    range: 8  },
+    teleSpd:     { base: 87,   unit: 'KM/H', range: 12 },
+    teleSignal:  { base: 94,   unit: '%',    range: 4  },
+    teleLatency: { base: 12,   unit: 'MS',   range: 5  },
+  };
+  function flicker() {
+    Object.entries(vals).forEach(([id, cfg]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      // Only update occasionally — feels organic
+      if (Math.random() > 0.35) return;
+      const v = cfg.base + Math.floor((Math.random() - 0.5) * 2 * cfg.range);
+      el.textContent = v + cfg.unit;
+      el.classList.add('glitch');
+      setTimeout(() => el.classList.remove('glitch'), 80);
+    });
+  }
+  setInterval(flicker, 600);
+})();
+
+
    chars: ["!","@","#","$","%","&","*","F","K","T","_"]
    repeat: 5, duration: 30ms, repeatDelay: 25ms
    cursor: scaleY 3→1, blinks then fades
