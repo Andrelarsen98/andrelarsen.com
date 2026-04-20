@@ -2653,8 +2653,12 @@ videoEl.addEventListener('timeupdate', () => {
       `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
 
     /* Expose velocity for telemetry */
-    window._sphereVel = Math.sqrt(velX * velX + velY * velY);
-    if (dragging) window._sphereVel = Math.sqrt(lastDX * lastDX + lastDY * lastDY) * 0.38;
+    if (dragging) {
+      window._sphereVel = Math.sqrt(lastDX * lastDX + lastDY * lastDY) * 0.38;
+    } else {
+      const autoSpinContrib = Math.abs(32 + Math.sin(elapsed * 0.17) * 6) * dt * 0.5;
+      window._sphereVel = Math.sqrt(velX * velX + velY * velY) + autoSpinContrib;
+    }
 
     /* Counter */
     if (counter) {
@@ -2690,19 +2694,33 @@ videoEl.addEventListener('timeupdate', () => {
 
   const BASE = { alt: 142, spd: 87, signal: 94, latency: 12 };
   let t = 0;
+  let lastTeleUpdate = 0;
 
-  function update() {
+  // Smoothed velocity that ramps up/down
+  let smoothVel = 0;
+
+  function update(now) {
+    requestAnimationFrame(update);
+
+    // Throttle DOM writes to ~120ms for readability
+    if (now - lastTeleUpdate < 120) return;
+    lastTeleUpdate = now;
+
     t += 0.08;
-    const vel = window._sphereVel || 0;
-    const spike = Math.min(vel / 4, 1);
 
-    // Idle drift using sine waves so values always move
+    // Blend sphere velocity toward smooth value
+    const rawVel = window._sphereVel || 0;
+    smoothVel += (rawVel - smoothVel) * 0.25;
+
+    const spike = Math.min(smoothVel / 3, 1);
+
+    // Idle drift — always moving even when sphere is still
     const idleDrift = Math.sin(t * 0.7) * 6 + Math.sin(t * 1.3) * 3;
 
-    const alt     = Math.round(BASE.alt     + spike * 180 + idleDrift          + (Math.random() - 0.5) * 4);
-    const spd     = Math.round(BASE.spd     + spike * 240 + Math.sin(t) * 8    + (Math.random() - 0.5) * 5);
-    const signal  = Math.round(BASE.signal  - spike * 30  + Math.sin(t*0.5)*3  + (Math.random() - 0.5) * 2);
-    const latency = Math.round(BASE.latency + spike * 80  + Math.abs(Math.sin(t*1.1))*4 + (Math.random() - 0.5) * 2);
+    const alt     = Math.round(BASE.alt     + spike * 180 + idleDrift                      + (Math.random() - 0.5) * 4);
+    const spd     = Math.round(BASE.spd     + spike * 240 + Math.sin(t) * 8               + (Math.random() - 0.5) * 5);
+    const signal  = Math.round(BASE.signal  - spike * 30  + Math.sin(t * 0.5) * 3         + (Math.random() - 0.5) * 2);
+    const latency = Math.round(BASE.latency + spike * 80  + Math.abs(Math.sin(t*1.1)) * 4 + (Math.random() - 0.5) * 2);
 
     if (els.alt)     { els.alt.textContent     = alt + 'M'; }
     if (els.spd)     { els.spd.textContent     = spd + 'KM/H'; }
@@ -2716,8 +2734,9 @@ videoEl.addEventListener('timeupdate', () => {
     });
   }
 
-  setInterval(update, 120);
+  requestAnimationFrame(update);
 })();
+</script>
 
 
 
