@@ -1119,13 +1119,11 @@
     border-bottom: 1px solid rgba(255,255,255,0.08);
     gap: 20px;
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.4s ease;
   }
 
   .service-block.visible {
     opacity: 1;
-    transform: translateY(0);
   }
 
   .service-left {
@@ -2361,21 +2359,140 @@ videoEl.addEventListener('timeupdate', () => {
 })();
 
 /* ══════════════════════════════════════
-   ── SERVICES SCROLL REVEAL ──
+   ── SHUFFLE CHARS REVEAL (Artefakt style) ──
+   Chars: ["!", "@", "#", "$", "%", "&", "*", "F", "K", "T", "_"]
+   repeat: 5, duration: 30ms, repeatDelay: 25ms
 ══════════════════════════════════════ */
 (function() {
+  const SHUFFLE_CHARS = ['!', '@', '#', '$', '%', '&', '*', 'F', 'K', 'T', '_'];
+  const REPEAT        = 5;
+  const FRAME_MS      = 30;
+  const REPEAT_DELAY  = 25;
+  const CHAR_STAGGER  = 40; // ms between each character starting
+
+  function shuffleChar(el, originalChar, delay) {
+    setTimeout(() => {
+      let count = 0;
+      const total = REPEAT;
+      function tick() {
+        if (count < total) {
+          el.textContent = SHUFFLE_CHARS[Math.floor(Math.random() * SHUFFLE_CHARS.length)];
+          el.style.opacity = '1';
+          count++;
+          setTimeout(tick, FRAME_MS + REPEAT_DELAY);
+        } else {
+          el.textContent = originalChar;
+          el.style.opacity = '1';
+        }
+      }
+      tick();
+    }, delay);
+  }
+
+  function revealText(el) {
+    const original = el.dataset.original || el.textContent;
+    el.dataset.original = original;
+    // Split into char spans if not already done
+    if (!el.dataset.split) {
+      el.dataset.split = '1';
+      el.innerHTML = Array.from(original).map(c =>
+        c === ' ' ? '<span style="display:inline"> </span>' :
+        `<span class="sc" style="opacity:0;display:inline">${c}</span>`
+      ).join('');
+    }
+    const spans = el.querySelectorAll('.sc');
+    spans.forEach((span, i) => {
+      const ch = el.dataset.original[
+        Array.from(el.dataset.original).findIndex((c, idx) => {
+          let nonSpace = 0;
+          for (let j = 0; j <= idx; j++) {
+            if (el.dataset.original[j] !== ' ') nonSpace++;
+          }
+          return nonSpace === i + 1;
+        })
+      ];
+      shuffleChar(span, span.dataset.char || span.textContent, i * CHAR_STAGGER);
+    });
+    // store original chars
+    el.querySelectorAll('.sc').forEach(s => {
+      if (!s.dataset.char) s.dataset.char = s.textContent;
+    });
+  }
+
+  // Simpler, more reliable version
+  function revealEl(el) {
+    const text = el.dataset.originalText;
+    if (!text) return;
+    el.innerHTML = '';
+    Array.from(text).forEach((char, i) => {
+      if (char === ' ') {
+        el.appendChild(document.createTextNode(' '));
+        return;
+      }
+      const span = document.createElement('span');
+      span.style.cssText = 'display:inline;opacity:0;';
+      span.textContent = char;
+      el.appendChild(span);
+      let count = 0;
+      setTimeout(() => {
+        function tick() {
+          if (count < REPEAT) {
+            span.textContent = SHUFFLE_CHARS[Math.floor(Math.random() * SHUFFLE_CHARS.length)];
+            span.style.opacity = '1';
+            count++;
+            setTimeout(tick, FRAME_MS + REPEAT_DELAY);
+          } else {
+            span.textContent = char;
+            span.style.opacity = '1';
+          }
+        }
+        tick();
+      }, i * CHAR_STAGGER);
+    });
+  }
+
+  // Store original text and reset elements
+  const targets = document.querySelectorAll(
+    '.service-title, .services-header-left, .services-header-right, .service-num-right'
+  );
+  targets.forEach(el => {
+    el.dataset.originalText = el.textContent.trim();
+    el.style.opacity = '1'; // keep layout, chars handle visibility
+  });
+
+  // Also handle service blocks fade
   const blocks = document.querySelectorAll('.service-block');
+
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
+        // Fire shuffle on all text targets inside this block
+        entry.target.querySelectorAll('.service-title, .service-num-right').forEach((el, i) => {
+          setTimeout(() => revealEl(el), i * 80);
+        });
+        observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0.2 });
+
+  // Header shuffle on scroll into services section
+  const servicesSection = document.querySelector('.services-section');
+  const headerObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      document.querySelectorAll('.services-header-left, .services-header-right').forEach((el, i) => {
+        setTimeout(() => revealEl(el), i * 120);
+      });
+      headerObserver.unobserve(servicesSection);
+    }
+  }, { threshold: 0.1 });
+
   blocks.forEach((b, i) => {
-    b.style.transitionDelay = (i * 0.12) + 's';
+    b.style.transitionDelay = (i * 0.1) + 's';
     observer.observe(b);
   });
+
+  if (servicesSection) headerObserver.observe(servicesSection);
 })();
 
 </script>
