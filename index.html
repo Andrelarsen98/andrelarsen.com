@@ -1554,7 +1554,7 @@ Dubai, worldwide.</div>
 
   <!-- SECTION 2: Showreel Video -->
   <div class="video-section" id="videoSection">
-    <video id="showreel" muted loop playsinline preload="none" webkit-playsinline x5-playsinline>
+    <video id="showreel" muted loop playsinline preload="metadata" webkit-playsinline x5-playsinline>
       <source src="showreel.mp4" type="video/mp4">
     </video>
 
@@ -1668,7 +1668,7 @@ Dubai, worldwide.</div>
     </div>
 
     <div class="studio-photo-wrap">
-      <img src="gear_upscaled_grain_1.jpg" alt="FPV drone studio setup — André Larsen" loading="lazy" />
+      <img src="gear_upscaled_grain_1.jpg" alt="FPV drone studio setup — André Larsen" />
     </div>
 
     <div class="studio-headline">
@@ -2088,7 +2088,7 @@ const isMobile = window.innerWidth <= 768;
   loaderProgress = 1;
 
   loaderBarId = setInterval(() => {
-    loaderProgress += 0.7 + Math.random() * 1.0;
+    loaderProgress += 2.2 + Math.random() * 1.8;
     if (loaderProgress >= 100) {
       loaderProgress = 100;
       clearInterval(loaderBarId);
@@ -2460,8 +2460,16 @@ const videoTime    = document.getElementById('videoTime');
     } else {
       videoEl.pause();
     }
-  }, { threshold: 0.2 });
+  }, { threshold: 0.05 });
   observer.observe(section);
+  // Begin preloading showreel right after page load — don't wait for scroll
+  window.addEventListener('load', () => {
+    if (!loaded) {
+      loaded = true;
+      videoEl.preload = 'auto';
+      videoEl.load();
+    }
+  });
   // Fallback for browsers that block autoplay
   const unlock = () => { if (loaded) videoEl.play().catch(() => {}); };
   document.addEventListener('touchstart', unlock, { once: true });
@@ -2669,7 +2677,7 @@ videoEl.addEventListener('timeupdate', () => {
     ].join(' ');
 
     const vid = document.createElement('video');
-    vid.dataset.src = `work${i + 1}.mp4`;
+    vid.src        = `work${i + 1}.mp4`;
     vid.muted       = true;
     vid.loop        = true;
     vid.playsInline = true;
@@ -2803,13 +2811,24 @@ videoEl.addEventListener('timeupdate', () => {
     if (visible) {
       lastTime = performance.now();
       sphere.querySelectorAll('video').forEach(v => {
-        if (!v.src && v.dataset.src) { v.src = v.dataset.src; v.load(); }
+        if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
         v.play().catch(() => {});
       });
     } else {
       sphere.querySelectorAll('video').forEach(v => v.pause());
     }
   }, { threshold: 0.1 });
+
+  // Pre-load cube videos as soon as section is anywhere near the viewport
+  const preloadObs = new IntersectionObserver(e => {
+    if (e[0].isIntersecting) {
+      sphere.querySelectorAll('video').forEach(v => {
+        if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
+      });
+      preloadObs.disconnect();
+    }
+  }, { rootMargin: '200px' });
+  preloadObs.observe(section);
   obs.observe(section);
 
   requestAnimationFrame(animate);
