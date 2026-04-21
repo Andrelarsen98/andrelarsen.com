@@ -2469,6 +2469,12 @@ const videoTime    = document.getElementById('videoTime');
       videoEl.preload = 'auto';
       videoEl.load();
     }
+    // Cascade: start cube videos 1.5s after page load so they're ready well before scroll
+    setTimeout(() => {
+      document.querySelectorAll('.vs-sphere video').forEach(v => {
+        if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
+      });
+    }, 1500);
   });
   // Fallback for browsers that block autoplay
   const unlock = () => { if (loaded) videoEl.play().catch(() => {}); };
@@ -2827,7 +2833,7 @@ videoEl.addEventListener('timeupdate', () => {
       });
       preloadObs.disconnect();
     }
-  }, { rootMargin: '200px' });
+  }, { rootMargin: '100% 0px' });
   preloadObs.observe(section);
   obs.observe(section);
 
