@@ -28,6 +28,32 @@
     touch-action: pan-y;
   }
 
+  /* ── CUSTOM SCROLLBAR TRACK (desktop only) ── */
+  @media (min-width: 769px) {
+    #scrollTrack {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: 2px;
+      height: 100vh;
+      background: rgba(255,255,255,0.08);
+      z-index: 500;
+      pointer-events: none;
+    }
+    #scrollThumb {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2px;
+      background: rgba(255,255,255,0.45);
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+  }
+  @media (max-width: 768px) {
+    #scrollTrack { display: none; }
+  }
+
   /* ── SITE SECTION 1 — Landing ── */
   .site {
     min-height: 100vh;
@@ -1487,6 +1513,8 @@
 
 <!-- Loader backdrop -->
 <div id="loadScreen"><div class="scanline-fixed"></div></div>
+<!-- Custom scroll indicator (desktop only) -->
+<div id="scrollTrack"><div id="scrollThumb"></div></div>
 <!-- Full-screen ASCII canvas -->
 <canvas id="asciiCanvas"></canvas>
 <!-- Load UI — positioned by JS below name -->
@@ -2120,6 +2148,25 @@ const isMobile = window.innerWidth <= 768;
 })();
 
 const scrollContainer = document.getElementById('scrollContainer');
+
+/* ── CUSTOM SCROLLBAR — desktop only ── */
+(function() {
+  const thumb = document.getElementById('scrollThumb');
+  if (!thumb || window.innerWidth <= 768) return;
+  function updateThumb() {
+    const el = scrollContainer;
+    const scrollable = el.scrollHeight - el.clientHeight;
+    if (scrollable <= 0) return;
+    const ratio     = el.scrollTop / scrollable;
+    const thumbH    = Math.max(30, (el.clientHeight / el.scrollHeight) * el.clientHeight);
+    const maxTop    = el.clientHeight - thumbH;
+    thumb.style.height = thumbH + 'px';
+    thumb.style.top    = (ratio * maxTop) + 'px';
+  }
+  scrollContainer.addEventListener('scroll', updateThumb, { passive: true });
+  window.addEventListener('resize', updateThumb);
+  updateThumb();
+})();
 
 /* ── NAV HOVER GLITCH — per character, 3-flash burst then restore ── */
 function wrapNavChars(el) {
