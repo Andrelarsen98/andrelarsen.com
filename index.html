@@ -1355,8 +1355,6 @@
     width: 100%;
     background: #000;
     position: relative;
-    z-index: 20;
-    isolation: isolate;
   }
 
   .studio-label-row {
@@ -1436,10 +1434,10 @@
   @media (max-width: 768px) {
     .studio-label-row { padding: 20px 20px 16px; }
     .studio-photo-wrap {
-      aspect-ratio: 1/1;
+      aspect-ratio: 4/3;
     }
     .studio-photo-wrap img {
-      object-position: center 55%;
+      object-position: center 60%;
     }
     .studio-headline { padding: 20px 20px 36px; }
     .studio-headline h2 { font-size: clamp(28px, 10vw, 52px); }
