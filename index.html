@@ -1,5 +1,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preload" as="image" href="IMG_5937.JPG">
+<link rel="preload" as="image" href="IMG_5937.JPG" fetchpriority="high">
+<link rel="preload" as="font" href="DrukWide-Bold.woff2" type="font/woff2" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
@@ -1553,7 +1554,7 @@ Dubai, worldwide.</div>
 
   <!-- SECTION 2: Showreel Video -->
   <div class="video-section" id="videoSection">
-    <video id="showreel" autoplay muted loop playsinline preload="auto" webkit-playsinline x5-playsinline>
+    <video id="showreel" muted loop playsinline preload="none" webkit-playsinline x5-playsinline>
       <source src="showreel.mp4" type="video/mp4">
     </video>
 
@@ -1667,7 +1668,7 @@ Dubai, worldwide.</div>
     </div>
 
     <div class="studio-photo-wrap">
-      <img src="gear_upscaled_grain_1.jpg" alt="FPV drone studio setup — André Larsen" />
+      <img src="gear_upscaled_grain_1.jpg" alt="FPV drone studio setup — André Larsen" loading="lazy" />
     </div>
 
     <div class="studio-headline">
@@ -2443,18 +2444,29 @@ const videoEl      = document.getElementById('showreel');
 const progressBar  = document.getElementById('videoProgressBar');
 const videoTime    = document.getElementById('videoTime');
 
-// Force play immediately on load — mobile + desktop
-function forceVideoPlay() {
-  videoEl.muted = true;
-  videoEl.play().catch(() => {});
-}
-videoEl.addEventListener('canplay', forceVideoPlay, { once: true });
-document.addEventListener('DOMContentLoaded', forceVideoPlay);
-window.addEventListener('load', forceVideoPlay);
-// Also try on first user interaction for browsers that block autoplay
-document.addEventListener('touchstart', forceVideoPlay, { once: true });
-document.addEventListener('click', forceVideoPlay, { once: true });
-forceVideoPlay();
+// Lazy load + play only when section is visible
+(function() {
+  const section = document.getElementById('videoSection');
+  let loaded = false;
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      if (!loaded) {
+        loaded = true;
+        videoEl.preload = 'auto';
+        videoEl.load();
+      }
+      videoEl.muted = true;
+      videoEl.play().catch(() => {});
+    } else {
+      videoEl.pause();
+    }
+  }, { threshold: 0.2 });
+  observer.observe(section);
+  // Fallback for browsers that block autoplay
+  const unlock = () => { if (loaded) videoEl.play().catch(() => {}); };
+  document.addEventListener('touchstart', unlock, { once: true });
+  document.addEventListener('click', unlock, { once: true });
+})();
 
 function formatTime(s) {
   const m = Math.floor(s / 60);
@@ -2657,12 +2669,11 @@ videoEl.addEventListener('timeupdate', () => {
     ].join(' ');
 
     const vid = document.createElement('video');
-    vid.src         = `work${i + 1}.mp4`;
+    vid.dataset.src = `work${i + 1}.mp4`;
     vid.muted       = true;
     vid.loop        = true;
     vid.playsInline = true;
-    vid.autoplay    = true;
-    vid.play().catch(() => {});
+    vid.preload     = 'none';
 
     /* Glitch trigger: fire ~0.4s before the video loops */
     vid.addEventListener('timeupdate', () => {
@@ -2791,7 +2802,12 @@ videoEl.addEventListener('timeupdate', () => {
     visible = e[0].isIntersecting;
     if (visible) {
       lastTime = performance.now();
-      sphere.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+      sphere.querySelectorAll('video').forEach(v => {
+        if (!v.src && v.dataset.src) { v.src = v.dataset.src; v.load(); }
+        v.play().catch(() => {});
+      });
+    } else {
+      sphere.querySelectorAll('video').forEach(v => v.pause());
     }
   }, { threshold: 0.1 });
   obs.observe(section);
