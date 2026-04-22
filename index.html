@@ -1046,8 +1046,6 @@
     top: 50%; left: 50%;
     margin-top: -45px; margin-left: -80px;
     transform-style: preserve-3d;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
     border-radius: 6px;
     overflow: hidden;
     background: #0a0a0a;
@@ -1061,6 +1059,24 @@
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  /* Mobile only — soft blur overlay reduces perceived video quality demand */
+  @media (max-width: 768px) {
+    .vs-card::after {
+      display: block;
+      content: '';
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(1.5px);
+      -webkit-backdrop-filter: blur(1.5px);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .vs-card video {
+      /* Downscale rendering hint — browser can decode at lower res */
+      image-rendering: optimizeSpeed;
+    }
   }
 
   /* Glitch overlay — triggered by JS when videos loop */
@@ -3257,13 +3273,10 @@ videoEl.addEventListener('timeupdate', () => {
   globeObserver.observe(canvas);
 
   let lastGlobeDraw = 0;
-  const GLOBE_FPS = isMobile ? 30 : 60;
-  const GLOBE_INTERVAL = 1000 / GLOBE_FPS;
 
   function draw(now) {
     requestAnimationFrame(draw);
     if (!globeVisible) return;
-    if (isMobile && now - lastGlobeDraw < GLOBE_INTERVAL) return;
     lastGlobeDraw = now;
 
     ctx.clearRect(0, 0, SIZE, SIZE);
