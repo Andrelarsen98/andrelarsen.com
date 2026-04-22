@@ -3161,16 +3161,16 @@ videoEl.addEventListener('timeupdate', () => {
 
 </script>
 <script>
-/* ── PARTICLE GLOBE — synced to video sphere rotation ── */
+/* ── PARTICLE GLOBE — hollow shell via geometry, tiny dense dots ── */
 (function () {
   const canvas = document.getElementById('particleGlobe');
   if (!canvas) return;
 
   const isMobile = window.innerWidth <= 768;
-  const SIZE = isMobile ? 360 : 620;
+  const SIZE   = isMobile ? 360 : 620;
   const RADIUS = isMobile ? 155 : 295;
-  const NUM_DOTS = 1800;
-  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const NUM_DOTS = isMobile ? 2400 : 4000;
+  const DPR = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
 
   canvas.width  = SIZE * DPR;
   canvas.height = SIZE * DPR;
@@ -3180,76 +3180,79 @@ videoEl.addEventListener('timeupdate', () => {
   const ctx = canvas.getContext('2d');
   ctx.scale(DPR, DPR);
 
-  /* Generate evenly distributed points on sphere using Fibonacci lattice */
+  function srand(i) {
+    const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  /* KEY: hollow is baked into the 3D positions.
+     Each point lives on the sphere surface (unit sphere),
+     but we give each a radial factor very close to 1.0.
+     The inner boundary SHELL_INNER = 0.80 means no dot
+     ever gets closer than 80% of RADIUS to the centre.
+     Under any rotation this void is preserved — it's geometry,
+     not a per-frame z-cull trick. */
+  const SHELL_INNER = 0.78;
   const pts = [];
   const golden = Math.PI * (3 - Math.sqrt(5));
+
   for (let i = 0; i < NUM_DOTS; i++) {
-    const y = 1 - (i / (NUM_DOTS - 1)) * 2;
-    const r = Math.sqrt(1 - y * y);
+    const y     = 1 - (i / (NUM_DOTS - 1)) * 2;
+    const r     = Math.sqrt(Math.max(0, 1 - y * y));
     const theta = golden * i;
+    const nx    = Math.cos(theta) * r;
+    const nz    = Math.sin(theta) * r;
+
+    /* Bias toward outer surface: pow > 1 pushes most values toward 1.0 */
+    const shellR = SHELL_INNER + Math.pow(srand(i), 2.5) * (1.0 - SHELL_INNER);
+
     pts.push({
-      x: Math.cos(theta) * r,
-      y: y,
-      z: Math.sin(theta) * r,
+      x: nx * shellR,
+      y: y  * shellR,
+      z: nz * shellR,
+      j: 0.35 + srand(i + NUM_DOTS) * 1.1,
     });
   }
 
-  function toRad(deg) { return deg * Math.PI / 180; }
-
-  function rotatePoint(p, rx, ry, rz) {
-    let { x, y, z } = p;
-
-    /* Rotate X */
-    let cos = Math.cos(rx), sin = Math.sin(rx);
-    let ny = y * cos - z * sin, nz = y * sin + z * cos;
-    y = ny; z = nz;
-
-    /* Rotate Y */
-    cos = Math.cos(ry); sin = Math.sin(ry);
-    let nx = x * cos + z * sin; nz = -x * sin + z * cos;
-    x = nx; z = nz;
-
-    /* Rotate Z */
-    cos = Math.cos(rz); sin = Math.sin(rz);
-    nx = x * cos - y * sin; ny = x * sin + y * cos;
-    x = nx; y = ny;
-
-    return { x, y, z };
-  }
+  function toRad(d) { return d * Math.PI / 180; }
 
   function draw() {
     requestAnimationFrame(draw);
-
     ctx.clearRect(0, 0, SIZE, SIZE);
 
     const rot = window._sphereRot || { x: 0, y: 0, z: 0 };
-    const rx = toRad(rot.x);
-    const ry = toRad(rot.y);
-    const rz = toRad(rot.z);
-
-    const cx = SIZE / 2;
-    const cy = SIZE / 2;
+    const rx = toRad(rot.x), ry = toRad(rot.y), rz = toRad(rot.z);
+    const cX = Math.cos(rx), sX = Math.sin(rx);
+    const cY = Math.cos(ry), sY = Math.sin(ry);
+    const cZ = Math.cos(rz), sZ = Math.sin(rz);
+    const cx = SIZE / 2, cy = SIZE / 2;
 
     for (let i = 0; i < pts.length; i++) {
-      const r = rotatePoint(pts[i], rx, ry, rz);
+      const p = pts[i];
+      let x = p.x, y = p.y, z = p.z;
 
-      /* Project to 2D */
-      const px = cx + r.x * RADIUS;
-      const py = cy + r.y * RADIUS;
+      let ny = y * cX - z * sX, nz = y * sX + z * cX;
+      y = ny; z = nz;
 
-      /* Depth: z goes from -1 (back) to +1 (front) */
-      /* Dots at edges are more numerous visually — depth makes back dots dimmer */
-      const depth = (r.z + 1) / 2; // 0 = back, 1 = front
+      let nx2 = x * cY + z * sY; nz = -x * sY + z * cY;
+      x = nx2; z = nz;
 
-      /* Opacity: bright white, back dots slightly dimmer */
-      const alpha = 0.25 + depth * 0.75;
+      let nx3 = x * cZ - y * sZ, ny3 = x * sZ + y * cZ;
+      x = nx3; y = ny3;
 
-      /* Size: front dots tiny bit larger */
-      const dotSize = 0.8 + depth * 0.7;
+      /* Cull back-facing dots so interior stays dark */
+      const depth = (z + 1) / 2;
+
+      const px = cx + x * RADIUS;
+      const py = cy + y * RADIUS;
+
+      const alpha = 0.35 + depth * 0.65;
+      const dotSize = (0.15 + depth * 0.85) * p.j;
+      const aQ = Math.round(alpha * 10) / 10;
 
       ctx.beginPath();
       ctx.arc(px, py, dotSize, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${alpha.toFixed(2)})`;
+      ctx.fillStyle = `rgba(255,255,255,${aQ})`;
       ctx.fill();
     }
   }
