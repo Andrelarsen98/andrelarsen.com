@@ -1018,6 +1018,9 @@
     transform: translate(-50%, -50%);
     z-index: 0;
   }
+  @media (max-width: 768px) {
+    .vs-glow { filter: none; opacity: 0.5; }
+  }
   .vs-scene {
     position: absolute;
     inset: 0;
@@ -1043,7 +1046,8 @@
     top: 50%; left: 50%;
     margin-top: -45px; margin-left: -80px;
     transform-style: preserve-3d;
-    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     border-radius: 6px;
     overflow: hidden;
     background: #0a0a0a;
@@ -2581,42 +2585,48 @@ const videoEl      = document.getElementById('showreel');
 const progressBar  = document.getElementById('videoProgressBar');
 const videoTime    = document.getElementById('videoTime');
 
-// Lazy load + play only when section is visible
+// Preload showreel immediately — don't wait for scroll
 (function() {
   const section = document.getElementById('videoSection');
   let loaded = false;
+  let played = false;
+
+  function loadVideo() {
+    if (loaded) return;
+    loaded = true;
+    videoEl.preload = 'auto';
+    videoEl.load();
+  }
+
+  // Start loading as soon as DOM is ready — no scroll needed
+  loadVideo();
+
   const observer = new IntersectionObserver(entries => {
     if (entries[0].isIntersecting) {
-      if (!loaded) {
-        loaded = true;
-        videoEl.preload = 'auto';
-        videoEl.load();
-      }
+      loadVideo();
       videoEl.muted = true;
       videoEl.play().catch(() => {});
+      played = true;
     } else {
-      videoEl.pause();
+      if (played) videoEl.pause();
     }
-  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05, rootMargin: '20% 0px' });
   observer.observe(section);
-  // Begin preloading showreel right after page load — don't wait for scroll
-  window.addEventListener('load', () => {
-    if (!loaded) {
-      loaded = true;
-      videoEl.preload = 'auto';
-      videoEl.load();
-    }
-    // Cascade: start cube videos 1.5s after page load so they're ready well before scroll
-    setTimeout(() => {
-      document.querySelectorAll('.vs-sphere video').forEach(v => {
-        if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
-      });
-    }, 1500);
-  });
-  // Fallback for browsers that block autoplay
-  const unlock = () => { if (loaded) videoEl.play().catch(() => {}); };
+
+  // First touch anywhere = unlock autoplay and play if in view
+  const unlock = () => {
+    videoEl.muted = true;
+    videoEl.play().catch(() => {});
+  };
   document.addEventListener('touchstart', unlock, { once: true });
   document.addEventListener('click', unlock, { once: true });
+
+  // Cascade: start cube videos after showreel starts loading
+  setTimeout(() => {
+    document.querySelectorAll('.vs-sphere video').forEach(v => {
+      if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
+    });
+  }, 1500);
 })();
 
 function formatTime(s) {
@@ -2900,6 +2910,8 @@ videoEl.addEventListener('timeupdate', () => {
 
   scene.addEventListener('touchend', dragEnd);
 
+  const isMobileSphere = window.innerWidth <= 768;
+
   /* ── Animation loop ── */
   function animate(now) {
     requestAnimationFrame(animate);
@@ -2911,18 +2923,19 @@ videoEl.addEventListener('timeupdate', () => {
     const t = elapsed;
 
     if (!dragging) {
-      /* Y — base spin + slow pulse */
-      const ySpeed = 32 + Math.sin(t * 0.17) * 6 + Math.sin(t * 0.41) * 4;
+      /* Y — base spin: slower on mobile to reduce JS work per frame */
+      const baseSpeed = isMobileSphere ? 18 : 32;
+      const ySpeed = baseSpeed + Math.sin(t * 0.17) * 4;
       rotY += ySpeed * dt;
 
-      /* X — layered sine drifts at different periods */
-      const xTarget = Math.sin(t * 0.13) * 14
-                    + Math.sin(t * 0.37) * 7
-                    + Math.sin(t * 0.07) * 5;
+      /* X — gentle drift */
+      const xTarget = Math.sin(t * 0.13) * 14 + Math.sin(t * 0.07) * 5;
       rotX += (xTarget - rotX) * 0.8 * dt;
 
-      /* Z — slow rolling tilt */
-      rotZ = Math.sin(t * 0.11) * 9 + Math.sin(t * 0.29) * 4;
+      /* Z — skip on mobile (saves trig calls, barely visible on small screen) */
+      if (!isMobileSphere) {
+        rotZ = Math.sin(t * 0.11) * 9 + Math.sin(t * 0.29) * 4;
+      }
 
       /* Inertia decay from drag */
       const decay = Math.pow(0.92, dt * 60);
@@ -2993,28 +3006,33 @@ videoEl.addEventListener('timeupdate', () => {
   };
 
   const BASE = { alt: 142, spd: 87, signal: 94, latency: 12 };
+  const isMobileTele = window.innerWidth <= 768;
+  const TELE_INTERVAL = isMobileTele ? 200 : 120; // slower DOM writes on mobile
   let t = 0;
   let lastTeleUpdate = 0;
-
-  // Smoothed velocity that ramps up/down
   let smoothVel = 0;
+
+  // Reuse cubeSection visibility — share with sphere obs
+  let teleVisible = false;
+  const cubeSection = document.getElementById('cubeSection');
+  if (cubeSection) {
+    const teleObs = new IntersectionObserver(e => {
+      teleVisible = e[0].isIntersecting;
+    }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
+    teleObs.observe(cubeSection);
+  }
 
   function update(now) {
     requestAnimationFrame(update);
-
-    // Throttle DOM writes to ~120ms for readability
-    if (now - lastTeleUpdate < 120) return;
+    if (!teleVisible) return;
+    if (now - lastTeleUpdate < TELE_INTERVAL) return;
     lastTeleUpdate = now;
 
     t += 0.08;
 
-    // Blend sphere velocity toward smooth value
     const rawVel = window._sphereVel || 0;
     smoothVel += (rawVel - smoothVel) * 0.25;
-
     const spike = Math.min(smoothVel / 3, 1);
-
-    // Idle drift — always moving even when sphere is still
     const idleDrift = Math.sin(t * 0.7) * 6 + Math.sin(t * 1.3) * 3;
 
     const alt     = Math.round(BASE.alt     + spike * 180 + idleDrift                      + (Math.random() - 0.5) * 4);
@@ -3027,7 +3045,6 @@ videoEl.addEventListener('timeupdate', () => {
     if (els.signal)  { els.signal.textContent  = Math.max(0, Math.min(100, signal)) + '%'; }
     if (els.latency) { els.latency.textContent = latency + 'MS'; }
 
-    // Glitch flash on spike
     const glitch = spike > 0.3;
     [els.alt, els.spd, els.signal, els.latency].forEach(el => {
       if (el) el.classList.toggle('glitch', glitch);
@@ -3239,9 +3256,16 @@ videoEl.addEventListener('timeupdate', () => {
   }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
   globeObserver.observe(canvas);
 
-  function draw() {
+  let lastGlobeDraw = 0;
+  const GLOBE_FPS = isMobile ? 30 : 60;
+  const GLOBE_INTERVAL = 1000 / GLOBE_FPS;
+
+  function draw(now) {
     requestAnimationFrame(draw);
     if (!globeVisible) return;
+    if (isMobile && now - lastGlobeDraw < GLOBE_INTERVAL) return;
+    lastGlobeDraw = now;
+
     ctx.clearRect(0, 0, SIZE, SIZE);
 
     const rot = window._sphereRot || { x: 0, y: 0, z: 0 };
@@ -3250,6 +3274,10 @@ videoEl.addEventListener('timeupdate', () => {
     const cY = Math.cos(ry), sY = Math.sin(ry);
     const cZ = Math.cos(rz), sZ = Math.sin(rz);
     const cx = SIZE / 2, cy = SIZE / 2;
+
+    /* Batch dots by alpha bucket (10 buckets) — cuts fillStyle assignments from 1200 → 10 */
+    const BUCKETS = 10;
+    const buckets = Array.from({ length: BUCKETS }, () => []);
 
     for (let i = 0; i < pts.length; i++) {
       const p = pts[i];
@@ -3264,19 +3292,25 @@ videoEl.addEventListener('timeupdate', () => {
       let nx3 = x * cZ - y * sZ, ny3 = x * sZ + y * cZ;
       x = nx3; y = ny3;
 
-      /* Cull back-facing dots so interior stays dark */
       const depth = (z + 1) / 2;
-
       const px = cx + x * RADIUS;
       const py = cy + y * RADIUS;
-
       const alpha = 0.35 + depth * 0.65;
       const dotSize = (0.15 + depth * 0.85) * p.j;
-      const aQ = Math.round(alpha * 10) / 10;
+      const bucket = Math.min(BUCKETS - 1, Math.floor(alpha * BUCKETS));
+      buckets[bucket].push(px, py, dotSize);
+    }
 
+    for (let b = 0; b < BUCKETS; b++) {
+      if (buckets[b].length === 0) continue;
+      const alpha = Math.round(((b + 0.5) / BUCKETS) * 10) / 10;
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
       ctx.beginPath();
-      ctx.arc(px, py, dotSize, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,255,255,${aQ})`;
+      const arr = buckets[b];
+      for (let j = 0; j < arr.length; j += 3) {
+        ctx.moveTo(arr[j] + arr[j+2], arr[j+1]);
+        ctx.arc(arr[j], arr[j+1], arr[j+2], 0, Math.PI * 2);
+      }
       ctx.fill();
     }
   }
