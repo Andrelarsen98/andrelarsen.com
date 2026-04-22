@@ -1004,8 +1004,6 @@
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 1;
-    width: 520px;
-    height: 520px;
   }
 
   /* ── VIDEO SPHERE ── */
@@ -3179,8 +3177,9 @@ videoEl.addEventListener('timeupdate', () => {
   const canvas = document.getElementById('particleGlobe');
   if (!canvas) return;
 
-  const SIZE = 520;
-  const RADIUS = 210;
+  const isMobile = window.innerWidth <= 768;
+  const SIZE = isMobile ? 340 : 480;
+  const RADIUS = isMobile ? 150 : 230;
   const NUM_DOTS = 1800;
   const DPR = Math.min(window.devicePixelRatio || 1, 2);
 
