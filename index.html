@@ -3169,7 +3169,7 @@ videoEl.addEventListener('timeupdate', () => {
   const isMobile = window.innerWidth <= 768;
   const SIZE   = isMobile ? 380 : 620;
   const RADIUS = isMobile ? 181 : 295;
-  const NUM_DOTS = 4000;
+  const NUM_DOTS = isMobile ? 1200 : 4000;
   const DPR = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
 
   canvas.width  = SIZE * DPR;
@@ -3216,8 +3216,16 @@ videoEl.addEventListener('timeupdate', () => {
 
   function toRad(d) { return d * Math.PI / 180; }
 
+  /* Pause drawing when globe is off-screen */
+  let globeVisible = false;
+  const globeObserver = new IntersectionObserver(entries => {
+    globeVisible = entries[0].isIntersecting;
+  }, { threshold: 0.1 });
+  globeObserver.observe(canvas);
+
   function draw() {
     requestAnimationFrame(draw);
+    if (!globeVisible) return;
     ctx.clearRect(0, 0, SIZE, SIZE);
 
     const rot = window._sphereRot || { x: 0, y: 0, z: 0 };
