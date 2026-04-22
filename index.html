@@ -32,7 +32,7 @@
   @media (min-width: 769px) {
     #scrollTrack {
       position: fixed;
-      right: 12px;
+      right: 3px;
       top: 0;
       width: 5px;
       height: 100vh;
@@ -899,8 +899,8 @@
     background: rgba(255,255,255,0.13);
     -webkit-font-smoothing: none;
     font-smooth: never;
-    width: 100%;
-    box-sizing: border-box;
+    width: calc(100% - 56px);
+    margin: 0 28px;
   }
   .footer-back:hover { background: #1a2fff; }
 
@@ -2210,9 +2210,15 @@ const scrollContainer = document.getElementById('scrollContainer');
     const scrollable = el.scrollHeight - el.clientHeight;
     if (scrollable <= 0) return;
 
+    /* Hide entirely on the landing section (scrollTop === 0) */
+    if (el.scrollTop === 0) {
+      track.classList.remove('active');
+      return;
+    }
+
     const ratio  = el.scrollTop / scrollable;
     const trackH = track.clientHeight;
-    const thumbH = Math.max(36, (el.clientHeight / el.scrollHeight) * trackH);
+    const thumbH = Math.min(60, Math.max(36, (el.clientHeight / el.scrollHeight) * trackH));
     const maxTop = trackH - thumbH;
 
     thumb.style.height    = thumbH + 'px';
@@ -2231,7 +2237,7 @@ const scrollContainer = document.getElementById('scrollContainer');
 
   scrollContainer.addEventListener('scroll', updateThumb, { passive: true });
   window.addEventListener('resize', updateThumb);
-  updateThumb();
+  /* Do NOT call updateThumb() on init — wait for first scroll */
 })();
 
 /* ── NAV HOVER GLITCH — per character, 3-flash burst then restore ── */
