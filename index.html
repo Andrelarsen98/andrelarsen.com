@@ -28,28 +28,75 @@
     touch-action: pan-y;
   }
 
-  /* ── CUSTOM SCROLLBAR TRACK (desktop only) ── */
+  /* ── LIQUID GLASS SCROLLBAR (desktop only) ── */
   @media (min-width: 769px) {
     #scrollTrack {
       position: fixed;
-      right: 0;
+      right: 12px;
       top: 0;
-      width: 2px;
+      width: 5px;
       height: 100vh;
-      background: rgba(255,255,255,0.08);
-      z-index: 500;
+      border-radius: 999px;
+      z-index: 9999;
       pointer-events: none;
+      background: transparent;
+      border: none;
     }
+
     #scrollThumb {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 2px;
-      background: rgba(255,255,255,0.45);
-      transition: opacity 0.3s ease;
+      left: -1.5px;
+      width: calc(100% + 3px);
+      min-height: 36px;
+      border-radius: 999px;
       pointer-events: none;
+      will-change: transform;
+
+      background: linear-gradient(
+        160deg,
+        rgba(255,255,255,0.55) 0%,
+        rgba(255,255,255,0.10) 35%,
+        rgba(255,255,255,0.03) 65%,
+        rgba(255,255,255,0.12) 100%
+      );
+
+      border: 0.5px solid rgba(255,255,255,0.18);
+      border-top-color: rgba(255,255,255,0.70);
+      border-left-color: rgba(255,255,255,0.65);
+
+      box-shadow:
+        0 4px 24px rgba(0,0,0,0.35),
+        0 1px 8px rgba(0,0,0,0.25),
+        inset 0 1px 0 rgba(255,255,255,0.75),
+        inset 0 -1px 0 rgba(255,255,255,0.08),
+        inset 1px 0 3px rgba(255,255,255,0.18);
+
+      backdrop-filter: blur(16px) saturate(1.8) brightness(1.05);
+      -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.05);
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    #scrollTrack.active #scrollThumb {
+      opacity: 1;
+      transition: opacity 0.1s ease;
+    }
+
+    /* Top specular dome */
+    #scrollThumb::before {
+      content: '';
+      position: absolute;
+      inset: 2px 2px auto 2px;
+      height: 40%;
+      border-radius: 999px 999px 40% 40% / 999px 999px 60% 60%;
+      background: linear-gradient(
+        180deg,
+        rgba(255,255,255,0.55) 0%,
+        rgba(255,255,255,0.00) 100%
+      );
     }
   }
+
   @media (max-width: 768px) {
     #scrollTrack { display: none; }
   }
@@ -1418,6 +1465,7 @@
     overflow: hidden;
     aspect-ratio: 16/9;
     z-index: 10;
+    padding: 0 32px;
   }
 
   .studio-headline {
@@ -1434,7 +1482,7 @@
   }
 
   .studio-headline {
-    padding: 28px 32px 48px;
+    padding: 28px 32px 24px;
   }
 
   .studio-headline h2 {
@@ -1695,13 +1743,13 @@ Dubai, worldwide.</div>
       <div class="studio-label-right">05 TOOLS OF TRADE</div>
     </div>
 
-    <div class="studio-photo-wrap">
-      <img src="gear_upscaled_grain_1.jpg" alt="FPV drone studio setup — André Larsen" />
-    </div>
-
     <div class="studio-headline">
       <h2>BUILT TO FLY.<br>WIRED TO SHOOT.</h2>
       <div class="studio-headline-sub">CUSTOM FPV RIG — CINEMA PAYLOAD — GOPRO CHALLENGE WINNER — DUBAI, UAE</div>
+    </div>
+
+    <div class="studio-photo-wrap">
+      <img src="gear_upscaled_grain_1.jpg" alt="FPV drone studio setup — André Larsen" />
     </div>
   </section>
 
@@ -2149,20 +2197,38 @@ const isMobile = window.innerWidth <= 768;
 
 const scrollContainer = document.getElementById('scrollContainer');
 
-/* ── CUSTOM SCROLLBAR — desktop only ── */
+/* ── LIQUID GLASS SCROLLBAR — desktop only ── */
 (function() {
+  const track = document.getElementById('scrollTrack');
   const thumb = document.getElementById('scrollThumb');
-  if (!thumb || window.innerWidth <= 768) return;
+  if (!track || !thumb || window.innerWidth <= 768) return;
+
+  let idleTimer = null;
+
   function updateThumb() {
     const el = scrollContainer;
     const scrollable = el.scrollHeight - el.clientHeight;
     if (scrollable <= 0) return;
-    const ratio     = el.scrollTop / scrollable;
-    const thumbH    = Math.max(30, (el.clientHeight / el.scrollHeight) * el.clientHeight);
-    const maxTop    = el.clientHeight - thumbH;
-    thumb.style.height = thumbH + 'px';
-    thumb.style.top    = (ratio * maxTop) + 'px';
+
+    const ratio  = el.scrollTop / scrollable;
+    const trackH = track.clientHeight;
+    const thumbH = Math.max(36, (el.clientHeight / el.scrollHeight) * trackH);
+    const maxTop = trackH - thumbH;
+
+    thumb.style.height    = thumbH + 'px';
+    thumb.style.transform = 'translateY(' + (ratio * maxTop) + 'px)';
+    thumb.style.top       = '0';
+
+    /* Show immediately on scroll */
+    track.classList.add('active');
+
+    /* Fade out 1s after scrolling stops */
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(function() {
+      track.classList.remove('active');
+    }, 1000);
   }
+
   scrollContainer.addEventListener('scroll', updateThumb, { passive: true });
   window.addEventListener('resize', updateThumb);
   updateThumb();
