@@ -996,6 +996,24 @@
     overflow: hidden;
   }
 
+  /* ── ORBIT RING ── */
+  .orbit-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 520px;
+    height: 520px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    animation: orbitSpin 32s linear infinite;
+    opacity: 0.9;
+  }
+  @keyframes orbitSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
   /* ── VIDEO SPHERE ── */
   .vs-glow {
     position: absolute;
@@ -1671,6 +1689,28 @@ Dubai, worldwide.</div>
     </div>
     <div class="cube-right" id="cubeRight">
       <div class="cube-drag-label">DRAG TO EXPLORE</div>
+
+      <!-- Orbit ring — behind sphere -->
+      <svg class="orbit-ring" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Outer ellipse (tilted orbital plane) -->
+        <ellipse cx="300" cy="300" rx="265" ry="100" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+        <!-- Inner ellipse (opposite tilt) -->
+        <ellipse cx="300" cy="300" rx="265" ry="100" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6" transform="rotate(90 300 300)"/>
+        <!-- Horizontal crosshair -->
+        <line x1="18" y1="300" x2="582" y2="300" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
+        <!-- Vertical crosshair -->
+        <line x1="300" y1="18" x2="300" y2="582" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
+        <!-- Center dot -->
+        <circle cx="300" cy="300" r="2.5" fill="rgba(255,255,255,0.25)"/>
+        <!-- Top tick -->
+        <line x1="300" y1="14" x2="300" y2="26" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+        <!-- Bottom tick -->
+        <line x1="300" y1="574" x2="300" y2="586" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+        <!-- Left tick -->
+        <line x1="14" y1="300" x2="26" y2="300" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+        <!-- Right tick -->
+        <line x1="574" y1="300" x2="586" y2="300" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+      </svg>
     </div>
     <div class="cube-headline">
       <h2 class="cube-title" id="cubeTitle">I FRAME.<br>THE WORLD<br>DELIVERS.</h2>
