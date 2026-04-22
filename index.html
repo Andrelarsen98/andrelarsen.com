@@ -1013,7 +1013,7 @@
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 40%, transparent 70%);
     pointer-events: none;
-    filter: blur(20px);
+    
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     z-index: 0;
@@ -1059,24 +1059,6 @@
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
-  }
-
-  /* Mobile only — soft blur overlay reduces perceived video quality demand */
-  @media (max-width: 768px) {
-    .vs-card::after {
-      display: block;
-      content: '';
-      position: absolute;
-      inset: 0;
-      backdrop-filter: blur(1.5px);
-      -webkit-backdrop-filter: blur(1.5px);
-      z-index: 2;
-      pointer-events: none;
-    }
-    .vs-card video {
-      /* Downscale rendering hint — browser can decode at lower res */
-      image-rendering: optimizeSpeed;
-    }
   }
 
   /* Glitch overlay — triggered by JS when videos loop */
