@@ -2381,22 +2381,36 @@ if (scrollIndicator) {
 }
 
 
+/* ── LANDING SECTION VISIBILITY — shared guard for grain, particles, flicker ── */
+let landingVisible = true; // assume visible on load
+const landingSection = document.getElementById('site');
+if (landingSection) {
+  const landingObserver = new IntersectionObserver(entries => {
+    landingVisible = entries[0].isIntersecting;
+  }, { threshold: 0.05 });
+  landingObserver.observe(landingSection);
+}
+
 const grainCanvas = document.getElementById('grainCanvas');
 const grainCtx = grainCanvas.getContext('2d');
 function resizeGrain() { grainCanvas.width = window.innerWidth; grainCanvas.height = window.innerHeight; }
 resizeGrain(); window.addEventListener('resize', resizeGrain);
+const isMobileGrain = window.innerWidth <= 768;
 function drawGrain() {
-  const w = grainCanvas.width, h = grainCanvas.height;
-  const imageData = grainCtx.createImageData(w, h);
-  const data = imageData.data;
-  for (let i = 0; i < data.length; i += 4) {
-    const v = Math.random() > 0.45 ? Math.floor(Math.random() * 120) : 0;
-    data[i] = data[i+1] = data[i+2] = v;
-    data[i+3] = v > 0 ? 85 : 0;
+  if (landingVisible) {
+    const w = grainCanvas.width, h = grainCanvas.height;
+    const imageData = grainCtx.createImageData(w, h);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const v = Math.random() > 0.45 ? Math.floor(Math.random() * 120) : 0;
+      data[i] = data[i+1] = data[i+2] = v;
+      data[i+3] = v > 0 ? 85 : 0;
+    }
+    grainCtx.putImageData(imageData, 0, 0);
   }
-  grainCtx.putImageData(imageData, 0, 0);
 }
-setInterval(drawGrain, 42);
+/* Mobile: 80ms interval (~12fps) — still looks like grain, half the CPU cost vs 42ms */
+setInterval(drawGrain, isMobileGrain ? 80 : 42);
 
 /* ── LAVA EMBER PARTICLES ── */
 const partCanvas = document.getElementById('particleCanvas');
@@ -2414,6 +2428,8 @@ function spawnEmber() {
   };
 }
 function drawParticles() {
+  requestAnimationFrame(drawParticles);
+  if (!landingVisible) return;
   partCtx.clearRect(0, 0, partCanvas.width, partCanvas.height);
   for (let e of embers) {
     e.y -= e.speedY; e.x += e.speedX; e.life += 0.0025;
@@ -2425,7 +2441,6 @@ function drawParticles() {
     partCtx.fillStyle = `hsla(${e.hue}, 100%, 58%, ${alpha * 0.7})`;
     partCtx.fill();
   }
-  requestAnimationFrame(drawParticles);
 }
 drawParticles();
 
@@ -2435,13 +2450,14 @@ const flickerRight = document.getElementById('flickerRight');
 let flickerTarget = 0.13, flickerCurrent = 0.13;
 let flickerRTarget = 0.11, flickerRCurrent = 0.11;
 function animateFlicker() {
+  requestAnimationFrame(animateFlicker);
+  if (!landingVisible) return;
   if (Math.random() < 0.04) flickerTarget  = 0.04 + Math.random() * 0.22;
   if (Math.random() < 0.03) flickerRTarget = 0.03 + Math.random() * 0.18;
   flickerCurrent  += (flickerTarget  - flickerCurrent)  * 0.06;
   flickerRCurrent += (flickerRTarget - flickerRCurrent) * 0.05;
   flicker.style.opacity      = flickerCurrent  / 0.13;
   flickerRight.style.opacity = flickerRCurrent / 0.11;
-  requestAnimationFrame(animateFlicker);
 }
 animateFlicker();
 
