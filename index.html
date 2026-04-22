@@ -1013,7 +1013,7 @@
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 40%, transparent 70%);
     pointer-events: none;
-    
+    filter: blur(20px);
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     z-index: 0;
@@ -1059,6 +1059,8 @@
     width: 100%; height: 100%;
     object-fit: cover;
     display: block;
+    position: absolute;
+    top: 0; left: 0;
   }
 
   /* Glitch overlay — triggered by JS when videos loop */
@@ -1245,7 +1247,22 @@
     .vs-sphere { width: 380px; height: 380px; }
     .vs-glow { width: 220px; height: 220px; }
     .vs-card { width: 98px; height: 55px; margin-top: -28px; margin-left: -49px; }
-    .cube-drag-label { bottom: 4px; font-size: 13px; }
+    .cube-drag-label {
+      position: relative;
+      bottom: auto;
+      left: auto;
+      transform: none;
+      text-align: center;
+      display: block;
+      width: 100%;
+      padding: 10px 0 4px;
+      font-size: 13px;
+    }
+    .cube-right {
+      flex-direction: column;
+      overflow: visible;
+    }
+    .cube-headline { padding: 20px 20px 36px; }
     .tele-location { white-space: normal; width: auto; animation: none; opacity: 0.4; }
   }
   /* ══════════════════════════════════════
@@ -2830,14 +2847,56 @@ videoEl.addEventListener('timeupdate', () => {
     const vid = document.createElement('video');
     vid.src        = `work${i + 1}.mp4`;
     vid.muted      = true;
-    vid.loop       = true;
+    vid.loop       = false;
     vid.playsInline = true;
     vid.preload    = 'none';
+    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0;';
 
+    /* Seamless crossfade loop — clone fades in over the original near the end */
+    let crossfading = false;
     vid.addEventListener('timeupdate', () => {
-      if (vid.duration && vid.currentTime > vid.duration - 0.4) {
-        triggerGlitch();
-      }
+      if (!vid.duration || crossfading) return;
+      const remaining = vid.duration - vid.currentTime;
+      if (remaining > 0.8) return;
+
+      crossfading = true;
+
+      // Clone the video, start it at 0
+      const clone = document.createElement('video');
+      clone.src = vid.src;
+      clone.muted = true;
+      clone.loop = false;
+      clone.playsInline = true;
+      clone.style.cssText = vid.style.cssText;
+      clone.style.opacity = '0';
+      clone.style.transition = 'opacity 0.8s ease';
+      card.appendChild(clone);
+
+      clone.play().catch(() => {});
+
+      // Crossfade: bring clone in, take original out
+      requestAnimationFrame(() => {
+        clone.style.opacity = '1';
+        vid.style.transition = 'opacity 0.8s ease';
+        vid.style.opacity = '0';
+      });
+
+      // Once crossfade is done, swap roles
+      setTimeout(() => {
+        vid.pause();
+        vid.currentTime = 0;
+        vid.style.transition = '';
+        vid.style.opacity = '1';
+        clone.style.transition = '';
+
+        // Hand the timeupdate listener to the clone by mirroring state
+        crossfading = false;
+
+        // Remove clone, original takes over seamlessly from clone's position
+        vid.currentTime = clone.currentTime;
+        vid.play().catch(() => {});
+        card.removeChild(clone);
+      }, 850);
     });
 
     card.appendChild(vid);
