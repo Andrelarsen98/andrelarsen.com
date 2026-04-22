@@ -1839,7 +1839,7 @@ const isMobile = window.innerWidth <= 768;
     } else {
       navEl.classList.remove('blend');
     }
-  }, { threshold: 0.02 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.02 });
   observer.observe(landing);
 })();
 
@@ -2387,7 +2387,7 @@ const landingSection = document.getElementById('site');
 if (landingSection) {
   const landingObserver = new IntersectionObserver(entries => {
     landingVisible = entries[0].isIntersecting;
-  }, { threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
   landingObserver.observe(landingSection);
 }
 
@@ -2597,7 +2597,7 @@ const videoTime    = document.getElementById('videoTime');
     } else {
       videoEl.pause();
     }
-  }, { threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
   observer.observe(section);
   // Begin preloading showreel right after page load — don't wait for scroll
   window.addEventListener('load', () => {
@@ -2750,7 +2750,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   const footerObserver = new IntersectionObserver(entries => {
     footerVisible = entries[0].isIntersecting;
-  }, { threshold: 0.1 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
   footerObserver.observe(fCanvas);
 
   buildFooterMask();
@@ -2962,7 +2962,7 @@ videoEl.addEventListener('timeupdate', () => {
     } else {
       sphere.querySelectorAll('video').forEach(v => v.pause());
     }
-  }, { threshold: 0.1 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
 
   // Pre-load cube videos as soon as section is anywhere near the viewport
   const preloadObs = new IntersectionObserver(e => {
@@ -2972,7 +2972,7 @@ videoEl.addEventListener('timeupdate', () => {
       });
       preloadObs.disconnect();
     }
-  }, { rootMargin: '100% 0px' });
+  }, { root: document.getElementById('scrollContainer'), rootMargin: '100% 0px' });
   preloadObs.observe(section);
   obs.observe(section);
 
@@ -3154,7 +3154,7 @@ videoEl.addEventListener('timeupdate', () => {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.2 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.2 });
 
   // Header observer
   const servicesSection = document.querySelector('.services-section');
@@ -3166,7 +3166,7 @@ videoEl.addEventListener('timeupdate', () => {
       if (right) setTimeout(() => revealEl(right), 150);
       headerObserver.unobserve(servicesSection);
     }
-  }, { threshold: 0.1 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
 
   blocks.forEach((b, i) => {
     b.style.transitionDelay = (i * 0.08) + 's';
@@ -3236,7 +3236,7 @@ videoEl.addEventListener('timeupdate', () => {
   let globeVisible = false;
   const globeObserver = new IntersectionObserver(entries => {
     globeVisible = entries[0].isIntersecting;
-  }, { threshold: 0.1 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
   globeObserver.observe(canvas);
 
   function draw() {
