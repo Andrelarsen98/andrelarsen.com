@@ -1039,10 +1039,18 @@
   }
   .vs-card {
     position: absolute;
-    width: 0; height: 0;
+    width: 160px; height: 90px;
     top: 50%; left: 50%;
+    margin-top: -45px; margin-left: -80px;
     transform-style: preserve-3d;
     will-change: transform;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0a0a0a;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.07),
+      0 2px 8px rgba(0,0,0,0.6),
+      0 8px 32px rgba(0,0,0,0.8);
   }
   .vs-card::after { display: none; }
   .vs-card video {
@@ -2774,11 +2782,7 @@ videoEl.addEventListener('timeupdate', () => {
   cubeRight.appendChild(glow);
   cubeRight.appendChild(scene);
 
-  /* ── Cards — Fibonacci sphere distribution, bent to sphere curvature ── */
-  const NUM_STRIPS = 4;
-  const CARD_W = 160, CARD_H = 90;
-  const STRIP_H = CARD_H / NUM_STRIPS; // 22.5px per strip
-
+  /* ── Cards — Fibonacci sphere distribution ── */
   for (let i = 0; i < NUM_VIDEOS; i++) {
     const t      = i / (NUM_VIDEOS - 1);
     const y      = 1 - t * 2;
@@ -2791,7 +2795,6 @@ videoEl.addEventListener('timeupdate', () => {
     const azimuth   =  Math.atan2(nx, nz) * (180 / Math.PI);
     const elevation = -Math.atan2(ny, Math.sqrt(nx*nx + nz*nz)) * (180 / Math.PI);
 
-    /* Card is a 0-size anchor point — all visuals live in strips */
     const card = document.createElement('div');
     card.className = 'vs-card';
     card.style.transform = [
@@ -2800,56 +2803,20 @@ videoEl.addEventListener('timeupdate', () => {
       `translateZ(${RADIUS}px)`
     ].join(' ');
 
-    for (let s = 0; s < NUM_STRIPS; s++) {
-      /* Y offset of this strip's center from card center */
-      const stripCenterY = (s + 0.5 - NUM_STRIPS / 2) * STRIP_H;
-      /* Angle to rotate strip so it lies on sphere surface */
-      const bendAngle    = Math.atan2(stripCenterY, RADIUS) * (180 / Math.PI);
-      /* Z pop so strip sits on sphere surface */
-      const zPop         = RADIUS - Math.sqrt(Math.max(0, RADIUS * RADIUS - stripCenterY * stripCenterY));
-      /* Transform-origin Y: rotate around card center line, not strip center */
-      const originY      = (CARD_H / 2 - s * STRIP_H) - STRIP_H / 2;
+    const vid = document.createElement('video');
+    vid.src        = `work${i + 1}.mp4`;
+    vid.muted      = true;
+    vid.loop       = true;
+    vid.playsInline = true;
+    vid.preload    = 'none';
 
-      const strip = document.createElement('div');
-      strip.style.position   = 'absolute';
-      strip.style.left       = `${-CARD_W / 2}px`;
-      strip.style.top        = `${s * STRIP_H - CARD_H / 2}px`;
-      strip.style.width      = `${CARD_W}px`;
-      strip.style.height     = `${STRIP_H + 0.6}px`;
-      strip.style.overflow   = 'hidden';
-      strip.style.transformOrigin = `center ${originY.toFixed(2)}px`;
-      strip.style.transform  = `rotateX(${(-bendAngle).toFixed(3)}deg) translateZ(${zPop.toFixed(2)}px)`;
-      strip.style.borderRadius = s === 0 ? '6px 6px 0 0' : s === NUM_STRIPS - 1 ? '0 0 6px 6px' : '0';
-      strip.style.background = '#0a0a0a';
-
-      const vid = document.createElement('video');
-      vid.src         = `work${i + 1}.mp4`;
-      vid.muted       = true;
-      vid.loop        = true;
-      vid.playsInline = true;
-      vid.preload     = 'none';
-      vid.style.position   = 'absolute';
-      vid.style.top        = `${-(s * STRIP_H)}px`;
-      vid.style.left       = '0';
-      vid.style.width      = `${CARD_W}px`;
-      vid.style.height     = `${CARD_H}px`;
-      vid.style.objectFit  = 'cover';
-      vid.style.display    = 'block';
-      vid.style.pointerEvents = 'none';
-
-      /* Glitch trigger on first strip only */
-      if (s === 0) {
-        vid.addEventListener('timeupdate', () => {
-          if (vid.duration && vid.currentTime > vid.duration - 0.4) {
-            triggerGlitch();
-          }
-        });
+    vid.addEventListener('timeupdate', () => {
+      if (vid.duration && vid.currentTime > vid.duration - 0.4) {
+        triggerGlitch();
       }
+    });
 
-      strip.appendChild(vid);
-      card.appendChild(strip);
-    }
-
+    card.appendChild(vid);
     sphere.appendChild(card);
   }
 
