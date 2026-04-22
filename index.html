@@ -996,22 +996,16 @@
     overflow: hidden;
   }
 
-  /* ── ORBIT RING ── */
-  .orbit-ring {
+  /* ── PARTICLE GLOBE ── */
+  #particleGlobe {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 520px;
-    height: 520px;
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 1;
-    animation: orbitSpin 32s linear infinite;
-    opacity: 0.9;
-  }
-  @keyframes orbitSpin {
-    from { transform: translate(-50%, -50%) rotate(0deg); }
-    to   { transform: translate(-50%, -50%) rotate(360deg); }
+    width: 520px;
+    height: 520px;
   }
 
   /* ── VIDEO SPHERE ── */
@@ -1688,29 +1682,9 @@ Dubai, worldwide.</div>
       </div>
     </div>
     <div class="cube-right" id="cubeRight">
+      <canvas id="particleGlobe"></canvas>
       <div class="cube-drag-label">DRAG TO EXPLORE</div>
 
-      <!-- Orbit ring — behind sphere -->
-      <svg class="orbit-ring" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <!-- Outer ellipse (tilted orbital plane) -->
-        <ellipse cx="300" cy="300" rx="265" ry="100" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
-        <!-- Inner ellipse (opposite tilt) -->
-        <ellipse cx="300" cy="300" rx="265" ry="100" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.6" transform="rotate(90 300 300)"/>
-        <!-- Horizontal crosshair -->
-        <line x1="18" y1="300" x2="582" y2="300" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
-        <!-- Vertical crosshair -->
-        <line x1="300" y1="18" x2="300" y2="582" stroke="rgba(255,255,255,0.12)" stroke-width="0.6"/>
-        <!-- Center dot -->
-        <circle cx="300" cy="300" r="2.5" fill="rgba(255,255,255,0.25)"/>
-        <!-- Top tick -->
-        <line x1="300" y1="14" x2="300" y2="26" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-        <!-- Bottom tick -->
-        <line x1="300" y1="574" x2="300" y2="586" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-        <!-- Left tick -->
-        <line x1="14" y1="300" x2="26" y2="300" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-        <!-- Right tick -->
-        <line x1="574" y1="300" x2="586" y2="300" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-      </svg>
     </div>
     <div class="cube-headline">
       <h2 class="cube-title" id="cubeTitle">I FRAME.<br>THE WORLD<br>DELIVERS.</h2>
@@ -2956,6 +2930,9 @@ videoEl.addEventListener('timeupdate', () => {
     sphere.style.transform =
       `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
 
+    /* Expose rotation for particle globe sync */
+    window._sphereRot = { x: rotX, y: rotY, z: rotZ };
+
     /* Expose velocity for telemetry */
     if (dragging) {
       window._sphereVel = Math.sqrt(lastDX * lastDX + lastDY * lastDY) * 0.38;
@@ -3195,4 +3172,100 @@ videoEl.addEventListener('timeupdate', () => {
   if (servicesSection) headerObserver.observe(servicesSection);
 })();
 
+</script>
+<script>
+/* ── PARTICLE GLOBE — synced to video sphere rotation ── */
+(function () {
+  const canvas = document.getElementById('particleGlobe');
+  if (!canvas) return;
+
+  const SIZE = 520;
+  const RADIUS = 210;
+  const NUM_DOTS = 1800;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  canvas.width  = SIZE * DPR;
+  canvas.height = SIZE * DPR;
+  canvas.style.width  = SIZE + 'px';
+  canvas.style.height = SIZE + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  /* Generate evenly distributed points on sphere using Fibonacci lattice */
+  const pts = [];
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < NUM_DOTS; i++) {
+    const y = 1 - (i / (NUM_DOTS - 1)) * 2;
+    const r = Math.sqrt(1 - y * y);
+    const theta = golden * i;
+    pts.push({
+      x: Math.cos(theta) * r,
+      y: y,
+      z: Math.sin(theta) * r,
+    });
+  }
+
+  function toRad(deg) { return deg * Math.PI / 180; }
+
+  function rotatePoint(p, rx, ry, rz) {
+    let { x, y, z } = p;
+
+    /* Rotate X */
+    let cos = Math.cos(rx), sin = Math.sin(rx);
+    let ny = y * cos - z * sin, nz = y * sin + z * cos;
+    y = ny; z = nz;
+
+    /* Rotate Y */
+    cos = Math.cos(ry); sin = Math.sin(ry);
+    let nx = x * cos + z * sin; nz = -x * sin + z * cos;
+    x = nx; z = nz;
+
+    /* Rotate Z */
+    cos = Math.cos(rz); sin = Math.sin(rz);
+    nx = x * cos - y * sin; ny = x * sin + y * cos;
+    x = nx; y = ny;
+
+    return { x, y, z };
+  }
+
+  function draw() {
+    requestAnimationFrame(draw);
+
+    ctx.clearRect(0, 0, SIZE, SIZE);
+
+    const rot = window._sphereRot || { x: 0, y: 0, z: 0 };
+    const rx = toRad(rot.x);
+    const ry = toRad(rot.y);
+    const rz = toRad(rot.z);
+
+    const cx = SIZE / 2;
+    const cy = SIZE / 2;
+
+    for (let i = 0; i < pts.length; i++) {
+      const r = rotatePoint(pts[i], rx, ry, rz);
+
+      /* Project to 2D */
+      const px = cx + r.x * RADIUS;
+      const py = cy + r.y * RADIUS;
+
+      /* Depth: z goes from -1 (back) to +1 (front) */
+      /* Dots at edges are more numerous visually — depth makes back dots dimmer */
+      const depth = (r.z + 1) / 2; // 0 = back, 1 = front
+
+      /* Opacity: bright white, back dots slightly dimmer */
+      const alpha = 0.25 + depth * 0.75;
+
+      /* Size: front dots tiny bit larger */
+      const dotSize = 0.8 + depth * 0.7;
+
+      ctx.beginPath();
+      ctx.arc(px, py, dotSize, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha.toFixed(2)})`;
+      ctx.fill();
+    }
+  }
+
+  draw();
+})();
 </script>
