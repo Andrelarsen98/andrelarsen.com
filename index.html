@@ -1303,18 +1303,23 @@
   }
 
   .service-block {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     padding: 28px 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    gap: 40px;
     opacity: 0;
     transition: opacity 0.4s ease;
   }
 
   .service-block.visible {
     opacity: 1;
+  }
+
+  .service-top-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
   }
 
   .service-left {
@@ -1343,7 +1348,7 @@
     font-family: 'VT323', monospace;
     font-size: 16px;
     letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.65);
     -webkit-font-smoothing: none;
   }
 
@@ -1364,9 +1369,11 @@
     letter-spacing: 0.06em;
     color: rgba(255,255,255,0.75);
     text-transform: uppercase;
-    line-height: 1.3;
+    line-height: 1.4;
     -webkit-font-smoothing: none;
     opacity: 1;
+    max-width: 60%;
+    margin: 0;
   }
 
   .service-num-right {
@@ -1396,11 +1403,11 @@
   @media (max-width: 768px) {
     .services-section { padding: 0 20px 40px; }
     .service-block {
-      grid-template-columns: 1fr;
       gap: 8px;
       padding: 20px 0;
     }
-    .service-right { max-width: 100%; }
+    .service-title { font-size: 20px; }
+    .service-desc { font-size: 14px; max-width: 85%; }
     .service-title { font-size: 20px; }
     .service-desc { font-size: 14px; }
   }
@@ -1722,43 +1729,35 @@ Dubai, worldwide.</div>
     </div>
 
     <div class="service-block">
-      <div class="service-left">
+      <div class="service-top-row">
         <h3 class="service-title">FLY</h3>
         <span class="service-num-right">(01)</span>
       </div>
-      <div class="service-right">
-        <p class="service-desc">I operate in the spaces most cameras can't reach. Tight corridors, open desert, urban canyons, coastal lines — if there's a shot there, I'll find it from the air. Every flight is planned, every angle is intentional.</p>
-      </div>
+      <p class="service-desc">I operate in the spaces most cameras can't reach. Tight corridors, open desert, urban canyons, coastal lines — if there's a shot there, I'll find it from the air. Every flight is planned, every angle is intentional.</p>
     </div>
 
     <div class="service-block">
-      <div class="service-left">
+      <div class="service-top-row">
         <h3 class="service-title">EXECUTE</h3>
         <span class="service-num-right">(02)</span>
       </div>
-      <div class="service-right">
-        <p class="service-desc">Location scouted. Lines mapped. I fly with intention, not improvisation. One operator, one point of contact, no moving parts.</p>
-      </div>
+      <p class="service-desc">Location scouted. Lines mapped. I fly with intention, not improvisation. One operator, one point of contact, no moving parts.</p>
     </div>
 
     <div class="service-block">
-      <div class="service-left">
+      <div class="service-top-row">
         <h3 class="service-title">DELIVER</h3>
         <span class="service-num-right">(03)</span>
       </div>
-      <div class="service-right">
-        <p class="service-desc">Clear brief in. Clean files out. No chasing, no surprises. Selects, grades or a finished cut — your call.</p>
-      </div>
+      <p class="service-desc">Clear brief in. Clean files out. No chasing, no surprises. Selects, grades or a finished cut — your call.</p>
     </div>
 
     <div class="service-block">
-      <div class="service-left">
+      <div class="service-top-row">
         <h3 class="service-title">IMPACT</h3>
         <span class="service-num-right">(04)</span>
       </div>
-      <div class="service-right">
-        <p class="service-desc">Tens of millions of views across platforms. The numbers don't lie — people watch, share, and come back for more.</p>
-      </div>
+      <p class="service-desc">Tens of millions of views across platforms. The numbers don't lie — people watch, share, and come back for more.</p>
     </div>
 
   </section>
