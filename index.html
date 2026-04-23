@@ -3125,10 +3125,10 @@ videoEl.addEventListener('timeupdate', () => {
 ══════════════════════════════════════ */
 (function() {
   const SHUFFLE_CHARS = ['!', '@', '#', '$', '%', '&', '*', 'F', 'K', 'T', '_'];
-  const REPEAT        = 6;
-  const FRAME_MS      = 27;   // 2x speed
-  const REPEAT_DELAY  = 20;
-  const CHAR_STAGGER  = 40;   // ms between each char starting
+  const REPEAT        = 4;
+  const FRAME_MS      = 20;
+  const REPEAT_DELAY  = 15;
+  const CHAR_STAGGER  = 18;   // faster for longer sentences
 
   function revealEl(el, onDone) {
     const text = el.dataset.originalText;
@@ -3196,7 +3196,7 @@ videoEl.addEventListener('timeupdate', () => {
     }, totalDuration + 200);
   }
 
-  // Store original text
+  // Store original text — use textContent not innerText (innerText returns '' when parent opacity:0)
   const targets = document.querySelectorAll(
     '.service-title, .services-header-left, .services-header-right, .service-num-right'
   );
@@ -3204,9 +3204,9 @@ videoEl.addEventListener('timeupdate', () => {
     el.dataset.originalText = el.textContent.trim();
   });
 
-  // Store desc text (flatten <br> to space)
+  // Store desc text
   document.querySelectorAll('.service-desc').forEach(el => {
-    el.dataset.originalText = el.innerText.trim().replace(/\n+/g, ' ');
+    el.dataset.originalText = el.textContent.trim().replace(/\s+/g, ' ');
   });
 
   // Observe service blocks
