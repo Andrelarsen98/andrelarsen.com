@@ -2401,7 +2401,7 @@ if (scrollIndicator) {
 
 
 /* ── LANDING SECTION VISIBILITY — shared guard for grain, particles, flicker ── */
-let landingVisible = true; // assume visible on load
+let landingVisible = true; // start visible, observer turns off when scrolled away
 const landingSection = document.getElementById('site');
 if (landingSection) {
   const landingObserver = new IntersectionObserver(entries => {
@@ -2915,7 +2915,7 @@ videoEl.addEventListener('timeupdate', () => {
   let lastDX = 0, lastDY = 0;
   let touchStartX = 0, touchStartY = 0;
   let elapsed = 0, lastTime = performance.now();
-  let visible = false;
+  let visible = true;
 
   /* ── Drag ── */
   function dragStart(x, y) {
@@ -3301,8 +3301,8 @@ videoEl.addEventListener('timeupdate', () => {
 
   function toRad(d) { return d * Math.PI / 180; }
 
-  /* Pause drawing when globe is off-screen */
-  let globeVisible = false;
+  /* Pause drawing when globe is off-screen — start visible, observer turns it off */
+  let globeVisible = true;
   const globeObserver = new IntersectionObserver(entries => {
     globeVisible = entries[0].isIntersecting;
   }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
