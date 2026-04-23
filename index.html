@@ -2962,10 +2962,9 @@ videoEl.addEventListener('timeupdate', () => {
 
   const isMobileSphere = window.innerWidth <= 768;
 
-  /* ── Animation loop ── */
+  /* ── Animation loop — always running from page load ── */
   function animate(now) {
     requestAnimationFrame(animate);
-    if (!visible) return;
 
     const dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
@@ -3021,13 +3020,11 @@ videoEl.addEventListener('timeupdate', () => {
     }
   }
 
+  // Observer only controls video play/pause — animation runs independently
   const obs = new IntersectionObserver(e => {
-    visible = e[0].isIntersecting;
-    if (visible) {
+    if (e[0].isIntersecting) {
       lastTime = performance.now();
-      sphere.querySelectorAll('video').forEach(v => {
-        v.play().catch(() => {});
-      });
+      sphere.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
     } else {
       sphere.querySelectorAll('video').forEach(v => v.pause());
     }
