@@ -944,16 +944,6 @@
   /* ══════════════════════════════════════
      ── CUBE SECTION ──
   ══════════════════════════════════════ */
-  .cube-section {
-    width: 100%;
-    min-height: 100vh;
-    height: 100vh;
-    position: relative;
-    background: #000;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    overflow: hidden;
-  }
 
   .cube-section {
     width: 100%;
@@ -965,6 +955,9 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr auto;
     overflow: hidden;
+    /* Force GPU compositing layer — prevents repaint on scroll-in */
+    will-change: transform;
+    transform: translateZ(0);
   }
 
   /* Left column — counter + telemetry */
@@ -1414,6 +1407,8 @@
     height: 100%;
     width: 100%;
     position: absolute;
+    will-change: transform;
+    transform: translateZ(0);
   }
   .scanline:after {
     top: 0;
@@ -3251,8 +3246,8 @@ videoEl.addEventListener('timeupdate', () => {
   const isMobile = window.innerWidth <= 768;
   const SIZE   = isMobile ? 380 : 620;
   const RADIUS = isMobile ? 181 : 295;
-  const NUM_DOTS = 1200;
-  const DPR = 1;
+  const NUM_DOTS = isMobile ? 1200 : 4000;
+  const DPR = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
 
   canvas.width  = SIZE * DPR;
   canvas.height = SIZE * DPR;
