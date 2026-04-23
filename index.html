@@ -605,6 +605,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 100vh;
   }
 
   /* The actual video */
@@ -955,9 +957,10 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr auto;
     overflow: hidden;
-    /* Force GPU compositing layer — prevents repaint on scroll-in */
     will-change: transform;
     transform: translateZ(0);
+    content-visibility: auto;
+    contain-intrinsic-size: 0 100vh;
   }
 
   /* Left column — counter + telemetry */
@@ -1266,6 +1269,8 @@
     background: #000;
     padding: 0 32px 48px;
     position: relative;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 600px;
   }
 
   .services-header {
@@ -1443,6 +1448,8 @@
     width: 100%;
     background: #000;
     position: relative;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 800px;
   }
 
   .studio-label-row {
