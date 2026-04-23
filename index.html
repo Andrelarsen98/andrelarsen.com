@@ -3251,8 +3251,8 @@ videoEl.addEventListener('timeupdate', () => {
   const isMobile = window.innerWidth <= 768;
   const SIZE   = isMobile ? 380 : 620;
   const RADIUS = isMobile ? 181 : 295;
-  const NUM_DOTS = isMobile ? 1200 : 4000;
-  const DPR = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  const NUM_DOTS = 1200;
+  const DPR = 1;
 
   canvas.width  = SIZE * DPR;
   canvas.height = SIZE * DPR;
