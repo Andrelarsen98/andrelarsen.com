@@ -2635,13 +2635,6 @@ const videoTime    = document.getElementById('videoTime');
   };
   document.addEventListener('touchstart', unlock, { once: true });
   document.addEventListener('click', unlock, { once: true });
-
-  // Cascade: start cube videos after showreel starts loading
-  setTimeout(() => {
-    document.querySelectorAll('.vs-sphere video').forEach(v => {
-      if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
-    });
-  }, 1500);
 })();
 
 function formatTime(s) {
@@ -3033,7 +3026,6 @@ videoEl.addEventListener('timeupdate', () => {
     if (visible) {
       lastTime = performance.now();
       sphere.querySelectorAll('video').forEach(v => {
-        if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
         v.play().catch(() => {});
       });
     } else {
@@ -3041,18 +3033,14 @@ videoEl.addEventListener('timeupdate', () => {
     }
   }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
 
-  // Pre-load cube videos as soon as section is anywhere near the viewport
-  const preloadObs = new IntersectionObserver(e => {
-    if (e[0].isIntersecting) {
-      sphere.querySelectorAll('video').forEach(v => {
-        if (v.preload === 'none') { v.preload = 'auto'; v.load(); }
-      });
-      preloadObs.disconnect();
-    }
-  }, { root: document.getElementById('scrollContainer'), rootMargin: '100% 0px' });
-  preloadObs.observe(section);
-  obs.observe(section);
+  // Videos are small (300-800KB) — preload all immediately, no observer needed
+  // This ensures sphere is fully loaded before user ever scrolls to it
+  sphere.querySelectorAll('video').forEach(v => {
+    v.preload = 'auto';
+    v.load();
+  });
 
+  obs.observe(section);
   requestAnimationFrame(animate);
 })();
 
