@@ -1304,11 +1304,11 @@
 
   .service-block {
     display: grid;
-    grid-template-columns: 200px 1fr 60px;
-    align-items: baseline;
-    padding: 18px 0;
+    grid-template-columns: 260px 1fr;
+    align-items: start;
+    padding: 28px 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    gap: 20px;
+    gap: 40px;
     opacity: 0;
     transition: opacity 0.4s ease;
   }
@@ -1319,9 +1319,8 @@
 
   .service-left {
     display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 0;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .service-number {
@@ -1340,9 +1339,18 @@
     -webkit-font-smoothing: none;
   }
 
+  .service-num-right {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.25);
+    -webkit-font-smoothing: none;
+  }
+
   .service-right {
     display: flex;
-    align-items: baseline;
+    align-items: flex-start;
+    max-width: 560px;
   }
 
   @keyframes cursorBlink {
@@ -1354,7 +1362,7 @@
     font-family: 'VT323', monospace;
     font-size: 16px;
     letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.75);
     text-transform: uppercase;
     line-height: 1.3;
     -webkit-font-smoothing: none;
@@ -1388,10 +1396,11 @@
   @media (max-width: 768px) {
     .services-section { padding: 0 20px 40px; }
     .service-block {
-      grid-template-columns: 140px 1fr 40px;
-      gap: 12px;
-      padding: 16px 0;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 20px 0;
     }
+    .service-right { max-width: 100%; }
     .service-title { font-size: 20px; }
     .service-desc { font-size: 14px; }
   }
@@ -1715,41 +1724,41 @@ Dubai, worldwide.</div>
     <div class="service-block">
       <div class="service-left">
         <h3 class="service-title">FLY</h3>
+        <span class="service-num-right">(01)</span>
       </div>
       <div class="service-right">
-        <p class="service-desc">Where cameras don't go. I do.<br>If it can be flown, I'll find the line.</p>
+        <p class="service-desc">I operate in the spaces most cameras can't reach. Tight corridors, open desert, urban canyons, coastal lines — if there's a shot there, I'll find it from the air. Every flight is planned, every angle is intentional.</p>
       </div>
-      <div class="service-num-right">(01)</div>
     </div>
 
     <div class="service-block">
       <div class="service-left">
         <h3 class="service-title">EXECUTE</h3>
+        <span class="service-num-right">(02)</span>
       </div>
       <div class="service-right">
-        <p class="service-desc">No second takes.<br>We either get it — or we don't.</p>
+        <p class="service-desc">Location scouted. Lines mapped. I fly with intention, not improvisation. One operator, one point of contact, no moving parts.</p>
       </div>
-      <div class="service-num-right">(02)</div>
     </div>
 
     <div class="service-block">
       <div class="service-left">
         <h3 class="service-title">DELIVER</h3>
+        <span class="service-num-right">(03)</span>
       </div>
       <div class="service-right">
-        <p class="service-desc">What you saw is what you get.<br>Clean. Fast. Done.</p>
+        <p class="service-desc">Clear brief in. Clean files out. No chasing, no surprises. Selects, grades or a finished cut — your call.</p>
       </div>
-      <div class="service-num-right">(03)</div>
     </div>
 
     <div class="service-block">
       <div class="service-left">
         <h3 class="service-title">IMPACT</h3>
+        <span class="service-num-right">(04)</span>
       </div>
       <div class="service-right">
-        <p class="service-desc">FPV CONTENT THAT INCREASES ENGAGEMENT AND WATCH TIME.</p>
+        <p class="service-desc">Tens of millions of views across platforms. The numbers don't lie — people watch, share, and come back for more.</p>
       </div>
-      <div class="service-num-right">(04)</div>
     </div>
 
   </section>
