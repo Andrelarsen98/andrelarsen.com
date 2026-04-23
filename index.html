@@ -2980,18 +2980,25 @@ videoEl.addEventListener('timeupdate', () => {
     const t = elapsed;
 
     if (!dragging) {
-      /* Y — base spin: slower on mobile to reduce JS work per frame */
-      const baseSpeed = isMobileSphere ? 18 : 32;
-      const ySpeed = baseSpeed + Math.sin(t * 0.17) * 4;
+      /* Y — matched speed on both, organic pulse like a planet with wind drag */
+      const baseSpeed = 18;
+      const ySpeed = baseSpeed
+        + Math.sin(t * 0.17) * 5    // slow 37s cycle — main pulse
+        + Math.sin(t * 0.41) * 2.5  // faster 15s ripple
+        + Math.sin(t * 0.07) * 3;   // very slow 90s drift — feels weighted
       rotY += ySpeed * dt;
 
-      /* X — gentle drift */
-      const xTarget = Math.sin(t * 0.13) * 14 + Math.sin(t * 0.07) * 5;
-      rotX += (xTarget - rotX) * 0.8 * dt;
+      /* X — axial tilt drift, like Earth's obliquity slowly rocking */
+      const xTarget = Math.sin(t * 0.11) * 18   // primary tilt ~57s
+                    + Math.sin(t * 0.23) * 8     // secondary nod ~27s
+                    + Math.sin(t * 0.047) * 5;   // ultra-slow 133s sway
+      rotX += (xTarget - rotX) * 0.6 * dt;
 
-      /* Z — skip on mobile (saves trig calls, barely visible on small screen) */
+      /* Z — precession wobble on desktop, very subtle off-axis roll */
       if (!isMobileSphere) {
-        rotZ = Math.sin(t * 0.11) * 9 + Math.sin(t * 0.29) * 4;
+        rotZ = Math.sin(t * 0.09) * 7    // slow 70s roll
+             + Math.sin(t * 0.19) * 3.5  // 33s counter-roll
+             + Math.sin(t * 0.31) * 1.5; // faster shimmer
       }
 
       /* Inertia decay from drag */
