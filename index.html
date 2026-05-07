@@ -1295,87 +1295,55 @@
     -webkit-font-smoothing: none;
   }
 
-  .clients-marquee-outer {
-    width: 100%;
-    overflow: hidden;
-    position: relative;
-    z-index: 8;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
-  }
-
-  .clients-marquee-track {
-    display: flex;
-    align-items: center;
-    width: max-content;
-    will-change: transform;
-    animation: marqueeScroll 60s linear infinite;
-  }
-  .clients-marquee-track.row-mid  { animation: marqueeScroll 75s linear infinite reverse; }
-  .clients-marquee-track.row-slow { animation: marqueeScroll 90s linear infinite; }
-
-  @keyframes marqueeScroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .clients-marquee-track,
-    .clients-marquee-track.row-mid,
-    .clients-marquee-track.row-slow { animation: none; }
-  }
-
-  /* no pause on hover — logos scroll always */
-
-  .clients-row-divider {
-    width: 100%;
-    height: 1px;
-    background: rgba(255,255,255,0.07);
+  /* ── CLIENTS GRID ── */
+  .clients-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     position: relative;
     z-index: 8;
   }
 
-  /* ── LOGO ITEMS ── */
   .client-logo-item {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 36px 100px;
-    flex-shrink: 0;
+    padding: 40px 32px;
     border-right: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .client-logo-item:nth-child(6n) {
+    border-right: none;
   }
 
   .client-logo-item img {
     display: block;
-    height: 36px;
+    height: 32px;
     width: auto;
-    max-width: 150px;
+    max-width: 130px;
     object-fit: contain;
     filter: brightness(0) invert(1);
-    opacity: 1;
-    transition: filter 0.3s ease;
+    opacity: 0.75;
+    transition: opacity 0.3s ease, filter 0.3s ease;
   }
 
-  /* tall/portrait logos */
   .client-logo-item.tall img {
-    height: 52px;
-    max-width: 46px;
+    height: 48px;
+    max-width: 42px;
   }
 
-  /* very wide flat logos */
   .client-logo-item.wide img {
-    height: 20px;
-    max-width: 190px;
+    height: 18px;
+    max-width: 170px;
   }
 
-  /* PNGs — force white too */
   .client-logo-item.png-white img {
     filter: brightness(0) invert(1);
-    opacity: 1;
   }
 
   .client-logo-item:hover img {
-    filter: brightness(0) invert(1) drop-shadow(0 0 12px rgba(255,255,255,0.8));
+    opacity: 1;
+    filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.6));
   }
 
   /* Bottom tagline */
@@ -1413,13 +1381,15 @@
   @media (max-width: 768px) {
     .clients-section { background-size: 3px 3px; }
     .clients-header { padding: 20px 20px 16px; }
-    .client-logo-item { padding: 22px 32px; }
-    .client-logo-item img { height: 24px; max-width: 100px; }
-    .client-logo-item.tall img { height: 36px; max-width: 32px; }
-    .client-logo-item.wide img { height: 14px; max-width: 130px; }
+    .clients-grid { grid-template-columns: repeat(3, 1fr); }
+    .client-logo-item { padding: 28px 16px; }
+    .client-logo-item:nth-child(6n) { border-right: 1px solid rgba(255,255,255,0.07); }
+    .client-logo-item:nth-child(3n) { border-right: none; }
+    .client-logo-item img { height: 22px; max-width: 90px; }
+    .client-logo-item.tall img { height: 34px; max-width: 30px; }
+    .client-logo-item.wide img { height: 13px; max-width: 110px; }
     .clients-footer-row { padding: 18px 20px 28px; flex-direction: column; align-items: flex-start; gap: 8px; }
     .clients-footer-right { text-align: left; }
-    .clients-row-3 { display: none; }
   }
 
 
@@ -1732,129 +1702,32 @@ Dubai, worldwide.</div>
       <div class="clients-header-right">24 CLIENTS</div>
     </div>
 
-    <!-- ROW 1 — forward, 60s -->
-    <div class="clients-marquee-outer">
-      <div class="clients-marquee-track">
-        <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="PlayStation"></div>
-        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 04.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 05.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 07.png" alt="Emirates"></div>
-        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 10.png" alt="Netflix"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 11.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 13.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 14.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 15.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 16.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 17.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 18.svg" alt="Client"></div>
-        <!-- duplicate A -->
-        <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="PlayStation"></div>
-        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 04.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 05.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 07.png" alt="Emirates"></div>
-        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 10.png" alt="Netflix"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 11.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 13.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 14.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 15.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 16.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 17.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 18.svg" alt="Client"></div>
-      </div>
-    </div>
-
-    <div class="clients-row-divider"></div>
-
-    <!-- ROW 2 — reverse, 75s -->
-    <div class="clients-marquee-outer">
-      <div class="clients-marquee-track row-mid">
-        <div class="client-logo-item png-white"><img src="CLIENT 10.png" alt="Netflix"></div>
-        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 07.png" alt="Emirates"></div>
-        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 05.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 04.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="PlayStation"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 11.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 13.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 19.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 20.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 21.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 22.svg" alt="Client"></div>
-        <!-- duplicate -->
-        <div class="client-logo-item png-white"><img src="CLIENT 10.png" alt="Netflix"></div>
-        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 07.png" alt="Emirates"></div>
-        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 05.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 04.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="PlayStation"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 11.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 13.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 19.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 20.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 21.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 22.svg" alt="Client"></div>
-      </div>
-    </div>
-
-    <div class="clients-row-divider"></div>
-
-    <!-- ROW 3 — forward slow, 90s (hidden on mobile) -->
-    <div class="clients-marquee-outer clients-row-3">
-      <div class="clients-marquee-track row-slow">
-        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 13.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 11.svg" alt="Client"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 10.png" alt="Netflix"></div>
-        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 07.png" alt="Emirates"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 05.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 04.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="PlayStation"></div>
-        <div class="client-logo-item"><img src="CLIENT 23.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 24.svg" alt="Client"></div>
-        <!-- duplicate -->
-        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 13.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 11.svg" alt="Client"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 10.png" alt="Netflix"></div>
-        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
-        <div class="client-logo-item png-white"><img src="CLIENT 07.png" alt="Emirates"></div>
-        <div class="client-logo-item wide"><img src="CLIENT 05.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 04.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
-        <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="PlayStation"></div>
-        <div class="client-logo-item"><img src="CLIENT 23.svg" alt="Client"></div>
-        <div class="client-logo-item"><img src="CLIENT 24.svg" alt="Client"></div>
-      </div>
+    <!-- GRID -->
+    <div class="clients-grid">
+      <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="PlayStation"></div>
+      <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
+      <div class="client-logo-item tall"><img src="CLIENT 04.svg" alt="Client"></div>
+      <div class="client-logo-item wide"><img src="CLIENT 05.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
+      <div class="client-logo-item png-white"><img src="CLIENT 07.png" alt="Emirates"></div>
+      <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
+      <div class="client-logo-item png-white"><img src="CLIENT 10.png" alt="Netflix"></div>
+      <div class="client-logo-item wide"><img src="CLIENT 11.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
+      <div class="client-logo-item tall"><img src="CLIENT 13.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 14.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 15.svg" alt="Client"></div>
+      <div class="client-logo-item wide"><img src="CLIENT 16.svg" alt="Client"></div>
+      <div class="client-logo-item tall"><img src="CLIENT 17.png" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 18.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 19.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 20.svg" alt="Client"></div>
+      <div class="client-logo-item wide"><img src="CLIENT 21.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 22.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 23.svg" alt="Client"></div>
+      <div class="client-logo-item"><img src="CLIENT 24.svg" alt="Client"></div>
     </div>
 
     <div class="clients-footer-row">
