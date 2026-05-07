@@ -117,18 +117,18 @@
   }
   .site.visible { opacity: 1; }
 
+  /* ── HERO PARALLAX ── */
   .bg-img {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
+    top: -4%; left: -2%;
+    right: -2%; bottom: -4%;
+    width: 104%; height: 108%;
     object-fit: cover;
     object-position: center 30%;
     z-index: 0;
     display: block;
+    will-change: transform;
+    transition: transform 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
   .overlay {
     position: absolute;
@@ -790,21 +790,202 @@
     .bg-img {
       display: block;
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
+      top: -4%; left: -4%;
+      right: -4%; bottom: -4%;
+      width: 108%; height: 108%;
       object-fit: cover;
       object-position: center 20%;
       z-index: 0;
+      will-change: transform;
     }
   }
 
   /* ══════════════════════════════════════
-     ── FOOTER ──
+     ── STATEMENT SECTION ──
   ══════════════════════════════════════ */
+  .statement-section {
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .statement-section .scanline { z-index: 1; }
+
+  .statement-inner {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 0 32px;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1);
+  }
+  .statement-inner.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .statement-eyebrow {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 28px;
+    -webkit-font-smoothing: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .statement-eyebrow::before,
+  .statement-eyebrow::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+  }
+  .statement-headline {
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-weight: 700;
+    font-size: clamp(48px, 9vw, 148px);
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.92;
+    color: #fff;
+    margin: 0;
+  }
+  .statement-headline .line {
+    display: block;
+    overflow: hidden;
+  }
+  .statement-headline .line-inner {
+    display: block;
+    transform: translateY(100%);
+    transition: transform 0.85s cubic-bezier(0.16,1,0.3,1);
+  }
+  .statement-inner.in-view .line-inner { transform: translateY(0); }
+  .statement-inner.in-view .line:nth-child(2) .line-inner { transition-delay: 0.07s; }
+  .statement-inner.in-view .line:nth-child(3) .line-inner { transition-delay: 0.14s; }
+
+  .statement-sub {
+    margin-top: 36px;
+    font-family: 'VT323', monospace;
+    font-size: clamp(14px, 2vw, 18px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    -webkit-font-smoothing: none;
+  }
+
+  /* glitch flash on section enter */
+  .statement-glitch {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,255,255,0.03) 4px, rgba(255,255,255,0.03) 5px);
+  }
+  .statement-glitch.flash {
+    animation: stmtGlitch 0.55s steps(1) forwards;
+  }
+  @keyframes stmtGlitch {
+    0%   { opacity: 1; clip-path: inset(0 0 92% 0); }
+    12%  { clip-path: inset(55% 0 30% 0); transform: translateX(-4px); }
+    24%  { clip-path: inset(20% 0 70% 0); transform: translateX(6px); }
+    36%  { clip-path: inset(78% 0 5% 0);  transform: translateX(-3px); }
+    50%  { clip-path: inset(40% 0 45% 0); transform: translateX(4px); }
+    65%  { opacity: 0.4; }
+    100% { opacity: 0; transform: translateX(0); }
+  }
+
+  @media (max-width: 768px) {
+    .statement-headline { font-size: clamp(36px, 14vw, 72px); }
+    .statement-section { padding: 0; }
+  }
+
+  /* ══════════════════════════════════════
+     ── CLIENTS TICKER ──
+  ══════════════════════════════════════ */
+  .clients-ticker-wrap {
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 14px 0;
+    position: relative;
+    z-index: 8;
+    mask-image: linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%);
+  }
+  .clients-ticker {
+    display: flex;
+    gap: 0;
+    width: max-content;
+    animation: tickerScroll 28s linear infinite;
+  }
+  .clients-ticker:hover { animation-play-state: paused; }
+  .ticker-item {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    white-space: nowrap;
+    padding: 0 28px;
+    -webkit-font-smoothing: none;
+    transition: color 0.2s ease;
+  }
+  .ticker-item:hover { color: rgba(255,255,255,0.8); }
+  .ticker-sep {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    color: rgba(255,255,255,0.1);
+    -webkit-font-smoothing: none;
+    padding: 0;
+    align-self: center;
+  }
+  @keyframes tickerScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── STUDIO PARALLAX ── */
+  .studio-photo-wrap {
+    overflow: hidden;
+  }
+  .studio-photo-wrap img {
+    transform-origin: center center;
+    will-change: transform;
+  }
+
+  /* ── SCROLL-TRIGGERED HEADLINE REVEALS ── */
+  .reveal-wrap {
+    overflow: hidden;
+  }
+  .reveal-inner {
+    display: block;
+    transform: translateY(100%);
+    transition: transform 0.9s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal-inner.revealed {
+    transform: translateY(0);
+  }
+
+  /* ── BACK TO TOP — char scramble style ── */
+  #footerBackTop {
+    transition: background 0.2s ease, letter-spacing 0.3s ease;
+  }
+  #footerBackTop:hover {
+    background: rgba(255,255,255,0.08);
+    letter-spacing: 0.32em;
+  }
+
+  /* ── FOOTER ── */
   .footer {
     background: #000;
     width: 100%;
@@ -1714,6 +1895,49 @@ Dubai, worldwide.</div>
       <div class="clients-header-right">24 CLIENTS</div>
     </div>
 
+    <!-- TICKER -->
+    <div class="clients-ticker-wrap">
+      <div class="clients-ticker" id="clientsTicker">
+        <span class="ticker-item">Ferrari</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Formula 1</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Kia</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Mercedes</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Red Bull</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Emaar</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Emirates</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Expo 2020</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">IMAX</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Netflix</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Porsche</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Bugatti</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">ADNOC</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Rolls Royce</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Nike</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Adidas</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Starbucks</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Honda</span><span class="ticker-sep">·</span>
+        <!-- duplicate for seamless loop -->
+        <span class="ticker-item">Ferrari</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Formula 1</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Kia</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Mercedes</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Red Bull</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Emaar</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Emirates</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Expo 2020</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">IMAX</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Netflix</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Porsche</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Bugatti</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">ADNOC</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Rolls Royce</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Nike</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Adidas</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Starbucks</span><span class="ticker-sep">·</span>
+        <span class="ticker-item">Honda</span><span class="ticker-sep">·</span>
+      </div>
+    </div>
+
     <!-- GRID -->
     <div class="clients-grid">
       <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="Ferrari"></div>
@@ -1749,6 +1973,21 @@ Dubai, worldwide.</div>
 
   </section>
 
+  <!-- ── SECTION 4.5: STATEMENT ── -->
+  <section class="statement-section" id="statementSection">
+    <div class="scanline"></div>
+    <div class="statement-glitch" id="statementGlitch"></div>
+    <div class="statement-inner" id="statementInner">
+      <div class="statement-eyebrow">FPV CINEMATOGRAPHER</div>
+      <h2 class="statement-headline">
+        <span class="line"><span class="line-inner">MOVING</span></span>
+        <span class="line"><span class="line-inner">IMAGE.</span></span>
+        <span class="line"><span class="line-inner">NO LIMITS.</span></span>
+      </h2>
+      <div class="statement-sub">Dubai to everywhere &nbsp;·&nbsp; Since 2019</div>
+    </div>
+  </section>
+
   <!-- ── SECTION 5: STUDIO / GEAR ── -->
   <section class="studio-section">
     <div class="scanline"></div>
@@ -1762,7 +2001,10 @@ Dubai, worldwide.</div>
     </div>
 
     <div class="studio-headline">
-      <h2>BUILT TO FLY.<br>WIRED TO SHOOT.</h2>
+      <h2>
+        <span class="reveal-wrap"><span class="reveal-inner" data-reveal>BUILT TO FLY.</span></span>
+        <span class="reveal-wrap"><span class="reveal-inner" data-reveal style="transition-delay:0.08s">WIRED TO SHOOT.</span></span>
+      </h2>
       <div class="studio-headline-sub">CUSTOM FPV RIG — CINEMA PAYLOAD — GOPRO CHALLENGE WINNER — DUBAI, UAE</div>
     </div>
 
@@ -3237,5 +3479,249 @@ videoEl.addEventListener('timeupdate', () => {
   }
 
   draw();
+})();
+</script>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   ── HERO PARALLAX — mouse on desktop, gyroscope on mobile ──
+   Desktop: image shifts up to 18px tracking mouse.
+   Mobile:  DeviceOrientation API — tilt the phone, image follows.
+   Both: slow breathe scale between 1.0 and 1.04.
+══════════════════════════════════════════════════════════════ */
+(function() {
+  const img = document.querySelector('.bg-img');
+  if (!img) return;
+
+  const STRENGTH_DESKTOP = 18;
+  const STRENGTH_MOBILE  = 22; // slightly stronger — tilt feels more dramatic
+  const mobile = window.innerWidth <= 768;
+
+  let targetX = 0, targetY = 0, curX = 0, curY = 0;
+  let breatheT = 0;
+  let gyroEnabled = false;
+
+  /* ── DESKTOP: mouse ── */
+  if (!mobile) {
+    document.addEventListener('mousemove', e => {
+      const cx = window.innerWidth  / 2;
+      const cy = window.innerHeight / 2;
+      targetX = ((e.clientX - cx) / cx) * -STRENGTH_DESKTOP;
+      targetY = ((e.clientY - cy) / cy) * -STRENGTH_DESKTOP;
+    });
+  }
+
+  /* ── MOBILE: gyroscope ── */
+  if (mobile) {
+    // Baseline — first reading we get becomes "neutral"
+    let baseGamma = null, baseBeta = null;
+
+    function handleOrientation(e) {
+      // gamma = left/right tilt (-90 to 90), beta = front/back tilt (-180 to 180)
+      if (baseGamma === null) {
+        baseGamma = e.gamma || 0;
+        baseBeta  = e.beta  || 0;
+      }
+
+      const dGamma = (e.gamma || 0) - baseGamma; // horizontal tilt delta
+      const dBeta  = (e.beta  || 0) - baseBeta;  // vertical tilt delta
+
+      // Clamp to ±30° range then map to pixel offset
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      targetX = (clamp(dGamma, -30, 30) / 30) * -STRENGTH_MOBILE;
+      targetY = (clamp(dBeta,  -30, 30) / 30) * -STRENGTH_MOBILE;
+      gyroEnabled = true;
+    }
+
+    // iOS 13+ requires permission
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // Attach to first user interaction
+      const requestGyro = () => {
+        DeviceOrientationEvent.requestPermission()
+          .then(state => {
+            if (state === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientation, true);
+            }
+          })
+          .catch(() => {});
+        document.removeEventListener('touchstart', requestGyro);
+      };
+      document.addEventListener('touchstart', requestGyro, { once: true });
+    } else if (typeof DeviceOrientationEvent !== 'undefined') {
+      // Android and older iOS — no permission needed
+      window.addEventListener('deviceorientation', handleOrientation, true);
+    }
+  }
+
+  /* ── ANIMATION LOOP ── */
+  function tick() {
+    requestAnimationFrame(tick);
+    if (!window._landingVisibleForParallax) return;
+
+    // Lerp — mobile uses slightly slower easing (0.04) for floaty feel
+    const ease = mobile ? 0.04 : 0.06;
+    curX += (targetX - curX) * ease;
+    curY += (targetY - curY) * ease;
+
+    breatheT += 0.004;
+    const scale = mobile ? 1.04 : (1.02 + Math.sin(breatheT) * 0.02);
+    img.style.transform = `translate(${curX}px, ${curY}px) scale(${scale})`;
+  }
+  tick();
+})();
+
+// Expose landing visibility for parallax
+window.addEventListener('load', () => {
+  const landing = document.getElementById('site');
+  if (!landing) return;
+  window._landingVisibleForParallax = true;
+  const sc = document.getElementById('scrollContainer');
+  if (!sc) return;
+  const obs = new IntersectionObserver(entries => {
+    window._landingVisibleForParallax = entries[0].isIntersecting;
+  }, { root: sc, threshold: 0.1 });
+  obs.observe(landing);
+});
+
+
+/* ══════════════════════════════════════════════════════════════
+   ── STATEMENT SECTION REVEAL ──
+   Triggers glitch flash + line-by-line DrukWide reveal
+   when section enters viewport.
+══════════════════════════════════════════════════════════════ */
+(function() {
+  const section = document.getElementById('statementSection');
+  const inner   = document.getElementById('statementInner');
+  const glitch  = document.getElementById('statementGlitch');
+  if (!section || !inner) return;
+
+  let triggered = false;
+  const sc = document.getElementById('scrollContainer');
+
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !triggered) {
+      triggered = true;
+      // Glitch flash first
+      if (glitch) {
+        glitch.classList.add('flash');
+        setTimeout(() => glitch.classList.remove('flash'), 600);
+      }
+      // Then reveal text
+      setTimeout(() => inner.classList.add('in-view'), 80);
+    }
+  }, { root: sc, threshold: 0.35 });
+
+  obs.observe(section);
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ── STUDIO PHOTO PARALLAX — scroll driven ──
+   Image moves at 0.55× scroll speed (slower = reveals more).
+══════════════════════════════════════════════════════════════ */
+(function() {
+  const wrap = document.querySelector('.studio-photo-wrap');
+  const img  = wrap ? wrap.querySelector('img') : null;
+  if (!wrap || !img || window.innerWidth <= 768) return;
+
+  const sc = document.getElementById('scrollContainer');
+  const SPEED = 0.28; // fraction of offset to apply
+
+  function update() {
+    const rect = wrap.getBoundingClientRect();
+    const viewH = window.innerHeight;
+    // -1 (above) → 0 (center) → 1 (below)
+    const progress = (viewH / 2 - (rect.top + rect.height / 2)) / viewH;
+    const shift = progress * rect.height * SPEED * 2;
+    img.style.transform = `translateY(${shift}px) scale(1.12)`;
+  }
+
+  sc.addEventListener('scroll', update, { passive: true });
+  update();
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ── SCROLL-TRIGGERED REVEAL (studio headline) ──
+   Slides each .reveal-inner up from clipped parent.
+══════════════════════════════════════════════════════════════ */
+(function() {
+  const reveals = document.querySelectorAll('.reveal-inner[data-reveal]');
+  if (!reveals.length) return;
+  const sc = document.getElementById('scrollContainer');
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { root: sc, threshold: 0.5 });
+
+  reveals.forEach(el => obs.observe(el));
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ── BACK TO TOP — char scramble on click ──
+══════════════════════════════════════════════════════════════ */
+(function() {
+  const btn = document.getElementById('footerBackTop');
+  if (!btn) return;
+  const GLITCH = '@#FRT43%=+-.<>!?|~^&*3R4T';
+  const orig = btn.textContent;
+
+  btn.addEventListener('mouseenter', () => {
+    let count = 0;
+    const total = 8;
+    const iv = setInterval(() => {
+      btn.textContent = Array.from(orig).map(c =>
+        c === ' ' ? ' ' : (Math.random() > 0.5 ? GLITCH[Math.floor(Math.random() * GLITCH.length)] : c)
+      ).join('');
+      count++;
+      if (count >= total) { clearInterval(iv); btn.textContent = orig; }
+    }, 45);
+  });
+})();
+
+
+/* ══════════════════════════════════════════════════════════════
+   ── CLIENT LOGO SCANLINE GLITCH ON VIEWPORT ENTER ──
+   Each logo fires a brief scanline + translate on enter.
+══════════════════════════════════════════════════════════════ */
+(function() {
+  const items = document.querySelectorAll('.client-logo-item');
+  if (!items.length) return;
+  const sc = document.getElementById('scrollContainer');
+
+  // Add keyframes dynamically
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes logoEnter {
+      0%   { opacity: 0; transform: translateY(10px); filter: brightness(0) invert(1) drop-shadow(0 0 12px rgba(255,220,80,0.9)); }
+      40%  { opacity: 1; transform: translateY(-2px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .client-logo-item.logo-animate img {
+      animation: logoEnter 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+  `;
+  document.head.appendChild(style);
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        // Stagger by DOM position
+        const idx = [...items].indexOf(el);
+        setTimeout(() => el.classList.add('logo-animate'), (idx % 6) * 55);
+        obs.unobserve(el);
+      }
+    });
+  }, { root: sc, threshold: 0.2 });
+
+  items.forEach(el => obs.observe(el));
 })();
 </script>
