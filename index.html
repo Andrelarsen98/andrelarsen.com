@@ -180,7 +180,6 @@
     font-family: 'VT323', monospace;
     -webkit-font-smoothing: none;
     -moz-osx-font-smoothing: unset;
-    font-smooth: never;
     text-rendering: optimizeSpeed;
   }
 
@@ -225,7 +224,6 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     -webkit-font-smoothing: none;
-    font-smooth: never;
     line-height: 1.15;
     display: inline-block;
     padding: 1px 5px;
@@ -246,7 +244,6 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     -webkit-font-smoothing: none;
-    font-smooth: never;
     line-height: 1.15;
     display: inline-block;
     padding: 1px 5px;
@@ -267,7 +264,6 @@
     text-transform: uppercase;
     color: #fff;
     -webkit-font-smoothing: none;
-    font-smooth: never;
     line-height: 1.15;
     display: block;
     text-align: right;
@@ -351,7 +347,6 @@
     color: #fff;
     line-height: 1.15;
     -webkit-font-smoothing: none;
-    font-smooth: never;
     opacity: 0;
     white-space: pre-line;
   }
@@ -365,7 +360,6 @@
     text-align: left;
     max-width: 380px;
     -webkit-font-smoothing: none;
-    font-smooth: never;
     position: relative;
   }
   .landing-bio-ghost {
@@ -849,7 +843,6 @@
     line-height: 1.4;
     flex-shrink: 0;
     -webkit-font-smoothing: none;
-    font-smooth: never;
   }
   .footer-info a {
     color: #fff;
@@ -858,7 +851,6 @@
     font-family: 'VT323', monospace;
     font-size: 16px;
     -webkit-font-smoothing: none;
-    font-smooth: never;
   }
   .footer-info a:hover { opacity: 0.6; }
   .footer-col {
@@ -880,7 +872,6 @@
     margin-bottom: 0;
     letter-spacing: 0.08em;
     -webkit-font-smoothing: none;
-    font-smooth: never;
   }
 
   /* Back to top */
@@ -900,7 +891,6 @@
     flex-shrink: 0;
     background: rgba(255,255,255,0.13);
     -webkit-font-smoothing: none;
-    font-smooth: never;
     width: calc(100% - 56px);
     margin: 0 28px;
   }
@@ -1160,7 +1150,6 @@
     font-size: 16px;
     letter-spacing: 0.1em;
     -webkit-font-smoothing: none;
-    font-smooth: never;
     line-height: 1.3;
   }
   .tele-label {
@@ -1187,7 +1176,6 @@
     color: rgba(255,255,255,0.9);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
-    font-smooth: never;
     white-space: nowrap;
     overflow: hidden;
     width: 0;
@@ -1381,10 +1369,7 @@
     .service-desc { font-size: 14px; max-width: 85%; }
   }
 
-  /* clients section removed */
-  .clients-section-REMOVED {
-    display: none;
-    }
+
 
   .cube-section > .scanline {
     z-index: 0;
@@ -1804,6 +1789,12 @@ Dubai, worldwide.</div>
 
 <script>
 /* ── MENU TOGGLE ── */
+// Shared debounce utility — prevents resize handlers firing hundreds of times per second
+function debounce(fn, delay) {
+  let id;
+  return function(...args) { clearTimeout(id); id = setTimeout(() => fn.apply(this, args), delay); };
+}
+
 const menuBtn     = document.getElementById('menuBtn');
 const menuOverlay = document.getElementById('menuOverlay');
 const menuClose   = document.getElementById('menuClose');
@@ -2178,7 +2169,7 @@ const isMobile = window.innerWidth <= 768;
   else { bgPreload.onload = bgPreload.onerror = () => { imageDone = true; checkReveal(); }; }
 
   buildMask();
-  window.addEventListener('resize', buildMask);
+  window.addEventListener('resize', debounce(buildMask, 200));
 
   if (!isMobile) {
     aC.addEventListener('mousemove', e => {
@@ -2236,7 +2227,7 @@ const scrollContainer = document.getElementById('scrollContainer');
   }
 
   scrollContainer.addEventListener('scroll', updateThumb, { passive: true });
-  window.addEventListener('resize', updateThumb);
+  window.addEventListener('resize', debounce(updateThumb, 200));
   /* Do NOT call updateThumb() on init — wait for first scroll */
 })();
 
@@ -2392,7 +2383,7 @@ if (landingSection) {
 const grainCanvas = document.getElementById('grainCanvas');
 const grainCtx = grainCanvas.getContext('2d');
 function resizeGrain() { grainCanvas.width = window.innerWidth; grainCanvas.height = window.innerHeight; }
-resizeGrain(); window.addEventListener('resize', resizeGrain);
+resizeGrain(); window.addEventListener('resize', debounce(resizeGrain, 200));
 const isMobileGrain = window.innerWidth <= 768;
 function drawGrain() {
   if (landingVisible) {
@@ -2408,13 +2399,20 @@ function drawGrain() {
   }
 }
 /* Mobile: 80ms interval (~12fps) — still looks like grain, half the CPU cost vs 42ms */
-setInterval(drawGrain, isMobileGrain ? 80 : 42);
+let grainIntervalId = setInterval(drawGrain, isMobileGrain ? 80 : 42);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    clearInterval(grainIntervalId);
+  } else {
+    grainIntervalId = setInterval(drawGrain, isMobileGrain ? 80 : 42);
+  }
+});
 
 /* ── LAVA EMBER PARTICLES ── */
 const partCanvas = document.getElementById('particleCanvas');
 const partCtx = partCanvas.getContext('2d');
 function resizePart() { partCanvas.width = window.innerWidth; partCanvas.height = window.innerHeight; }
-resizePart(); window.addEventListener('resize', resizePart);
+resizePart(); window.addEventListener('resize', debounce(resizePart, 200));
 const embers = Array.from({ length: 13 }, () => spawnEmber());
 function spawnEmber() {
   const w = partCanvas.width, h = partCanvas.height;
@@ -2477,7 +2475,7 @@ if (!isMobile) {
     pxCanvas.height = window.innerHeight;
   }
   resizePixelCanvas();
-  window.addEventListener('resize', resizePixelCanvas);
+  window.addEventListener('resize', debounce(resizePixelCanvas, 200));
 
   videoSection.addEventListener('mousemove', e => {
     const rect = videoSection.getBoundingClientRect();
@@ -2751,7 +2749,7 @@ videoEl.addEventListener('timeupdate', () => {
   footerObserver.observe(fCanvas);
 
   buildFooterMask();
-  window.addEventListener('resize', buildFooterMask);
+  window.addEventListener('resize', debounce(buildFooterMask, 200));
   renderFooter();
 
   // Back to top
@@ -2919,7 +2917,7 @@ videoEl.addEventListener('timeupdate', () => {
   }
 
   scene.addEventListener('mousedown',  e => dragStart(e.clientX, e.clientY));
-  window.addEventListener('mousemove', e => dragMove(e.clientX, e.clientY));
+  window.addEventListener('mousemove', e => dragMove(e.clientX, e.clientY), { passive: true });
   window.addEventListener('mouseup',   dragEnd);
 
   scene.addEventListener('touchstart', e => {
@@ -3105,6 +3103,8 @@ videoEl.addEventListener('timeupdate', () => {
     // Clear and build char spans + cursor
     el.innerHTML = '';
     const chars = Array.from(text);
+    // Pre-compute the index of the last non-space character so onDone fires exactly once
+    const lastNonSpaceIdx = chars.reduce((last, c, idx) => c !== ' ' ? idx : last, -1);
 
     chars.forEach((char, i) => {
       if (char === ' ') {
@@ -3131,8 +3131,8 @@ videoEl.addEventListener('timeupdate', () => {
           } else {
             span.textContent = char;
             span.style.opacity = '1';
-            // last char — fire onDone
-            if (i === chars.filter(c => c !== ' ').length - 1 + chars.filter(c => c === ' ' && chars.indexOf(c) < i).length) {
+            // last non-space char — fire onDone
+            if (i === lastNonSpaceIdx) {
               onDone && setTimeout(onDone, 100);
             }
           }
