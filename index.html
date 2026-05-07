@@ -1386,14 +1386,18 @@
   @media (max-width: 768px) {
     .clients-section { background-size: 3px 3px; }
     .clients-header { padding: 20px 20px 16px; }
-    .clients-grid { grid-template-columns: repeat(3, 1fr); }
-    .client-logo-item { padding: 28px 16px; }
+    .clients-grid {
+      grid-template-columns: repeat(3, 1fr);
+      width: 100%;
+      overflow: hidden;
+    }
+    .client-logo-item { padding: 22px 10px; }
     .client-logo-item:nth-child(6n) { border-right: 1px solid rgba(255,255,255,0.07); }
     .client-logo-item:nth-child(3n) { border-right: none; }
-    .client-logo-item img { height: 22px; max-width: 90px; }
-    .client-logo-item.tall img { height: 48px; max-width: 48px; }
-    .client-logo-item.xl img { height: 38px; max-width: 160px; }
-    .client-logo-item.wide img { height: 13px; max-width: 110px; }
+    .client-logo-item img { height: 20px; max-width: 80px; }
+    .client-logo-item.tall img { height: 42px; max-width: 42px; }
+    .client-logo-item.xl img { height: 32px; max-width: 120px; }
+    .client-logo-item.wide img { height: 12px; max-width: 100px; }
     .clients-footer-row { padding: 18px 20px 28px; flex-direction: column; align-items: flex-start; gap: 8px; }
     .clients-footer-right { text-align: left; }
   }
@@ -1731,7 +1735,7 @@ Dubai, worldwide.</div>
       <div class="client-logo-item tall"><img src="CLIENT 19.svg" alt="Client"></div>
       <div class="client-logo-item"><img src="CLIENT 20.svg" alt="Honda"></div>
       <div class="client-logo-item wide"><img src="CLIENT 21.svg" alt="Starbucks"></div>
-      <div class="client-logo-item xl"><img src="CLIENT 22.svg" alt="Subway"></div>
+      <div class="client-logo-item"><img src="CLIENT 22.svg" alt="Subway"></div>
       <div class="client-logo-item tall"><img src="CLIENT 23.svg" alt="Adidas"></div>
       <div class="client-logo-item tall"><img src="CLIENT 24.svg" alt="Nike"></div>
     </div>
