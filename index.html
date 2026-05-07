@@ -1250,123 +1250,149 @@
     .tele-location { white-space: normal; width: auto; animation: none; opacity: 1; color: #fff !important; }
   }
   /* ══════════════════════════════════════
-     ── SERVICES SECTION ──
+     ── CLIENTS SECTION ──
   ══════════════════════════════════════ */
-  .services-section {
+  .clients-section {
     width: 100%;
     background: #000;
-    padding: 0 32px 48px;
     position: relative;
-    content-visibility: auto;
-    contain-intrinsic-size: 0 600px;
+    overflow: hidden;
+    padding-bottom: 0;
+    border-top: 1px solid rgba(255,255,255,0.10);
   }
 
-  .services-header {
+  .clients-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 28px 0 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-    margin-bottom: 0;
+    padding: 28px 32px 24px;
   }
 
-  .services-header-left {
+  .clients-header-left {
     display: flex;
     align-items: center;
     gap: 8px;
     font-family: 'VT323', monospace;
     font-size: 16px;
     letter-spacing: 0.1em;
-    color: #fff !important;
+    color: rgba(255,255,255,0.5);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
   }
 
-  .services-header-right {
+  .clients-header-right {
     font-family: 'VT323', monospace;
     font-size: 16px;
     letter-spacing: 0.1em;
-    color: #fff !important;
+    color: rgba(255,255,255,0.25);
     -webkit-font-smoothing: none;
   }
 
-  .service-block {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 32px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    opacity: 0;
-    transition: opacity 0.4s ease;
+  /* ── MARQUEE ROWS ── */
+  .clients-marquee-outer {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 0;
+    /* fade edges */
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
   }
 
-  .service-block.visible {
-    opacity: 1;
+  .clients-marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: max-content;
+    will-change: transform;
   }
 
-  .service-top-row {
+  .clients-marquee-track.row-reverse {
+    animation-direction: reverse;
+  }
+
+  @keyframes marqueeScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  .clients-marquee-track {
+    animation: marqueeScroll 28s linear infinite;
+  }
+
+  .clients-marquee-track.row-reverse {
+    animation: marqueeScroll 34s linear infinite reverse;
+  }
+
+  .clients-marquee-outer:hover .clients-marquee-track {
+    animation-play-state: paused;
+  }
+
+  .client-logo-item {
     display: flex;
-    align-items: baseline;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 56px;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(255,255,255,0.06);
+    transition: opacity 0.2s ease;
+    opacity: 0.45;
+  }
+
+  .client-logo-item:hover { opacity: 1; }
+
+  .client-logo-item img,
+  .client-logo-item svg {
+    height: 28px;
+    width: auto;
+    max-width: 120px;
+    filter: brightness(0) invert(1);
+    display: block;
+    object-fit: contain;
+  }
+
+  /* Row divider */
+  .clients-row-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  /* Bottom tagline */
+  .clients-footer-row {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    padding: 20px 32px 28px;
+    border-top: 1px solid rgba(255,255,255,0.06);
   }
 
-  .service-left { display: none; }
-  .service-number { display: none; }
-  .service-right { display: none; }
-
-  .service-title {
-    font-family: 'VT323', monospace;
-    font-size: 28px;
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: 0.06em;
+  .clients-footer-left {
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-size: clamp(18px, 2.8vw, 42px);
+    font-weight: 700;
     color: #fff;
     text-transform: uppercase;
-    margin: 0;
-    -webkit-font-smoothing: none;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
-  .service-num-right {
-    font-family: 'VT323', monospace;
-    font-size: 18px;
-    letter-spacing: 0.08em;
-    color: #fff !important;
-    -webkit-font-smoothing: none;
-  }
-
-  .service-desc {
+  .clients-footer-right {
     font-family: 'VT323', monospace;
     font-size: 16px;
-    letter-spacing: 0.06em;
-    color: rgba(255,255,255,0.6);
-    text-transform: uppercase;
-    line-height: 1.5;
-    -webkit-font-smoothing: none;
-    max-width: 55%;
-    margin: 0;
-  }
-
-  .services-footer {
-    padding: 20px 0 0;
-    display: flex;
-    justify-content: flex-end;
-  }
-
-  .services-footer-text {
-    font-family: 'VT323', monospace;
-    font-size: 14px;
     letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.3);
     text-transform: uppercase;
+    text-align: right;
     -webkit-font-smoothing: none;
   }
 
   @media (max-width: 768px) {
-    .services-section { padding: 0 20px 40px; }
-    .service-block { gap: 8px; padding: 24px 0; }
-    .service-title { font-size: 22px; }
-    .service-num-right { font-size: 16px; }
-    .service-desc { font-size: 14px; max-width: 85%; }
+    .clients-header { padding: 20px 20px 16px; }
+    .client-logo-item { padding: 24px 36px; }
+    .client-logo-item img { height: 20px; }
+    .clients-footer-row { padding: 16px 20px 24px; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .clients-footer-right { text-align: left; }
   }
 
 
@@ -1670,48 +1696,90 @@ Dubai, worldwide.</div>
     </div>
   </section>
 
-  <!-- ── SECTION 4: SERVICES ── -->
-  <section class="services-section" style="position:relative;overflow:hidden;">
-    <div class="scanline"></div>
+  <!-- ── SECTION 4: CLIENTS ── -->
+  <section class="clients-section" id="clientsSection">
 
-    <div class="services-header">
-      <div class="services-header-left">
+    <div class="clients-header">
+      <div class="clients-header-left">
         <span>■</span>
-        <span>WHAT I DO</span>
+        <span>TRUSTED BY</span>
       </div>
-      <div class="services-header-right">04 DISCIPLINES</div>
+      <div class="clients-header-right">13 CLIENTS</div>
     </div>
 
-    <div class="service-block">
-      <div class="service-top-row">
-        <h3 class="service-title">FLY</h3>
-        <span class="service-num-right">(01)</span>
+    <!-- Row 1 — scrolls left -->
+    <div class="clients-marquee-outer">
+      <div class="clients-marquee-track" id="marqueeRow1">
+        <!-- set A -->
+        <div class="client-logo-item"><img src="CLIENT 01.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 04.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 05.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 07.png" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 10.png" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 11.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 13.svg" alt="Client"></div>
+        <!-- set B — duplicate for seamless loop -->
+        <div class="client-logo-item"><img src="CLIENT 01.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 04.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 05.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 07.png" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 10.png" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 11.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 13.svg" alt="Client"></div>
       </div>
-      <p class="service-desc">I operate in the spaces most cameras can't reach. Tight corridors, open desert, urban canyons, coastal lines — if there's a shot there, I'll find it from the air. Every flight is planned, every angle is intentional.</p>
     </div>
 
-    <div class="service-block">
-      <div class="service-top-row">
-        <h3 class="service-title">EXECUTE</h3>
-        <span class="service-num-right">(02)</span>
+    <div class="clients-row-divider"></div>
+
+    <!-- Row 2 — scrolls right -->
+    <div class="clients-marquee-outer">
+      <div class="clients-marquee-track row-reverse" id="marqueeRow2">
+        <!-- set A -->
+        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 10.png" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 11.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 13.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 01.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 04.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 05.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 07.png" alt="Client"></div>
+        <!-- set B -->
+        <div class="client-logo-item"><img src="CLIENT 08.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 09.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 10.png" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 11.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 13.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 01.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 04.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 05.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Client"></div>
+        <div class="client-logo-item"><img src="CLIENT 07.png" alt="Client"></div>
       </div>
-      <p class="service-desc">Location scouted. Lines mapped. I fly with intention, not improvisation. One operator, one point of contact, no moving parts.</p>
     </div>
 
-    <div class="service-block">
-      <div class="service-top-row">
-        <h3 class="service-title">DELIVER</h3>
-        <span class="service-num-right">(03)</span>
-      </div>
-      <p class="service-desc">Clear brief in. Clean files out. No chasing, no surprises. Selects, grades or a finished cut — your call.</p>
-    </div>
-
-    <div class="service-block">
-      <div class="service-top-row">
-        <h3 class="service-title">IMPACT</h3>
-        <span class="service-num-right">(04)</span>
-      </div>
-      <p class="service-desc">Tens of millions of views across platforms. The numbers don't lie — people watch, share, and come back for more.</p>
+    <div class="clients-footer-row">
+      <div class="clients-footer-left">WORK THAT<br>LANDS.</div>
+      <div class="clients-footer-right">DUBAI — WORLDWIDE<br>AVAILABLE FOR PROJECTS</div>
     </div>
 
   </section>
@@ -3083,144 +3151,7 @@ videoEl.addEventListener('timeupdate', () => {
 
 
 
-<script>
-/* Exact timing from app-Cd2tpxcC.js:
-   chars: ["!","@","#","$","%","&","*","F","K","T","_"]
-   repeat: 5, duration: 30ms, repeatDelay: 25ms
-   cursor: scaleY 3→1, blinks then fades
-══════════════════════════════════════ */
-(function() {
-  const SHUFFLE_CHARS = ['!', '@', '#', '$', '%', '&', '*', 'F', 'K', 'T', '_'];
-  const REPEAT        = 4;
-  const FRAME_MS      = 20;
-  const REPEAT_DELAY  = 15;
-  const CHAR_STAGGER  = 18;   // faster for longer sentences
 
-  function revealEl(el, onDone) {
-    const text = el.dataset.originalText;
-    if (!text) return;
-
-    // Clear and build char spans + cursor
-    el.innerHTML = '';
-    const chars = Array.from(text);
-    // Pre-compute the index of the last non-space character so onDone fires exactly once
-    const lastNonSpaceIdx = chars.reduce((last, c, idx) => c !== ' ' ? idx : last, -1);
-
-    chars.forEach((char, i) => {
-      if (char === ' ') {
-        const sp = document.createElement('span');
-        sp.style.cssText = 'display:inline;';
-        sp.textContent = ' ';
-        el.appendChild(sp);
-        return;
-      }
-      const span = document.createElement('span');
-      span.style.cssText = 'display:inline;opacity:0;';
-      span.textContent = char;
-      el.appendChild(span);
-
-      const delay = i * CHAR_STAGGER;
-      setTimeout(() => {
-        let count = 0;
-        function tick() {
-          if (count < REPEAT) {
-            span.textContent = SHUFFLE_CHARS[Math.floor(Math.random() * SHUFFLE_CHARS.length)];
-            span.style.opacity = '1';
-            count++;
-            setTimeout(tick, FRAME_MS + REPEAT_DELAY);
-          } else {
-            span.textContent = char;
-            span.style.opacity = '1';
-            // last non-space char — fire onDone
-            if (i === lastNonSpaceIdx) {
-              onDone && setTimeout(onDone, 100);
-            }
-          }
-        }
-        tick();
-      }, delay);
-    });
-
-    // Add blinking cursor after text
-    const cursor = document.createElement('span');
-    cursor.className = 'shuffle-cursor';
-    cursor.textContent = '█';
-    cursor.style.cssText = `
-      display:inline-block;
-      font-family:'VT323',monospace;
-      color:rgba(255,255,255,0.7);
-      margin-left:2px;
-      animation: cursorBlink 0.4s steps(1) infinite;
-    `;
-    el.appendChild(cursor);
-
-    // Total duration of the whole reveal
-    const totalDuration = chars.length * CHAR_STAGGER + REPEAT * (FRAME_MS + REPEAT_DELAY);
-    setTimeout(() => {
-      // fade cursor out
-      cursor.style.transition = 'opacity 0.3s ease';
-      cursor.style.opacity = '0';
-      setTimeout(() => cursor.remove(), 400);
-    }, totalDuration + 200);
-  }
-
-  // Store original text — use textContent not innerText (innerText returns '' when parent opacity:0)
-  const targets = document.querySelectorAll(
-    '.service-title, .services-header-left, .services-header-right, .service-num-right'
-  );
-  targets.forEach(el => {
-    el.dataset.originalText = el.textContent.trim();
-  });
-
-  // Store desc text
-  document.querySelectorAll('.service-desc').forEach(el => {
-    el.dataset.originalText = el.textContent.trim().replace(/\s+/g, ' ');
-  });
-
-  // Observe service blocks
-  const blocks = document.querySelectorAll('.service-block');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        const title = entry.target.querySelector('.service-title');
-        const num   = entry.target.querySelector('.service-num-right');
-        const desc  = entry.target.querySelector('.service-desc');
-        if (title) {
-          if (desc) desc.style.opacity = '0';
-          revealEl(title, () => {
-            if (desc) {
-              desc.style.opacity = '1';
-              revealEl(desc);
-            }
-          });
-        }
-        if (num) setTimeout(() => revealEl(num), 200);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { root: document.getElementById('scrollContainer'), threshold: 0.2 });
-
-  // Header observer
-  const servicesSection = document.querySelector('.services-section');
-  const headerObserver = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) {
-      const left  = document.querySelector('.services-header-left');
-      const right = document.querySelector('.services-header-right');
-      if (left)  revealEl(left);
-      if (right) setTimeout(() => revealEl(right), 150);
-      headerObserver.unobserve(servicesSection);
-    }
-  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
-
-  blocks.forEach((b, i) => {
-    b.style.transitionDelay = (i * 0.08) + 's';
-    observer.observe(b);
-  });
-  if (servicesSection) headerObserver.observe(servicesSection);
-})();
-
-</script>
 <script>
 /* ── PARTICLE GLOBE — hollow shell via geometry, tiny dense dots ── */
 (function () {
