@@ -790,13 +790,12 @@
     .bg-img {
       display: block;
       position: absolute;
-      top: -4%; left: -4%;
-      right: -4%; bottom: -4%;
-      width: 108%; height: 108%;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      width: 100%; height: 100%;
       object-fit: cover;
       object-position: center 20%;
       z-index: 0;
-      will-change: transform;
     }
   }
 
@@ -3484,88 +3483,31 @@ videoEl.addEventListener('timeupdate', () => {
 
 <script>
 /* ══════════════════════════════════════════════════════════════
-   ── HERO PARALLAX — mouse on desktop, gyroscope on mobile ──
-   Desktop: image shifts up to 18px tracking mouse.
-   Mobile:  DeviceOrientation API — tilt the phone, image follows.
-   Both: slow breathe scale between 1.0 and 1.04.
+   ── HERO PARALLAX — mouse on desktop only ──
+   Image shifts up to 18px tracking mouse + slow breathe scale.
 ══════════════════════════════════════════════════════════════ */
 (function() {
   const img = document.querySelector('.bg-img');
-  if (!img) return;
+  if (!img || window.innerWidth <= 768) return;
 
-  const STRENGTH_DESKTOP = 18;
-  const STRENGTH_MOBILE  = 22; // slightly stronger — tilt feels more dramatic
-  const mobile = window.innerWidth <= 768;
-
+  const STRENGTH = 18;
   let targetX = 0, targetY = 0, curX = 0, curY = 0;
   let breatheT = 0;
-  let gyroEnabled = false;
 
-  /* ── DESKTOP: mouse ── */
-  if (!mobile) {
-    document.addEventListener('mousemove', e => {
-      const cx = window.innerWidth  / 2;
-      const cy = window.innerHeight / 2;
-      targetX = ((e.clientX - cx) / cx) * -STRENGTH_DESKTOP;
-      targetY = ((e.clientY - cy) / cy) * -STRENGTH_DESKTOP;
-    });
-  }
+  document.addEventListener('mousemove', e => {
+    const cx = window.innerWidth  / 2;
+    const cy = window.innerHeight / 2;
+    targetX = ((e.clientX - cx) / cx) * -STRENGTH;
+    targetY = ((e.clientY - cy) / cy) * -STRENGTH;
+  });
 
-  /* ── MOBILE: gyroscope ── */
-  if (mobile) {
-    // Baseline — first reading we get becomes "neutral"
-    let baseGamma = null, baseBeta = null;
-
-    function handleOrientation(e) {
-      // gamma = left/right tilt (-90 to 90), beta = front/back tilt (-180 to 180)
-      if (baseGamma === null) {
-        baseGamma = e.gamma || 0;
-        baseBeta  = e.beta  || 0;
-      }
-
-      const dGamma = (e.gamma || 0) - baseGamma; // horizontal tilt delta
-      const dBeta  = (e.beta  || 0) - baseBeta;  // vertical tilt delta
-
-      // Clamp to ±30° range then map to pixel offset
-      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
-      targetX = (clamp(dGamma, -30, 30) / 30) * -STRENGTH_MOBILE;
-      targetY = (clamp(dBeta,  -30, 30) / 30) * -STRENGTH_MOBILE;
-      gyroEnabled = true;
-    }
-
-    // iOS 13+ requires permission
-    if (typeof DeviceOrientationEvent !== 'undefined' &&
-        typeof DeviceOrientationEvent.requestPermission === 'function') {
-      // Attach to first user interaction
-      const requestGyro = () => {
-        DeviceOrientationEvent.requestPermission()
-          .then(state => {
-            if (state === 'granted') {
-              window.addEventListener('deviceorientation', handleOrientation, true);
-            }
-          })
-          .catch(() => {});
-        document.removeEventListener('touchstart', requestGyro);
-      };
-      document.addEventListener('touchstart', requestGyro, { once: true });
-    } else if (typeof DeviceOrientationEvent !== 'undefined') {
-      // Android and older iOS — no permission needed
-      window.addEventListener('deviceorientation', handleOrientation, true);
-    }
-  }
-
-  /* ── ANIMATION LOOP ── */
   function tick() {
     requestAnimationFrame(tick);
     if (!window._landingVisibleForParallax) return;
-
-    // Lerp — mobile uses slightly slower easing (0.04) for floaty feel
-    const ease = mobile ? 0.04 : 0.06;
-    curX += (targetX - curX) * ease;
-    curY += (targetY - curY) * ease;
-
+    curX += (targetX - curX) * 0.06;
+    curY += (targetY - curY) * 0.06;
     breatheT += 0.004;
-    const scale = mobile ? 1.04 : (1.02 + Math.sin(breatheT) * 0.02);
+    const scale = 1.02 + Math.sin(breatheT) * 0.02;
     img.style.transform = `translate(${curX}px, ${curY}px) scale(${scale})`;
   }
   tick();
