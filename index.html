@@ -1090,7 +1090,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1000px;
+    perspective: 900px;
     cursor: grab;
     overflow: visible;
     z-index: 5;
@@ -1109,6 +1109,7 @@
     margin-top: -31px; margin-left: -55px;
     overflow: visible;
     background: transparent;
+    transform-style: preserve-3d;
   }
   .vs-card-face {
     position: absolute;
@@ -1313,7 +1314,7 @@
     #particleGlobe { width: 60vw; height: 60vw; }
     .vs-sphere { width: 60vw; height: 60vw; }
     .vs-glow { width: 35vw; height: 35vw; }
-    .vs-card { width: 115px; height: 65px; margin-top: -33px; margin-left: -58px; }
+    .vs-card { width: 115px; height: 65px; margin-top: -33px; margin-left: -58px; transform-style: preserve-3d; }
     .cube-drag-label {
       position: relative;
       bottom: auto;
@@ -2954,7 +2955,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   /* ── Electric wire canvas — sits behind cards, above globe ── */
   const wireCanvas = document.createElement('canvas');
-  wireCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:49;';
+  wireCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200;';
   const wireCtx = wireCanvas.getContext('2d');
 
   scene.appendChild(sphere);
@@ -3201,29 +3202,20 @@ videoEl.addEventListener('timeupdate', () => {
       const screenX = worldX * RADIUS;
       const screenY = -worldY * RADIUS;
 
-      /* ── Tangent tilt: card faces outward from sphere surface ──
-         The world normal (worldX, worldY, worldZ) points away from
-         sphere center toward the card. We derive tilt angles from it
-         so the card is tangent to the sphere — like it's glued to the ball.
+      /* Lay card flat on sphere surface.
+         The world normal vector (worldX, worldY, worldZ) IS the outward direction.
+         Convert to azimuth + elevation = exact spherical surface orientation.
+         Card at front-center: az=0, el=0 (flat facing viewer).
+         Card at left edge: az=-90 (edge-on from left).
+         Card at top: el=90 (edge-on from top). */
+      const az = Math.atan2(worldX, worldZ) * (180 / Math.PI);
+      const el = Math.atan2(-worldY, Math.sqrt(worldX * worldX + worldZ * worldZ)) * (180 / Math.PI);
 
-         rotateY: how much the card tilts left/right (driven by worldX vs worldZ)
-         rotateX: how much the card tilts up/down   (driven by worldY)
-
-         We use atan2 so the tilt is geometrically correct at all positions.
-         A card directly facing the viewer (worldZ=1) gets 0° tilt.
-         A card at the left edge (worldX=-1) gets ~90° rotateY.
-      */
-      /* Sticker on a ball — derive azimuth and elevation from world normal.
-         azimuth  = rotation around Y axis (left/right on sphere)
-         elevation = rotation around X axis (up/down on sphere)
-         A card at front-center gets 0,0. Left edge gets rotateY(-90).
-         Top gets rotateX(90). This matches true spherical surface orientation. */
-      const azimuth   = Math.atan2(worldX, worldZ) * (180 / Math.PI);
-      const elevation = Math.atan2(-worldY, Math.sqrt(worldX * worldX + worldZ * worldZ)) * (180 / Math.PI);
-
+      /* translate positions the card in screen space (applied last in CSS = outermost) */
+      /* rotations tilt it to lie on the sphere surface */
       card.style.transform = `translate(${screenX}px, ${screenY}px)`;
-      face.style.transform = `perspective(900px) rotateY(${azimuth}deg) rotateX(${elevation}deg)`;
-      face.style.opacity = String(0.78 + depth * 0.22);
+      face.style.transform = `rotateY(${az}deg) rotateX(${el}deg)`;
+      face.style.opacity = String(0.82 + depth * 0.18);
 
       /* Depth sort: front cards over sphere, back cards under */
       card.style.zIndex = String(Math.round(depth * 100));
@@ -3231,85 +3223,83 @@ videoEl.addEventListener('timeupdate', () => {
 
     /* particleGlobe is at z-index 50 in DOM — front cards (>50) over it, back cards (<50) under it */
 
-    /* ── Electric wires — canvas lines from center to each card ── */
+    /* ── Electric wires ── */
     const cw = wireCanvas.offsetWidth;
     const ch = wireCanvas.offsetHeight;
     if (wireCanvas.width !== cw || wireCanvas.height !== ch) {
-      wireCanvas.width  = cw;
-      wireCanvas.height = ch;
+      wireCanvas.width = cw; wireCanvas.height = ch;
     }
     wireCtx.clearRect(0, 0, cw, ch);
-    const cx = cw / 2;
-    const cy = ch / 2;
+    const cx = cw / 2, cy = ch / 2;
 
-    scene.querySelectorAll('.vs-card').forEach((card, i) => {
-      /* Card screen position from its transform */
-      const nx = card._nx || 0;
-      const ny = card._ny || 0;
-      const nz = card._nz || 0;
-
-      /* Re-rotate normal to get world position */
-      const wx1 = nx * cosZ - ny * sinZ;
-      const wy1 = nx * sinZ + ny * cosZ;
-      const wz1 = nz;
-      const wx2 = wx1 * cosY + wz1 * sinY;
-      const wy2 = wy1;
-      const wz2 = -wx1 * sinY + wz1 * cosY;
-      const wX  = wx2;
-      const wY  = wy2 * cosX - wz2 * sinX;
-      const wZ  = wy2 * sinX + wz2 * cosX;
-
+    scene.querySelectorAll('.vs-card').forEach((card) => {
+      const nx = card._nx || 0, ny = card._ny || 0, nz = card._nz || 0;
+      const wx1 = nx*cosZ - ny*sinZ, wy1 = nx*sinZ + ny*cosZ, wz1 = nz;
+      const wx2 = wx1*cosY + wz1*sinY, wy2 = wy1, wz2 = -wx1*sinY + wz1*cosY;
+      const wX = wx2, wY = wy2*cosX - wz2*sinX, wZ = wy2*sinX + wz2*cosX;
       const depth = (wZ + 1) / 2;
+      if (depth < 0.1) return; // skip back-hemisphere wires
+
       const cardX = cx + wX * RADIUS;
       const cardY = cy - wY * RADIUS;
 
-      /* Each wire has its own phase offset for async pulsing */
+      /* Per-wire pulse state */
       if (!card._wirePhase) card._wirePhase = Math.random() * Math.PI * 2;
-      if (!card._wireSpeed) card._wireSpeed = 0.6 + Math.random() * 1.2;
+      if (!card._wireSpeed) card._wireSpeed = 0.5 + Math.random() * 1.4;
+      if (!card._wireBow)   card._wireBow   = (Math.random() - 0.5) * 60; // loose curve offset
+      if (!card._zapTimer)  card._zapTimer  = 1 + Math.random() * 5;
 
       card._wirePhase += card._wireSpeed * dt;
-      const pulse = (Math.sin(card._wirePhase) + 1) / 2; // 0–1
+      card._zapTimer  -= dt;
 
-      /* Occasional sharp zap — random spike */
-      if (!card._zapTimer) card._zapTimer = Math.random() * 3;
-      card._zapTimer -= dt;
+      const pulse = (Math.sin(card._wirePhase) + 1) / 2;
       let zap = 0;
       if (card._zapTimer <= 0) {
         zap = 1;
-        card._zapTimer = 1.5 + Math.random() * 4;
+        card._zapTimer = 2 + Math.random() * 5;
+        card._wireBow = (Math.random() - 0.5) * 80; // re-randomise bow on zap
       }
 
-      const alpha = 0.08 + pulse * 0.18 + zap * 0.55;
-      const lineWidth = 0.4 + pulse * 0.6 + zap * 1.5;
+      /* Quarter intensity */
+      const alpha     = (0.12 + pulse * 0.14 + zap * 0.32) * Math.min(1, depth * 2.5);
+      const lineWidth = 0.5 + pulse * 0.3 + zap * 0.8;
 
-      /* Only draw wires for visible (front) cards */
-      if (depth < 0.05) return;
+      /* Wire starts at sphere surface, not center — offset startpoint
+         along the normal by sphere visual radius (~half of RADIUS) */
+      const sphereEdgeFraction = 0.52; // fraction of RADIUS = sphere surface
+      const startX = cx + wX * RADIUS * sphereEdgeFraction;
+      const startY = cy - wY * RADIUS * sphereEdgeFraction;
+
+      /* Control point — perpendicular bow for loose curve */
+      const midX = (startX + cardX) / 2;
+      const midY = (startY + cardY) / 2;
+      const dx   = cardX - startX, dy = cardY - startY;
+      const len  = Math.sqrt(dx*dx + dy*dy) || 1;
+      const cpX  = midX + (-dy / len) * card._wireBow * 0.5;
+      const cpY  = midY + ( dx / len) * card._wireBow * 0.5;
 
       wireCtx.save();
-      wireCtx.globalAlpha = alpha * Math.min(1, depth * 2);
-      wireCtx.strokeStyle = zap
-        ? `rgba(150,210,255,1)`
-        : `rgba(100,180,255,1)`;
-      wireCtx.lineWidth = lineWidth;
-      wireCtx.shadowColor = 'rgba(120,200,255,0.8)';
-      wireCtx.shadowBlur  = zap ? 12 : 4;
-      wireCtx.lineCap = 'round';
+      wireCtx.globalAlpha = alpha;
+      wireCtx.lineWidth   = lineWidth;
+      wireCtx.lineCap     = 'round';
+      wireCtx.shadowColor = zap ? 'rgba(180,230,255,1)' : 'rgba(100,180,255,0.6)';
+      wireCtx.shadowBlur  = zap ? 6 : 2;
+      wireCtx.strokeStyle = zap ? 'rgba(220,240,255,1)' : 'rgba(130,200,255,1)';
 
       wireCtx.beginPath();
-      wireCtx.moveTo(cx, cy);
-
       if (zap) {
-        /* Jagged lightning path */
+        wireCtx.moveTo(startX, startY);
         const steps = 4 + Math.floor(Math.random() * 3);
-        for (let s = 1; s < steps; s++) {
-          const t = s / steps;
-          const jx = cx + (cardX - cx) * t + (Math.random() - 0.5) * 18;
-          const jy = cy + (cardY - cy) * t + (Math.random() - 0.5) * 18;
-          wireCtx.lineTo(jx, jy);
+        for (let s = 1; s <= steps; s++) {
+          const t  = s / steps;
+          const bx = (1-t)*(1-t)*startX + 2*(1-t)*t*cpX + t*t*cardX;
+          const by = (1-t)*(1-t)*startY + 2*(1-t)*t*cpY + t*t*cardY;
+          wireCtx.lineTo(bx + (Math.random()-0.5)*14, by + (Math.random()-0.5)*14);
         }
+      } else {
+        wireCtx.moveTo(startX, startY);
+        wireCtx.quadraticCurveTo(cpX, cpY, cardX, cardY);
       }
-
-      wireCtx.lineTo(cardX, cardY);
       wireCtx.stroke();
       wireCtx.restore();
     });
