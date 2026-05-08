@@ -1079,15 +1079,7 @@
 
   /* ── VIDEO SPHERE ── */
   .vs-glow {
-    position: absolute;
-    width: 420px; height: 420px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 40%, transparent 70%);
-    pointer-events: none;
-    filter: blur(20px);
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 50;
+    display: none;
   }
   @media (max-width: 768px) {
     .vs-glow { filter: none; opacity: 0.5; }
@@ -1321,7 +1313,7 @@
     #particleGlobe { width: 60vw; height: 60vw; }
     .vs-sphere { width: 60vw; height: 60vw; }
     .vs-glow { width: 35vw; height: 35vw; }
-    .vs-card { width: 90px; height: 51px; margin-top: -26px; margin-left: -45px; }
+    .vs-card { width: 115px; height: 65px; margin-top: -33px; margin-left: -58px; }
     .cube-drag-label {
       position: relative;
       bottom: auto;
@@ -2938,7 +2930,7 @@ videoEl.addEventListener('timeupdate', () => {
 ══════════════════════════════════════ */
 (function() {
   const NUM_VIDEOS   = 16;
-  const RADIUS       = window.innerWidth <= 768 ? Math.round(window.innerWidth * 0.30 + 90) : 240;
+  const RADIUS       = window.innerWidth <= 768 ? Math.round(window.innerWidth * 0.26 + 60) : 210;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
   const section   = document.getElementById('cubeSection');
@@ -3215,20 +3207,20 @@ videoEl.addEventListener('timeupdate', () => {
          A card directly facing the viewer (worldZ=1) gets 0° tilt.
          A card at the left edge (worldX=-1) gets ~90° rotateY.
       */
-      const tiltY = -Math.atan2(worldX, worldZ) * (180 / Math.PI);
-      const tiltX =  Math.atan2(worldY, Math.sqrt(worldX*worldX + worldZ*worldZ)) * (180 / Math.PI);
+      /* Sticker on a ball — card lies flat on the sphere surface.
+         The world normal (worldX, worldY, worldZ) tells us exactly
+         which direction the card faces. We rotate it so its face
+         points along that normal = pressed flat onto the sphere.
 
-      /* Scale: front cards full size, back cards slightly smaller for depth */
-      const scale = 0.68 + depth * 0.32;
-
-      /* Perspective for the tilt — higher = less extreme foreshortening */
-      const persp = 320;
+         rotateY around vertical axis = left/right position on sphere
+         rotateX around horizontal axis = up/down position on sphere
+         Order: Y first, then X — matches standard spherical coords. */
+      const tiltY = Math.atan2(-worldX, -worldZ) * (180 / Math.PI);
+      const tiltX = Math.asin(Math.max(-1, Math.min(1, worldY))) * (180 / Math.PI);
 
       card.style.transform = `translate(${screenX}px, ${screenY}px)`;
-      face.style.transform = `perspective(${persp}px) rotateY(${tiltY}deg) rotateX(${tiltX}deg) scale(${scale})`;
-
-      /* Opacity: back hemisphere slightly dimmer, never transparent */
-      face.style.opacity = String(0.70 + depth * 0.30);
+      face.style.transform = `perspective(800px) rotateY(${tiltY}deg) rotateX(${tiltX}deg)`;
+      face.style.opacity = String(0.80 + depth * 0.20);
 
       /* Depth sort: front cards over sphere, back cards under */
       card.style.zIndex = String(Math.round(depth * 100));
