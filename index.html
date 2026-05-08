@@ -2973,7 +2973,7 @@ videoEl.addEventListener('timeupdate', () => {
   let dragging = false, prevX = 0, prevY = 0;
   let lastDX = 0, lastDY = 0;
   let touchStartX = 0, touchStartY = 0;
-  let elapsed = 4.0, lastTime = performance.now(); /* pre-warm 4s into spin cycle */
+  let elapsed = 8.0, lastTime = performance.now(); /* pre-warm 8s into spin cycle */
   let visible = true;
 
   /* ── Drag ── */
@@ -3825,6 +3825,32 @@ videoEl.addEventListener('timeupdate', () => {
     renderer.clear();
     renderer.render(scene, camera);
   }
+
+  /* ── Pre-compile shaders NOW (during loader) so first visible frame is instant ──
+     renderer.compile() triggers GPU shader compilation synchronously.
+     Then run 3 warm render passes so all FBO textures are initialised. */
+  try {
+    renderer.compile(bgScene, camera);
+    renderer.compile(scene, camera);
+    // Warm pass 1 — fill backFBO
+    renderer.setClearColor(0x030a14, 1);
+    renderer.setRenderTarget(backFBO);
+    renderer.clear();
+    renderer.render(bgScene, camera);
+    // Warm pass 2 — fill mainFBO
+    mat.uniforms.uTexture.value = backFBO.texture;
+    mat.side = THREE.BackSide;
+    renderer.setRenderTarget(mainFBO);
+    renderer.clear();
+    renderer.render(scene, camera);
+    // Warm pass 3 — to screen (hidden behind loader, costs nothing)
+    mat.uniforms.uTexture.value = mainFBO.texture;
+    mat.side = THREE.FrontSide;
+    renderer.setClearColor(0x000000, 0);
+    renderer.setRenderTarget(null);
+    renderer.clear();
+    renderer.render(scene, camera);
+  } catch(e) { /* non-fatal — RAF loop will handle it */ }
 
   render();
 
