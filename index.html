@@ -1287,15 +1287,15 @@
     .cube-left {
       grid-column: 1;
       grid-row: 1;
-      padding: 72px 20px 8px;
+      padding: 72px 20px 0px;
       flex-direction: column;
       justify-content: flex-start;
-      gap: 8px;
+      gap: 4px;
     }
     .cube-right {
       grid-column: 1;
       grid-row: 2;
-      height: 560px;
+      height: 480px;
       width: 100%;
       position: relative;
       display: flex;
@@ -1306,7 +1306,7 @@
     .cube-headline {
       grid-column: 1;
       grid-row: 3;
-      padding: 8px 20px 28px;
+      padding: 0px 20px 28px;
     }
     .cube-title { font-size: clamp(32px, 10vw, 52px); }
     #particleGlobe { width: 60vw; height: 60vw; }
@@ -1328,7 +1328,7 @@
       flex-direction: column;
       overflow: visible;
     }
-    .cube-headline { padding: 20px 20px 36px; }
+    .cube-headline { padding: 0px 20px 36px; }
     .tele-location { white-space: normal; width: auto; animation: none; opacity: 1; color: #fff !important; }
   }
   /* ══════════════════════════════════════
@@ -2782,6 +2782,7 @@ videoEl.addEventListener('timeupdate', () => {
   if (!fCanvas) return;
   const fCtx = fCanvas.getContext('2d');
 
+  /* Exact same constants as loader */
   const FOOTER_NAME  = 'André Larsen';
   const FOOTER_CHARS = '3RT4FR@#T4R3T%RF4T=3R+43RT3:F4R*3T#@R43TF%R3T4R3T#4F@R3TR4%3TF#R3T4R@3TRF43RT#@%R3T4FR3@T#R4F3T%R4T3F#@R3T4';
   const CW = 5, CH = 7.5;
@@ -2789,13 +2790,12 @@ videoEl.addEventListener('timeupdate', () => {
 
   let cols, rows, mask, cellChar, cellTimer;
   let fMouseX = -999, fMouseY = -999;
-  let ft = 0, footerVisible = false, animId;
+  let footerVisible = false;
 
   function buildFooterMask() {
-    const FOOTER_RESERVED = 160;
-    const availH = window.innerHeight - FOOTER_RESERVED;
+    /* Use full viewport height — same as loader */
     const W = window.innerWidth;
-    const H = availH;
+    const H = window.innerHeight;
     const dpr = window.devicePixelRatio || 1;
 
     cols = Math.floor(W / CW);
@@ -2805,14 +2805,15 @@ videoEl.addEventListener('timeupdate', () => {
     fCanvas.height = H * dpr;
     fCanvas.style.width  = W + 'px';
     fCanvas.style.height = H + 'px';
-    fCtx.setTransform(1,0,0,1,0,0);
+    fCtx.setTransform(1, 0, 0, 1, 0, 0);
     fCtx.scale(dpr, dpr);
 
-    // Draw name to off-screen canvas to build mask
+    /* Off-screen canvas — exact loader approach */
     const nc = document.createElement('canvas');
     nc.width = W; nc.height = H;
     const nx = nc.getContext('2d');
-    let fs = H * 0.55;
+    /* Loader uses H * 0.40 */
+    let fs = H * 0.40;
     nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
     let nw = nx.measureText(FOOTER_NAME).width;
     if (nw > W * 0.78) { fs *= (W * 0.78) / nw; }
@@ -2842,10 +2843,14 @@ videoEl.addEventListener('timeupdate', () => {
   }
 
   function renderFooter() {
-    if (!footerVisible) { animId = requestAnimationFrame(renderFooter); return; }
-    const W = fCanvas.style.width  ? parseInt(fCanvas.style.width)  : window.innerWidth;
-    const H = fCanvas.style.height ? parseInt(fCanvas.style.height) : window.innerHeight;
+    requestAnimationFrame(renderFooter);
+    if (!footerVisible) return;
+
+    const W = window.innerWidth;
+    const H = window.innerHeight;
     fCtx.clearRect(0, 0, W, H);
+
+    /* Exact loader font */
     const fs = Math.round(CH * 0.92);
     fCtx.font = `bold ${fs}px "Courier New",Courier,monospace`;
     fCtx.textBaseline = 'top';
@@ -2857,7 +2862,7 @@ videoEl.addEventListener('timeupdate', () => {
         const cx = c * CW + CW / 2, cy = r * CH + CH / 2;
         let drawX = c * CW, drawY = r * CH;
 
-        // Mouse push — same as loader
+        /* Mouse lens push — exact loader logic */
         if (!isMobile && fMouseX > 0) {
           const dx = cx - fMouseX, dy = cy - fMouseY;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -2878,28 +2883,24 @@ videoEl.addEventListener('timeupdate', () => {
         fCtx.fillText(FOOTER_CHARS[cellChar[i]], drawX, drawY);
       }
     }
-    ft += 0.05;
-    animId = requestAnimationFrame(renderFooter);
   }
 
-  // Mouse tracking relative to footer canvas
+  /* Mouse tracking — relative to viewport since canvas is full-size */
   fCanvas.addEventListener('mousemove', e => {
-    const rect = fCanvas.getBoundingClientRect();
-    fMouseX = e.clientX - rect.left;
-    fMouseY = e.clientY - rect.top;
+    fMouseX = e.clientX;
+    fMouseY = e.clientY - fCanvas.getBoundingClientRect().top;
   });
   fCanvas.addEventListener('mouseleave', () => { fMouseX = -999; fMouseY = -999; });
 
   const footerObserver = new IntersectionObserver(entries => {
     footerVisible = entries[0].isIntersecting;
-  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
   footerObserver.observe(fCanvas);
 
   buildFooterMask();
   window.addEventListener('resize', debounce(buildFooterMask, 200));
   renderFooter();
 
-  // Back to top
   document.getElementById('footerBackTop').addEventListener('click', () => {
     document.getElementById('scrollContainer').scrollTo({ top: 0, behavior: 'smooth' });
   });
@@ -3188,20 +3189,38 @@ videoEl.addEventListener('timeupdate', () => {
       const screenX = worldX * RADIUS;
       const screenY = -worldY * RADIUS;
 
-      /* Lay card flat on sphere surface.
-         The world normal vector (worldX, worldY, worldZ) IS the outward direction.
-         Convert to azimuth + elevation = exact spherical surface orientation.
-         Card at front-center: az=0, el=0 (flat facing viewer).
-         Card at left edge: az=-90 (edge-on from left).
-         Card at top: el=90 (edge-on from top). */
-      /* Spherical surface tilt — card lays flat on ball like a sticker.
-         az = how far left/right on sphere → rotateY
-         el = how far up/down on sphere   → rotateX
-         perspective() on the transform itself bypasses flex context issues. */
-      /* Billboard — card always faces camera directly, no surface tilt */
+      /* Backface culling — hide cards on the back of the sphere */
+      if (worldZ < 0) {
+        card.style.visibility = 'hidden';
+        card.style.zIndex = '0';
+        return;
+      }
+      card.style.visibility = 'visible';
+
+      /* Lay card flat on sphere surface using a proper orthonormal basis.
+         Build right/up/normal vectors from the world normal, then form a
+         CSS matrix3d — avoids gimbal lock from Euler angle decomposition. */
+      const nX = worldX, nY = worldY, nZ = worldZ;
+      // right = cross(worldUp, normal), fallback at poles
+      let rX = -nZ, rZ = nX;
+      const rLen = Math.sqrt(rX*rX + rZ*rZ);
+      if (rLen > 0.001) { rX /= rLen; rZ /= rLen; } else { rX = 1; rZ = 0; }
+      // up = cross(normal, right)
+      const uX = nY*rZ - nZ*0;
+      const uY = nZ*rX - nX*rZ;
+      const uZ = 0    - nY*rX;
+      // CSS matrix3d is column-major: [right | up | normal | translation]
+      // We negate up so Y screen axis matches (CSS Y points down)
+      const m = [
+        rX,  0,   rZ,  0,
+       -uX, -uY, -uZ,  0,
+        nX,  nY,  nZ,  0,
+        0,   0,   0,   1
+      ].map(v => v.toFixed(6)).join(',');
+
       card.style.transform = `translate(${screenX}px, ${screenY}px)`;
-      face.style.transform = `none`;
-      face.style.opacity = String(0.85 + depth * 0.15);
+      face.style.transform = `perspective(800px) matrix3d(${m})`;
+      face.style.opacity = String(0.75 + depth * 0.25);
 
       /* Depth sort: front cards over sphere, back cards under */
       card.style.zIndex = String(Math.round(depth * 100));
@@ -3227,8 +3246,8 @@ videoEl.addEventListener('timeupdate', () => {
       const wX = wx2, wY = wy2*cosX - wz2*sinX, wZ = wy2*sinX + wz2*cosX;
       const depth = (wZ + 1) / 2;
 
-      if (depth < 0.08) return;
-      const depthAlpha = Math.min(1, (depth - 0.08) / 0.55);
+      /* Skip wires for cards on the back of the sphere */
+      if (wZ < 0 || depth < 0.08) return;
 
       const cardX = cx + wX * RADIUS;
       const cardY = cy - wY * RADIUS;
@@ -3237,24 +3256,9 @@ videoEl.addEventListener('timeupdate', () => {
       if (!card._wirePhase)    card._wirePhase    = Math.random() * Math.PI * 2;
       if (!card._wireSpeed)    card._wireSpeed    = 0.3 + Math.random() * 0.7;
       if (!card._wireBow)      card._wireBow      = (Math.random() - 0.5) * 40;
-      if (!card._dropTimer)    card._dropTimer    = Math.random() * 3;      // signal dropout countdown
-      if (!card._dropDuration) card._dropDuration = 0;                       // how long dropout lasts
       if (card._segCount === undefined) card._segCount = 8 + Math.floor(Math.random() * 6);
 
       card._wirePhase += card._wireSpeed * dt;
-      card._dropTimer -= dt;
-
-      /* Signal dropout — randomly lose the line for a beat */
-      let dropping = false;
-      if (card._dropTimer <= 0 && card._dropDuration <= 0) {
-        card._dropDuration = 0.06 + Math.random() * 0.18;
-        card._dropTimer    = 0.8 + Math.random() * 3.5;
-      }
-      if (card._dropDuration > 0) {
-        card._dropDuration -= dt;
-        dropping = true;
-      }
-      if (dropping) return; // line just drops out entirely
 
       const sphereEdgeFraction = 0.50;
       const startX = cx + wX * RADIUS * sphereEdgeFraction;
@@ -3267,8 +3271,7 @@ videoEl.addEventListener('timeupdate', () => {
       const cpX  = midX + (-dy / linLen) * card._wireBow * 0.5;
       const cpY  = midY + ( dx / linLen) * card._wireBow * 0.5;
 
-      /* Noise corruption level — varies slowly per wire */
-      const noise = 0.25 + 0.20 * Math.sin(card._wirePhase * 0.7 + 1.3);
+      const depthAlpha = Math.min(1, (depth - 0.08) / 0.55);
 
       wireCtx.save();
 
@@ -3280,57 +3283,16 @@ videoEl.addEventListener('timeupdate', () => {
         wireCtx.clip('evenodd');
       }
 
-      /* ── Draw as broken dashed segments along the bezier curve ──
-         Sample N points along the curve. Randomly skip segments
-         based on noise level to simulate signal dropout/corruption. */
-      const STEPS = card._segCount;
-      const baseAlpha = (0.55 + 0.25 * Math.sin(card._wirePhase)) * depthAlpha;
-
+      /* ── Draw as solid continuous bezier line — no dropout, no fade ── */
+      wireCtx.beginPath();
+      wireCtx.moveTo(startX, startY);
+      wireCtx.quadraticCurveTo(cpX, cpY, cardX, cardY);
+      wireCtx.strokeStyle = `rgba(255,255,255,1)`;
+      wireCtx.globalAlpha = 0.55 * depthAlpha;
       wireCtx.lineWidth = 0.9;
       wireCtx.lineCap   = 'round';
       wireCtx.shadowBlur = 0;
-
-      let drawing = false;
-      let skipNext = false;
-
-      for (let s = 0; s <= STEPS; s++) {
-        const tt = s / STEPS;
-        const bx = (1-tt)*(1-tt)*startX + 2*(1-tt)*tt*cpX + tt*tt*cardX;
-        const by = (1-tt)*(1-tt)*startY + 2*(1-tt)*tt*cpY + tt*tt*cardY;
-
-        /* Decide whether this segment is corrupted/missing */
-        const corrupt = Math.random() < noise * (1 - tt * 0.4); // more corrupt near card end
-        const segAlpha = corrupt
-          ? 0                // dropped segment
-          : baseAlpha;       // steady — no per-frame flicker
-
-        if (s === 0) {
-          wireCtx.beginPath();
-          wireCtx.moveTo(bx, by);
-          drawing = true;
-          skipNext = corrupt;
-          continue;
-        }
-
-        if (skipNext || corrupt) {
-          /* Gap — lift pen */
-          wireCtx.globalAlpha = 0;
-          wireCtx.stroke();
-          wireCtx.beginPath();
-          wireCtx.moveTo(bx, by);
-          drawing = false;
-        } else {
-          /* Segment intact — vary color slightly: white to cool grey */
-          wireCtx.strokeStyle = `rgba(255,255,255,1)`;
-          wireCtx.globalAlpha = segAlpha;
-          wireCtx.lineTo(bx, by);
-          wireCtx.stroke();
-          wireCtx.beginPath();
-          wireCtx.moveTo(bx, by);
-          drawing = true;
-        }
-        skipNext = corrupt;
-      }
+      wireCtx.stroke();
 
       wireCtx.restore();
     });
