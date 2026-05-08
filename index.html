@@ -1173,7 +1173,7 @@
     width: 720px;
     height: 720px;
     pointer-events: none;
-    z-index: 3;
+    z-index: 1;
     flex-shrink: 0;
   }
   #particleGlobe canvas {
@@ -1215,6 +1215,7 @@
     position: relative;
     will-change: transform;
     flex-shrink: 0;
+    z-index: 2;
   }
   .vs-card {
     position: absolute;
@@ -3112,7 +3113,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   /* Move particleGlobe inside scene so it shares stacking context with cards */
   const globeMount = document.getElementById('particleGlobe');
-  if (globeMount) scene.appendChild(globeMount);
+  if (globeMount) scene.insertBefore(globeMount, sphere);
 
   /* ── Cards — Fibonacci sphere distribution ── */
   for (let i = 0; i < NUM_VIDEOS; i++) {
@@ -3343,12 +3344,12 @@ videoEl.addEventListener('timeupdate', () => {
       const brightness = 0.45 + depth * 0.8;
       const saturate = 0.65 + depth * 0.7;
       const blur = (1 - depth) * 1.8;
-      const faceOpacity = depth < 0.08 ? 0 : 0.16 + depth * 0.84;
+      const faceOpacity = depth < 0.18 ? 0 : 0.08 + depth * 0.92;
 
       face.style.transform = `translateZ(${lift}px) scale(${scale})`;
       face.style.opacity = String(faceOpacity);
       face.style.filter = `brightness(${brightness}) saturate(${saturate}) blur(${blur}px)`;
-      card.style.zIndex = String(8 + Math.round(depth * 24));
+      card.style.zIndex = String(4 + Math.round(depth * 20));
     });
 
     /* Expose velocity for telemetry */
