@@ -1404,14 +1404,27 @@
     .clients-section { padding: 20px 0; }
     .clients-label { margin-bottom: 14px; font-size: 11px; }
     .clients-marquee-wrap {
-      max-width: calc(100% - 48px);
-      /* Softer fade on mobile — avoids logo clipping on narrow screens */
-      mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
-      -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
+      max-width: 100%;
+      /* Drop mask entirely on mobile — -webkit-mask + transform conflict clips logos on iOS */
+      mask-image: none;
+      -webkit-mask-image: none;
+      /* Keep transform for stacking context but reset to simple value */
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+    .logo-marquee-row {
+      /* Side padding creates breathing room without masking */
+      padding: 0 20px;
     }
     .logo-marquee-track {
-      /* Slightly faster on mobile so partial logos aren't stuck in view */
-      animation-duration: 50s;
+      /* Faster scroll on narrow screens so logos don't take ages to appear */
+      animation-duration: 35s;
+      /* Guarantee animation runs immediately on mobile */
+      animation-play-state: running;
+      animation-delay: 0s;
+    }
+    .logo-marquee-item {
+      padding: 0 20px;
     }
   }
 
@@ -1727,12 +1740,12 @@ Dubai, worldwide.</div>
     <div class="clients-marquee-wrap">
     <div class="logo-marquee-row">
       <div class="logo-marquee-track">
-        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates"></div>
         <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020"></div>
         <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
