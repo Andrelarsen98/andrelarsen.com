@@ -1170,8 +1170,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 720px;
-    height: 720px;
+    width: 640px;
+    height: 640px;
     pointer-events: none;
     z-index: 1;
     flex-shrink: 0;
@@ -1185,7 +1185,7 @@
   /* ── VIDEO SPHERE ── */
   .vs-glow {
     position: absolute;
-    width: 720px; height: 720px;
+    width: 640px; height: 640px;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 40%, transparent 70%);
     pointer-events: none;
@@ -1210,7 +1210,7 @@
   }
   .vs-scene.dragging { cursor: grabbing; }
   .vs-sphere {
-    width: 720px; height: 720px;
+    width: 640px; height: 640px;
     transform-style: preserve-3d;
     position: relative;
     will-change: transform;
@@ -1451,9 +1451,9 @@
       padding: 8px 20px 28px;
     }
     .cube-title { font-size: clamp(32px, 10vw, 52px); }
-    #particleGlobe { width: 380px; height: 380px; }
-    .vs-sphere { width: 380px; height: 380px; }
-    .vs-glow { width: 220px; height: 220px; }
+    #particleGlobe { width: 340px; height: 340px; }
+    .vs-sphere { width: 340px; height: 340px; }
+    .vs-glow { width: 210px; height: 210px; }
     .vs-card { width: 98px; height: 55px; margin-top: -28px; margin-left: -49px; }
     .cube-drag-label {
       position: relative;
@@ -3079,12 +3079,13 @@ videoEl.addEventListener('timeupdate', () => {
 
 /* ══════════════════════════════════════
    ── VIDEO SPHERE ──
-   16 Fibonacci-distributed cards,
+   Front-biased distributed cards,
    multi-axis rotation, glitch on loop
 ══════════════════════════════════════ */
 (function() {
-  const NUM_VIDEOS   = 16;
-  const RADIUS       = window.innerWidth <= 768 ? 181 : 295;
+  const SOURCE_VIDEOS = 16;
+  const NUM_CARDS    = 20;
+  const RADIUS       = window.innerWidth <= 768 ? 170 : 278;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
   const section   = document.getElementById('cubeSection');
@@ -3116,21 +3117,41 @@ videoEl.addEventListener('timeupdate', () => {
   if (globeMount) scene.insertBefore(globeMount, sphere);
 
   /* ── Cards — Fibonacci sphere distribution ── */
-  for (let i = 0; i < NUM_VIDEOS; i++) {
-    const t      = i / (NUM_VIDEOS - 1);
+  for (let i = 0; i < NUM_CARDS; i++) {
+    const t      = i / (NUM_CARDS - 1);
     const y      = 1 - t * 2;
     const rHoriz = Math.sqrt(Math.max(0, 1 - y * y));
     const theta  = GOLDEN_ANGLE * i;
-    const nx     = Math.cos(theta) * rHoriz;
-    const nz     = Math.sin(theta) * rHoriz;
-    const ny     = y;
+    let nx       = Math.cos(theta) * rHoriz;
+    let nz       = Math.sin(theta) * rHoriz;
+    let ny       = y;
+
+    const frontBias = Math.max(0, nz + 0.28);
+    const sideBias = Math.sin(i * 1.73) * 0.05;
+
+    nz += 0.42 + frontBias * 0.58;
+    nx += frontBias * 0.16 + sideBias;
+    ny += Math.cos(i * 0.9) * 0.06 - frontBias * 0.10;
+
+    const len = Math.hypot(nx, ny, nz) || 1;
+    nx /= len;
+    ny /= len;
+    nz /= len;
 
     const azimuth   =  Math.atan2(nx, nz) * (180 / Math.PI);
     const elevation = -Math.atan2(ny, Math.sqrt(nx*nx + nz*nz)) * (180 / Math.PI);
+    const sizeTier = i % 7 === 0 ? 1.2 : i % 3 === 0 ? 0.92 : 0.78;
+    const width = Math.round(160 * sizeTier);
+    const height = Math.round(90 * sizeTier);
 
     const card = document.createElement('div');
     card.className = 'vs-card';
     card._nx = nx; card._ny = ny; card._nz = nz;
+    card._sizeTier = sizeTier;
+    card.style.width = `${width}px`;
+    card.style.height = `${height}px`;
+    card.style.marginLeft = `${Math.round(width / -2)}px`;
+    card.style.marginTop = `${Math.round(height / -2)}px`;
     card.style.transform = [
       `rotateY(${azimuth}deg)`,
       `rotateX(${elevation}deg)`,
@@ -3142,7 +3163,7 @@ videoEl.addEventListener('timeupdate', () => {
     card._face = face;
 
     const vid = document.createElement('video');
-    vid.src        = `work${i + 1}.mp4`;
+    vid.src        = `work${(i % SOURCE_VIDEOS) + 1}.mp4`;
     vid.muted      = true;
     vid.loop       = false;
     vid.playsInline = true;
@@ -3339,17 +3360,18 @@ videoEl.addEventListener('timeupdate', () => {
 
       const worldZ = y2 * sinX + z2 * cosX;
       const depth = (worldZ + 1) / 2;
-      const lift = 10 + depth * 10;
-      const scale = 0.66 + depth * 0.34;
-      const brightness = 0.45 + depth * 0.8;
-      const saturate = 0.65 + depth * 0.7;
-      const blur = (1 - depth) * 1.8;
-      const faceOpacity = depth < 0.18 ? 0 : 0.08 + depth * 0.92;
+      const tier = card._sizeTier || 1;
+      const lift = 14 + depth * 16;
+      const scale = (0.72 + depth * 0.34) * tier;
+      const brightness = 0.48 + depth * 0.86;
+      const saturate = 0.72 + depth * 0.82;
+      const blur = (1 - depth) * 1.35;
+      const faceOpacity = depth < 0.14 ? 0 : 0.12 + depth * 0.88;
 
       face.style.transform = `translateZ(${lift}px) scale(${scale})`;
       face.style.opacity = String(faceOpacity);
       face.style.filter = `brightness(${brightness}) saturate(${saturate}) blur(${blur}px)`;
-      card.style.zIndex = String(4 + Math.round(depth * 20));
+      card.style.zIndex = String(6 + Math.round(depth * 26));
     });
 
     /* Expose velocity for telemetry */
@@ -3362,7 +3384,7 @@ videoEl.addEventListener('timeupdate', () => {
 
     /* Counter */
     if (counter) {
-      const face = Math.floor(((rotY % 360) + 360) % 360 / (360 / NUM_VIDEOS)) % NUM_VIDEOS;
+      const face = Math.floor(((rotY % 360) + 360) % 360 / (360 / NUM_CARDS)) % NUM_CARDS;
       counter.textContent = String(face + 1).padStart(2, '0');
     }
   }
@@ -3471,7 +3493,7 @@ videoEl.addEventListener('timeupdate', () => {
   if (!mount) return;
 
   const isMobile = window.innerWidth <= 768;
-  const SIZE = isMobile ? 380 : 720;
+  const SIZE = isMobile ? 340 : 640;
 
   /* ── Renderer ── */
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
