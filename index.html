@@ -1166,6 +1166,17 @@
 
   /* ── PARTICLE GLOBE ── */
   #particleGlobe {
+    position: relative;
+    display: block;
+    width: 620px;
+    height: 620px;
+    flex-shrink: 0;
+  }
+  #particleGlobe canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1765,6 +1776,8 @@
   }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <!-- Loader backdrop -->
 <div id="loadScreen"><div class="scanline-fixed"></div></div>
 <!-- Custom scroll indicator (desktop only) -->
@@ -1876,7 +1889,7 @@ Dubai, worldwide.</div>
       </div>
     </div>
     <div class="cube-right" id="cubeRight">
-      <canvas id="particleGlobe"></canvas>
+      <div id="particleGlobe"></div>
 
 
     </div>
@@ -3359,125 +3372,233 @@ videoEl.addEventListener('timeupdate', () => {
 
 
 <script>
-/* ── PARTICLE GLOBE — hollow shell via geometry, tiny dense dots ── */
+/* ══════════════════════════════════════════════════════════════
+   ── DISPERSION GLASS ORB — Three.js r128 ──
+   FBO refraction + chromatic aberration (RGB IOR split)
+   + multi-sample smoothing + Fresnel + specular/diffuse
+   + backside rendering pass
+   Syncs with existing _sphereRot for drag/telemetry continuity.
+══════════════════════════════════════════════════════════════ */
 (function () {
-  const canvas = document.getElementById('particleGlobe');
-  if (!canvas) return;
+  if (typeof THREE === 'undefined') return;
+
+  const mount = document.getElementById('particleGlobe');
+  if (!mount) return;
 
   const isMobile = window.innerWidth <= 768;
-  const SIZE   = isMobile ? 380 : 620;
-  const RADIUS = isMobile ? 181 : 295;
-  const NUM_DOTS = isMobile ? 1200 : 4000;
-  const DPR = isMobile ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  const SIZE = isMobile ? 380 : 620;
 
-  canvas.width  = SIZE * DPR;
-  canvas.height = SIZE * DPR;
-  canvas.style.width  = SIZE + 'px';
-  canvas.style.height = SIZE + 'px';
+  /* ── Renderer ── */
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(SIZE, SIZE);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  mount.appendChild(renderer.domElement);
 
-  const ctx = canvas.getContext('2d');
-  ctx.scale(DPR, DPR);
+  /* ── Scene & Camera ── */
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 6);
 
-  function srand(i) {
-    const x = Math.sin(i * 127.1 + 311.7) * 43758.5453;
-    return x - Math.floor(x);
+  /* ── Background env — subtle floating light orbs ── */
+  const bgScene = new THREE.Scene();
+
+  function addBgOrb(x, y, z, col, size) {
+    const g = new THREE.SphereGeometry(size, 12, 12);
+    const m = new THREE.MeshBasicMaterial({ color: col });
+    const mesh = new THREE.Mesh(g, m);
+    mesh.position.set(x, y, z);
+    bgScene.add(mesh);
   }
+  addBgOrb(-2.5,  1.5, -3, 0xffffff, 0.55);
+  addBgOrb( 2.8, -1.2, -3, 0xddddff, 0.35);
+  addBgOrb( 0.2,  2.4, -4, 0xffffff, 0.28);
+  addBgOrb(-1.8, -2.0, -2, 0xbbbbcc, 0.22);
 
-  /* KEY: hollow is baked into the 3D positions.
-     Each point lives on the sphere surface (unit sphere),
-     but we give each a radial factor very close to 1.0.
-     The inner boundary SHELL_INNER = 0.80 means no dot
-     ever gets closer than 80% of RADIUS to the centre.
-     Under any rotation this void is preserved — it's geometry,
-     not a per-frame z-cull trick. */
-  const SHELL_INNER = 0.78;
-  const pts = [];
-  const golden = Math.PI * (3 - Math.sqrt(5));
+  /* ── FBOs ── */
+  const fboOpts = {
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.HalfFloatType,
+  };
+  const mainFBO = new THREE.WebGLRenderTarget(SIZE * 2, SIZE * 2, fboOpts);
+  const backFBO = new THREE.WebGLRenderTarget(SIZE * 2, SIZE * 2, fboOpts);
 
-  for (let i = 0; i < NUM_DOTS; i++) {
-    const y     = 1 - (i / (NUM_DOTS - 1)) * 2;
-    const r     = Math.sqrt(Math.max(0, 1 - y * y));
-    const theta = golden * i;
-    const nx    = Math.cos(theta) * r;
-    const nz    = Math.sin(theta) * r;
+  /* ── Shaders ── */
+  const vertSrc = `
+    varying vec3 vWorldNormal;
+    varying vec3 vEyeVector;
+    void main() {
+      vec4 worldPos = modelMatrix * vec4(position, 1.0);
+      vec4 mvPos    = viewMatrix * worldPos;
+      gl_Position   = projectionMatrix * mvPos;
+      vWorldNormal  = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
+      vEyeVector    = normalize(worldPos.xyz - cameraPosition);
+    }
+  `;
 
-    /* Bias toward outer surface: pow > 1 pushes most values toward 1.0 */
-    const shellR = SHELL_INNER + Math.pow(srand(i), 2.5) * (1.0 - SHELL_INNER);
+  const fragSrc = `
+    precision highp float;
 
-    pts.push({
-      x: nx * shellR,
-      y: y  * shellR,
-      z: nz * shellR,
-      j: 0.35 + srand(i + NUM_DOTS) * 1.1,
-    });
-  }
+    uniform sampler2D uTexture;
+    uniform vec2      uResolution;
+    uniform float     uIorR;
+    uniform float     uIorG;
+    uniform float     uIorB;
+    uniform float     uRefract;
+    uniform float     uChromaticAberration;
+    uniform float     uSaturation;
+    uniform float     uShininess;
+    uniform float     uDiffuseness;
+    uniform float     uFresnelPower;
+    uniform vec3      uLight;
+    uniform float     uTime;
 
-  function toRad(d) { return d * Math.PI / 180; }
+    varying vec3 vWorldNormal;
+    varying vec3 vEyeVector;
 
-  /* Pause drawing when globe is off-screen — start visible, observer turns it off */
-  let globeVisible = true;
-  const globeObserver = new IntersectionObserver(entries => {
-    globeVisible = entries[0].isIntersecting;
-  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
-  globeObserver.observe(canvas);
+    #define LOOP 10
 
-  let lastGlobeDraw = 0;
-
-  function draw(now) {
-    requestAnimationFrame(draw);
-    if (!globeVisible) return;
-    lastGlobeDraw = now;
-
-    ctx.clearRect(0, 0, SIZE, SIZE);
-
-    const rot = window._sphereRot || { x: 0, y: 0, z: 0 };
-    const rx = toRad(rot.x), ry = toRad(rot.y), rz = toRad(rot.z);
-    const cX = Math.cos(rx), sX = Math.sin(rx);
-    const cY = Math.cos(ry), sY = Math.sin(ry);
-    const cZ = Math.cos(rz), sZ = Math.sin(rz);
-    const cx = SIZE / 2, cy = SIZE / 2;
-
-    /* Batch dots by alpha bucket (10 buckets) — cuts fillStyle assignments from 1200 → 10 */
-    const BUCKETS = 10;
-    const buckets = Array.from({ length: BUCKETS }, () => []);
-
-    for (let i = 0; i < pts.length; i++) {
-      const p = pts[i];
-      let x = p.x, y = p.y, z = p.z;
-
-      let ny = y * cX - z * sX, nz = y * sX + z * cX;
-      y = ny; z = nz;
-
-      let nx2 = x * cY + z * sY; nz = -x * sY + z * cY;
-      x = nx2; z = nz;
-
-      let nx3 = x * cZ - y * sZ, ny3 = x * sZ + y * cZ;
-      x = nx3; y = ny3;
-
-      const depth = (z + 1) / 2;
-      const px = cx + x * RADIUS;
-      const py = cy + y * RADIUS;
-      const alpha = 0.35 + depth * 0.65;
-      const dotSize = (0.15 + depth * 0.85) * p.j;
-      const bucket = Math.min(BUCKETS - 1, Math.floor(alpha * BUCKETS));
-      buckets[bucket].push(px, py, dotSize);
+    vec3 sat(vec3 rgb, float s) {
+      vec3 L = vec3(dot(rgb, vec3(0.2125, 0.7154, 0.0721)));
+      return mix(L, rgb, s);
     }
 
-    for (let b = 0; b < BUCKETS; b++) {
-      if (buckets[b].length === 0) continue;
-      const alpha = Math.round(((b + 0.5) / BUCKETS) * 10) / 10;
-      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-      ctx.beginPath();
-      const arr = buckets[b];
-      for (let j = 0; j < arr.length; j += 3) {
-        ctx.moveTo(arr[j] + arr[j+2], arr[j+1]);
-        ctx.arc(arr[j], arr[j+1], arr[j+2], 0, Math.PI * 2);
+    float specularDiffuse(vec3 light, float shin, float diff) {
+      vec3 n  = vWorldNormal;
+      vec3 lv = normalize(-light);
+      vec3 hv = normalize(vEyeVector + lv);
+      float NdL = max(0.0, dot(n, lv));
+      float NdH = dot(n, hv);
+      float NdH2 = NdH * NdH;
+      return pow(NdH2, shin) + NdL * diff;
+    }
+
+    float fresnel(float power) {
+      float f = abs(dot(vEyeVector, vWorldNormal));
+      return pow(1.0 - f, power);
+    }
+
+    void main() {
+      vec2 uv = gl_FragCoord.xy / uResolution;
+
+      float iorR = 1.0 / uIorR;
+      float iorG = 1.0 / uIorG;
+      float iorB = 1.0 / uIorB;
+
+      vec3 color = vec3(0.0);
+
+      for (int i = 0; i < LOOP; i++) {
+        float slide = float(i) / float(LOOP) * 0.1;
+
+        vec3 rVecR = refract(vEyeVector, vWorldNormal, iorR);
+        vec3 rVecG = refract(vEyeVector, vWorldNormal, iorG);
+        vec3 rVecB = refract(vEyeVector, vWorldNormal, iorB);
+
+        color.r += texture2D(uTexture, uv + rVecR.xy * (uRefract + slide * 1.0) * uChromaticAberration).r;
+        color.g += texture2D(uTexture, uv + rVecG.xy * (uRefract + slide * 2.0) * uChromaticAberration).g;
+        color.b += texture2D(uTexture, uv + rVecB.xy * (uRefract + slide * 3.0) * uChromaticAberration).b;
       }
-      ctx.fill();
+      color /= float(LOOP);
+      color = sat(color, uSaturation);
+
+      /* Specular + diffuse */
+      float spec = specularDiffuse(uLight, uShininess, uDiffuseness);
+      color += vec3(spec * 0.15);
+
+      /* Fresnel rim */
+      float fr = fresnel(uFresnelPower);
+      color += vec3(fr * 0.22);
+
+      gl_FragColor = vec4(color, 1.0);
     }
+  `;
+
+  const uniforms = {
+    uTexture:            { value: null },
+    uResolution:         { value: new THREE.Vector2(SIZE * 2, SIZE * 2) },
+    uIorR:               { value: 1.15 },
+    uIorG:               { value: 1.18 },
+    uIorB:               { value: 1.22 },
+    uRefract:            { value: 0.4 },
+    uChromaticAberration:{ value: 0.8 },
+    uSaturation:         { value: 1.08 },
+    uShininess:          { value: 40.0 },
+    uDiffuseness:        { value: 0.12 },
+    uFresnelPower:       { value: 4.5 },
+    uLight:              { value: new THREE.Vector3(-1.5, 1.5, 1.0) },
+    uTime:               { value: 0 },
+  };
+
+  const mat = new THREE.ShaderMaterial({
+    vertexShader:   vertSrc,
+    fragmentShader: fragSrc,
+    uniforms,
+    side: THREE.FrontSide,
+  });
+
+  /* Icosahedron — same shape referenced in the article */
+  const geo  = new THREE.IcosahedronGeometry(1.6, 20);
+  const mesh = new THREE.Mesh(geo, mat);
+  scene.add(mesh);
+
+  /* ── Visibility guard ── */
+  let visible = true;
+  const sc = document.getElementById('scrollContainer');
+  new IntersectionObserver(e => { visible = e[0].isIntersecting; },
+    { root: sc, threshold: 0.1 }).observe(mount);
+
+  /* ── Render loop ── */
+  const clock = new THREE.Clock();
+
+  function render() {
+    requestAnimationFrame(render);
+    if (!visible) return;
+
+    const t   = clock.getElapsedTime();
+    uniforms.uTime.value = t;
+
+    /* Sync with existing drag rotation (_sphereRot set by drag JS) */
+    const rot = window._sphereRot || { x: 0, y: 0, z: 0 };
+    mesh.rotation.x = THREE.MathUtils.degToRad(rot.x);
+    mesh.rotation.y = THREE.MathUtils.degToRad(rot.y);
+    mesh.rotation.z = THREE.MathUtils.degToRad(rot.z);
+
+    /* Gentle auto-breathe on top of drag */
+    mesh.rotation.y += t * 0.12;
+    mesh.rotation.x += Math.sin(t * 0.3) * 0.04;
+
+    /* ── Pass 1: backside ── */
+    mesh.visible = false;
+    renderer.setRenderTarget(backFBO);
+    renderer.render(bgScene, camera);
+
+    mat.uniforms.uTexture.value = backFBO.texture;
+    mat.side = THREE.BackSide;
+    mesh.visible = true;
+
+    renderer.setRenderTarget(mainFBO);
+    renderer.render(scene, camera);
+
+    /* ── Pass 2: frontside ── */
+    mat.uniforms.uTexture.value = mainFBO.texture;
+    mat.side = THREE.FrontSide;
+
+    renderer.setRenderTarget(null);
+    renderer.render(scene, camera);
   }
 
-  draw();
+  render();
+
+  /* Resize */
+  window.addEventListener('resize', () => {
+    const s = window.innerWidth <= 768 ? 380 : 620;
+    renderer.setSize(s, s);
+    mainFBO.setSize(s * 2, s * 2);
+    backFBO.setSize(s * 2, s * 2);
+    uniforms.uResolution.value.set(s * 2, s * 2);
+  });
 })();
 </script>
 
