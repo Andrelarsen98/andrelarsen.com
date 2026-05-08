@@ -1182,119 +1182,171 @@
     height: 100% !important;
   }
 
-  /* ── VIDEO SPHERE ── */
-  .vs-glow {
+  /* ── SIGNAL CORE ── */
+  .artifact-glow {
     position: absolute;
-    width: 640px; height: 640px;
+    width: 760px; height: 760px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 40%, transparent 70%);
-    pointer-events: none;
-    filter: blur(20px);
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
+    pointer-events: none;
     z-index: 0;
+    background:
+      radial-gradient(circle at 48% 46%, rgba(80,120,255,0.14) 0%, rgba(33,58,130,0.10) 26%, rgba(10,12,24,0.00) 62%),
+      radial-gradient(circle at 60% 62%, rgba(99,213,255,0.10) 0%, rgba(99,213,255,0.00) 34%),
+      radial-gradient(circle, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.00) 70%);
+    filter: blur(30px);
+    opacity: 0.82;
   }
-  @media (max-width: 768px) {
-    .vs-glow { filter: none; opacity: 0.5; }
-  }
-  .vs-scene {
+  .artifact-scene {
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 1000px;
-    cursor: grab;
+    perspective: 1200px;
     overflow: visible;
-    z-index: 1;
+    z-index: 2;
+    cursor: grab;
   }
-  .vs-scene.dragging { cursor: grabbing; }
-  .vs-sphere {
+  .artifact-scene.dragging { cursor: grabbing; }
+  .artifact-shell {
+    position: relative;
     width: 640px; height: 640px;
     transform-style: preserve-3d;
-    position: relative;
     will-change: transform;
-    flex-shrink: 0;
-    z-index: 2;
+    z-index: 3;
+    pointer-events: none;
   }
-  .vs-card {
+  .artifact-ring,
+  .artifact-arc,
+  .artifact-sheen,
+  .artifact-veil,
+  .artifact-flare,
+  .artifact-tick,
+  .artifact-label {
     position: absolute;
-    width: 160px; height: 90px;
-    top: 50%; left: 50%;
-    margin-top: -45px; margin-left: -80px;
+    top: 50%;
+    left: 50%;
     transform-style: preserve-3d;
-    overflow: visible;
-    background: transparent;
+    pointer-events: none;
   }
-  .vs-card-face {
-    position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
-    border-radius: 6px;
-    overflow: hidden;
-    background: #0a0a0a;
-    backface-visibility: hidden;
-    will-change: transform, opacity, filter;
+  .artifact-ring {
+    width: 520px; height: 520px;
+    margin-top: -260px; margin-left: -260px;
+    border-radius: 50%;
+    border: 1px solid rgba(158, 187, 255, 0.14);
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.07),
-      0 2px 8px rgba(0,0,0,0.6),
-      0 8px 32px rgba(0,0,0,0.8);
-  }
-  .vs-card-face::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.00) 42%),
-      linear-gradient(135deg, rgba(255,180,110,0.08) 0%, rgba(255,255,255,0.00) 55%);
-    z-index: 2;
-    pointer-events: none;
-  }
-  .vs-card-face::after {
-    content: '';
-    position: absolute;
-    inset: -10%;
-    border-radius: 10px;
-    background: radial-gradient(circle at 50% 50%, rgba(255,120,45,0.20) 0%, rgba(255,120,45,0.00) 72%);
-    transform: translateZ(-1px) scale(0.96);
+      0 0 0 1px rgba(255,255,255,0.03) inset,
+      0 0 24px rgba(63, 101, 255, 0.10),
+      0 0 70px rgba(14, 20, 54, 0.12);
     opacity: 0.55;
-    filter: blur(16px);
-    z-index: 0;
-    pointer-events: none;
-  }
-  .vs-card::after { display: none; }
-  .vs-card-face video {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-    position: absolute;
-    top: 0; left: 0;
-    z-index: 1;
-  }
-
-  /* Glitch overlay — triggered by JS when videos loop */
-  .vs-glitch {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 20;
-    opacity: 0;
     mix-blend-mode: screen;
   }
-  .vs-glitch.active {
-    animation: none;
-    opacity: 0;
+  .artifact-ring::before {
+    content: '';
+    position: absolute;
+    inset: 22px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255,255,255,0.08);
+    opacity: 0.45;
   }
-  @keyframes vsGlitch {
-    0%   { opacity: 1; background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(255,255,255,0.06) 3px, rgba(255,255,255,0.06) 4px); clip-path: inset(10% 0 80% 0); }
-    10%  { clip-path: inset(60% 0 20% 0); background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,200,255,0.08) 2px, rgba(0,200,255,0.08) 3px); transform: translateX(-4px); }
-    20%  { clip-path: inset(30% 0 55% 0); transform: translateX(5px); background: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,0,100,0.07) 4px, rgba(255,0,100,0.07) 5px); }
-    30%  { clip-path: inset(75% 0 10% 0); transform: translateX(-3px); }
-    40%  { clip-path: inset(5% 0 70% 0);  transform: translateX(4px);  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 3px); }
-    55%  { clip-path: inset(45% 0 40% 0); transform: translateX(-6px); }
-    70%  { clip-path: inset(20% 0 65% 0); transform: translateX(3px); }
-    85%  { clip-path: inset(0% 0 0% 0);   transform: translateX(0); opacity: 0.3; }
-    100% { opacity: 0; transform: translateX(0); clip-path: inset(0); }
+  .artifact-ring::after {
+    content: '';
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    border-bottom: 1px solid rgba(73, 143, 255, 0.12);
+    filter: blur(0.4px);
+    opacity: 0.6;
+  }
+  .artifact-ring.ring-b {
+    width: 420px; height: 420px;
+    margin-top: -210px; margin-left: -210px;
+    border-color: rgba(99,213,255,0.14);
+    opacity: 0.42;
+  }
+  .artifact-arc {
+    width: 340px;
+    height: 340px;
+    margin-top: -170px;
+    margin-left: -170px;
+    border-radius: 50%;
+    border-top: 2px solid rgba(143, 208, 255, 0.72);
+    border-right: 2px solid rgba(143, 208, 255, 0.12);
+    border-bottom: 2px solid rgba(143, 208, 255, 0.00);
+    border-left: 2px solid rgba(143, 208, 255, 0.00);
+    filter: drop-shadow(0 0 12px rgba(143, 208, 255, 0.18));
+    opacity: 0.78;
+  }
+  .artifact-arc.arc-b {
+    width: 430px;
+    height: 430px;
+    margin-top: -215px;
+    margin-left: -215px;
+    border-top-color: rgba(255,255,255,0.18);
+    border-right-color: rgba(255,255,255,0.06);
+    opacity: 0.45;
+  }
+  .artifact-sheen {
+    width: 290px; height: 290px;
+    margin-top: -145px; margin-left: -145px;
+    border-radius: 50%;
+    background:
+      conic-gradient(from 40deg, rgba(255,255,255,0.00) 0deg, rgba(255,255,255,0.12) 56deg, rgba(120,170,255,0.00) 118deg, rgba(135,212,255,0.10) 220deg, rgba(255,255,255,0.00) 360deg);
+    filter: blur(12px);
+    opacity: 0.64;
+    mix-blend-mode: screen;
+  }
+  .artifact-veil {
+    width: 520px; height: 520px;
+    margin-top: -260px; margin-left: -260px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 45% 42%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.00) 38%),
+      radial-gradient(circle at 60% 60%, rgba(78,111,255,0.16) 0%, rgba(78,111,255,0.00) 42%),
+      radial-gradient(circle at 35% 70%, rgba(97,219,255,0.08) 0%, rgba(97,219,255,0.00) 32%);
+    filter: blur(22px);
+    opacity: 0.58;
+    mix-blend-mode: screen;
+  }
+  .artifact-flare {
+    width: 180px; height: 2px;
+    margin-left: -90px; margin-top: -1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.00), rgba(135,176,255,0.75), rgba(255,255,255,0.00));
+    box-shadow: 0 0 18px rgba(135,176,255,0.22);
+    opacity: 0.58;
+  }
+  .artifact-tick {
+    width: 26px;
+    height: 8px;
+    margin-left: -13px;
+    margin-top: -4px;
+    border-top: 1px solid rgba(255,255,255,0.46);
+    border-left: 1px solid rgba(255,255,255,0.18);
+    opacity: 0.7;
+  }
+  .artifact-label {
+    margin-left: -26px;
+    margin-top: -8px;
+    color: rgba(255,255,255,0.56);
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(91, 169, 255, 0.14);
+    opacity: 0.78;
+  }
+  @media (max-width: 768px) {
+    .artifact-glow { width: 420px; height: 420px; filter: blur(22px); opacity: 0.75; }
+    .artifact-shell { width: 340px; height: 340px; }
+    .artifact-ring { width: 280px; height: 280px; margin-top: -140px; margin-left: -140px; }
+    .artifact-ring.ring-b { width: 224px; height: 224px; margin-top: -112px; margin-left: -112px; }
+    .artifact-veil { width: 290px; height: 290px; margin-top: -145px; margin-left: -145px; }
+    .artifact-sheen { width: 190px; height: 190px; margin-top: -95px; margin-left: -95px; }
+    .artifact-arc { width: 220px; height: 220px; margin-top: -110px; margin-left: -110px; }
+    .artifact-arc.arc-b { width: 290px; height: 290px; margin-top: -145px; margin-left: -145px; }
   }
 
   .cube-ui {
@@ -1452,9 +1504,6 @@
     }
     .cube-title { font-size: clamp(32px, 10vw, 52px); }
     #particleGlobe { width: 340px; height: 340px; }
-    .vs-sphere { width: 340px; height: 340px; }
-    .vs-glow { width: 210px; height: 210px; }
-    .vs-card { width: 98px; height: 55px; margin-top: -28px; margin-left: -49px; }
     .cube-drag-label {
       position: relative;
       bottom: auto;
@@ -1906,10 +1955,10 @@ Dubai, worldwide.</div>
       <div class="cube-ui">
         <div class="cube-suptitle">
           <span class="cube-square">■</span>
-          <span class="cube-label">Selected Work</span>
+          <span class="cube-label">Signal Core</span>
         </div>
-        <div class="cube-counter" id="cubeCounter">01</div>
-        <div class="cube-total">/16</div>
+        <div class="cube-counter" id="cubeCounter">A1</div>
+        <div class="cube-total">/CORE</div>
       </div>
       <div class="cube-telemetry" id="cubeTelemetry">
         <div class="tele-row"><span class="tele-label">ALT</span><span class="tele-sep">:</span><span class="tele-val" id="teleAlt">142M</span></div>
@@ -3078,196 +3127,164 @@ videoEl.addEventListener('timeupdate', () => {
 
 
 /* ══════════════════════════════════════
-   ── VIDEO SPHERE ──
-   Front-biased distributed cards,
-   multi-axis rotation, glitch on loop
+   ── SIGNAL CORE RIG ──
+   orbital geometry,
+   restrained scan motion
 ══════════════════════════════════════ */
 (function() {
-  const SOURCE_VIDEOS = 16;
-  const NUM_CARDS    = 20;
-  const RADIUS       = window.innerWidth <= 768 ? 170 : 278;
-  const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
-
   const section   = document.getElementById('cubeSection');
   const counter   = document.getElementById('cubeCounter');
   const cubeRight = document.getElementById('cubeRight');
+  const scrollRoot = document.getElementById('scrollContainer');
   if (!section || !cubeRight) return;
 
-  /* ── DOM structure ── */
   const glow = document.createElement('div');
-  glow.className = 'vs-glow';
+  glow.className = 'artifact-glow';
 
   const scene = document.createElement('div');
-  scene.className = 'vs-scene';
+  scene.className = 'artifact-scene';
 
-  const sphere = document.createElement('div');
-  sphere.className = 'vs-sphere';
+  const shell = document.createElement('div');
+  shell.className = 'artifact-shell';
 
-  /* Glitch overlay */
-  const glitchEl = document.createElement('div');
-  glitchEl.className = 'vs-glitch';
-
-  scene.appendChild(sphere);
-  scene.appendChild(glitchEl);
-  cubeRight.appendChild(glow);
-  cubeRight.appendChild(scene);
-
-  /* Move particleGlobe inside scene so it shares stacking context with cards */
   const globeMount = document.getElementById('particleGlobe');
-  if (globeMount) scene.insertBefore(globeMount, sphere);
-
-  /* ── Cards — Fibonacci sphere distribution ── */
-  for (let i = 0; i < NUM_CARDS; i++) {
-    const t      = i / (NUM_CARDS - 1);
-    const y      = 1 - t * 2;
-    const rHoriz = Math.sqrt(Math.max(0, 1 - y * y));
-    const theta  = GOLDEN_ANGLE * i;
-    let nx       = Math.cos(theta) * rHoriz;
-    let nz       = Math.sin(theta) * rHoriz;
-    let ny       = y;
-
-    const frontBias = Math.max(0, nz + 0.28);
-    const sideBias = Math.sin(i * 1.73) * 0.05;
-
-    nz += 0.42 + frontBias * 0.58;
-    nx += frontBias * 0.16 + sideBias;
-    ny += Math.cos(i * 0.9) * 0.06 - frontBias * 0.10;
-
-    const len = Math.hypot(nx, ny, nz) || 1;
-    nx /= len;
-    ny /= len;
-    nz /= len;
-
-    const azimuth   =  Math.atan2(nx, nz) * (180 / Math.PI);
-    const elevation = -Math.atan2(ny, Math.sqrt(nx*nx + nz*nz)) * (180 / Math.PI);
-    const sizeTier = i % 7 === 0 ? 1.2 : i % 3 === 0 ? 0.92 : 0.78;
-    const width = Math.round(160 * sizeTier);
-    const height = Math.round(90 * sizeTier);
-
-    const card = document.createElement('div');
-    card.className = 'vs-card';
-    card._nx = nx; card._ny = ny; card._nz = nz;
-    card._sizeTier = sizeTier;
-    card.style.width = `${width}px`;
-    card.style.height = `${height}px`;
-    card.style.marginLeft = `${Math.round(width / -2)}px`;
-    card.style.marginTop = `${Math.round(height / -2)}px`;
-    card.style.transform = [
-      `rotateY(${azimuth}deg)`,
-      `rotateX(${elevation}deg)`,
-      `translateZ(${RADIUS}px)`
-    ].join(' ');
-
-    const face = document.createElement('div');
-    face.className = 'vs-card-face';
-    card._face = face;
-
-    const vid = document.createElement('video');
-    vid.src        = `work${(i % SOURCE_VIDEOS) + 1}.mp4`;
-    vid.muted      = true;
-    vid.loop       = false;
-    vid.playsInline = true;
-    vid.preload    = 'none';
-    vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0;';
-
-    /* Seamless crossfade loop — clone fades in over the original near the end */
-    let crossfading = false;
-    vid.addEventListener('timeupdate', () => {
-      if (!vid.duration || crossfading) return;
-      const remaining = vid.duration - vid.currentTime;
-      if (remaining > 0.8) return;
-
-      crossfading = true;
-
-      // Clone the video, start it at 0
-      const clone = document.createElement('video');
-      clone.src = vid.src;
-      clone.muted = true;
-      clone.loop = false;
-      clone.playsInline = true;
-      clone.style.cssText = vid.style.cssText;
-      clone.style.opacity = '0';
-      clone.style.transition = 'opacity 0.8s ease';
-      face.appendChild(clone);
-
-      clone.play().catch(() => {});
-
-      // Crossfade: bring clone in, take original out
-      requestAnimationFrame(() => {
-        clone.style.opacity = '1';
-        vid.style.transition = 'opacity 0.8s ease';
-        vid.style.opacity = '0';
-      });
-
-      // Once crossfade is done, swap roles
-      setTimeout(() => {
-        vid.pause();
-        vid.currentTime = 0;
-        vid.style.transition = '';
-        vid.style.opacity = '1';
-        clone.style.transition = '';
-
-        // Hand the timeupdate listener to the clone by mirroring state
-        crossfading = false;
-
-        // Remove clone, original takes over seamlessly from clone's position
-        vid.currentTime = clone.currentTime;
-        vid.play().catch(() => {});
-        face.removeChild(clone);
-      }, 850);
-    });
-
-    face.appendChild(vid);
-    card.appendChild(face);
-    sphere.appendChild(card);
+  if (globeMount) {
+    cubeRight.appendChild(glow);
+    cubeRight.appendChild(scene);
+    scene.appendChild(globeMount);
+    scene.appendChild(shell);
+  } else {
+    cubeRight.appendChild(glow);
+    cubeRight.appendChild(scene);
+    scene.appendChild(shell);
   }
 
-  /* ── Glitch trigger — debounced so rapid timeupdate calls don't stack ── */
-  let glitchCooldown = false;
-  function triggerGlitch() {
-    if (glitchCooldown) return;
-    glitchCooldown = true;
-    glitchEl.classList.remove('active');
-    void glitchEl.offsetWidth; // force reflow
-    glitchEl.classList.add('active');
-    setTimeout(() => { glitchEl.classList.remove('active'); }, 460);
-    setTimeout(() => { glitchCooldown = false; }, 1200);
-  }
+  const veil = document.createElement('div');
+  veil.className = 'artifact-veil';
+  shell.appendChild(veil);
 
-  /* ── State ── */
+  const sheen = document.createElement('div');
+  sheen.className = 'artifact-sheen';
+  shell.appendChild(sheen);
+
+  const rings = [
+    { cls: 'artifact-ring ring-a', rx: 74, ry: -18, rz: 8, z: 30 },
+    { cls: 'artifact-ring ring-b', rx: 18, ry: 56, rz: -32, z: -12 },
+  ];
+  rings.forEach(cfg => {
+    const el = document.createElement('div');
+    el.className = cfg.cls;
+    el._cfg = cfg;
+    shell.appendChild(el);
+  });
+
+  const arcs = [
+    { cls: 'artifact-arc arc-a', rx: 72, ry: -20, rz: 22, z: 124, x: 0, y: 0, ox: 0.5 },
+    { cls: 'artifact-arc arc-b', rx: 18, ry: 52, rz: -36, z: 84, x: 0, y: 0, ox: 1.0 },
+  ];
+  arcs.forEach(cfg => {
+    const el = document.createElement('div');
+    el.className = cfg.cls;
+    el._cfg = cfg;
+    shell.appendChild(el);
+  });
+
+  const flares = [
+    { len: 164, rx: 0, ry: 62, rz: -18, z: 176, x: 128, y: -48, ox: 0.6 },
+    { len: 132, rx: 0, ry: -50, rz: 28, z: 146, x: -134, y: 124, ox: 1.2 },
+    { len: 104, rx: 84, ry: 14, rz: 6, z: 72, x: -16, y: -206, ox: 0.2 },
+  ];
+  flares.forEach(cfg => {
+    const el = document.createElement('div');
+    el.className = 'artifact-flare';
+    el.style.width = `${cfg.len}px`;
+    el.style.marginLeft = `${Math.round(cfg.len / -2)}px`;
+    el._cfg = cfg;
+    shell.appendChild(el);
+  });
+
+  const ticks = [
+    { x: 182, y: -126, z: 142, rx: 0, ry: 58, rz: 22, ox: 0.5 },
+    { x: -188, y: 82, z: 116, rx: 0, ry: -48, rz: -18, ox: 0.9 },
+    { x: -18, y: -196, z: 88, rx: 84, ry: 12, rz: 4, ox: 0.3 },
+    { x: 148, y: 136, z: 128, rx: -10, ry: 40, rz: 36, ox: 1.1 },
+  ];
+  ticks.forEach(cfg => {
+    const el = document.createElement('div');
+    el.className = 'artifact-tick';
+    el._cfg = cfg;
+    shell.appendChild(el);
+  });
+
+  const labels = [
+    { text: 'SIG A1', x: 190, y: -146, z: 144, rx: 0, ry: 56, rz: 20, ox: 0.5 },
+    { text: 'NODE 3', x: -204, y: 96, z: 118, rx: 0, ry: -46, rz: -18, ox: 1.0 },
+  ];
+  labels.forEach(cfg => {
+    const el = document.createElement('div');
+    el.className = 'artifact-label';
+    el.textContent = cfg.text;
+    el._cfg = cfg;
+    shell.appendChild(el);
+  });
+
   let rotX = 8, rotY = 0, rotZ = 0;
   let velX = 0, velY = 0;
   let dragging = false, prevX = 0, prevY = 0;
   let lastDX = 0, lastDY = 0;
   let touchStartX = 0, touchStartY = 0;
   let elapsed = 0, lastTime = performance.now();
-  let visible = true;
+  let scrollBoost = 0;
+  let lastScrollTop = scrollRoot ? scrollRoot.scrollTop : 0;
+  let lastScrollSample = performance.now();
+  const statusWords = ['LOCK', 'TRACE', 'FRAME', 'SIGNAL', 'ACQUIRE'];
 
-  /* ── Drag ── */
+  if (scrollRoot) {
+    scrollRoot.addEventListener('scroll', () => {
+      const now = performance.now();
+      const nextTop = scrollRoot.scrollTop;
+      const dtMs = Math.max(now - lastScrollSample, 16);
+      const delta = nextTop - lastScrollTop;
+      const velocity = Math.abs(delta) / dtMs;
+      scrollBoost = Math.min(1.8, scrollBoost + velocity * 1.9);
+      lastScrollTop = nextTop;
+      lastScrollSample = now;
+    }, { passive: true });
+  }
+
   function dragStart(x, y) {
-    dragging = true; prevX = x; prevY = y;
-    lastDX = 0; lastDY = 0; velX = 0; velY = 0;
+    dragging = true;
+    prevX = x;
+    prevY = y;
+    lastDX = 0;
+    lastDY = 0;
+    velX = 0;
+    velY = 0;
     scene.classList.add('dragging');
   }
+
   function dragMove(x, y) {
     if (!dragging) return;
-    lastDX = x - prevX; lastDY = y - prevY;
-    rotY += lastDX * 0.38;
-    rotX += lastDY * 0.38;
-    rotX = Math.max(-70, Math.min(70, rotX));
-    prevX = x; prevY = y;
+    lastDX = x - prevX;
+    lastDY = y - prevY;
+    rotY += lastDX * 0.22;
+    rotX += lastDY * 0.18;
+    rotX = Math.max(-34, Math.min(34, rotX));
+    prevX = x;
+    prevY = y;
   }
+
   function dragEnd() {
     if (!dragging) return;
     dragging = false;
-    velY = lastDX * 0.38; velX = lastDY * 0.38;
-    lastDX = 0; lastDY = 0;
+    velY = lastDX * 0.16;
+    velX = lastDY * 0.14;
     scene.classList.remove('dragging');
   }
 
-  scene.addEventListener('mousedown',  e => dragStart(e.clientX, e.clientY));
+  scene.addEventListener('mousedown', e => dragStart(e.clientX, e.clientY));
   window.addEventListener('mousemove', e => dragMove(e.clientX, e.clientY), { passive: true });
-  window.addEventListener('mouseup',   dragEnd);
+  window.addEventListener('mouseup', dragEnd);
 
   scene.addEventListener('touchstart', e => {
     touchStartX = e.touches[0].clientX;
@@ -3283,12 +3300,21 @@ videoEl.addEventListener('timeupdate', () => {
     e.preventDefault();
     dragMove(e.touches[0].clientX, e.touches[0].clientY);
   }, { passive: false });
-
   scene.addEventListener('touchend', dragEnd);
 
-  const isMobileSphere = window.innerWidth <= 768;
+  function applyTransform(el, cfg, t, depthBoost) {
+    const driftY = Math.sin(t * (0.26 + cfg.ox * 0.05) + cfg.ox * 3.1) * 6;
+    const driftX = Math.cos(t * (0.22 + cfg.ox * 0.04) + cfg.ox * 1.7) * 7;
+    const pulse = 1 + Math.sin(t * (0.40 + cfg.ox * 0.05) + cfg.ox * 4.0) * 0.02;
+    el.style.transform = [
+      `translate3d(${cfg.x + driftX}px, ${cfg.y + driftY}px, ${cfg.z + depthBoost}px)`,
+      `rotateX(${cfg.rx}deg)`,
+      `rotateY(${cfg.ry}deg)`,
+      `rotateZ(${cfg.rz + Math.sin(t * 0.22 + cfg.ox) * 6}deg)`,
+      `scale(${pulse})`
+    ].join(' ');
+  }
 
-  /* ── Animation loop — always running from page load ── */
   function animate(now) {
     requestAnimationFrame(animate);
 
@@ -3298,115 +3324,76 @@ videoEl.addEventListener('timeupdate', () => {
     const t = elapsed;
 
     if (!dragging) {
-      /* Y — matched speed on both, organic pulse like a planet with wind drag */
-      const baseSpeed = 18;
-      const ySpeed = baseSpeed
-        + Math.sin(t * 0.17) * 5    // slow 37s cycle — main pulse
-        + Math.sin(t * 0.41) * 2.5  // faster 15s ripple
-        + Math.sin(t * 0.07) * 3;   // very slow 90s drift — feels weighted
+      scrollBoost *= Math.pow(0.92, dt * 60);
+      const ySpeed = 6 + scrollBoost * 22 + Math.sin(t * 0.18) * 1.3 + Math.sin(t * 0.43) * 0.7;
       rotY += ySpeed * dt;
+      const xTarget = Math.sin(t * 0.14) * 10 + Math.sin(t * 0.07) * 4;
+      rotX += (xTarget - rotX) * 0.5 * dt;
+      rotZ = Math.sin(t * 0.12) * 4 + Math.sin(t * 0.29) * 1.2 + scrollBoost * 3.4;
 
-      /* X — axial tilt drift, like Earth's obliquity slowly rocking */
-      const xTarget = Math.sin(t * 0.11) * 18   // primary tilt ~57s
-                    + Math.sin(t * 0.23) * 8     // secondary nod ~27s
-                    + Math.sin(t * 0.047) * 5;   // ultra-slow 133s sway
-      rotX += (xTarget - rotX) * 0.6 * dt;
-
-      /* Z — precession wobble on desktop, very subtle off-axis roll */
-      if (!isMobileSphere) {
-        rotZ = Math.sin(t * 0.09) * 7    // slow 70s roll
-             + Math.sin(t * 0.19) * 3.5  // 33s counter-roll
-             + Math.sin(t * 0.31) * 1.5; // faster shimmer
-      }
-
-      /* Inertia decay from drag */
-      const decay = Math.pow(0.92, dt * 60);
-      velX *= decay; velY *= decay;
-      rotX += velX; rotY += velY;
+      const decay = Math.pow(0.93, dt * 60);
+      velX *= decay;
+      velY *= decay;
+      rotX += velX;
+      rotY += velY;
     }
 
-    sphere.style.transform =
-      `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+    shell.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+    veil.style.transform = `translate3d(0,0,${36 + scrollBoost * 10}px) rotateZ(${Math.sin(t * 0.11) * 8 + scrollBoost * 12}deg) scale(${1 + Math.sin(t * 0.23) * 0.03 + scrollBoost * 0.018})`;
+    veil.style.opacity = String(0.52 + scrollBoost * 0.16);
+    sheen.style.transform = `translate3d(${Math.sin(t * 0.41) * 24}px, ${Math.cos(t * 0.33) * 18}px, ${108 + scrollBoost * 18}px) rotateZ(${18 + Math.sin(t * 0.19) * 20 + scrollBoost * 16}deg)`;
+    sheen.style.opacity = String(0.54 + scrollBoost * 0.18);
 
-    /* Expose rotation for particle globe sync */
-    window._sphereRot = { x: rotX, y: rotY, z: rotZ };
-
-    /* ── Per-card z-index: cards in front of orb render above canvas ──
-       Convert each card's local translateZ through the sphere rotation
-       to get world-space Z. Cards with positive worldZ are "in front". */
-    const rx = rotX * Math.PI / 180;
-    const ry = rotY * Math.PI / 180;
-    const rz = rotZ * Math.PI / 180;
-    const cosX = Math.cos(rx), sinX = Math.sin(rx);
-    const cosY = Math.cos(ry), sinY = Math.sin(ry);
-    const cosZ = Math.cos(rz), sinZ = Math.sin(rz);
-
-    const cards = sphere.querySelectorAll('.vs-card');
-    cards.forEach(card => {
-      const face = card._face;
-      if (!face) return;
-
-      const x0 = card._nx || 0;
-      const y0 = card._ny || 0;
-      const z0 = card._nz || 0;
-
-      const x1 = x0 * cosZ - y0 * sinZ;
-      const y1 = x0 * sinZ + y0 * cosZ;
-      const z1 = z0;
-
-      const x2 = x1 * cosY + z1 * sinY;
-      const y2 = y1;
-      const z2 = -x1 * sinY + z1 * cosY;
-
-      const worldZ = y2 * sinX + z2 * cosX;
-      const depth = (worldZ + 1) / 2;
-      const tier = card._sizeTier || 1;
-      const lift = 14 + depth * 16;
-      const scale = (0.72 + depth * 0.34) * tier;
-      const brightness = 0.48 + depth * 0.86;
-      const saturate = 0.72 + depth * 0.82;
-      const blur = (1 - depth) * 1.35;
-      const faceOpacity = depth < 0.14 ? 0 : 0.12 + depth * 0.88;
-
-      face.style.transform = `translateZ(${lift}px) scale(${scale})`;
-      face.style.opacity = String(faceOpacity);
-      face.style.filter = `brightness(${brightness}) saturate(${saturate}) blur(${blur}px)`;
-      card.style.zIndex = String(6 + Math.round(depth * 26));
+    shell.querySelectorAll('.artifact-ring').forEach((ring, index) => {
+      const cfg = ring._cfg;
+      ring.style.transform = [
+        `translate3d(0, 0, ${cfg.z + Math.sin(t * (0.2 + index * 0.07)) * 20}px)`,
+        `rotateX(${cfg.rx + Math.sin(t * 0.16 + index) * 6}deg)`,
+        `rotateY(${cfg.ry + Math.cos(t * 0.12 + index * 2) * 8}deg)`,
+        `rotateZ(${cfg.rz + t * (index === 0 ? 8 : -6) + scrollBoost * (index === 0 ? 24 : -18)}deg)`
+      ].join(' ');
+      ring.style.opacity = String(0.28 + Math.sin(t * (0.45 + index * 0.08)) * 0.05 + 0.18 + scrollBoost * 0.08);
     });
 
-    /* Expose velocity for telemetry */
-    if (dragging) {
-      window._sphereVel = Math.sqrt(lastDX * lastDX + lastDY * lastDY) * 0.38;
-    } else {
-      const autoSpinContrib = Math.abs(32 + Math.sin(elapsed * 0.17) * 6) * dt * 0.5;
-      window._sphereVel = Math.sqrt(velX * velX + velY * velY) + autoSpinContrib;
-    }
+    shell.querySelectorAll('.artifact-arc').forEach((arc, index) => {
+      const cfg = arc._cfg;
+      applyTransform(arc, cfg, t + index * 0.18, Math.sin(t * 0.24 + index) * 12 + scrollBoost * 14);
+      arc.style.opacity = String((index === 0 ? 0.72 : 0.4) + scrollBoost * 0.12);
+    });
 
-    /* Counter */
+    shell.querySelectorAll('.artifact-flare').forEach((flare, index) => {
+      const cfg = flare._cfg;
+      applyTransform(flare, cfg, t + index * 0.41, Math.cos(t * 0.26 + index) * 8 + scrollBoost * 16);
+      flare.style.opacity = String(0.24 + Math.sin(t * (0.9 + cfg.ox * 0.08) + index) * 0.18 + scrollBoost * 0.16);
+    });
+
+    shell.querySelectorAll('.artifact-tick').forEach((tick, index) => {
+      const cfg = tick._cfg;
+      applyTransform(tick, cfg, t + index * 0.2, Math.sin(t * 0.22 + index) * 8 + scrollBoost * 10);
+      tick.style.opacity = String(0.48 + Math.sin(t * 0.6 + index) * 0.1 + scrollBoost * 0.12);
+    });
+
+    shell.querySelectorAll('.artifact-label').forEach((label, index) => {
+      const cfg = label._cfg;
+      applyTransform(label, cfg, t + index * 0.16, Math.cos(t * 0.18 + index) * 6 + scrollBoost * 8);
+      label.style.opacity = String(0.52 + Math.sin(t * 0.4 + index) * 0.08 + scrollBoost * 0.08);
+      if (scrollBoost > 0.18) {
+        label.textContent = statusWords[(Math.floor(t * 8 + index) % statusWords.length)];
+      } else {
+        label.textContent = index === 0 ? 'SIG A1' : 'NODE 3';
+      }
+    });
+
+    window._sphereRot = { x: rotX, y: rotY, z: rotZ };
+    window._sphereVel = dragging
+      ? Math.sqrt(lastDX * lastDX + lastDY * lastDY) * 0.16
+      : Math.sqrt(velX * velX + velY * velY) + Math.abs(Math.sin(t * 0.18)) * 0.35 + scrollBoost * 1.2;
+
     if (counter) {
-      const face = Math.floor(((rotY % 360) + 360) % 360 / (360 / NUM_CARDS)) % NUM_CARDS;
-      counter.textContent = String(face + 1).padStart(2, '0');
+      counter.textContent = `A${String((Math.floor(t * 0.7) % 9) + 1)}`;
     }
   }
 
-  // Observer only controls video play/pause — animation runs independently
-  const obs = new IntersectionObserver(e => {
-    if (e[0].isIntersecting) {
-      lastTime = performance.now();
-      sphere.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
-    } else {
-      sphere.querySelectorAll('video').forEach(v => v.pause());
-    }
-  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
-
-  // Videos are small (300-800KB) — preload all immediately, no observer needed
-  // This ensures sphere is fully loaded before user ever scrolls to it
-  sphere.querySelectorAll('video').forEach(v => {
-    v.preload = 'auto';
-    v.load();
-  });
-
-  obs.observe(section);
   requestAnimationFrame(animate);
 })();
 
@@ -3855,21 +3842,21 @@ videoEl.addEventListener('timeupdate', () => {
   const uniforms = {
     uTexture:            { value: null },
     uResolution:         { value: new THREE.Vector2(SIZE * 2, SIZE * 2) },
-    uIorR:               { value: 1.15 },
-    uIorG:               { value: 1.18 },
-    uIorB:               { value: 1.22 },
-    uRefract:            { value: 0.28 },
-    uChromaticAberration:{ value: 0.65 },
-    uSaturation:         { value: 1.15 },
-    uShininess:          { value: 18.0 },
-    uDiffuseness:        { value: 0.08 },
-    uFresnelPower:       { value: 6.0 },
+    uIorR:               { value: 1.12 },
+    uIorG:               { value: 1.16 },
+    uIorB:               { value: 1.21 },
+    uRefract:            { value: 0.34 },
+    uChromaticAberration:{ value: 0.82 },
+    uSaturation:         { value: 1.22 },
+    uShininess:          { value: 22.0 },
+    uDiffuseness:        { value: 0.10 },
+    uFresnelPower:       { value: 5.4 },
     uLight:              { value: new THREE.Vector3(-1.5, 1.5, 1.0) },
     uTime:               { value: 0 },
     /* Morph controls */
-    uMorphAmp:           { value: 0.14 },
-    uMorphFreq:          { value: 1.4 },
-    uMorphSpeed:         { value: 0.38 },
+    uMorphAmp:           { value: 0.18 },
+    uMorphFreq:          { value: 1.55 },
+    uMorphSpeed:         { value: 0.34 },
   };
 
   const mat = new THREE.ShaderMaterial({
