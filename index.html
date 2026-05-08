@@ -1747,7 +1747,7 @@ Dubai, worldwide.</div>
 
     <div class="video-vignette"></div>
 
-    <div class="video-label-tl">SHOWREEL — 2025</div>
+
 
 
     <div class="video-progress-wrap">
@@ -1880,25 +1880,9 @@ Dubai, worldwide.</div>
   <section class="studio-section">
     <div class="scanline"></div>
 
-    <div class="studio-label-row">
-      <div class="studio-label-left">
-        <span>■</span>
-        <span>THE SETUP</span>
-      </div>
-      <div class="studio-label-right">05 TOOLS OF TRADE</div>
-    </div>
 
-    <div class="studio-headline">
-      <h2>
-        <span class="reveal-wrap"><span class="reveal-inner" data-reveal>BUILT TO FLY.</span></span>
-        <span class="reveal-wrap"><span class="reveal-inner" data-reveal style="transition-delay:0.08s">WIRED TO SHOOT.</span></span>
-      </h2>
-      <div class="studio-headline-sub">CUSTOM FPV RIG — CINEMA PAYLOAD — GOPRO CHALLENGE WINNER — DUBAI, UAE</div>
-    </div>
 
-    <div class="studio-photo-wrap">
-      <img src="gear_upscaled_grain_1.jpg" alt="FPV drone studio setup — André Larsen" />
-    </div>
+
   </section>
 
   <!-- ── FOOTER ── -->
@@ -3260,9 +3244,9 @@ videoEl.addEventListener('timeupdate', () => {
         card._wireBow = (Math.random() - 0.5) * 80; // re-randomise bow on zap
       }
 
-      /* Quarter intensity */
-      const alpha     = (0.12 + pulse * 0.14 + zap * 0.32) * Math.min(1, depth * 2.5);
-      const lineWidth = 0.5 + pulse * 0.3 + zap * 0.8;
+      /* Full intensity — no dot bleed-through */
+      const alpha     = (0.55 + pulse * 0.30 + zap * 0.45) * Math.min(1, depth * 2.5);
+      const lineWidth = 0.9 + pulse * 0.6 + zap * 1.4;
 
       /* Wire starts at sphere surface, not center — offset startpoint
          along the normal by sphere visual radius (~half of RADIUS) */
@@ -3720,14 +3704,14 @@ videoEl.addEventListener('timeupdate', () => {
       return pow(1.0 - f, power);
     }
 
-    /* Thin-film iridescence tint from surface displacement */
+    /* Thin-film iridescence — blue/cyan/teal only, no pink/magenta */
     vec3 iridescence(float disp, float fr) {
-      float t = disp * 4.0 + uTime * 0.25;
+      float t = disp * 3.0 + uTime * 0.18;
       vec3 col;
-      col.r = 0.5 + 0.5 * sin(t * 2.1);
-      col.g = 0.5 + 0.5 * sin(t * 2.1 + 2.094);
-      col.b = 0.5 + 0.5 * sin(t * 2.1 + 4.189);
-      return col * fr * 0.10;
+      col.r = 0.2 + 0.2 * sin(t * 1.4);           // very low red — no pink
+      col.g = 0.5 + 0.4 * sin(t * 1.4 + 1.2);     // mid-green/teal
+      col.b = 0.7 + 0.3 * sin(t * 1.4 + 2.4);     // dominant blue
+      return col * fr * 0.07;
     }
 
     void main() {
@@ -3756,21 +3740,21 @@ videoEl.addEventListener('timeupdate', () => {
       color = sat(color, uSaturation);
 
       /* Moderate darkening — not too crushed */
-      color *= 0.75;
+      color *= 0.70;
 
-      /* Deep glass body tint — dark blue-teal, fades toward edges */
-      vec3 glassColor = vec3(0.02, 0.05, 0.12);
+      /* Deep glass body tint — deeper blue-teal, very clean */
+      vec3 glassColor = vec3(0.01, 0.04, 0.10);
       float facing = abs(dot(vEyeVector, vWorldNormal));
-      /* Center (facing=1) gets more glass tint; edges stay refractive */
-      color = mix(color, glassColor, facing * 0.55);
+      /* Center gets deep glass tint; edges stay refractive and clear */
+      color = mix(color, glassColor, facing * 0.65);
 
-      /* Specular + diffuse */
+      /* Specular + diffuse — boosted for glassier highlight */
       float spec = specularDiffuse(uLight, uShininess, uDiffuseness);
-      color += vec3(spec * 0.05);
+      color += vec3(spec * 0.12);
 
-      /* Fresnel rim — cyan tinted, not white */
+      /* Fresnel rim — clean ice white, not tinted */
       float fr = fresnel(uFresnelPower);
-      color += vec3(fr * 0.12, fr * 0.22, fr * 0.35);
+      color += vec3(fr * 0.18, fr * 0.22, fr * 0.28);
 
       /* Iridescent surface tint from morph displacement */
       color += iridescence(vDisplace, fr + 0.2);
@@ -3791,7 +3775,7 @@ videoEl.addEventListener('timeupdate', () => {
     uRefract:            { value: 0.28 },
     uChromaticAberration:{ value: 0.65 },
     uSaturation:         { value: 1.15 },
-    uShininess:          { value: 18.0 },
+    uShininess:          { value: 38.0 },
     uDiffuseness:        { value: 0.08 },
     uFresnelPower:       { value: 6.0 },
     uLight:              { value: new THREE.Vector3(-1.5, 1.5, 1.0) },
