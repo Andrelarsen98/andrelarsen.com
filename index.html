@@ -817,6 +817,10 @@
     overflow: hidden;
     height: 52px;
     width: 100%;
+    /* Filter lives HERE — above the will-change:transform track.
+       iOS Safari drops filter on images inside GPU-composited layers
+       after 2-3s; keeping it on the parent row avoids that bug. */
+    filter: brightness(0) invert(1);
   }
 
   .logo-marquee-track {
@@ -849,7 +853,6 @@
     width: auto;
     max-width: 90px;
     object-fit: contain;
-    filter: brightness(0) invert(1);
     opacity: 1;
     pointer-events: none;
     flex-shrink: 0;
@@ -1740,12 +1743,12 @@ Dubai, worldwide.</div>
     <div class="clients-marquee-wrap">
     <div class="logo-marquee-row">
       <div class="logo-marquee-track">
-        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari" loading="eager" decoding="async" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1" loading="eager" decoding="async" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia" loading="eager" decoding="async" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes" loading="eager" decoding="async" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull" loading="eager" decoding="async" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar" loading="eager" decoding="async" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX" loading="eager" decoding="async"></div>
