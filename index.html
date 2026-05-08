@@ -3203,14 +3203,34 @@ videoEl.addEventListener('timeupdate', () => {
       const screenX = worldX * RADIUS;
       const screenY = -worldY * RADIUS;
 
-      /* Scale cards by depth — front bigger, back smaller */
-      const scale = 0.70 + depth * 0.30;
+      /* ── Tangent tilt: card faces outward from sphere surface ──
+         The world normal (worldX, worldY, worldZ) points away from
+         sphere center toward the card. We derive tilt angles from it
+         so the card is tangent to the sphere — like it's glued to the ball.
+
+         rotateY: how much the card tilts left/right (driven by worldX vs worldZ)
+         rotateX: how much the card tilts up/down   (driven by worldY)
+
+         We use atan2 so the tilt is geometrically correct at all positions.
+         A card directly facing the viewer (worldZ=1) gets 0° tilt.
+         A card at the left edge (worldX=-1) gets ~90° rotateY.
+      */
+      const tiltY =  Math.atan2(worldX, worldZ) * (180 / Math.PI);
+      const tiltX = -Math.atan2(worldY, Math.sqrt(worldX*worldX + worldZ*worldZ)) * (180 / Math.PI);
+
+      /* Scale: front cards full size, back cards slightly smaller for depth */
+      const scale = 0.68 + depth * 0.32;
+
+      /* Perspective for the tilt — higher = less extreme foreshortening */
+      const persp = 320;
 
       card.style.transform = `translate(${screenX}px, ${screenY}px)`;
-      face.style.transform = `scale(${scale})`;
-      face.style.opacity = String(0.72 + depth * 0.28);
+      face.style.transform = `perspective(${persp}px) rotateY(${tiltY}deg) rotateX(${tiltX}deg) scale(${scale})`;
 
-      /* CRITICAL: z-index makes front cards render above sphere, back cards below */
+      /* Opacity: back hemisphere slightly dimmer, never transparent */
+      face.style.opacity = String(0.70 + depth * 0.30);
+
+      /* Depth sort: front cards over sphere, back cards under */
       card.style.zIndex = String(Math.round(depth * 100));
     });
 
