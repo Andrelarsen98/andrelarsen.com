@@ -1347,6 +1347,8 @@
     .artifact-sheen { width: 190px; height: 190px; margin-top: -95px; margin-left: -95px; }
     .artifact-arc { width: 220px; height: 220px; margin-top: -110px; margin-left: -110px; }
     .artifact-arc.arc-b { width: 290px; height: 290px; margin-top: -145px; margin-left: -145px; }
+    .artifact-label { font-size: 11px; letter-spacing: 0.12em; }
+    .artifact-tick { width: 18px; margin-left: -9px; }
   }
 
   .cube-ui {
@@ -3136,6 +3138,7 @@ videoEl.addEventListener('timeupdate', () => {
   const counter   = document.getElementById('cubeCounter');
   const cubeRight = document.getElementById('cubeRight');
   const scrollRoot = document.getElementById('scrollContainer');
+  const isMobileArtifact = window.innerWidth <= 768;
   if (!section || !cubeRight) return;
 
   const glow = document.createElement('div');
@@ -3234,10 +3237,21 @@ videoEl.addEventListener('timeupdate', () => {
   let lastDX = 0, lastDY = 0;
   let touchStartX = 0, touchStartY = 0;
   let elapsed = 0, lastTime = performance.now();
-  let scrollBoost = 0;
+  const mobileScale = isMobileArtifact ? 0.58 : 1;
+  let scrollMomentum = 0;
+  let scrollTarget = 0;
   let lastScrollTop = scrollRoot ? scrollRoot.scrollTop : 0;
   let lastScrollSample = performance.now();
   const statusWords = ['LOCK', 'TRACE', 'FRAME', 'SIGNAL', 'ACQUIRE'];
+
+  [rings, arcs, flares, ticks, labels].forEach(group => {
+    group.forEach(cfg => {
+      if (cfg.x !== undefined) cfg.x *= mobileScale;
+      if (cfg.y !== undefined) cfg.y *= mobileScale;
+      if (cfg.z !== undefined) cfg.z *= isMobileArtifact ? 0.72 : 1;
+      if (cfg.len !== undefined && isMobileArtifact) cfg.len *= 0.72;
+    });
+  });
 
   if (scrollRoot) {
     scrollRoot.addEventListener('scroll', () => {
@@ -3245,8 +3259,8 @@ videoEl.addEventListener('timeupdate', () => {
       const nextTop = scrollRoot.scrollTop;
       const dtMs = Math.max(now - lastScrollSample, 16);
       const delta = nextTop - lastScrollTop;
-      const velocity = Math.abs(delta) / dtMs;
-      scrollBoost = Math.min(1.8, scrollBoost + velocity * 1.9);
+      const velocity = delta / dtMs;
+      scrollTarget = Math.max(-1.4, Math.min(1.4, velocity * 2.2));
       lastScrollTop = nextTop;
       lastScrollSample = now;
     }, { passive: true });
@@ -3303,8 +3317,8 @@ videoEl.addEventListener('timeupdate', () => {
   scene.addEventListener('touchend', dragEnd);
 
   function applyTransform(el, cfg, t, depthBoost) {
-    const driftY = Math.sin(t * (0.26 + cfg.ox * 0.05) + cfg.ox * 3.1) * 6;
-    const driftX = Math.cos(t * (0.22 + cfg.ox * 0.04) + cfg.ox * 1.7) * 7;
+    const driftY = Math.sin(t * (0.26 + cfg.ox * 0.05) + cfg.ox * 3.1) * (isMobileArtifact ? 4 : 6);
+    const driftX = Math.cos(t * (0.22 + cfg.ox * 0.04) + cfg.ox * 1.7) * (isMobileArtifact ? 4.5 : 7);
     const pulse = 1 + Math.sin(t * (0.40 + cfg.ox * 0.05) + cfg.ox * 4.0) * 0.02;
     el.style.transform = [
       `translate3d(${cfg.x + driftX}px, ${cfg.y + driftY}px, ${cfg.z + depthBoost}px)`,
@@ -3322,14 +3336,15 @@ videoEl.addEventListener('timeupdate', () => {
     lastTime = now;
     elapsed += dt;
     const t = elapsed;
+    scrollMomentum += (scrollTarget - scrollMomentum) * Math.min(1, dt * 7.5);
+    scrollTarget *= Math.pow(0.88, dt * 60);
 
     if (!dragging) {
-      scrollBoost *= Math.pow(0.92, dt * 60);
-      const ySpeed = 6 + scrollBoost * 22 + Math.sin(t * 0.18) * 1.3 + Math.sin(t * 0.43) * 0.7;
+      const ySpeed = 6 + scrollMomentum * 18 + Math.sin(t * 0.18) * 1.3 + Math.sin(t * 0.43) * 0.7;
       rotY += ySpeed * dt;
       const xTarget = Math.sin(t * 0.14) * 10 + Math.sin(t * 0.07) * 4;
       rotX += (xTarget - rotX) * 0.5 * dt;
-      rotZ = Math.sin(t * 0.12) * 4 + Math.sin(t * 0.29) * 1.2 + scrollBoost * 3.4;
+      rotZ = Math.sin(t * 0.12) * 4 + Math.sin(t * 0.29) * 1.2 + scrollMomentum * 2.2;
 
       const decay = Math.pow(0.93, dt * 60);
       velX *= decay;
@@ -3339,10 +3354,11 @@ videoEl.addEventListener('timeupdate', () => {
     }
 
     shell.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
-    veil.style.transform = `translate3d(0,0,${36 + scrollBoost * 10}px) rotateZ(${Math.sin(t * 0.11) * 8 + scrollBoost * 12}deg) scale(${1 + Math.sin(t * 0.23) * 0.03 + scrollBoost * 0.018})`;
-    veil.style.opacity = String(0.52 + scrollBoost * 0.16);
-    sheen.style.transform = `translate3d(${Math.sin(t * 0.41) * 24}px, ${Math.cos(t * 0.33) * 18}px, ${108 + scrollBoost * 18}px) rotateZ(${18 + Math.sin(t * 0.19) * 20 + scrollBoost * 16}deg)`;
-    sheen.style.opacity = String(0.54 + scrollBoost * 0.18);
+    const boostAbs = Math.abs(scrollMomentum);
+    veil.style.transform = `translate3d(0,0,${36 + boostAbs * 10}px) rotateZ(${Math.sin(t * 0.11) * 8 + scrollMomentum * 10}deg) scale(${1 + Math.sin(t * 0.23) * 0.03 + boostAbs * 0.018})`;
+    veil.style.opacity = String(0.52 + boostAbs * 0.16);
+    sheen.style.transform = `translate3d(${Math.sin(t * 0.41) * 24}px, ${Math.cos(t * 0.33) * 18}px, ${108 + boostAbs * 18}px) rotateZ(${18 + Math.sin(t * 0.19) * 20 + scrollMomentum * 14}deg)`;
+    sheen.style.opacity = String(0.54 + boostAbs * 0.18);
 
     shell.querySelectorAll('.artifact-ring').forEach((ring, index) => {
       const cfg = ring._cfg;
@@ -3350,34 +3366,34 @@ videoEl.addEventListener('timeupdate', () => {
         `translate3d(0, 0, ${cfg.z + Math.sin(t * (0.2 + index * 0.07)) * 20}px)`,
         `rotateX(${cfg.rx + Math.sin(t * 0.16 + index) * 6}deg)`,
         `rotateY(${cfg.ry + Math.cos(t * 0.12 + index * 2) * 8}deg)`,
-        `rotateZ(${cfg.rz + t * (index === 0 ? 8 : -6) + scrollBoost * (index === 0 ? 24 : -18)}deg)`
+        `rotateZ(${cfg.rz + t * (index === 0 ? 8 : -6) + scrollMomentum * (index === 0 ? 18 : -14)}deg)`
       ].join(' ');
-      ring.style.opacity = String(0.28 + Math.sin(t * (0.45 + index * 0.08)) * 0.05 + 0.18 + scrollBoost * 0.08);
+      ring.style.opacity = String(0.28 + Math.sin(t * (0.45 + index * 0.08)) * 0.05 + 0.18 + boostAbs * 0.08);
     });
 
     shell.querySelectorAll('.artifact-arc').forEach((arc, index) => {
       const cfg = arc._cfg;
-      applyTransform(arc, cfg, t + index * 0.18, Math.sin(t * 0.24 + index) * 12 + scrollBoost * 14);
-      arc.style.opacity = String((index === 0 ? 0.72 : 0.4) + scrollBoost * 0.12);
+      applyTransform(arc, cfg, t + index * 0.18, Math.sin(t * 0.24 + index) * 12 + boostAbs * 10);
+      arc.style.opacity = String((index === 0 ? 0.72 : 0.4) + boostAbs * 0.10);
     });
 
     shell.querySelectorAll('.artifact-flare').forEach((flare, index) => {
       const cfg = flare._cfg;
-      applyTransform(flare, cfg, t + index * 0.41, Math.cos(t * 0.26 + index) * 8 + scrollBoost * 16);
-      flare.style.opacity = String(0.24 + Math.sin(t * (0.9 + cfg.ox * 0.08) + index) * 0.18 + scrollBoost * 0.16);
+      applyTransform(flare, cfg, t + index * 0.41, Math.cos(t * 0.26 + index) * 8 + boostAbs * 10);
+      flare.style.opacity = String(0.24 + Math.sin(t * (0.9 + cfg.ox * 0.08) + index) * 0.18 + boostAbs * 0.12);
     });
 
     shell.querySelectorAll('.artifact-tick').forEach((tick, index) => {
       const cfg = tick._cfg;
-      applyTransform(tick, cfg, t + index * 0.2, Math.sin(t * 0.22 + index) * 8 + scrollBoost * 10);
-      tick.style.opacity = String(0.48 + Math.sin(t * 0.6 + index) * 0.1 + scrollBoost * 0.12);
+      applyTransform(tick, cfg, t + index * 0.2, Math.sin(t * 0.22 + index) * 8 + boostAbs * 7);
+      tick.style.opacity = String(0.48 + Math.sin(t * 0.6 + index) * 0.1 + boostAbs * 0.10);
     });
 
     shell.querySelectorAll('.artifact-label').forEach((label, index) => {
       const cfg = label._cfg;
-      applyTransform(label, cfg, t + index * 0.16, Math.cos(t * 0.18 + index) * 6 + scrollBoost * 8);
-      label.style.opacity = String(0.52 + Math.sin(t * 0.4 + index) * 0.08 + scrollBoost * 0.08);
-      if (scrollBoost > 0.18) {
+      applyTransform(label, cfg, t + index * 0.16, Math.cos(t * 0.18 + index) * 6 + boostAbs * 5);
+      label.style.opacity = String(0.52 + Math.sin(t * 0.4 + index) * 0.08 + boostAbs * 0.08);
+      if (boostAbs > 0.18) {
         label.textContent = statusWords[(Math.floor(t * 8 + index) % statusWords.length)];
       } else {
         label.textContent = index === 0 ? 'SIG A1' : 'NODE 3';
@@ -3387,7 +3403,7 @@ videoEl.addEventListener('timeupdate', () => {
     window._sphereRot = { x: rotX, y: rotY, z: rotZ };
     window._sphereVel = dragging
       ? Math.sqrt(lastDX * lastDX + lastDY * lastDY) * 0.16
-      : Math.sqrt(velX * velX + velY * velY) + Math.abs(Math.sin(t * 0.18)) * 0.35 + scrollBoost * 1.2;
+      : Math.sqrt(velX * velX + velY * velY) + Math.abs(Math.sin(t * 0.18)) * 0.35 + boostAbs * 0.9;
 
     if (counter) {
       counter.textContent = `A${String((Math.floor(t * 0.7) % 9) + 1)}`;
