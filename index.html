@@ -1170,8 +1170,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 620px;
-    height: 620px;
+    width: 720px;
+    height: 720px;
     pointer-events: none;
     z-index: 2;
     flex-shrink: 0;
@@ -1185,7 +1185,7 @@
   /* ── VIDEO SPHERE ── */
   .vs-glow {
     position: absolute;
-    width: 620px; height: 620px;
+    width: 720px; height: 720px;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.015) 40%, transparent 70%);
     pointer-events: none;
@@ -3386,13 +3386,13 @@ videoEl.addEventListener('timeupdate', () => {
   if (!mount) return;
 
   const isMobile = window.innerWidth <= 768;
-  const SIZE = isMobile ? 380 : 620;
+  const SIZE = isMobile ? 380 : 720;
 
   /* ── Renderer ── */
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(SIZE, SIZE);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setClearColor(0x000000, 0);
+  renderer.setClearColor(0x020508, 1);
   mount.appendChild(renderer.domElement);
 
   /* ── Scene & Camera ── */
@@ -3534,7 +3534,7 @@ videoEl.addEventListener('timeupdate', () => {
     minFilter: THREE.LinearFilter,
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat,
-    type: THREE.HalfFloatType,
+    type: THREE.UnsignedByteType,
   };
   const mainFBO = new THREE.WebGLRenderTarget(SIZE * 2, SIZE * 2, fboOpts);
   const backFBO = new THREE.WebGLRenderTarget(SIZE * 2, SIZE * 2, fboOpts);
@@ -3718,19 +3718,28 @@ videoEl.addEventListener('timeupdate', () => {
       color /= float(LOOP);
       color = sat(color, uSaturation);
 
+      /* Moderate darkening — not too crushed */
+      color *= 0.75;
+
+      /* Deep glass body tint — dark blue-teal, fades toward edges */
+      vec3 glassColor = vec3(0.02, 0.05, 0.12);
+      float facing = abs(dot(vEyeVector, vWorldNormal));
+      /* Center (facing=1) gets more glass tint; edges stay refractive */
+      color = mix(color, glassColor, facing * 0.55);
+
       /* Specular + diffuse */
       float spec = specularDiffuse(uLight, uShininess, uDiffuseness);
-      color += vec3(spec * 0.06);
+      color += vec3(spec * 0.05);
 
-      /* Fresnel rim — toned down so sphere doesn't blow out white */
+      /* Fresnel rim — cyan tinted, not white */
       float fr = fresnel(uFresnelPower);
-      color += vec3(fr * 0.08);
+      color += vec3(fr * 0.12, fr * 0.22, fr * 0.35);
 
       /* Iridescent surface tint from morph displacement */
       color += iridescence(vDisplace, fr + 0.2);
 
-      /* Dark glass: pull the colour toward the refracted image, suppress white bloom */
-      color = mix(color * 0.55, color, 0.72);
+      /* Hard clamp */
+      color = clamp(color, 0.0, 0.90);
 
       gl_FragColor = vec4(color, 1.0);
     }
@@ -3764,7 +3773,7 @@ videoEl.addEventListener('timeupdate', () => {
   });
 
   /* Higher subdivision for smooth morphing — 28 vs original 20 */
-  const geo  = new THREE.IcosahedronGeometry(1.6, 28);
+  const geo  = new THREE.IcosahedronGeometry(1.9, 28);
   const mesh = new THREE.Mesh(geo, mat);
   scene.add(mesh);
 
@@ -3799,23 +3808,26 @@ videoEl.addEventListener('timeupdate', () => {
     particles.rotation.y = t * 0.07;
     particles.rotation.x = Math.sin(t * 0.11) * 0.25;
 
-    /* ── Pass 1: backside ── */
-    mesh.visible = false;
+    /* ── Pass 1: render interior particle bgScene to backFBO ── */
+    renderer.setClearColor(0x030a14, 1);
     renderer.setRenderTarget(backFBO);
+    renderer.clear();
     renderer.render(bgScene, camera);
 
+    /* ── Pass 2: render backside of glass with particle texture ── */
     mat.uniforms.uTexture.value = backFBO.texture;
     mat.side = THREE.BackSide;
-    mesh.visible = true;
-
     renderer.setRenderTarget(mainFBO);
+    renderer.clear();
     renderer.render(scene, camera);
 
-    /* ── Pass 2: frontside ── */
+    /* ── Pass 3: render frontside of glass with combined texture ── */
     mat.uniforms.uTexture.value = mainFBO.texture;
     mat.side = THREE.FrontSide;
 
+    renderer.setClearColor(0x000000, 0);
     renderer.setRenderTarget(null);
+    renderer.clear();
     renderer.render(scene, camera);
   }
 
@@ -3823,7 +3835,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   /* Resize */
   window.addEventListener('resize', () => {
-    const s = window.innerWidth <= 768 ? 380 : 620;
+    const s = window.innerWidth <= 768 ? 380 : 720;
     renderer.setSize(s, s);
     mainFBO.setSize(s * 2, s * 2);
     backFBO.setSize(s * 2, s * 2);
