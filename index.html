@@ -1037,10 +1037,7 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr auto;
     overflow: hidden;
-    will-change: transform;
     transform: translateZ(0);
-    content-visibility: auto;
-    contain-intrinsic-size: 0 100vh;
   }
 
   /* Left column — counter + telemetry */
@@ -2971,12 +2968,12 @@ videoEl.addEventListener('timeupdate', () => {
   }
 
   /* ── State ── */
-  let rotX = 8, rotY = 0, rotZ = 0;
+  let rotX = 8, rotY = 180, rotZ = 22;  /* non-zero start — sphere already mid-roll */
   let velX = 0, velY = 0;
   let dragging = false, prevX = 0, prevY = 0;
   let lastDX = 0, lastDY = 0;
   let touchStartX = 0, touchStartY = 0;
-  let elapsed = 0, lastTime = performance.now();
+  let elapsed = 4.0, lastTime = performance.now(); /* pre-warm 4s into spin cycle */
   let visible = true;
 
   /* ── Drag ── */
@@ -3238,12 +3235,13 @@ videoEl.addEventListener('timeupdate', () => {
   // Observer only controls video play/pause — animation runs independently
   const obs = new IntersectionObserver(e => {
     if (e[0].isIntersecting) {
+      /* Sync lastTime so dt doesn't spike after a long offscreen gap */
       lastTime = performance.now();
       scene.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
     } else {
       scene.querySelectorAll('video').forEach(v => v.pause());
     }
-  }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
 
   // Videos are small (300-800KB) — preload all immediately, no observer needed
   // This ensures sphere is fully loaded before user ever scrolls to it
