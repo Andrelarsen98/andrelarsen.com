@@ -1068,7 +1068,7 @@
     width: 720px;
     height: 720px;
     pointer-events: none;
-    z-index: 3;
+    z-index: 50;
     flex-shrink: 0;
   }
   #particleGlobe canvas {
@@ -1087,7 +1087,7 @@
     filter: blur(20px);
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 0;
+    z-index: 50;
   }
   @media (max-width: 768px) {
     .vs-glow { filter: none; opacity: 0.5; }
@@ -1101,12 +1101,11 @@
     perspective: 1000px;
     cursor: grab;
     overflow: visible;
-    z-index: 1;
+    z-index: 5;
   }
   .vs-scene.dragging { cursor: grabbing; }
   .vs-sphere {
     width: 720px; height: 720px;
-    transform-style: preserve-3d;
     position: relative;
     will-change: transform;
     flex-shrink: 0;
@@ -1116,18 +1115,15 @@
     width: 160px; height: 90px;
     top: 50%; left: 50%;
     margin-top: -45px; margin-left: -80px;
-    transform-style: preserve-3d;
     overflow: visible;
     background: transparent;
   }
   .vs-card-face {
     position: absolute;
     inset: 0;
-    transform-style: preserve-3d;
     border-radius: 6px;
     overflow: hidden;
     background: #0a0a0a;
-    backface-visibility: hidden;
     will-change: transform, opacity;
     box-shadow:
       0 0 0 1px rgba(255,255,255,0.07),
@@ -1308,7 +1304,7 @@
     .cube-right {
       grid-column: 1;
       grid-row: 2;
-      height: 380px;
+      height: 560px;
       width: 100%;
       position: relative;
       display: flex;
@@ -2991,11 +2987,7 @@ videoEl.addEventListener('timeupdate', () => {
     card._nx = nx; card._ny = ny; card._nz = nz;
     card._azimuth = azimuth;
     card._elevation = elevation;
-    card.style.transform = [
-      `rotateY(${azimuth}deg)`,
-      `rotateX(${elevation}deg)`,
-      `translateZ(${RADIUS}px)`
-    ].join(' ');
+    /* transform set each frame in render loop (flat 2D positioning) */
 
     const face = document.createElement('div');
     face.className = 'vs-card-face';
@@ -3164,8 +3156,7 @@ videoEl.addEventListener('timeupdate', () => {
       rotX += velX; rotY += velY;
     }
 
-    sphere.style.transform =
-      `rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
+    /* Flat mode: sphere div has no transform; cards positioned individually */
 
     /* Expose rotation for particle globe sync */
     window._sphereRot = { x: rotX, y: rotY, z: rotZ };
@@ -3180,6 +3171,8 @@ videoEl.addEventListener('timeupdate', () => {
     const cosY = Math.cos(ry), sinY = Math.sin(ry);
     const cosZ = Math.cos(rz), sinZ = Math.sin(rz);
 
+    /* Flat 2D positioning — rotate unit normal, project to screen XY,
+       scale by depth and set z-index so front cards are truly on top */
     const cards = sphere.querySelectorAll('.vs-card');
     cards.forEach(card => {
       const face = card._face;
@@ -3189,28 +3182,42 @@ videoEl.addEventListener('timeupdate', () => {
       const y0 = card._ny || 0;
       const z0 = card._nz || 0;
 
+      /* Rotate around Z */
       const x1 = x0 * cosZ - y0 * sinZ;
       const y1 = x0 * sinZ + y0 * cosZ;
       const z1 = z0;
 
+      /* Rotate around Y */
       const x2 = x1 * cosY + z1 * sinY;
       const y2 = y1;
       const z2 = -x1 * sinY + z1 * cosY;
 
+      /* Rotate around X */
+      const worldX = x2;
+      const worldY = y2 * cosX - z2 * sinX;
       const worldZ = y2 * sinX + z2 * cosX;
-      const depth = (worldZ + 1) / 2;
 
-      face.style.transform = [
-        `rotateX(${-card._elevation}deg)`,
-        `rotateY(${-card._azimuth}deg)`,
-        `rotateZ(${-rotZ}deg)`,
-        `rotateY(${-rotY}deg)`,
-        `rotateX(${-rotX}deg)`,
-        `scale(${0.76 + depth * 0.24})`
-      ].join(' ');
-      face.style.opacity = String(0.38 + depth * 0.62);
-      card.style.zIndex = String(10 + Math.round(depth * 20));
+      const depth = (worldZ + 1) / 2; // 0 = back, 1 = front
+
+      /* Project to 2D screen coordinates */
+      const screenX = worldX * RADIUS;
+      const screenY = -worldY * RADIUS;
+
+      /* Scale cards by depth — front bigger, back smaller */
+      const scale = 0.70 + depth * 0.30;
+
+      card.style.transform = `translate(${screenX}px, ${screenY}px)`;
+      face.style.transform = `scale(${scale})`;
+      face.style.opacity = String(0.35 + depth * 0.65);
+
+      /* CRITICAL: z-index makes front cards render above sphere, back cards below */
+      card.style.zIndex = String(Math.round(depth * 100));
     });
+
+    /* Sphere visual itself sits at z-index 50 (mid-stack) so cards
+       with depth > 0.5 (worldZ > 0, i.e. in front) render above it,
+       and cards with depth < 0.5 render behind it */
+    sphere.style.zIndex = '50';
 
     /* Expose velocity for telemetry */
     if (dragging) {
