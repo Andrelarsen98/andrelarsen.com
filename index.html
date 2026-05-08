@@ -808,24 +808,32 @@
      ── CLIENTS MARQUEE ──
   ══════════════════════════════════════ */
   @keyframes marqueeLeft {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
+
   .logo-marquee-row {
-    overflow: hidden;
     position: relative;
+    overflow: hidden;
     height: 72px;
+    width: 100%;
   }
+
   .logo-marquee-track {
-    display: flex;
-    width: max-content;
+    display: inline-flex;
+    flex-wrap: nowrap;
     align-items: center;
-    height: 100%;
+    height: 72px;
+    white-space: nowrap;
     animation: marqueeLeft 75s linear infinite;
     will-change: transform;
+    /* force GPU layer on iOS */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
+
   .logo-marquee-item {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 0 48px;
@@ -834,6 +842,7 @@
     pointer-events: none;
     user-select: none;
   }
+
   .logo-marquee-item img {
     display: block;
     height: 24px;
@@ -843,6 +852,7 @@
     filter: brightness(0) invert(1);
     opacity: 0.65;
     pointer-events: none;
+    flex-shrink: 0;
   }
   .logo-marquee-item img.tall-logo { height: 40px; max-width: 40px; }
   .logo-marquee-item img.wide-logo { height: 14px; max-width: 130px; }
@@ -855,18 +865,15 @@
       mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
       -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
     }
-    .logo-marquee-row {
-      height: 52px;
-      overflow: hidden;
-      width: 100%;
-    }
+    .logo-marquee-row  { height: 52px; }
     .logo-marquee-track {
+      height: 52px;
       animation-duration: 70s;
     }
     .logo-marquee-item { padding: 0 20px; height: 52px; }
-    .logo-marquee-item img { height: 14px; max-width: 70px; }
+    .logo-marquee-item img          { height: 14px; max-width: 70px; }
     .logo-marquee-item img.tall-logo { height: 22px; max-width: 22px; }
-    .logo-marquee-item img.wide-logo { height: 9px; max-width: 80px; }
+    .logo-marquee-item img.wide-logo { height: 9px;  max-width: 80px; }
     .logo-marquee-item img.xl-logo   { height: 18px; max-width: 90px; }
   }
 
