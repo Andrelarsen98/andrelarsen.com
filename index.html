@@ -805,47 +805,54 @@
 
 
   /* ══════════════════════════════════════
-     ── CLIENTS TICKER ──
+     ── CLIENTS MARQUEE ──
   ══════════════════════════════════════ */
-  .clients-ticker-wrap {
-    overflow: hidden;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    padding: 14px 0;
-    position: relative;
-    z-index: 8;
-    mask-image: linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%);
-  }
-  .clients-ticker {
-    display: flex;
-    gap: 0;
-    width: max-content;
-    animation: tickerScroll 28s linear infinite;
-  }
-  .clients-ticker:hover { animation-play-state: paused; }
-  .ticker-item {
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
-    white-space: nowrap;
-    padding: 0 28px;
-    -webkit-font-smoothing: none;
-    transition: color 0.2s ease;
-  }
-  .ticker-item:hover { color: rgba(255,255,255,0.8); }
-  .ticker-sep {
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    color: rgba(255,255,255,0.1);
-    -webkit-font-smoothing: none;
-    padding: 0;
-    align-self: center;
-  }
-  @keyframes tickerScroll {
+  @keyframes marqueeLeft {
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }
+  }
+  .logo-marquee-row {
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+  .logo-marquee-track {
+    display: flex;
+    width: max-content;
+    align-items: center;
+    animation: marqueeLeft 36s linear infinite;
+  }
+  .logo-marquee-row:hover .logo-marquee-track { animation-play-state: paused; }
+  .logo-marquee-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 48px;
+    flex-shrink: 0;
+    height: 72px;
+  }
+  .logo-marquee-item img {
+    display: block;
+    height: 24px;
+    width: auto;
+    max-width: 110px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    opacity: 0.45;
+    transition: opacity 0.3s ease;
+  }
+  .logo-marquee-item img.tall-logo { height: 40px; max-width: 40px; }
+  .logo-marquee-item img.wide-logo { height: 14px; max-width: 130px; }
+  .logo-marquee-item img.xl-logo   { height: 32px; max-width: 160px; }
+  .logo-marquee-item:hover img { opacity: 0.9; }
+
+  @media (max-width: 768px) {
+    .logo-marquee-item { padding: 0 32px; height: 60px; }
+    .logo-marquee-item img { height: 18px; max-width: 80px; }
+    .logo-marquee-item img.tall-logo { height: 30px; max-width: 30px; }
+    .logo-marquee-item img.wide-logo { height: 11px; }
+    .logo-marquee-item img.xl-logo   { height: 24px; max-width: 120px; }
   }
 
   /* ── STUDIO PARALLAX ── */
@@ -1338,150 +1345,25 @@
     width: 100%;
     position: relative;
     overflow: hidden;
-    border-top: 1px solid rgba(255,255,255,0.10);
+    border-top: 1px solid rgba(255,255,255,0.08);
     background: #000;
+    padding: 32px 0;
   }
 
-  .clients-section::before { display: none; }
-
-  @media (min-width: 1280px) {
-    .clients-section { background: #000; }
-  }
-
-  .clients-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 28px 32px 20px;
-    position: relative;
-    z-index: 8;
-  }
-
-  .clients-header-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .clients-label {
     font-family: 'VT323', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    -webkit-font-smoothing: none;
-  }
-
-  .clients-header-right {
-    font-family: 'VT323', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.6);
-    -webkit-font-smoothing: none;
-  }
-
-  /* ── CLIENTS GRID ── */
-  .clients-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    position: relative;
-    z-index: 8;
-  }
-
-  .client-logo-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 32px;
-    border-right: 1px solid rgba(255,255,255,0.07);
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
-
-  .client-logo-item:nth-child(6n) {
-    border-right: none;
-  }
-
-  .client-logo-item img {
-    display: block;
-    height: 32px;
-    width: auto;
-    max-width: 130px;
-    object-fit: contain;
-    filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255, 210, 80, 0.4)) drop-shadow(0 0 16px rgba(255, 180, 20, 0.15));
-    opacity: 1;
-    transition: opacity 0.3s ease, filter 0.3s ease;
-  }
-
-  .client-logo-item.tall img {
-    height: 64px;
-    max-width: 64px;
-  }
-
-  .client-logo-item.xl img {
-    height: 52px;
-    max-width: 220px;
-  }
-
-  .client-logo-item.wide img {
-    height: 18px;
-    max-width: 170px;
-  }
-
-  .client-logo-item.png-white img {
-    filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255, 210, 80, 0.4)) drop-shadow(0 0 16px rgba(255, 180, 20, 0.15));
-  }
-
-  .client-logo-item:hover img {
-    opacity: 1;
-    filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255, 200, 60, 0.65)) drop-shadow(0 0 22px rgba(255, 180, 30, 0.3));
-  }
-
-  /* Bottom tagline */
-  .clients-footer-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 32px 32px;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    position: relative;
-    z-index: 8;
-  }
-
-  .clients-footer-left {
-    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
-    font-size: clamp(22px, 3.2vw, 52px);
-    font-weight: 700;
-    color: #fff;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 1.05;
-  }
-
-  .clients-footer-right {
-    font-family: 'VT323', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
     color: rgba(255,255,255,0.3);
-    text-transform: uppercase;
-    text-align: right;
     -webkit-font-smoothing: none;
-    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 20px;
   }
 
   @media (max-width: 768px) {
-    .clients-section { background-size: 3px 3px; }
-    .clients-header { padding: 20px 20px 16px; }
-    .clients-grid {
-      grid-template-columns: repeat(3, 1fr);
-      width: 100%;
-      overflow: hidden;
-    }
-    .client-logo-item { padding: 22px 10px; }
-    .client-logo-item:nth-child(6n) { border-right: 1px solid rgba(255,255,255,0.07); }
-    .client-logo-item:nth-child(3n) { border-right: none; }
-    .client-logo-item img { height: 20px; max-width: 80px; }
-    .client-logo-item.tall img { height: 42px; max-width: 42px; }
-    .client-logo-item.xl img { height: 32px; max-width: 120px; }
-    .client-logo-item.wide img { height: 12px; max-width: 100px; }
-    .clients-footer-row { padding: 18px 20px 28px; flex-direction: column; align-items: flex-start; gap: 8px; }
-    .clients-footer-right { text-align: left; }
+    .clients-section { padding: 24px 0; }
+    .clients-label { margin-bottom: 16px; font-size: 11px; }
   }
 
 
@@ -1789,87 +1671,62 @@ Dubai, worldwide.</div>
 
   <!-- ── SECTION 4: CLIENTS ── -->
   <section class="clients-section" id="clientsSection">
-    <div class="scanline"></div>
 
-    <div class="clients-header">
-      <div class="clients-header-left"><span>■</span><span>TRUSTED BY</span></div>
-      <div class="clients-header-right">24 CLIENTS</div>
-    </div>
+    <p class="clients-label">■ &nbsp; Trusted by</p>
 
-    <!-- TICKER -->
-    <div class="clients-ticker-wrap">
-      <div class="clients-ticker" id="clientsTicker">
-        <span class="ticker-item">Ferrari</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Formula 1</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Kia</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Mercedes</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Red Bull</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Emaar</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Emirates</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Expo 2020</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">IMAX</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Netflix</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Porsche</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Bugatti</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">ADNOC</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Rolls Royce</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Nike</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Adidas</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Starbucks</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Honda</span><span class="ticker-sep">·</span>
-        <!-- duplicate for seamless loop -->
-        <span class="ticker-item">Ferrari</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Formula 1</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Kia</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Mercedes</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Red Bull</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Emaar</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Emirates</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Expo 2020</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">IMAX</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Netflix</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Porsche</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Bugatti</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">ADNOC</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Rolls Royce</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Nike</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Adidas</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Starbucks</span><span class="ticker-sep">·</span>
-        <span class="ticker-item">Honda</span><span class="ticker-sep">·</span>
+    <!-- Single row — all 24 logos, duplicated for seamless loop -->
+    <div class="logo-marquee-row">
+      <div class="logo-marquee-track">
+        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 10.png" alt="Netflix"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 11.svg" class="wide-logo" alt="Porsche"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 12.svg" alt="Bugatti"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 13.svg" class="tall-logo" alt="ADNOC"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 14.svg" alt="Edge"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 15.svg" alt="Nakheel"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 16.svg" class="xl-logo" alt="Liwa 2026"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 17.png" class="xl-logo" alt="DP World"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 18.svg" class="xl-logo" alt="Rolls Royce"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 19.svg" class="tall-logo" alt="Porsche Crest"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 20.svg" alt="Honda"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 21.svg" class="wide-logo" alt="Starbucks"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 22.svg" alt="Subway"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike"></div>
+        <!-- duplicate set for seamless loop -->
+        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 10.png" alt="Netflix"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 11.svg" class="wide-logo" alt="Porsche"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 12.svg" alt="Bugatti"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 13.svg" class="tall-logo" alt="ADNOC"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 14.svg" alt="Edge"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 15.svg" alt="Nakheel"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 16.svg" class="xl-logo" alt="Liwa 2026"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 17.png" class="xl-logo" alt="DP World"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 18.svg" class="xl-logo" alt="Rolls Royce"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 19.svg" class="tall-logo" alt="Porsche Crest"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 20.svg" alt="Honda"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 21.svg" class="wide-logo" alt="Starbucks"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 22.svg" alt="Subway"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike"></div>
       </div>
-    </div>
-
-    <!-- GRID -->
-    <div class="clients-grid">
-      <div class="client-logo-item tall"><img src="CLIENT 01.svg" alt="Ferrari"></div>
-      <div class="client-logo-item"><img src="CLIENT 02.svg" alt="Formula 1"></div>
-      <div class="client-logo-item"><img src="CLIENT 03.svg" alt="Kia"></div>
-      <div class="client-logo-item tall"><img src="CLIENT 04.svg" alt="Mercedes"></div>
-      <div class="client-logo-item xl"><img src="CLIENT 05.svg" alt="Red Bull"></div>
-      <div class="client-logo-item"><img src="CLIENT 06.svg" alt="Emaar"></div>
-      <div class="client-logo-item xl tall png-white"><img src="CLIENT 07.png" alt="Emirates"></div>
-      <div class="client-logo-item xl tall"><img src="CLIENT 08.svg" alt="Expo 2020 Dubai"></div>
-      <div class="client-logo-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-      <div class="client-logo-item png-white"><img src="CLIENT 10.png" alt="Netflix"></div>
-      <div class="client-logo-item wide"><img src="CLIENT 11.svg" alt="Porsche"></div>
-      <div class="client-logo-item"><img src="CLIENT 12.svg" alt="Bugatti"></div>
-      <div class="client-logo-item tall"><img src="CLIENT 13.svg" alt="ADNOC"></div>
-      <div class="client-logo-item"><img src="CLIENT 14.svg" alt="Edge"></div>
-      <div class="client-logo-item"><img src="CLIENT 15.svg" alt="Nakheel"></div>
-      <div class="client-logo-item xl"><img src="CLIENT 16.svg" alt="Liwa 2026"></div>
-      <div class="client-logo-item xl tall"><img src="CLIENT 17.png" alt="DP World"></div>
-      <div class="client-logo-item xl tall"><img src="CLIENT 18.svg" alt="Rolls Royce"></div>
-      <div class="client-logo-item tall"><img src="CLIENT 19.svg" alt="Porsche Crest"></div>
-      <div class="client-logo-item"><img src="CLIENT 20.svg" alt="Honda"></div>
-      <div class="client-logo-item wide"><img src="CLIENT 21.svg" alt="Starbucks"></div>
-      <div class="client-logo-item"><img src="CLIENT 22.svg" alt="Subway"></div>
-      <div class="client-logo-item tall"><img src="CLIENT 23.svg" alt="Adidas"></div>
-      <div class="client-logo-item tall"><img src="CLIENT 24.svg" alt="Nike"></div>
-    </div>
-
-    <div class="clients-footer-row">
-      <div class="clients-footer-left">WORK THAT<br>LANDS.</div>
-      <div class="clients-footer-right">DUBAI — WORLDWIDE<br>AVAILABLE FOR PROJECTS</div>
     </div>
 
   </section>
