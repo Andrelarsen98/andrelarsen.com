@@ -1090,10 +1090,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    perspective: 900px;
     cursor: grab;
     overflow: visible;
-    z-index: 5;
+    z-index: 10;
   }
   .vs-scene.dragging { cursor: grabbing; }
   .vs-sphere {
@@ -1109,7 +1108,6 @@
     margin-top: -31px; margin-left: -55px;
     overflow: visible;
     background: transparent;
-    transform-style: preserve-3d;
   }
   .vs-card-face {
     position: absolute;
@@ -1314,7 +1312,7 @@
     #particleGlobe { width: 60vw; height: 60vw; }
     .vs-sphere { width: 60vw; height: 60vw; }
     .vs-glow { width: 35vw; height: 35vw; }
-    .vs-card { width: 115px; height: 65px; margin-top: -33px; margin-left: -58px; transform-style: preserve-3d; }
+    .vs-card { width: 115px; height: 65px; margin-top: -33px; margin-left: -58px; }
     .cube-drag-label {
       position: relative;
       bottom: auto;
@@ -3208,14 +3206,16 @@ videoEl.addEventListener('timeupdate', () => {
          Card at front-center: az=0, el=0 (flat facing viewer).
          Card at left edge: az=-90 (edge-on from left).
          Card at top: el=90 (edge-on from top). */
+      /* Spherical surface tilt — card lays flat on ball like a sticker.
+         az = how far left/right on sphere → rotateY
+         el = how far up/down on sphere   → rotateX
+         perspective() on the transform itself bypasses flex context issues. */
       const az = Math.atan2(worldX, worldZ) * (180 / Math.PI);
       const el = Math.atan2(-worldY, Math.sqrt(worldX * worldX + worldZ * worldZ)) * (180 / Math.PI);
 
-      /* translate positions the card in screen space (applied last in CSS = outermost) */
-      /* rotations tilt it to lie on the sphere surface */
       card.style.transform = `translate(${screenX}px, ${screenY}px)`;
-      face.style.transform = `rotateY(${az}deg) rotateX(${el}deg)`;
-      face.style.opacity = String(0.82 + depth * 0.18);
+      face.style.transform = `perspective(600px) rotateY(${az}deg) rotateX(${el}deg)`;
+      face.style.opacity = String(0.85 + depth * 0.15);
 
       /* Depth sort: front cards over sphere, back cards under */
       card.style.zIndex = String(Math.round(depth * 100));
