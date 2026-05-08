@@ -1173,7 +1173,7 @@
     width: 720px;
     height: 720px;
     pointer-events: none;
-    z-index: 2;
+    z-index: 5;
     flex-shrink: 0;
   }
   #particleGlobe canvas {
@@ -1210,7 +1210,7 @@
   }
   .vs-scene.dragging { cursor: grabbing; }
   .vs-sphere {
-    width: 620px; height: 620px;
+    width: 720px; height: 720px;
     transform-style: preserve-3d;
     position: relative;
     will-change: transform;
@@ -3078,6 +3078,10 @@ videoEl.addEventListener('timeupdate', () => {
   cubeRight.appendChild(glow);
   cubeRight.appendChild(scene);
 
+  /* Move particleGlobe inside scene so it shares stacking context with cards */
+  const globeMount = document.getElementById('particleGlobe');
+  if (globeMount) scene.appendChild(globeMount);
+
   /* ── Cards — Fibonacci sphere distribution ── */
   for (let i = 0; i < NUM_VIDEOS; i++) {
     const t      = i / (NUM_VIDEOS - 1);
@@ -3093,6 +3097,7 @@ videoEl.addEventListener('timeupdate', () => {
 
     const card = document.createElement('div');
     card.className = 'vs-card';
+    card._nx = nx; card._ny = ny; card._nz = nz;
     card.style.transform = [
       `rotateY(${azimuth}deg)`,
       `rotateX(${elevation}deg)`,
@@ -3266,6 +3271,29 @@ videoEl.addEventListener('timeupdate', () => {
 
     /* Expose rotation for particle globe sync */
     window._sphereRot = { x: rotX, y: rotY, z: rotZ };
+
+    /* ── Per-card z-index: cards in front of orb render above canvas ──
+       Convert each card's local translateZ through the sphere rotation
+       to get world-space Z. Cards with positive worldZ are "in front". */
+    const rx = rotX * Math.PI / 180;
+    const ry = rotY * Math.PI / 180;
+    const rz = rotZ * Math.PI / 180;
+    const cosX = Math.cos(rx), sinX = Math.sin(rx);
+    const cosY = Math.cos(ry), sinY = Math.sin(ry);
+    const cosZ = Math.cos(rz), sinZ = Math.sin(rz);
+
+    const cards = sphere.querySelectorAll('.vs-card');
+    cards.forEach(card => {
+      const raw = card._nz; // pre-stored normalized Z component
+      if (raw === undefined) return;
+      // Rotate the unit vector (0,0,1) for this card's azimuth/elevation
+      // then apply sphere rotation to get world Z
+      // Approximate: use the card's base nz * sphere rotation columns
+      const worldZ = card._nx * (cosY * sinZ * sinX - sinY * cosX) +
+                     card._ny * (sinZ * cosX + cosY * sinX * cosZ) +  // simplified
+                     card._nz * (cosX * cosY);
+      card.style.zIndex = worldZ > 0 ? '10' : '1';
+    });
 
     /* Expose velocity for telemetry */
     if (dragging) {
