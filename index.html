@@ -826,7 +826,7 @@
     height: 52px;
     white-space: nowrap;
     animation: marqueeLeft 75s linear infinite;
-    /* GPU compositing fix: use translate3d, avoid will-change on mobile */
+    will-change: transform;
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
@@ -1419,9 +1419,9 @@
     .logo-marquee-track {
       /* Faster scroll on narrow screens so logos don't take ages to appear */
       animation-duration: 35s;
-      /* Guarantee animation runs immediately on mobile */
       animation-play-state: running;
       animation-delay: 0s;
+      will-change: transform;
     }
     .logo-marquee-item {
       padding: 0 20px;
@@ -1478,7 +1478,7 @@
     background: #000;
     position: relative;
     content-visibility: auto;
-    contain-intrinsic-size: 0 800px;
+    contain-intrinsic-size: 0 0;
   }
 
   .studio-label-row {
@@ -1740,55 +1740,55 @@ Dubai, worldwide.</div>
     <div class="clients-marquee-wrap">
     <div class="logo-marquee-row">
       <div class="logo-marquee-track">
+        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari" loading="eager" decoding="async" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1" loading="eager" decoding="async" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia" loading="eager" decoding="async" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes" loading="eager" decoding="async" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull" loading="eager" decoding="async" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar" loading="eager" decoding="async" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 10.png" alt="Netflix" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 11.svg" class="wide-logo" alt="Porsche" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 12.svg" alt="Bugatti" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 13.svg" class="tall-logo" alt="ADNOC" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 14.svg" alt="Edge" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 15.svg" alt="Nakheel" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 16.svg" class="xl-logo" alt="Liwa 2026" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 17.png" class="xl-logo" alt="DP World" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 18.svg" class="xl-logo" alt="Rolls Royce" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 19.svg" class="tall-logo" alt="Porsche Crest" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 20.svg" alt="Honda" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 21.svg" class="wide-logo" alt="Starbucks" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 22.svg" alt="Subway" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike" loading="eager" decoding="async"></div>
+        <!-- duplicate set for seamless loop -->
         <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 10.png" alt="Netflix"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 11.svg" class="wide-logo" alt="Porsche"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 12.svg" alt="Bugatti"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 13.svg" class="tall-logo" alt="ADNOC"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 14.svg" alt="Edge"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 15.svg" alt="Nakheel"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 16.svg" class="xl-logo" alt="Liwa 2026"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 17.png" class="xl-logo" alt="DP World"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 18.svg" class="xl-logo" alt="Rolls Royce"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 19.svg" class="tall-logo" alt="Porsche Crest"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 20.svg" alt="Honda"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 21.svg" class="wide-logo" alt="Starbucks"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 22.svg" alt="Subway"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike"></div>
-        <!-- duplicate set for seamless loop -->
-        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 10.png" alt="Netflix"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 11.svg" class="wide-logo" alt="Porsche"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 12.svg" alt="Bugatti"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 13.svg" class="tall-logo" alt="ADNOC"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 14.svg" alt="Edge"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 15.svg" alt="Nakheel"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 16.svg" class="xl-logo" alt="Liwa 2026"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 17.png" class="xl-logo" alt="DP World"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 18.svg" class="xl-logo" alt="Rolls Royce"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 19.svg" class="tall-logo" alt="Porsche Crest"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 20.svg" alt="Honda"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 21.svg" class="wide-logo" alt="Starbucks"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 22.svg" alt="Subway"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 10.png" alt="Netflix" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 11.svg" class="wide-logo" alt="Porsche" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 12.svg" alt="Bugatti" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 13.svg" class="tall-logo" alt="ADNOC" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 14.svg" alt="Edge" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 15.svg" alt="Nakheel" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 16.svg" class="xl-logo" alt="Liwa 2026" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 17.png" class="xl-logo" alt="DP World" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 18.svg" class="xl-logo" alt="Rolls Royce" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 19.svg" class="tall-logo" alt="Porsche Crest" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 20.svg" alt="Honda" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 21.svg" class="wide-logo" alt="Starbucks" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 22.svg" alt="Subway" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike" loading="eager" decoding="async"></div>
       </div>
     </div><!-- /.clients-marquee-wrap -->
 
