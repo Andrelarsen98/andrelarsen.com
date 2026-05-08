@@ -3050,7 +3050,7 @@ videoEl.addEventListener('timeupdate', () => {
 
     face.appendChild(vid);
     card.appendChild(face);
-    sphere.appendChild(card);
+    scene.appendChild(card);
   }
 
   /* ── Glitch trigger — debounced so rapid timeupdate calls don't stack ── */
@@ -3173,7 +3173,7 @@ videoEl.addEventListener('timeupdate', () => {
 
     /* Flat 2D positioning — rotate unit normal, project to screen XY,
        scale by depth and set z-index so front cards are truly on top */
-    const cards = sphere.querySelectorAll('.vs-card');
+    const cards = scene.querySelectorAll('.vs-card');
     cards.forEach(card => {
       const face = card._face;
       if (!face) return;
@@ -3208,16 +3208,13 @@ videoEl.addEventListener('timeupdate', () => {
 
       card.style.transform = `translate(${screenX}px, ${screenY}px)`;
       face.style.transform = `scale(${scale})`;
-      face.style.opacity = String(0.35 + depth * 0.65);
+      face.style.opacity = String(0.72 + depth * 0.28);
 
       /* CRITICAL: z-index makes front cards render above sphere, back cards below */
       card.style.zIndex = String(Math.round(depth * 100));
     });
 
-    /* Sphere visual itself sits at z-index 50 (mid-stack) so cards
-       with depth > 0.5 (worldZ > 0, i.e. in front) render above it,
-       and cards with depth < 0.5 render behind it */
-    sphere.style.zIndex = '50';
+    /* particleGlobe is at z-index 50 in DOM — front cards (>50) over it, back cards (<50) under it */
 
     /* Expose velocity for telemetry */
     if (dragging) {
@@ -3238,15 +3235,15 @@ videoEl.addEventListener('timeupdate', () => {
   const obs = new IntersectionObserver(e => {
     if (e[0].isIntersecting) {
       lastTime = performance.now();
-      sphere.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
+      scene.querySelectorAll('video').forEach(v => v.play().catch(() => {}));
     } else {
-      sphere.querySelectorAll('video').forEach(v => v.pause());
+      scene.querySelectorAll('video').forEach(v => v.pause());
     }
   }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
 
   // Videos are small (300-800KB) — preload all immediately, no observer needed
   // This ensures sphere is fully loaded before user ever scrolls to it
-  sphere.querySelectorAll('video').forEach(v => {
+  scene.querySelectorAll('video').forEach(v => {
     v.preload = 'auto';
     v.load();
   });
