@@ -814,16 +814,13 @@
   .logo-marquee-row {
     overflow: hidden;
     position: relative;
-    mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
   }
   .logo-marquee-track {
     display: flex;
     width: max-content;
     align-items: center;
-    animation: marqueeLeft 36s linear infinite;
+    animation: marqueeLeft 55s linear infinite;
   }
-  .logo-marquee-row:hover .logo-marquee-track { animation-play-state: paused; }
   .logo-marquee-item {
     display: flex;
     align-items: center;
@@ -831,6 +828,8 @@
     padding: 0 48px;
     flex-shrink: 0;
     height: 72px;
+    pointer-events: none;
+    user-select: none;
   }
   .logo-marquee-item img {
     display: block;
@@ -839,20 +838,26 @@
     max-width: 110px;
     object-fit: contain;
     filter: brightness(0) invert(1);
-    opacity: 0.45;
-    transition: opacity 0.3s ease;
+    opacity: 0.65;
+    pointer-events: none;
   }
   .logo-marquee-item img.tall-logo { height: 40px; max-width: 40px; }
   .logo-marquee-item img.wide-logo { height: 14px; max-width: 130px; }
   .logo-marquee-item img.xl-logo   { height: 32px; max-width: 160px; }
-  .logo-marquee-item:hover img { opacity: 0.9; }
 
   @media (max-width: 768px) {
-    .logo-marquee-item { padding: 0 32px; height: 60px; }
-    .logo-marquee-item img { height: 18px; max-width: 80px; }
-    .logo-marquee-item img.tall-logo { height: 30px; max-width: 30px; }
-    .logo-marquee-item img.wide-logo { height: 11px; }
-    .logo-marquee-item img.xl-logo   { height: 24px; max-width: 120px; }
+    /* Wider wrapper + shallower mask so 5-6 logos visible at once */
+    .clients-marquee-wrap {
+      max-width: 96%;
+      mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
+    }
+    .logo-marquee-track { animation-duration: 50s; }
+    .logo-marquee-item { padding: 0 16px; height: 48px; }
+    .logo-marquee-item img { height: 14px; max-width: 70px; }
+    .logo-marquee-item img.tall-logo { height: 22px; max-width: 22px; }
+    .logo-marquee-item img.wide-logo { height: 9px; max-width: 80px; }
+    .logo-marquee-item img.xl-logo   { height: 18px; max-width: 90px; }
   }
 
   /* ── STUDIO PARALLAX ── */
@@ -1361,9 +1366,20 @@
     margin-bottom: 20px;
   }
 
+  /* Inner wrapper that constrains the visible marquee width — Unicorn style */
+  .clients-marquee-wrap {
+    max-width: 75%;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(90deg, transparent 0%, black 18%, black 82%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 18%, black 82%, transparent 100%);
+  }
+
   @media (max-width: 768px) {
     .clients-section { padding: 24px 0; }
     .clients-label { margin-bottom: 16px; font-size: 11px; }
+    .clients-marquee-wrap { max-width: 88%; }
   }
 
 
@@ -1675,6 +1691,7 @@ Dubai, worldwide.</div>
     <p class="clients-label">■ &nbsp; Trusted by</p>
 
     <!-- Single row — all 24 logos, duplicated for seamless loop -->
+    <div class="clients-marquee-wrap">
     <div class="logo-marquee-row">
       <div class="logo-marquee-track">
         <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari"></div>
@@ -1727,7 +1744,7 @@ Dubai, worldwide.</div>
         <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas"></div>
         <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike"></div>
       </div>
-    </div>
+    </div><!-- /.clients-marquee-wrap -->
 
   </section>
 
