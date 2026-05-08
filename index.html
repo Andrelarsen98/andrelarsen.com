@@ -1322,10 +1322,10 @@
       padding: 8px 20px 28px;
     }
     .cube-title { font-size: clamp(32px, 10vw, 52px); }
-    #particleGlobe { width: 380px; height: 380px; }
-    .vs-sphere { width: 380px; height: 380px; }
-    .vs-glow { width: 220px; height: 220px; }
-    .vs-card { width: 98px; height: 55px; margin-top: -28px; margin-left: -49px; }
+    #particleGlobe { width: 60vw; height: 60vw; }
+    .vs-sphere { width: 60vw; height: 60vw; }
+    .vs-glow { width: 35vw; height: 35vw; }
+    .vs-card { width: 90px; height: 51px; margin-top: -26px; margin-left: -45px; }
     .cube-drag-label {
       position: relative;
       bottom: auto;
@@ -2942,7 +2942,7 @@ videoEl.addEventListener('timeupdate', () => {
 ══════════════════════════════════════ */
 (function() {
   const NUM_VIDEOS   = 16;
-  const RADIUS       = window.innerWidth <= 768 ? 181 : 295;
+  const RADIUS       = window.innerWidth <= 768 ? Math.round(window.innerWidth * 0.30 + 90) : 295;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
   const section   = document.getElementById('cubeSection');
