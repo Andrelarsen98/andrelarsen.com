@@ -819,7 +819,7 @@
     display: flex;
     width: max-content;
     align-items: center;
-    animation: marqueeLeft 55s linear infinite;
+    animation: marqueeLeft 75s linear infinite;
   }
   .logo-marquee-item {
     display: flex;
@@ -849,11 +849,20 @@
     /* Wider wrapper + shallower mask so 5-6 logos visible at once */
     .clients-marquee-wrap {
       max-width: 96%;
+      overflow: hidden;
       mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
       -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
     }
-    .logo-marquee-track { animation-duration: 50s; }
-    .logo-marquee-item { padding: 0 16px; height: 48px; }
+    .logo-marquee-row {
+      overflow: hidden;
+      width: 100%;
+    }
+    .logo-marquee-track {
+      animation-duration: 70s;
+      display: flex;
+      width: max-content;
+    }
+    .logo-marquee-item { padding: 0 20px; height: 52px; flex-shrink: 0; }
     .logo-marquee-item img { height: 14px; max-width: 70px; }
     .logo-marquee-item img.tall-logo { height: 22px; max-width: 22px; }
     .logo-marquee-item img.wide-logo { height: 9px; max-width: 80px; }
@@ -1208,7 +1217,7 @@
     font-weight: 700;
     line-height: 1.05;
     letter-spacing: -0.02em;
-    color: #fff;
+    color: rgba(255,255,255,0.72);
     text-transform: uppercase;
     margin: 0;
   }
@@ -1352,7 +1361,8 @@
     overflow: hidden;
     border-top: 1px solid rgba(255,255,255,0.08);
     background: transparent;
-    padding: 32px 0;
+    padding: 40px 0;
+    min-height: 120px;
   }
 
   /* Dot grid — same pattern as rest of page */
