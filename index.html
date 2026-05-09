@@ -2217,6 +2217,20 @@ const isMobile = window.innerWidth <= 768;
   let barDone = false, imageDone = false;
   function checkReveal() { if (barDone && imageDone) doReveal(); }
 
+  // ── SKIP LOADER when coming back from another page ──
+  if (location.search.includes('skip')) {
+    // Instantly hide all loader elements and reveal the site
+    loadUi.style.display = 'none';
+    aC.style.display = 'none';
+    loadScreen.style.transition = 'none';
+    loadScreen.style.opacity = '0';
+    loadScreen.style.pointerEvents = 'none';
+    site.classList.add('visible');
+    // Clean URL without reloading
+    history.replaceState(null, '', location.pathname);
+    return; // exit the IIFE — no loader runs
+  }
+
   loaderProgress = 1;
 
   loaderBarId = setInterval(() => {
