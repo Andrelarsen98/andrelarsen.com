@@ -10,6 +10,8 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { background: #000; }
+    html { scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar { display: none; }
     body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; overscroll-behavior-y: none; }
     canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; z-index: 1; }
     .scroll-space { height: 100vh; }
@@ -337,13 +339,15 @@
     .profile-headline {
       font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
       font-weight: 700;
-      font-size: clamp(36px, 10vw, 72px);
+      font-size: clamp(22px, 7.5vw, 72px);
       line-height: 0.95;
       letter-spacing: -0.01em;
       color: #fff;
       text-transform: uppercase;
       margin-bottom: 48px;
       -webkit-font-smoothing: antialiased;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .profile-headline em {
       font-style: italic;
