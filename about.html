@@ -1045,24 +1045,29 @@
 <!-- Optional: load real FPV goggles mesh if present, then init hologram -->
 <script>
 (function(){
-  function initHologram() {
-window.addEventListener('DOMContentLoaded', () => {
-  const veil = document.getElementById('veil');
-  // Delay slightly so video has a chance to load a frame
-  setTimeout(() => {
-    veil.classList.add('gone');
-    setTimeout(() => { veil.style.display = 'none'; }, 1000);
-  }, 180);
 
-  // Reveal scroll cue
+/* ── VEIL + SCROLL CUE ── */
+function initVeil() {
+  const veil = document.getElementById('veil');
+  if (veil) {
+    setTimeout(() => {
+      veil.classList.add('gone');
+      setTimeout(() => { veil.style.display = 'none'; }, 1000);
+    }, 180);
+  }
   setTimeout(() => {
     const cue = document.getElementById('heroScrollCue');
     if (cue) cue.classList.add('visible');
   }, 1200);
-});
+}
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initVeil);
+} else {
+  initVeil();
+}
 
 /* ── HOLOGRAM ENGINE ── */
-(function() {
+  function initHologram() {
   const canvas = document.getElementById('holoCanvas');
   const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
   if (!gl) return;
@@ -1160,8 +1165,8 @@ window.addEventListener('DOMContentLoaded', () => {
       vec4 world = uModel * vec4(pos, 1.0);
       vec4 view = uView * world;
       gl_Position = uProj * view;
-      gl_PointSize = 1.6 + clamp((-view.z - 1.0) * 0.24, 0.0, 1.4);
-      vGlow = 0.82 + 0.18 * sin(uTime * 1.3 + pos.y * 9.0);
+      gl_PointSize = 1.12 + clamp((-view.z - 1.0) * 0.12, 0.0, 0.72);
+      vGlow = 1.18 + 0.22 * sin(uTime * 1.3 + pos.y * 9.0);
     }
   `;
   const pointFS = `
@@ -1170,8 +1175,8 @@ window.addEventListener('DOMContentLoaded', () => {
     void main() {
       vec2 uv = gl_PointCoord - 0.5;
       float d = dot(uv, uv);
-      float a = smoothstep(0.25, 0.0, d) * 0.72 * vGlow;
-      gl_FragColor = vec4(0.84, 0.97, 1.0, a);
+      float a = smoothstep(0.25, 0.0, d) * 0.94 * vGlow;
+      gl_FragColor = vec4(0.92, 1.0, 1.0, a);
     }
   `;
 
