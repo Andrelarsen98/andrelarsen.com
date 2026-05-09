@@ -217,7 +217,7 @@
   }
 
   /* ══════════════════════════════════════
-     ── VIDEO HERO SECTION ──
+     ── HOLOGRAM HERO SECTION ──
   ══════════════════════════════════════ */
   .about-hero {
     height: 100vh;
@@ -230,12 +230,11 @@
     justify-content: center;
   }
 
-  #aboutVideo {
+  #holoCanvas {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
     display: block;
     z-index: 1;
   }
@@ -855,20 +854,29 @@
   <!-- ── SECTION 1: HERO VIDEO ── -->
   <section class="about-hero">
 
-    <video id="aboutVideo" muted loop playsinline autoplay preload="auto" webkit-playsinline x5-playsinline>
-      <source src="GX010138 2.mov" type="video/mp4">
-    </video>
+    <canvas id="holoCanvas" aria-label="Rotating hologram FPV goggles"></canvas>
 
     <div class="hero-vignette"></div>
     <div class="hero-fade-bottom"></div>
     <div class="hero-fade-top"></div>
 
-    <!-- labels removed -->
+    <!-- HUD labels -->
+    <div class="hero-label-tl">FPV / CINEMATIC / AERIAL</div>
+    <div class="hero-label-tr">
+      VISUAL ARTIST<br>
+      DUBAI, UAE<br>
+      <span class="blink">_</span>
+    </div>
 
     <!-- Bottom text -->
     <div class="hero-bottom">
-      <div></div>
-      <div></div>
+      <div class="hero-name-block">
+        <span class="hero-name visible">ANDRÉ <em>LARSEN</em></span>
+        <div class="hero-subtitle visible">Cinematographer · FPV Pilot · Visual Artist</div>
+      </div>
+      <div class="hero-location visible">
+        BASED IN<br>DUBAI, UAE
+      </div>
     </div>
 
     <div class="hero-scroll-cue" id="heroScrollCue">↓</div>
@@ -1034,8 +1042,10 @@
   </div>
 </div>
 
+<!-- Optional: load real FPV goggles mesh if present, then init hologram -->
 <script>
-/* ── PAGE FADE IN ── */
+(function(){
+  function initHologram() {
 window.addEventListener('DOMContentLoaded', () => {
   const veil = document.getElementById('veil');
   // Delay slightly so video has a chance to load a frame
@@ -1044,78 +1054,293 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { veil.style.display = 'none'; }, 1000);
   }, 180);
 
-  // Reveal location
+  // Reveal scroll cue
   setTimeout(() => {
-    document.getElementById('heroLocation').classList.add('visible');
-  }, 400);
-
-  setTimeout(() => {
-    document.getElementById('heroScrollCue').classList.add('visible');
+    const cue = document.getElementById('heroScrollCue');
+    if (cue) cue.classList.add('visible');
   }, 1200);
 });
 
-/* ── BULLETPROOF VIDEO ENGINE ── */
+/* ── HOLOGRAM ENGINE ── */
 (function() {
-  const vid = document.getElementById('aboutVideo');
-  if (!vid) return;
+  const canvas = document.getElementById('holoCanvas');
+  const gl = canvas.getContext('webgl', { antialias: true, alpha: false });
+  if (!gl) return;
 
-  // Force all attributes needed for silent autoplay
-  vid.muted        = true;
-  vid.loop         = true;
-  vid.playsInline  = true;
-  vid.setAttribute('playsinline', '');
-  vid.setAttribute('webkit-playsinline', '');
-  vid.preload      = 'auto';
-
-  function forcePlay() {
-    if (vid.paused || vid.ended) {
-      const p = vid.play();
-      if (p && p.catch) p.catch(() => {});
+  // Inline minimal FPV goggles mesh (procedural box-frame approximation)
+  // Falls back to a torus-knot-like shape if fpv_goggles_mesh.js not present
+  let positions, normals, indices;
+  if (window.FPV_GOGGLES_MESH) {
+    positions = window.FPV_GOGGLES_MESH.positions;
+    normals   = window.FPV_GOGGLES_MESH.normals;
+    indices   = window.FPV_GOGGLES_MESH.indices;
+  } else {
+    // Fallback: generate a torus as placeholder
+    const rows = 64, cols = 64, R = 0.38, r = 0.14;
+    const verts = [], nrms = [], idx = [];
+    for (let i = 0; i <= rows; i++) {
+      const theta = (i / rows) * Math.PI * 2;
+      for (let j = 0; j <= cols; j++) {
+        const phi = (j / cols) * Math.PI * 2;
+        const x = (R + r * Math.cos(phi)) * Math.cos(theta);
+        const y = r * Math.sin(phi);
+        const z = (R + r * Math.cos(phi)) * Math.sin(theta);
+        verts.push(x, y, z);
+        const cx = R * Math.cos(theta), cz = R * Math.sin(theta);
+        const nl = Math.sqrt((x-cx)**2 + y**2 + (z-cz)**2);
+        nrms.push((x-cx)/nl, y/nl, (z-cz)/nl);
+      }
     }
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const a = i*(cols+1)+j, b = a+cols+1;
+        idx.push(a,b,a+1, b,b+1,a+1);
+      }
+    }
+    positions = new Float32Array(verts);
+    normals   = new Float32Array(nrms);
+    indices   = new Uint16Array(idx);
   }
 
-  // Kick off immediately
-  forcePlay();
-
-  // Watchdog: check every 400ms and restart if frozen or stalled
-  let lastTime = -1;
-  let stalledCount = 0;
-  setInterval(() => {
-    if (vid.paused || vid.ended) {
-      forcePlay();
-      return;
+  const meshVS = `
+    attribute vec3 aPosition;
+    attribute vec3 aNormal;
+    uniform mat4 uProj;
+    uniform mat4 uView;
+    uniform mat4 uModel;
+    uniform float uShell;
+    varying vec3 vNormal;
+    varying vec3 vWorldPos;
+    varying float vDepth;
+    void main() {
+      vec3 pos = aPosition + aNormal * uShell;
+      vec4 world = uModel * vec4(pos, 1.0);
+      vec4 view = uView * world;
+      vWorldPos = world.xyz;
+      vNormal = normalize(mat3(uModel) * aNormal);
+      vDepth = -view.z;
+      gl_Position = uProj * view;
     }
-    // Detect if currentTime isn't advancing (frozen frame)
-    if (vid.currentTime === lastTime && !vid.paused) {
-      stalledCount++;
-      if (stalledCount >= 2) {
-        // Nudge playback to unstick
-        vid.currentTime += 0.01;
-        const p = vid.play();
-        if (p && p.catch) p.catch(() => {});
-        stalledCount = 0;
-      }
-    } else {
-      stalledCount = 0;
+  `;
+  const meshFS = `
+    precision mediump float;
+    varying vec3 vNormal;
+    varying vec3 vWorldPos;
+    varying float vDepth;
+    uniform vec3 uCamPos;
+    uniform float uTime;
+    uniform float uShellAlpha;
+    uniform float uScanY;
+    void main() {
+      vec3 viewDir = normalize(uCamPos - vWorldPos);
+      float fresnel = pow(1.0 - max(dot(normalize(vNormal), viewDir), 0.0), 2.2);
+      float depthFade = smoothstep(0.6, 2.2, vDepth);
+      float scan = 1.0 - smoothstep(0.0, 0.055, abs(vWorldPos.y - uScanY));
+      float pulse = 0.82 + 0.18 * sin(uTime * 2.1 + vWorldPos.y * 10.0);
+      vec3 cyan = vec3(0.42, 0.98, 1.0);
+      vec3 blue = vec3(0.10, 0.36, 0.70);
+      vec3 color = mix(blue, cyan, clamp(fresnel * 0.75 + depthFade * 0.3, 0.0, 1.0));
+      color += vec3(0.50, 1.0, 1.0) * scan * 0.65;
+      float alpha = (0.13 + fresnel * 0.30 + depthFade * 0.14 + scan * 0.28) * pulse * uShellAlpha;
+      gl_FragColor = vec4(color, clamp(alpha, 0.0, 0.62));
     }
-    lastTime = vid.currentTime;
-  }, 400);
+  `;
+  const pointVS = `
+    attribute vec3 aPosition;
+    uniform mat4 uProj;
+    uniform mat4 uView;
+    uniform mat4 uModel;
+    uniform float uTime;
+    varying float vGlow;
+    void main() {
+      vec3 pos = aPosition;
+      float drift = sin(uTime * 0.9 + pos.y * 7.0 + pos.z * 5.5) * 0.0018;
+      pos.x += drift;
+      pos.z += drift * 0.35;
+      vec4 world = uModel * vec4(pos, 1.0);
+      vec4 view = uView * world;
+      gl_Position = uProj * view;
+      gl_PointSize = 1.6 + clamp((-view.z - 1.0) * 0.24, 0.0, 1.4);
+      vGlow = 0.82 + 0.18 * sin(uTime * 1.3 + pos.y * 9.0);
+    }
+  `;
+  const pointFS = `
+    precision mediump float;
+    varying float vGlow;
+    void main() {
+      vec2 uv = gl_PointCoord - 0.5;
+      float d = dot(uv, uv);
+      float a = smoothstep(0.25, 0.0, d) * 0.72 * vGlow;
+      gl_FragColor = vec4(0.84, 0.97, 1.0, a);
+    }
+  `;
 
-  // Restart on every stall/suspend/waiting/pause event
-  ['pause', 'stalled', 'waiting', 'suspend', 'emptied'].forEach(evt => {
-    vid.addEventListener(evt, () => {
-      setTimeout(forcePlay, 80);
-    });
+  function mkShader(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+  function mkProg(vs, fs) {
+    const p = gl.createProgram();
+    gl.attachShader(p, mkShader(gl.VERTEX_SHADER, vs));
+    gl.attachShader(p, mkShader(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(p);
+    return p;
+  }
+  function perspective(fov, aspect, near, far) {
+    const f = 1/Math.tan(fov/2), nf = 1/(near-far);
+    return new Float32Array([f/aspect,0,0,0, 0,f,0,0, 0,0,(far+near)*nf,-1, 0,0,(2*far*near)*nf,0]);
+  }
+  function mul(a,b) {
+    const o = new Float32Array(16);
+    for(let i=0;i<4;i++) for(let j=0;j<4;j++)
+      o[i*4+j] = a[i*4]*b[j]+a[i*4+1]*b[4+j]+a[i*4+2]*b[8+j]+a[i*4+3]*b[12+j];
+    return o;
+  }
+  function rotY(a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,0,-s,0,0,1,0,0,s,0,c,0,0,0,0,1]);}
+  function rotX(a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([1,0,0,0,0,c,s,0,0,-s,c,0,0,0,0,1]);}
+  function trans(x,y,z){return new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,x,y,z,1]);}
+
+  const meshProg  = mkProg(meshVS, meshFS);
+  const pointProg = mkProg(pointVS, pointFS);
+
+  const posBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+  const nrmBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, nrmBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+
+  const idxBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+  function buildCloud(src) {
+    const out = [];
+    for (let i=0;i<src.length;i+=3) {
+      const x=src[i],y=src[i+1],z=src[i+2],id=i/3;
+      out.push(x,y,z);
+      const ja=((id%7)-3)*0.0009, jb=(((id*3)%11)-5)*0.0007;
+      out.push(x+ja,y+jb,z-ja*0.4);
+      if(id%2===0){const jc=(((id*5)%13)-6)*0.0006;out.push(x-jb*0.8,y+jc,z+ja*0.3);}
+    }
+    return new Float32Array(out);
+  }
+  const cloud = buildCloud(positions);
+  const ptBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, ptBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, cloud, gl.STATIC_DRAW);
+
+  let W=0,H=0,dpr=1,time=0;
+  let targetYaw=0,currentYaw=0;
+  let targetPX=0.5,targetPY=0.5,curPX=0.5,curPY=0.5;
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio||1, 1.5);
+    W = canvas.offsetWidth; H = canvas.offsetHeight;
+    canvas.width  = Math.floor(W*dpr);
+    canvas.height = Math.floor(H*dpr);
+    gl.viewport(0,0,canvas.width,canvas.height);
+  }
+
+  // Sync hologram rotation with page scroll (within the about-hero section)
+  const sc = document.getElementById('scrollContainer');
+  if (sc) {
+    sc.addEventListener('scroll', () => {
+      const heroH = canvas.offsetHeight;
+      const prog = Math.min(sc.scrollTop / heroH, 1);
+      targetYaw = prog * Math.PI * 1.5;
+    }, { passive: true });
+  }
+
+  window.addEventListener('mousemove', e => {
+    targetPX = e.clientX / window.innerWidth;
+    targetPY = e.clientY / window.innerHeight;
   });
+  window.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    targetPX = t.clientX / window.innerWidth;
+    targetPY = t.clientY / window.innerHeight;
+  }, { passive: true });
 
-  // Restart when tab becomes visible again (e.g. user switches app then returns)
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) forcePlay();
-  });
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  gl.disable(gl.DEPTH_TEST);
 
-  // iOS: restart on any user interaction if somehow blocked
-  document.addEventListener('touchstart', forcePlay, { passive: true });
-  document.addEventListener('touchend',   forcePlay, { passive: true });
+  function bindMesh() {
+    const pL = gl.getAttribLocation(meshProg,'aPosition');
+    const nL = gl.getAttribLocation(meshProg,'aNormal');
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL,3,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, nrmBuf);
+    gl.enableVertexAttribArray(nL); gl.vertexAttribPointer(nL,3,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf);
+  }
+  function bindPoints() {
+    const pL = gl.getAttribLocation(pointProg,'aPosition');
+    gl.bindBuffer(gl.ARRAY_BUFFER, ptBuf);
+    gl.enableVertexAttribArray(pL); gl.vertexAttribPointer(pL,3,gl.FLOAT,false,0,0);
+  }
+
+  function drawMesh(shell, alpha, model, view, proj, cam, scanY) {
+    gl.useProgram(meshProg); bindMesh();
+    gl.uniformMatrix4fv(gl.getUniformLocation(meshProg,'uProj'),false,proj);
+    gl.uniformMatrix4fv(gl.getUniformLocation(meshProg,'uView'),false,view);
+    gl.uniformMatrix4fv(gl.getUniformLocation(meshProg,'uModel'),false,model);
+    gl.uniform3fv(gl.getUniformLocation(meshProg,'uCamPos'),cam);
+    gl.uniform1f(gl.getUniformLocation(meshProg,'uTime'),time);
+    gl.uniform1f(gl.getUniformLocation(meshProg,'uShell'),shell);
+    gl.uniform1f(gl.getUniformLocation(meshProg,'uShellAlpha'),alpha);
+    gl.uniform1f(gl.getUniformLocation(meshProg,'uScanY'),scanY);
+    gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
+  }
+  function drawPoints(model, view, proj) {
+    gl.useProgram(pointProg); bindPoints();
+    gl.uniformMatrix4fv(gl.getUniformLocation(pointProg,'uProj'),false,proj);
+    gl.uniformMatrix4fv(gl.getUniformLocation(pointProg,'uView'),false,view);
+    gl.uniformMatrix4fv(gl.getUniformLocation(pointProg,'uModel'),false,model);
+    gl.uniform1f(gl.getUniformLocation(pointProg,'uTime'),time);
+    gl.drawArrays(gl.POINTS, 0, cloud.length/3);
+  }
+
+  function frame() {
+    requestAnimationFrame(frame);
+    time += 0.016;
+    currentYaw = lerp(currentYaw, targetYaw, 0.06);
+    curPX = lerp(curPX, targetPX, 0.08);
+    curPY = lerp(curPY, targetPY, 0.08);
+
+    gl.clearColor(0,0,0,1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const proj  = perspective(Math.PI/5, W/H, 0.1, 100);
+    const cam   = new Float32Array([0,0,2.35]);
+    const view  = trans(0,0,-2.35);
+    const tilt  = (curPY - 0.5) * 0.08;
+    const yaw   = currentYaw + (curPX - 0.5) * 0.06 + time * 0.08;
+    const model = mul(trans(0,-0.06,0), mul(rotY(yaw), rotX(tilt)));
+    const scanY = -0.12 + 0.38 * ((Math.sin(time*0.7)*0.5)+0.5);
+
+    drawMesh(0.0,  0.0,  model, view, proj, cam, scanY);
+    drawMesh(0.014,0.0,  model, view, proj, cam, scanY);
+    drawPoints(model, view, proj);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  frame();
+} // end initHologram
+
+  // Try to load the real FPV mesh; fall back to torus if not found
+  const meshScript = document.createElement('script');
+  meshScript.src = './fpv_goggles_mesh.js';
+  meshScript.onload  = initHologram;
+  meshScript.onerror = initHologram; // torus fallback
+  document.head.appendChild(meshScript);
 })();
 
 /* ── MOBILE MENU ── */
@@ -1194,4 +1419,6 @@ if (menuBtn) {
     else if (cue.classList.contains('visible')) cue.style.opacity = '1';
   }, { passive: true });
 })();
+
+})(); // end outer IIFE
 </script>
