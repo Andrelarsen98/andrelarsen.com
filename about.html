@@ -531,7 +531,7 @@
     <a href="index.html" class="nav-logo" id="logoHomeLink">andré <em>larsen</em></a>
     <div class="nav-links">
       <a href="works.html">WORKS</a>
-      <a href="about.htm">ABOUT</a>
+      <a href="about.html">ABOUT</a>
     </div>
     <div class="nav-center">
       <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
@@ -658,6 +658,7 @@ window.FPV_GOGGLES_MESH = {
       uniform float uTime;
       uniform float uShellAlpha;
       uniform float uScanY;
+      uniform float uFlicker;
       void main() {
         vec3 viewDir = normalize(uCamPos - vWorldPos);
         float fresnel = pow(1.0 - max(dot(normalize(vNormal), viewDir), 0.0), 2.2);
@@ -669,7 +670,7 @@ window.FPV_GOGGLES_MESH = {
         vec3 color = mix(blue, cyan, clamp(fresnel * 0.75 + depthFade * 0.3, 0.0, 1.0));
         color += vec3(0.50, 1.0, 1.0) * scan * 0.65;
         float alpha = (0.13 + fresnel * 0.30 + depthFade * 0.14 + scan * 0.28) * pulse * uShellAlpha;
-        gl_FragColor = vec4(color, clamp(alpha, 0.0, 0.62));
+        gl_FragColor = vec4(color * uFlicker, clamp(alpha * uFlicker, 0.0, 0.62));
       }
     `;
 
@@ -762,7 +763,7 @@ window.FPV_GOGGLES_MESH = {
 
     function wireLogoHover(logo, allSpans) {
       let hovering = false;
-      logo.style.cursor = 'default';
+      logo.style.cursor = 'pointer';
       logo.addEventListener('mouseenter', () => {
         if (hovering) return;
         hovering = true;
@@ -1043,6 +1044,7 @@ window.FPV_GOGGLES_MESH = {
       gl.uniform1f(gl.getUniformLocation(meshProg, 'uShell'), shell);
       gl.uniform1f(gl.getUniformLocation(meshProg, 'uShellAlpha'), alpha);
       gl.uniform1f(gl.getUniformLocation(meshProg, 'uScanY'), scanY);
+      gl.uniform1f(gl.getUniformLocation(meshProg, 'uFlicker'), flickerVal);
       gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     }
 
@@ -1054,6 +1056,23 @@ window.FPV_GOGGLES_MESH = {
       gl.uniformMatrix4fv(gl.getUniformLocation(pointProg, 'uModel'), false, model);
       gl.uniform1f(gl.getUniformLocation(pointProg, 'uTime'), time);
       gl.drawArrays(gl.POINTS, 0, positions.length / 3);
+    }
+
+    // CRT flicker state
+    let flickerVal = 1.0;
+    function tickFlicker() {
+      const delay = (3 + Math.random() * 6) * 1000;
+      setTimeout(() => {
+        const dips = 2 + Math.floor(Math.random() * 3);
+        let d = 0;
+        function dip() {
+          flickerVal = 0.55 + Math.random() * 0.3;
+          d++;
+          if (d < dips) setTimeout(dip, 32 + Math.random() * 48);
+          else setTimeout(() => { flickerVal = 1.0; tickFlicker(); }, 40);
+        }
+        dip();
+      }, delay);
     }
 
     function frame() {
@@ -1123,8 +1142,23 @@ window.FPV_GOGGLES_MESH = {
     resize();
     updateMobileProgress();
     frame();
+    tickFlicker();
     shuffleLogoIn();
     setTimeout(startNavSequence, 800);
+
+    // ── PAGE FADE-IN on load ──
+    (function() {
+      const overlay = document.getElementById('pageTransitionOverlay');
+      overlay.style.opacity = '1';
+      overlay.style.transition = 'none';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          overlay.style.transition = 'opacity 0.55s ease';
+          overlay.style.opacity = '0';
+          setTimeout(() => { overlay.style.pointerEvents = 'none'; }, 600);
+        });
+      });
+    })();
     document.addEventListener('gesturestart', e => e.preventDefault());
     document.addEventListener('gesturechange', e => e.preventDefault());
     document.addEventListener('gestureend', e => e.preventDefault());
@@ -1143,12 +1177,41 @@ window.FPV_GOGGLES_MESH = {
     // Profile flicker-in on scroll
     const profileSection = document.querySelector('.profile-section');
     let profileTriggered = false;
+
+    // ── STAT COUNTER GLITCH-IN ──
+    function animateStatYear(el) {
+      const target = parseInt(el.textContent, 10);
+      const start = target - 80;
+      const GLITCH = '@#FRT43%=+-.<>!?|~^&*';
+      const duration = 900;
+      const startTime = performance.now();
+      function tick(now) {
+        const p = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const current = Math.round(start + (target - start) * eased);
+        // Occasional glitch char in last digit
+        const str = String(current);
+        if (p < 0.85 && Math.random() < 0.35) {
+          el.textContent = str.slice(0, -1) + GLITCH[Math.floor(Math.random() * GLITCH.length)];
+        } else {
+          el.textContent = str;
+        }
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = String(target);
+      }
+      requestAnimationFrame(tick);
+    }
+
     function checkProfileVisible() {
       if (profileTriggered) return;
       const rect = profileSection.getBoundingClientRect();
       if (rect.top < window.innerHeight * 0.92) {
         profileTriggered = true;
         profileSection.classList.add('flicker-in');
+        // Stagger stat counters
+        document.querySelectorAll('.stat-year').forEach((el, i) => {
+          setTimeout(() => animateStatYear(el), i * 180);
+        });
       }
     }
     window.addEventListener('scroll', checkProfileVisible, { passive: true });
