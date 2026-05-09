@@ -2219,13 +2219,46 @@ const isMobile = window.innerWidth <= 768;
 
   // ── SKIP LOADER when coming back from another page ──
   if (location.search.includes('skip')) {
-    // Instantly hide all loader elements and reveal the site
+    // Hide loader instantly
     loadUi.style.display = 'none';
     aC.style.display = 'none';
     loadScreen.style.transition = 'none';
     loadScreen.style.opacity = '0';
     loadScreen.style.pointerEvents = 'none';
+
+    // Show the site
+    site.style.transition = 'none';
     site.classList.add('visible');
+
+    // Show logo instantly (no shuffle)
+    const logo = document.querySelector('.nav-logo');
+    if (logo) logo.style.opacity = '1';
+
+    // Show all nav text instantly — no char-by-char animation
+    document.querySelectorAll('.nav-links a, .nav-center a').forEach(el => {
+      el.style.opacity = '1';
+    });
+    document.querySelectorAll('.nav-right > span').forEach(el => {
+      el.style.opacity = '1';
+      // nr-inner wrapper isn't created yet, just show the span directly
+      const inner = el.querySelector('.nr-inner');
+      if (inner) inner.style.opacity = '1';
+    });
+
+    // Show landing bottom text
+    const tagline = document.getElementById('landingTagline');
+    if (tagline) tagline.style.opacity = '1';
+    const bio = document.getElementById('landingBio');
+    if (bio) bio.style.opacity = '1';
+
+    // Show menu button (mobile)
+    const menuBtn = document.getElementById('menuBtn');
+    if (menuBtn) menuBtn.style.opacity = '1';
+
+    // Show scroll indicator
+    const indicator = document.getElementById('scrollIndicator');
+    if (indicator) indicator.style.opacity = '1';
+
     // Clean URL without reloading
     history.replaceState(null, '', location.pathname);
     return; // exit the IIFE — no loader runs
