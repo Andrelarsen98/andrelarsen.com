@@ -4,15 +4,133 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About Andre Larsen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { background: #000; }
     body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; }
     canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; }
     .scroll-space { height: 260vh; }
+
+    @font-face {
+      font-family: 'DrukWide';
+      src: url('DrukWide-Bold.woff2') format('woff2');
+      font-weight: 700; font-style: normal; font-display: swap;
+    }
+
+    nav {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 0.8fr;
+      align-items: start;
+      padding: 26px 32px 0;
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 200; mix-blend-mode: difference; pointer-events: none;
+    }
+    nav a, nav button { pointer-events: all; }
+    .nav-logo {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: 15px; font-weight: 700; text-transform: lowercase;
+      letter-spacing: -0.02em; color: #fff; text-decoration: none; line-height: 1;
+    }
+    .nav-logo em { font-style: italic; }
+    .nav-links, .nav-center { display: flex; flex-direction: column; gap: 1px; }
+    .nav-links a, .nav-center a {
+      color: #fff; text-decoration: none;
+      font-family: 'VT323', monospace; font-size: 16px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      -webkit-font-smoothing: none; line-height: 1.15; display: inline-block; padding: 1px 5px;
+    }
+    .nav-links a:hover, .nav-links a.active, .nav-center a:hover { background: #fff; color: #000; }
+    .nav-right { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+    .nav-right span {
+      font-family: 'VT323', monospace; font-size: 16px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #fff; -webkit-font-smoothing: none; line-height: 1.15; display: block;
+    }
+    .nav-menu-btn {
+      display: none; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.38);
+      color: #fff; font-family: 'VT323', monospace; font-size: 16px; letter-spacing: 0.12em;
+      padding: 5px 14px; cursor: pointer; text-transform: uppercase; -webkit-font-smoothing: none;
+    }
+    .menu-overlay {
+      display: none; opacity: 0; position: fixed; inset: 0;
+      background: rgba(10,6,4,0.92); backdrop-filter: blur(2px);
+      z-index: 300; flex-direction: column; justify-content: space-between;
+    }
+    .menu-top { display: flex; align-items: center; justify-content: space-between; padding: 22px 20px 0; }
+    .menu-logo {
+      font-family: 'DrukWide','Arial Black',Arial,sans-serif; font-size: 18px; font-weight: 700;
+      color: #fff; text-transform: lowercase; letter-spacing: -0.02em;
+    }
+    .menu-logo em { font-style: italic; }
+    .menu-close {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4);
+      color: #fff; font-family: 'VT323', monospace; font-size: 16px; letter-spacing: 0.12em;
+      padding: 5px 14px; cursor: pointer; text-transform: uppercase; -webkit-font-smoothing: none;
+    }
+    .menu-nav { display: flex; flex-direction: column; padding: 0 20px; flex: 1; justify-content: center; }
+    .menu-nav a {
+      color: #fff; text-decoration: none;
+      font-family: 'DrukWide','Arial Black',Arial,sans-serif;
+      font-size: 12vw; font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1.35;
+    }
+    .menu-bottom { display: flex; justify-content: space-between; align-items: flex-end; padding: 16px 20px 36px; }
+    .menu-bottom-left { display: flex; flex-direction: column; gap: 2px; }
+    .menu-bottom-left a, .menu-bottom-left span {
+      font-family: 'VT323', monospace; font-size: 14px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #fff; text-decoration: none; -webkit-font-smoothing: none;
+    }
+    .menu-contact-btn {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4);
+      color: #fff; font-family: 'VT323', monospace; font-size: 16px; letter-spacing: 0.12em;
+      padding: 5px 14px; text-decoration: none; text-transform: uppercase; -webkit-font-smoothing: none;
+    }
+    @media (max-width: 768px) {
+      nav { display: flex; padding: 22px 20px 0; align-items: center; justify-content: space-between; }
+      .nav-links, .nav-center, .nav-right { display: none; }
+      .nav-menu-btn { display: block; }
+    }
   </style>
 </head>
 <body>
+
+  <nav>
+    <a class="nav-logo" href="index.html">andré <em>larsen</em></a>
+    <div class="nav-links">
+      <a href="works.html">WORKS</a>
+      <a href="about.html" class="active">ABOUT</a>
+    </div>
+    <div class="nav-center">
+      <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
+      <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+    </div>
+    <div class="nav-right">
+      <span>VISUAL ARTIST</span>
+      <span>DUBAI, UAE</span>
+    </div>
+    <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
+  </nav>
+
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-top">
+      <div class="menu-logo">andré <em>larsen</em></div>
+      <button class="menu-close" id="menuClose">:/ CLOSE</button>
+    </div>
+    <div class="menu-nav">
+      <a href="index.html">HOME</a>
+      <a href="works.html">WORKS</a>
+      <a href="about.html">ABOUT</a>
+    </div>
+    <div class="menu-bottom">
+      <div class="menu-bottom-left">
+        <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
+        <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+      </div>
+      <a href="mailto:andre@andrelarsen.com" class="menu-contact-btn">&gt; CONTACT</a>
+    </div>
+  </div>
+
   <main aria-label="About Andre Larsen hologram">
   <canvas id="holo" aria-label="Rotating hologram face"></canvas>
   <div class="scroll-space" aria-hidden="true"></div>
@@ -295,6 +413,23 @@ window.FPV_GOGGLES_MESH = {
 
     resize();
     frame();
+
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const menuOverlay = document.getElementById('menuOverlay');
+    const menuClose = document.getElementById('menuClose');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', () => {
+        menuOverlay.style.display = 'flex';
+        requestAnimationFrame(() => requestAnimationFrame(() => { menuOverlay.style.opacity = '1'; menuOverlay.style.transition = 'opacity 0.5s ease'; }));
+        menuBtn.style.opacity = '0'; menuBtn.style.pointerEvents = 'none';
+      });
+      menuClose.addEventListener('click', () => {
+        menuOverlay.style.opacity = '0';
+        menuBtn.style.opacity = '1'; menuBtn.style.pointerEvents = 'all';
+        setTimeout(() => { menuOverlay.style.display = 'none'; }, 500);
+      });
+    }
   </script>
 </main>
 </body>
