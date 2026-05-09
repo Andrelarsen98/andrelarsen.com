@@ -9,10 +9,10 @@
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { background: #000; }
+    html, body { background: #000; overscroll-behavior: none; }
     html { scrollbar-width: none; -ms-overflow-style: none; }
     html::-webkit-scrollbar { display: none; }
-    body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; overscroll-behavior-y: none; }
+    body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; overscroll-behavior: none; }
     canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; z-index: 1; }
     .scroll-space { height: 100vh; }
     .test-space { display: none; }
@@ -339,15 +339,13 @@
     .profile-headline {
       font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
       font-weight: 700;
-      font-size: clamp(22px, 7.5vw, 72px);
+      font-size: clamp(22px, 7.5vw, 72px); overflow-wrap: break-word; word-break: break-word;
       line-height: 0.95;
       letter-spacing: -0.01em;
       color: #fff;
       text-transform: uppercase;
       margin-bottom: 48px;
       -webkit-font-smoothing: antialiased;
-      overflow-wrap: break-word;
-      word-break: break-word;
     }
     .profile-headline em {
       font-style: italic;
@@ -952,13 +950,13 @@ window.FPV_GOGGLES_MESH = {
     document.addEventListener('gesturechange', e => e.preventDefault());
     document.addEventListener('gestureend', e => e.preventDefault());
     window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
-    // Block pull-to-refresh only — when at top of page and pulling down
+    // Block pull-to-refresh — lock overscroll at top
     let _touchStartY = 0;
     document.addEventListener('touchstart', e => { _touchStartY = e.touches[0].clientY; }, { passive: true });
     document.addEventListener('touchmove', e => {
-      if (window.scrollY === 0 && e.touches[0].clientY > _touchStartY) {
-        e.preventDefault();
-      }
+      const dy = e.touches[0].clientY - _touchStartY;
+      if (dy > 0 && window.scrollY <= 0) { e.preventDefault(); return; }
+      if (dy < 0 && window.scrollY + window.innerHeight >= document.body.scrollHeight) { e.preventDefault(); }
     }, { passive: false });
     // Block pinch-zoom (multi-touch)
     document.addEventListener('touchstart', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
