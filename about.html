@@ -1134,15 +1134,21 @@ window.FPV_GOGGLES_MESH = {
       targetPointerY = t.clientY / window.innerHeight;
     }, { passive: true });
 
-    // Logo → home with fade transition
-    document.getElementById('logoHomeLink').addEventListener('click', function(e) {
+    // Shared fade-to-home helper
+    function fadeToHome(e) {
       e.preventDefault();
       const overlay = document.getElementById('pageTransitionOverlay');
       overlay.style.transition = 'opacity 0.45s ease';
       overlay.style.opacity = '1';
       overlay.style.pointerEvents = 'all';
       setTimeout(() => { window.location.href = 'index.html'; }, 450);
-    });
+    }
+
+    // Logo → home
+    document.getElementById('logoHomeLink').addEventListener('click', fadeToHome);
+
+    // Menu HOME link → home
+    document.querySelector('.menu-nav a[href="index.html"]').addEventListener('click', fadeToHome);
 
     resize();
     updateMobileProgress();
