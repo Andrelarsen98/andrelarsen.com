@@ -4,15 +4,144 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About Andre Larsen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { background: #000; }
     body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; }
     canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; }
     .scroll-space { height: 260vh; }
+    @font-face {
+      font-family: 'DrukWide';
+      src: url('DrukWide-Bold.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    .nav-links a,
+    .nav-center a,
+    .nav-menu-btn {
+      opacity: 0;
+    }
+    .nav-right > span {
+      opacity: 1;
+    }
+    .nav-right > span .nr-inner {
+      opacity: 0;
+    }
+    nav {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 0.8fr;
+      align-items: start;
+      padding: 26px 32px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      mix-blend-mode: normal;
+      pointer-events: none;
+    }
+    nav a, nav button { pointer-events: all; }
+    .nav-logo {
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      line-height: 1;
+      text-transform: lowercase;
+      letter-spacing: -0.02em;
+      color: #fff;
+      opacity: 0;
+    }
+    .nav-logo em { font-style: italic; }
+    .nav-links { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
+    .nav-links a,
+    .nav-center a {
+      color: #fff;
+      text-decoration: none;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      -webkit-font-smoothing: none;
+      line-height: 1.15;
+      display: inline-block;
+      padding: 1px 5px;
+      background: transparent;
+      transition: none;
+    }
+    .nav-links a:hover,
+    .nav-center a:hover {
+      background: #fff;
+      color: #000;
+      text-shadow: 0 0 8px rgba(255, 200, 60, 0.6);
+    }
+    .nav-center { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
+    .nav-right { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+    .nav-right > span {
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #fff;
+      -webkit-font-smoothing: none;
+      line-height: 1.15;
+      display: block;
+      text-align: right;
+    }
+    .sc-char, .sc-space {
+      display: inline;
+      font: inherit;
+      letter-spacing: inherit;
+      color: inherit;
+    }
+    .nav-menu-btn {
+      display: none;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.5);
+      color: #fff;
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      letter-spacing: 0.12em;
+      padding: 5px 14px;
+      cursor: pointer;
+      text-transform: uppercase;
+      -webkit-font-smoothing: none;
+    }
+    @media (max-width: 768px) {
+      nav {
+        grid-template-columns: 1fr auto;
+        padding: 22px 20px 0;
+      }
+      .nav-logo {
+        font-size: 18px;
+      }
+      .nav-links, .nav-center, .nav-right { display: none; }
+      .nav-menu-btn {
+        display: inline-block;
+      }
+    }
   </style>
 </head>
 <body>
+  <nav>
+    <div class="nav-logo">andré <em>larsen</em></div>
+    <div class="nav-links">
+      <a href="works.html">WORKS</a>
+      <a href="about.htm">ABOUT</a>
+    </div>
+    <div class="nav-center">
+      <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
+      <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+    </div>
+    <div class="nav-right">
+      <span>VISUAL ARTIST</span>
+      <span>DUBAI, UAE</span>
+    </div>
+    <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
+  </nav>
   <main aria-label="About Andre Larsen hologram">
   <canvas id="holo" aria-label="Rotating hologram face"></canvas>
   <div class="scroll-space" aria-hidden="true"></div>
@@ -106,6 +235,171 @@ window.FPV_GOGGLES_MESH = {
         gl_FragColor = vec4(0.97, 1.0, 1.0, a);
       }
     `;
+
+    const SHUFFLE_LOAD_CHARS = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*-_+=;:<>,'.split('');
+    const SHUFFLE_HOVER_CHARS = '!@#$%&*FKT_'.split('');
+    const FRAME_MS = 30;
+    const REPEAT_DELAY_MS = 25;
+    const STAGGER_MS = 10;
+    const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
+
+    function shuffleLogoIn() {
+      const logo = document.querySelector('.nav-logo');
+      if (!logo) return;
+      logo.style.opacity = '0';
+      setTimeout(() => logo.style.opacity = '1', 0);
+      setTimeout(() => logo.style.opacity = '0', 60);
+      setTimeout(() => logo.style.opacity = '1', 120);
+      setTimeout(() => logo.style.opacity = '0', 230);
+      setTimeout(() => logo.style.opacity = '1', 300);
+      setTimeout(() => {
+        const parts = [
+          { text: 'andré ', italic: false },
+          { text: 'larsen', italic: true }
+        ];
+        logo.innerHTML = '';
+        const allSpans = [];
+        parts.forEach(({ text, italic }) => {
+          Array.from(text).forEach(char => {
+            if (char === ' ') {
+              logo.appendChild(document.createTextNode('\u00a0'));
+              return;
+            }
+            const span = document.createElement('span');
+            span.style.cssText = italic ? 'display:inline;font-style:italic;' : 'display:inline;font-style:normal;';
+            span.textContent = char;
+            span.dataset.orig = char;
+            logo.appendChild(span);
+            allSpans.push(span);
+          });
+        });
+        allSpans.forEach((span, i) => {
+          setTimeout(() => {
+            let count = 0;
+            function tick() {
+              if (count < 3) {
+                span.textContent = SHUFFLE_LOAD_CHARS[Math.floor(Math.random() * SHUFFLE_LOAD_CHARS.length)];
+                count++;
+                setTimeout(tick, FRAME_MS + REPEAT_DELAY_MS);
+              } else {
+                span.textContent = span.dataset.orig;
+                if (i === allSpans.length - 1) setTimeout(() => wireLogoHover(logo, allSpans), 150);
+              }
+            }
+            tick();
+          }, i * STAGGER_MS);
+        });
+      }, 200);
+    }
+
+    function wireLogoHover(logo, allSpans) {
+      let hovering = false;
+      logo.style.cursor = 'default';
+      logo.addEventListener('mouseenter', () => {
+        if (hovering) return;
+        hovering = true;
+        allSpans.forEach((span, i) => {
+          setTimeout(() => {
+            let count = 0;
+            function tick() {
+              if (count < 5) {
+                span.textContent = SHUFFLE_HOVER_CHARS[Math.floor(Math.random() * SHUFFLE_HOVER_CHARS.length)];
+                count++;
+                setTimeout(tick, FRAME_MS + REPEAT_DELAY_MS);
+              } else {
+                span.textContent = span.dataset.orig;
+                if (i === allSpans.length - 1) hovering = false;
+              }
+            }
+            tick();
+          }, i * STAGGER_MS);
+        });
+      });
+    }
+
+    function splitToCharSpans(el) {
+      const text = el.textContent;
+      el.innerHTML = Array.from(text).map(c =>
+        c === '\n' ? '<br>'
+        : c === ' ' ? '<span class="sc-space"> </span>'
+                    : `<span class="sc-char" style="opacity:0"> </span>`
+      ).join('');
+      return { chars: [...el.querySelectorAll('.sc-char')], originals: Array.from(text).filter(c => c !== ' ' && c !== '\n') };
+    }
+
+    function resolveChar(span, finalChar, iterations) {
+      let count = 0;
+      span.style.opacity = '1';
+      span.textContent = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+      const iv = setInterval(() => {
+        count++;
+        if (count >= iterations) {
+          span.textContent = finalChar;
+          clearInterval(iv);
+        } else {
+          span.textContent = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+        }
+      }, 16);
+    }
+
+    function wrapNavCharsHover(el) {
+      const GHOVER = '@#FRT43%=+-.<>!?|~^$3R4T&*()[]{}/:;,!§±°€£¥×÷√∞≠';
+      el.querySelectorAll('.sc-char').forEach(span => {
+        const orig = span.textContent;
+        span.dataset.orig = orig;
+        span.addEventListener('mouseenter', () => {
+          let count = 0;
+          const total = 5 + Math.floor(Math.random() * 2);
+          const iv = setInterval(() => {
+            span.textContent = GHOVER[Math.floor(Math.random() * GHOVER.length)];
+            count++;
+            if (count >= total) {
+              clearInterval(iv);
+              setTimeout(() => { span.textContent = span.dataset.orig; }, 60);
+            }
+          }, 55);
+        });
+      });
+    }
+
+    function startNavSequence() {
+      const navLinks = [...document.querySelectorAll('.nav-links a')];
+      const navCenter = [...document.querySelectorAll('.nav-center a')];
+      const navRight = [...document.querySelectorAll('.nav-right > span')];
+      navRight.forEach(el => {
+        const inner = document.createElement('span');
+        inner.className = 'nr-inner';
+        inner.style.cssText = 'display:inline-block;text-align:left;direction:ltr;';
+        inner.textContent = el.textContent.trim();
+        el.textContent = '';
+        el.appendChild(inner);
+      });
+      const navRightInners = navRight.map(el => el.querySelector('.nr-inner'));
+      const allEls = [...navLinks, ...navCenter, ...navRightInners];
+      const splitData = allEls.map(el => {
+        el.style.opacity = '1';
+        return { el, ...splitToCharSpans(el) };
+      });
+      const CHAR_STAGGER_MS = 10;
+      const SCRAMBLE_ITER = 6;
+      let globalCharIndex = 0;
+      splitData.forEach(({ chars, originals }) => {
+        chars.forEach((span, i) => {
+          const delay = globalCharIndex * CHAR_STAGGER_MS;
+          setTimeout(() => resolveChar(span, originals[i], SCRAMBLE_ITER), delay);
+          globalCharIndex++;
+        });
+      });
+      const totalDuration = globalCharIndex * CHAR_STAGGER_MS + SCRAMBLE_ITER * 16 + 100;
+      setTimeout(() => {
+        [...navLinks, ...navCenter].forEach(el => wrapNavCharsHover(el));
+        const menuBtn = document.getElementById('menuBtn');
+        if (menuBtn) {
+          menuBtn.style.transition = 'opacity 0.5s ease';
+          menuBtn.style.opacity = '1';
+        }
+      }, totalDuration);
+    }
 
     function shader(type, source) {
       const s = gl.createShader(type);
@@ -295,6 +589,8 @@ window.FPV_GOGGLES_MESH = {
 
     resize();
     frame();
+    shuffleLogoIn();
+    setTimeout(startNavSequence, 800);
   </script>
 </main>
 </body>
