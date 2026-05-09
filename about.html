@@ -464,12 +464,13 @@
   .about-headline {
     font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
     font-weight: 700;
-    font-size: clamp(32px, 4.5vw, 72px);
-    line-height: 0.95;
+    font-size: clamp(26px, 4.5vw, 72px);
+    line-height: 1;
     color: #fff;
     text-transform: uppercase;
     letter-spacing: -0.02em;
     margin-bottom: 48px;
+    word-break: break-word;
   }
   .about-headline em { font-style: italic; }
 
@@ -624,17 +625,39 @@
     .about-left {
       grid-column: 1;
       grid-row: 1;
-      padding: 60px 20px 40px;
+      padding: 52px 24px 48px;
       border-right: none;
       border-bottom: 1px solid rgba(255,255,255,0.07);
     }
     .about-right {
       grid-column: 1;
       grid-row: 2;
-      padding: 40px 20px 60px;
+      padding: 40px 24px 64px;
+      gap: 36px;
     }
-    .about-stats { gap: 24px; }
+    .about-headline {
+      font-size: clamp(26px, 9vw, 42px);
+      line-height: 1;
+      margin-bottom: 32px;
+    }
+    .about-section-label { margin-bottom: 28px; }
+    .about-bio {
+      font-size: 18px;
+      line-height: 1.6;
+      letter-spacing: 0.03em;
+      margin-bottom: 40px;
+      max-width: 100%;
+    }
+    .about-stats {
+      gap: 20px 32px;
+      flex-wrap: wrap;
+    }
+    .about-stat-num { font-size: clamp(22px, 7vw, 36px); }
+    .about-stat-label { font-size: 13px; }
+    .about-data-row { font-size: 16px; }
+    .adr-label { min-width: 70px; }
     .about-cta { margin-top: 0; padding-top: 0; }
+    .about-cta-btn { font-size: 16px; padding: 10px 22px; }
   }
 
   /* ══════════════════════════════════════
