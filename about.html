@@ -11,8 +11,38 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { background: #000; }
     body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; }
-    canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; }
+    canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; z-index: 1; }
     .scroll-space { height: 260vh; }
+    .scanline-fixed {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .scanline-fixed:after {
+      top: 0;
+      left: 0;
+      opacity: .07;
+      --dot-bg: #000;
+      --dot-color: #fff;
+      --dot-size: 2px;
+      --dot-space: 3px;
+      width: 100%;
+      height: 100%;
+      display: block;
+      position: absolute;
+      content: "";
+      background:
+        linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        var(--dot-color);
+    }
+    @media (min-width: 1280px) {
+      .scanline-fixed:after {
+        --dot-size: 4px;
+        --dot-space: 5px;
+      }
+    }
     @font-face {
       font-family: 'DrukWide';
       src: url('DrukWide-Bold.woff2') format('woff2');
@@ -142,6 +172,7 @@
     </div>
     <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
   </nav>
+  <div class="scanline-fixed" aria-hidden="true"></div>
   <main aria-label="About Andre Larsen hologram">
   <canvas id="holo" aria-label="Rotating hologram face"></canvas>
   <div class="scroll-space" aria-hidden="true"></div>
