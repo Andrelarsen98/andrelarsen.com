@@ -240,25 +240,7 @@
     z-index: 1;
   }
 
-  /* Scanline texture */
-  .hero-scanline {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.06) 2px,
-      rgba(0,0,0,0.06) 4px
-    );
-    animation: scanlineShift 8s linear infinite;
-  }
-  @keyframes scanlineShift {
-    from { background-position: 0 0; }
-    to   { background-position: 0 40px; }
-  }
+  /* ── hero scanline REMOVED ── */
 
   /* Vignette */
   .hero-vignette {
@@ -839,10 +821,9 @@
   <section class="about-hero">
 
     <video id="aboutVideo" muted loop playsinline autoplay preload="auto" webkit-playsinline x5-playsinline>
-      <source src="GX010138_3.MP4" type="video/mp4">
+      <source src="GX010138 2.mov" type="video/mp4">
     </video>
 
-    <div class="hero-scanline"></div>
     <div class="hero-vignette"></div>
     <div class="hero-fade-bottom"></div>
     <div class="hero-fade-top"></div>
@@ -858,10 +839,7 @@
 
     <!-- Bottom text -->
     <div class="hero-bottom">
-      <div class="hero-name-block">
-        <span class="hero-name" id="heroName">ANDRÉ <em>LARSEN</em></span>
-        <div class="hero-subtitle" id="heroSubtitle">FPV CINEMATOGRAPHER · DUBAI, UAE</div>
-      </div>
+      <div></div>
       <div class="hero-location" id="heroLocation">
         25°8'N 55°11'E<br>
         321M ALTITUDE
@@ -962,15 +940,6 @@
         </div>
       </div>
 
-      <div class="about-data-block">
-        <div class="about-data-title"><span>■</span> Equipment</div>
-        <div class="about-data-rows">
-          <div class="about-data-row"><span class="adr-label">DRONE</span><span class="adr-sep">:</span><span class="adr-val">CUSTOM 5" BUILDS</span></div>
-          <div class="about-data-row"><span class="adr-label">CAMERA</span><span class="adr-sep">:</span><span class="adr-val">GOPRO / DJI / SONY</span></div>
-          <div class="about-data-row"><span class="adr-label">GOGGLES</span><span class="adr-sep">:</span><span class="adr-val">DJI O3 / ANALOG</span></div>
-        </div>
-      </div>
-
       <div class="about-cta">
         <a class="about-cta-btn" href="mailto:andre@andrelarsen.com">&gt; START A PROJECT</a>
         <div class="about-cta-sub">Available for worldwide bookings</div>
@@ -1029,10 +998,8 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { veil.style.display = 'none'; }, 1000);
   }, 180);
 
-  // Reveal text elements
+  // Reveal location
   setTimeout(() => {
-    document.getElementById('heroName').classList.add('visible');
-    document.getElementById('heroSubtitle').classList.add('visible');
     document.getElementById('heroLocation').classList.add('visible');
   }, 400);
 
