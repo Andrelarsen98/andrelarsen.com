@@ -88,8 +88,24 @@
       letter-spacing: -0.02em;
       color: #fff;
       opacity: 0;
+      text-decoration: none;
+      cursor: pointer;
     }
     .nav-logo em { font-style: italic; }
+    /* Fade-out overlay for page transition */
+    #pageTransitionOverlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease;
+    }
+    #pageTransitionOverlay.fading {
+      opacity: 1;
+      pointer-events: all;
+    }
     .nav-links { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
     .nav-links a,
     .nav-center a {
@@ -189,47 +205,54 @@
       cursor: pointer;
       text-transform: uppercase;
       -webkit-font-smoothing: none;
+      position: relative;
+      z-index: 1;
     }
-    .menu-links {
+    .menu-nav {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 10px;
-      padding: 44px 20px 32px;
+      justify-content: center;
+      padding: 0 20px;
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      gap: 0;
     }
-    .menu-links a,
-    .menu-meta a,
-    .menu-meta span {
+    .menu-nav a {
       color: #fff;
       text-decoration: none;
-      text-transform: uppercase;
-      line-height: 1.05;
-    }
-    .menu-links a {
       font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: 12vw;
       font-weight: 700;
-      font-size: clamp(48px, 14vw, 72px);
-      letter-spacing: -0.01em;
-      -webkit-font-smoothing: antialiased;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.35;
+      display: block;
     }
-    .menu-meta {
+    .menu-bottom {
+      position: relative;
+      z-index: 1;
+      width: 100%;
       display: flex;
-      flex-direction: row;
-      align-items: flex-end;
       justify-content: space-between;
-      gap: 6px;
-      padding: 0 20px 28px;
+      align-items: flex-end;
+      padding: 16px 20px 36px;
+      flex-shrink: 0;
     }
-    .menu-meta-left {
+    .menu-bottom-left {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
-    .menu-meta a,
-    .menu-meta span {
+    .menu-bottom-left a,
+    .menu-bottom-left span {
       font-family: 'VT323', monospace;
-      font-size: 16px;
-      letter-spacing: 0.10em;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fff;
+      text-decoration: none;
       -webkit-font-smoothing: none;
     }
     .menu-contact-btn {
@@ -503,8 +526,9 @@
   </style>
 </head>
 <body>
+  <div id="pageTransitionOverlay"></div>
   <nav>
-    <div class="nav-logo">andré <em>larsen</em></div>
+    <a href="index.html" class="nav-logo" id="logoHomeLink">andré <em>larsen</em></a>
     <div class="nav-links">
       <a href="works.html">WORKS</a>
       <a href="about.htm">ABOUT</a>
@@ -524,15 +548,15 @@
       <div class="menu-logo">andré <em>larsen</em></div>
       <button class="menu-close" id="menuClose">:/ CLOSE</button>
     </div>
-    <div class="menu-links">
+    <div class="menu-nav">
       <a href="index.html">HOME</a>
       <a href="works.html">WORKS</a>
       <a href="about.html">ABOUT</a>
     </div>
-    <div class="menu-meta">
-      <div class="menu-meta-left">
+    <div class="menu-bottom">
+      <div class="menu-bottom-left">
         <a href="https://instagram.com/andre_larsen" target="_blank">INSTAGRAM</a>
-        <span>ANDRE_LARSEN</span>
+        <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
       </div>
       <a href="mailto:andre@andrelarsen.com" class="menu-contact-btn">&gt; CONTACT</a>
     </div>
@@ -848,6 +872,7 @@ window.FPV_GOGGLES_MESH = {
     const menuBtn = document.getElementById('menuBtn');
     const menuOverlay = document.getElementById('menuOverlay');
     const menuClose = document.getElementById('menuClose');
+    const mainNav = document.querySelector('nav');
     if (menuBtn && menuOverlay && menuClose) {
       menuBtn.addEventListener('click', () => {
         menuOverlay.style.transition = 'opacity 0.5s cubic-bezier(0.23,1,0.32,1)';
@@ -858,6 +883,10 @@ window.FPV_GOGGLES_MESH = {
         }));
         menuBtn.style.opacity = '0';
         menuBtn.style.pointerEvents = 'none';
+        // Hide original nav so logo doesn't visually jump
+        mainNav.style.transition = 'opacity 0.25s ease';
+        mainNav.style.opacity = '0';
+        mainNav.style.pointerEvents = 'none';
       });
       menuClose.addEventListener('click', () => {
         menuOverlay.style.transition = 'opacity 0.5s cubic-bezier(0.23,1,0.32,1)';
@@ -865,7 +894,23 @@ window.FPV_GOGGLES_MESH = {
         menuOverlay.setAttribute('aria-hidden', 'true');
         menuBtn.style.opacity = '1';
         menuBtn.style.pointerEvents = 'all';
+        mainNav.style.opacity = '1';
+        mainNav.style.pointerEvents = 'all';
         setTimeout(() => { menuOverlay.style.display = 'none'; }, 520);
+      });
+    }
+
+    // Smooth transition back to index on logo click
+    const navLogo = document.querySelector('.nav-logo');
+    if (navLogo) {
+      navLogo.style.cursor = 'pointer';
+      navLogo.addEventListener('click', (e) => {
+        e.preventDefault();
+        const veil = document.createElement('div');
+        veil.style.cssText = 'position:fixed;inset:0;background:#000;opacity:0;z-index:9999;transition:opacity 0.5s ease;pointer-events:none;';
+        document.body.appendChild(veil);
+        requestAnimationFrame(() => requestAnimationFrame(() => { veil.style.opacity = '1'; }));
+        setTimeout(() => { window.location.href = 'index.html'; }, 520);
       });
     }
 
@@ -1066,6 +1111,14 @@ window.FPV_GOGGLES_MESH = {
       targetPointerX = t.clientX / window.innerWidth;
       targetPointerY = t.clientY / window.innerHeight;
     }, { passive: true });
+
+    // Logo → home with fade transition
+    document.getElementById('logoHomeLink').addEventListener('click', function(e) {
+      e.preventDefault();
+      const overlay = document.getElementById('pageTransitionOverlay');
+      overlay.classList.add('fading');
+      setTimeout(() => { window.location.href = 'index.html'; }, 450);
+    });
 
     resize();
     updateMobileProgress();
