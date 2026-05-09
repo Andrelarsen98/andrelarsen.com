@@ -98,13 +98,17 @@
       inset: 0;
       background: #000;
       z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.45s ease;
+      opacity: 1;
+      pointer-events: all;
     }
     #pageTransitionOverlay.fading {
       opacity: 1;
       pointer-events: all;
+    }
+    #pageTransitionOverlay.visible-out {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.55s ease;
     }
     .nav-links { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
     .nav-links a,
@@ -658,7 +662,6 @@ window.FPV_GOGGLES_MESH = {
       uniform float uTime;
       uniform float uShellAlpha;
       uniform float uScanY;
-      uniform float uFlicker;
       void main() {
         vec3 viewDir = normalize(uCamPos - vWorldPos);
         float fresnel = pow(1.0 - max(dot(normalize(vNormal), viewDir), 0.0), 2.2);
@@ -670,7 +673,7 @@ window.FPV_GOGGLES_MESH = {
         vec3 color = mix(blue, cyan, clamp(fresnel * 0.75 + depthFade * 0.3, 0.0, 1.0));
         color += vec3(0.50, 1.0, 1.0) * scan * 0.65;
         float alpha = (0.13 + fresnel * 0.30 + depthFade * 0.14 + scan * 0.28) * pulse * uShellAlpha;
-        gl_FragColor = vec4(color * uFlicker, clamp(alpha * uFlicker, 0.0, 0.62));
+        gl_FragColor = vec4(color, clamp(alpha, 0.0, 0.62));
       }
     `;
 
@@ -1044,7 +1047,6 @@ window.FPV_GOGGLES_MESH = {
       gl.uniform1f(gl.getUniformLocation(meshProg, 'uShell'), shell);
       gl.uniform1f(gl.getUniformLocation(meshProg, 'uShellAlpha'), alpha);
       gl.uniform1f(gl.getUniformLocation(meshProg, 'uScanY'), scanY);
-      gl.uniform1f(gl.getUniformLocation(meshProg, 'uFlicker'), flickerVal);
       gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     }
 
@@ -1098,6 +1100,7 @@ window.FPV_GOGGLES_MESH = {
       renderMesh(0.0, 0.0, model, view, proj, cam, scanY);
       renderMesh(0.014, 0.0, model, view, proj, cam, scanY);
       renderPoints(model, view, proj);
+      canvas.style.opacity = flickerVal;
     }
 
     window.addEventListener('resize', resize);
@@ -1135,7 +1138,9 @@ window.FPV_GOGGLES_MESH = {
     document.getElementById('logoHomeLink').addEventListener('click', function(e) {
       e.preventDefault();
       const overlay = document.getElementById('pageTransitionOverlay');
-      overlay.classList.add('fading');
+      overlay.style.transition = 'opacity 0.45s ease';
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'all';
       setTimeout(() => { window.location.href = 'index.html'; }, 450);
     });
 
@@ -1149,14 +1154,11 @@ window.FPV_GOGGLES_MESH = {
     // ── PAGE FADE-IN on load ──
     (function() {
       const overlay = document.getElementById('pageTransitionOverlay');
-      overlay.style.opacity = '1';
-      overlay.style.transition = 'none';
+      // Start black, then fade out
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          overlay.style.transition = 'opacity 0.55s ease';
-          overlay.style.opacity = '0';
-          setTimeout(() => { overlay.style.pointerEvents = 'none'; }, 600);
-        });
+        setTimeout(() => {
+          overlay.classList.add('visible-out');
+        }, 80);
       });
     })();
     document.addEventListener('gesturestart', e => e.preventDefault());
@@ -1178,24 +1180,17 @@ window.FPV_GOGGLES_MESH = {
     const profileSection = document.querySelector('.profile-section');
     let profileTriggered = false;
 
-    // ── STAT COUNTER GLITCH-IN ──
+    // ── STAT COUNTER ──
     function animateStatYear(el) {
       const target = parseInt(el.textContent, 10);
       const start = target - 80;
-      const GLITCH = '@#FRT43%=+-.<>!?|~^&*';
-      const duration = 900;
+      const duration = 1000;
       const startTime = performance.now();
       function tick(now) {
         const p = Math.min((now - startTime) / duration, 1);
         const eased = 1 - Math.pow(1 - p, 3);
         const current = Math.round(start + (target - start) * eased);
-        // Occasional glitch char in last digit
-        const str = String(current);
-        if (p < 0.85 && Math.random() < 0.35) {
-          el.textContent = str.slice(0, -1) + GLITCH[Math.floor(Math.random() * GLITCH.length)];
-        } else {
-          el.textContent = str;
-        }
+        el.textContent = String(current);
         if (p < 1) requestAnimationFrame(tick);
         else el.textContent = String(target);
       }
@@ -1208,10 +1203,12 @@ window.FPV_GOGGLES_MESH = {
       if (rect.top < window.innerHeight * 0.92) {
         profileTriggered = true;
         profileSection.classList.add('flicker-in');
-        // Stagger stat counters
-        document.querySelectorAll('.stat-year').forEach((el, i) => {
-          setTimeout(() => animateStatYear(el), i * 180);
-        });
+        // Wait for section to be visible before counting
+        setTimeout(() => {
+          document.querySelectorAll('.stat-year').forEach((el, i) => {
+            setTimeout(() => animateStatYear(el), i * 200);
+          });
+        }, 350);
       }
     }
     window.addEventListener('scroll', checkProfileVisible, { passive: true });
