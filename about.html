@@ -549,28 +549,15 @@
     z-index: 10;
     background: #000;
     padding: 0;
-  }
-  .video-label {
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    letter-spacing: 0.14em;
-    color: rgba(255,255,255,0.35);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-    padding: 20px 20px 10px;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
   }
   .profile-video {
     display: block;
     width: 100%;
-    aspect-ratio: 9 / 16;
+    height: 100%;
     object-fit: cover;
-    max-height: 92vh;
-  }
-  @media (min-width: 769px) {
-    .profile-video {
-      aspect-ratio: 16 / 9;
-      max-height: 80vh;
-    }
   }
   </style>
 </head>
@@ -643,7 +630,6 @@
   </div>
 
   <div class="video-section">
-    <div class="video-label">:/ BURJ AL ARAB — DUBAI, UAE</div>
     <video
       class="profile-video"
       src="GX010138_2.mov"
