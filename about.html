@@ -353,7 +353,7 @@
     .profile-headline {
       font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
       font-weight: 700;
-      font-size: clamp(22px, 7.5vw, 72px); overflow-wrap: break-word; word-break: break-word;
+      font-size: clamp(18px, 6.5vw, 72px); overflow-wrap: break-word; word-break: break-word;
       line-height: 0.95;
       letter-spacing: -0.01em;
       color: #fff;
@@ -363,6 +363,23 @@
     }
     .profile-headline em {
       font-style: italic;
+    }
+    @media (max-width: 480px) {
+      .profile-headline {
+        font-size: clamp(16px, 5.8vw, 36px);
+      }
+    }
+    .profile-byline {
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      -webkit-font-smoothing: none;
+      margin-bottom: 4px !important;
+    }
+    .profile-byline strong {
+      color: rgba(255,255,255,0.75);
     }
     .profile-body {
       display: flex;
@@ -574,6 +591,7 @@
     <div class="profile-label">PROFILE</div>
     <div class="profile-headline">VISUAL ARTIST &<br><em>CINEMATOGRAPHER.</em></div>
     <div class="profile-body">
+      <p class="profile-byline"><strong>André Larsen</strong> (b. 1998)</p>
       <p>Norwegian kid flying drones in his grandmother's backyard. Long before DJI. Long before anyone called it FPV.</p>
       <p>Never stopped.</p>
       <p>Dubai, 2020. Went all in.<br>Eight years professional.<br>A lifetime in the air.</p>
