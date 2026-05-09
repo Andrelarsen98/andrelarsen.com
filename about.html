@@ -1054,17 +1054,68 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 1200);
 });
 
-/* ── VIDEO AUTOPLAY FALLBACK ── */
+/* ── BULLETPROOF VIDEO ENGINE ── */
 (function() {
   const vid = document.getElementById('aboutVideo');
   if (!vid) return;
-  vid.muted = true;
-  const p = vid.play();
-  if (p && p.catch) p.catch(() => {
-    // If autoplay blocked, show poster or try on user gesture
-    document.addEventListener('touchstart', () => vid.play(), { once: true });
-    document.addEventListener('click', () => vid.play(), { once: true });
+
+  // Force all attributes needed for silent autoplay
+  vid.muted        = true;
+  vid.loop         = true;
+  vid.playsInline  = true;
+  vid.setAttribute('playsinline', '');
+  vid.setAttribute('webkit-playsinline', '');
+  vid.preload      = 'auto';
+
+  function forcePlay() {
+    if (vid.paused || vid.ended) {
+      const p = vid.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+  }
+
+  // Kick off immediately
+  forcePlay();
+
+  // Watchdog: check every 400ms and restart if frozen or stalled
+  let lastTime = -1;
+  let stalledCount = 0;
+  setInterval(() => {
+    if (vid.paused || vid.ended) {
+      forcePlay();
+      return;
+    }
+    // Detect if currentTime isn't advancing (frozen frame)
+    if (vid.currentTime === lastTime && !vid.paused) {
+      stalledCount++;
+      if (stalledCount >= 2) {
+        // Nudge playback to unstick
+        vid.currentTime += 0.01;
+        const p = vid.play();
+        if (p && p.catch) p.catch(() => {});
+        stalledCount = 0;
+      }
+    } else {
+      stalledCount = 0;
+    }
+    lastTime = vid.currentTime;
+  }, 400);
+
+  // Restart on every stall/suspend/waiting/pause event
+  ['pause', 'stalled', 'waiting', 'suspend', 'emptied'].forEach(evt => {
+    vid.addEventListener(evt, () => {
+      setTimeout(forcePlay, 80);
+    });
   });
+
+  // Restart when tab becomes visible again (e.g. user switches app then returns)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) forcePlay();
+  });
+
+  // iOS: restart on any user interaction if somehow blocked
+  document.addEventListener('touchstart', forcePlay, { passive: true });
+  document.addEventListener('touchend',   forcePlay, { passive: true });
 })();
 
 /* ── MOBILE MENU ── */
