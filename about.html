@@ -1977,21 +1977,36 @@ window.FPV_GOGGLES_MESH = {
       ctx.drawImage(refC, 0, 0);
     }
 
-    Promise.all([
-      document.fonts.load(`700 18px DrukWide, 'Arial Black', Arial, sans-serif`),
-      document.fonts.load(`700 italic 18px DrukWide, 'Arial Black', Arial, sans-serif`),
-      document.fonts.ready
-    ]).then(() => {
-      resize();
-      window.addEventListener('resize', resize);
-      frame();
-      // Retry mask after extra settle time for mobile fonts
-      setTimeout(() => { buildMask(); }, 800);
-      // Show with fallback timers
-      setTimeout(() => canvas.classList.add('visible'), 400);
-      setTimeout(() => canvas.classList.add('visible'), 1200);
-      canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
-    });
+    // Start immediately — no font wait
+    resize();
+    window.addEventListener('resize', resize);
+    frame();
+
+    // Rebuild mask once DrukWide confirms loaded (fixes mobile blurry text)
+    try {
+      Promise.all([
+        document.fonts.load(FONT_NORMAL),
+        document.fonts.load(FONT_ITALIC)
+      ]).then(() => { resize(); }).catch(() => {});
+    } catch(e) {}
+
+    // Blink-in sequence — fires right away
+    canvas.style.transition = 'none';
+    canvas.style.opacity = '0';
+    setTimeout(() => canvas.style.opacity = '1', 50);
+    setTimeout(() => canvas.style.opacity = '0', 110);
+    setTimeout(() => canvas.style.opacity = '1', 170);
+    setTimeout(() => canvas.style.opacity = '0', 280);
+    setTimeout(() => {
+      canvas.style.opacity = '';             // clear inline so CSS class wins
+      canvas.style.transition = 'opacity 0.4s ease';
+      canvas.classList.add('visible');
+    }, 350);
+
+    // Hard fallback
+    setTimeout(() => canvas.classList.add('visible'), 800);
+
+    canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
   </script>
 </main>

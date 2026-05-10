@@ -2103,6 +2103,23 @@ const isMobile = window.innerWidth <= 768;
 
   function shuffleLogoIn() {
     const logo = document.querySelector('.nav-logo');
+
+    // Animate the chrome canvas logo with the same blink sequence
+    const chromeLogo = document.getElementById('logoChromaCanvas');
+    if (chromeLogo) {
+      chromeLogo.style.transition = 'none';
+      chromeLogo.style.opacity = '0';
+      setTimeout(() => chromeLogo.style.opacity = '1', 0);
+      setTimeout(() => chromeLogo.style.opacity = '0', 60);
+      setTimeout(() => chromeLogo.style.opacity = '1', 120);
+      setTimeout(() => chromeLogo.style.opacity = '0', 230);
+      setTimeout(() => {
+        chromeLogo.style.opacity = '';        // clear inline so CSS class wins
+        chromeLogo.style.transition = 'opacity 0.4s ease';
+        chromeLogo.classList.add('visible');
+      }, 300);
+    }
+
     if (!logo) return;
 
     // --- Step 1: lightBlink (exact Artefakt opacity flash sequence) ---
@@ -4147,24 +4164,19 @@ window.addEventListener('load', () => {
     const w2 = t.measureText(TEXT2).width;
     W = Math.ceil(w1 + w2) + 6;
     H = Math.ceil(FONT_SIZE * 1.45);
-
     [canvas, maskC, refC].forEach(c => {
       c.width  = W * dpr;
       c.height = H * dpr;
       c.style.width  = W + 'px';
       c.style.height = H + 'px';
     });
-
     buildMask();
   }
 
   function frame() {
     requestAnimationFrame(frame);
     const pw = W * dpr, ph = H * dpr;
-
     ctx.clearRect(0, 0, pw, ph);
-
-    // 1 — Base chrome text
     ctx.save();
     ctx.scale(dpr, dpr);
     const baseGrad = ctx.createLinearGradient(0, 0, 0, H);
@@ -4182,18 +4194,14 @@ window.addEventListener('load', () => {
     ctx.fillStyle = baseGrad;
     ctx.fillText(TEXT2, w1, BASELINE);
     ctx.restore();
-
-    // 2 — Moving reflections
     refX.clearRect(0, 0, pw, ph);
     refs.forEach(r => {
       r.x += r.speed;
       if (r.x - r.hw > W + 5) Object.assign(r, makeRef(false));
-
       const cx = r.x * dpr, hw = r.hw * dpr;
       const cr = Math.round(200 + r.cold * 55);
       const cg = Math.round(215 + r.cold * 40);
       const a  = r.alpha;
-
       const grad = refX.createLinearGradient(cx - hw, 0, cx + hw, 0);
       grad.addColorStop(0,    `rgba(${cr},${cg},255,0)`);
       grad.addColorStop(0.25, `rgba(${cr},${cg},255,${(a*0.2).toFixed(3)})`);
@@ -4203,34 +4211,29 @@ window.addEventListener('load', () => {
       refX.fillStyle = grad;
       refX.fillRect(cx - hw, 0, hw * 2, ph);
     });
-
     refX.globalCompositeOperation = 'destination-in';
     refX.drawImage(maskC, 0, 0);
     refX.globalCompositeOperation = 'source-over';
-
     ctx.drawImage(refC, 0, 0);
   }
 
-  Promise.all([
-    document.fonts.load(`700 18px DrukWide, 'Arial Black', Arial, sans-serif`),
-    document.fonts.load(`700 italic 18px DrukWide, 'Arial Black', Arial, sans-serif`),
-    document.fonts.ready
-  ]).then(() => {
-    resize();
-    window.addEventListener('resize', resize);
-    frame();
+  // Start immediately — don't wait for fonts to resolve
+  resize();
+  window.addEventListener('resize', resize);
+  frame();
 
-    function show() { canvas.classList.add('visible'); }
+  // Rebuild mask once DrukWide is confirmed loaded (fixes mobile)
+  try {
+    Promise.all([
+      document.fonts.load(FONT_NORMAL),
+      document.fonts.load(FONT_ITALIC)
+    ]).then(() => { resize(); }).catch(() => {});
+  } catch(e) {}
 
-    // Primary: sync with nav reveal after loader
-    window.addEventListener('navReveal', show, { once: true });
+  // navReveal is the primary show trigger (fires after loader completes)
+  window.addEventListener('navReveal', () => canvas.classList.add('visible'), { once: true });
 
-    // Fallback 1: skip-loader path (returning from another page)
-    if (location.search.includes('skip')) show();
-
-    // Fallback 2: if navReveal never fires (mobile / slow load)
-    setTimeout(show, 1200);
-    setTimeout(() => { buildMask(); }, 800); // retry mask after extra font settle time
-  });
+  // Hard fallback — show after 800ms no matter what
+  setTimeout(() => canvas.classList.add('visible'), 800);
 })();
 </script>
