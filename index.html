@@ -4229,16 +4229,20 @@ window.addEventListener('load', () => {
       ctx.drawImage(refC, 0, 0);
     }
 
-    resize();
-    window.addEventListener('resize', resize);
-    frame();
+    // Wait for DrukWide to load before first resize+frame — fixes iOS blurry text
+    // Canvas is hidden until navReveal so we have time to wait
+    function start() {
+      resize();
+      window.addEventListener('resize', resize);
+      frame();
+    }
 
     try {
       Promise.all([
         document.fonts.load(FONT_NORMAL),
         document.fonts.load(FONT_ITALIC)
-      ]).then(() => { resize(); }).catch(() => {});
-    } catch(e) {}
+      ]).then(start).catch(start);
+    } catch(e) { start(); }
 
     // Blink-in on navReveal (after loader completes)
     window.addEventListener('navReveal', () => {
