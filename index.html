@@ -2109,21 +2109,7 @@ const isMobile = window.innerWidth <= 768;
   function shuffleLogoIn() {
     const logo = document.querySelector('.nav-logo');
 
-    // Animate the chrome canvas logo with the same blink sequence
-    const chromeLogo = document.getElementById('logoChromaCanvas');
-    if (chromeLogo) {
-      chromeLogo.style.transition = 'none';
-      chromeLogo.style.opacity = '0';
-      setTimeout(() => chromeLogo.style.opacity = '1', 0);
-      setTimeout(() => chromeLogo.style.opacity = '0', 60);
-      setTimeout(() => chromeLogo.style.opacity = '1', 120);
-      setTimeout(() => chromeLogo.style.opacity = '0', 230);
-      setTimeout(() => {
-        chromeLogo.style.opacity = '';        // clear inline so CSS class wins
-        chromeLogo.style.transition = 'opacity 0.4s ease';
-        chromeLogo.classList.add('visible');
-      }, 300);
-    }
+    // Chrome canvas handles its own reveal via navReveal event
 
     if (!logo) return;
 
@@ -4235,12 +4221,28 @@ window.addEventListener('load', () => {
       ctx.drawImage(refC, 0, 0);
     }
 
-    // Wait for DrukWide to load before first resize+frame — fixes iOS blurry text
-    // Canvas is hidden until navReveal so we have time to wait
+    // Wait for font then wait for navReveal — only draw when both are ready
     function start() {
       resize();
       window.addEventListener('resize', resize);
-      frame();
+
+      window.addEventListener('navReveal', () => {
+        // Rebuild with confirmed font before making visible
+        resize();
+        frame();
+
+        canvas.style.transition = 'none';
+        canvas.style.opacity = '0';
+        setTimeout(() => canvas.style.opacity = '1', 50);
+        setTimeout(() => canvas.style.opacity = '0', 110);
+        setTimeout(() => canvas.style.opacity = '1', 170);
+        setTimeout(() => canvas.style.opacity = '0', 280);
+        setTimeout(() => {
+          canvas.style.opacity = '';
+          canvas.style.transition = 'opacity 0.4s ease';
+          canvas.classList.add('visible');
+        }, 350);
+      }, { once: true });
     }
 
     try {
@@ -4249,21 +4251,6 @@ window.addEventListener('load', () => {
         document.fonts.load(FONT_ITALIC)
       ]).then(start).catch(start);
     } catch(e) { start(); }
-
-    // Blink-in on navReveal (after loader completes)
-    window.addEventListener('navReveal', () => {
-      canvas.style.transition = 'none';
-      canvas.style.opacity = '0';
-      setTimeout(() => canvas.style.opacity = '1', 50);
-      setTimeout(() => canvas.style.opacity = '0', 110);
-      setTimeout(() => canvas.style.opacity = '1', 170);
-      setTimeout(() => canvas.style.opacity = '0', 280);
-      setTimeout(() => {
-        canvas.style.opacity = '';
-        canvas.style.transition = 'opacity 0.4s ease';
-        canvas.classList.add('visible');
-      }, 350);
-    }, { once: true });
 
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
