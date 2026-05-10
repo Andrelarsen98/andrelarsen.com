@@ -86,10 +86,44 @@
       line-height: 1;
       text-transform: lowercase;
       letter-spacing: -0.02em;
-      color: #fff;
+      color: transparent;
       opacity: 0;
+      text-decoration: none;
+      cursor: pointer;
     }
     .nav-logo em { font-style: italic; }
+    #logoChromaCanvas {
+      position: fixed;
+      top: 26px;
+      left: 32px;
+      z-index: 201;
+      pointer-events: all;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #logoChromaCanvas.visible { opacity: 1; }
+    @media (max-width: 768px) {
+      #logoChromaCanvas { left: 20px; top: 22px; }
+    }
+    /* Fade-out overlay for page transition */
+    #pageTransitionOverlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 9999;
+      opacity: 1;
+      pointer-events: all;
+    }
+    #pageTransitionOverlay.fading {
+      opacity: 1;
+      pointer-events: all;
+    }
+    #pageTransitionOverlay.visible-out {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.55s ease;
+    }
     .nav-links { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
     .nav-links a,
     .nav-center a {
@@ -333,7 +367,7 @@
     .profile-headline {
       font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
       font-weight: 700;
-      font-size: clamp(22px, 7.5vw, 72px); overflow-wrap: break-word; word-break: break-word;
+      font-size: clamp(18px, 6.5vw, 72px); overflow-wrap: break-word; word-break: break-word;
       line-height: 0.95;
       letter-spacing: -0.01em;
       color: #fff;
@@ -343,6 +377,23 @@
     }
     .profile-headline em {
       font-style: italic;
+    }
+    @media (max-width: 480px) {
+      .profile-headline {
+        font-size: clamp(16px, 5.8vw, 36px);
+      }
+    }
+    .profile-byline {
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      -webkit-font-smoothing: none;
+      margin-bottom: 4px !important;
+    }
+    .profile-byline strong {
+      color: rgba(255,255,255,0.75);
     }
     .profile-body {
       display: flex;
@@ -507,14 +558,298 @@
       .footer-back { padding: 11px 20px; width: calc(100% - 40px); margin: 0 20px 20px; }
       .footer-spacer { height: 0; }
     }
+  .video-section {
+    position: relative;
+    z-index: 10;
+    background: #000;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .profile-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 1;
+  }
+  .profile-video.visible {
+    opacity: 1;
+  }
+
+  /* ── DISCIPLINES ── */
+  .disciplines-section {
+    position: relative;
+    z-index: 10;
+    background: #000;
+    padding: 0 0 0;
+  }
+  .disciplines-section:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .07;
+    --dot-bg: #000;
+    --dot-color: #fff;
+    --dot-size: 2px;
+    --dot-space: 3px;
+    background:
+      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      var(--dot-color);
+  }
+  @media (min-width: 1280px) {
+    .disciplines-section:before { --dot-size: 4px; --dot-space: 5px; }
+  }
+  .disciplines-section > * { position: relative; z-index: 1; }
+  .disciplines-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 40px 28px 28px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.9);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+  }
+  .disciplines-header:before {
+    content: '';
+    display: block;
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.9);
+  }
+  .discipline-row {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    align-items: center;
+    padding: 18px 28px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    cursor: default;
+    transition: background 0s, color 0s;
+    gap: 24px;
+  }
+  .discipline-row:last-child { border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .discipline-row:hover {
+    background: #fff;
+  }
+  .discipline-row:hover .disc-num,
+  .discipline-row:hover .disc-name,
+  .discipline-row:hover .disc-tag { color: #000; }
+  .discipline-row:hover .disc-name { -webkit-text-stroke: 0; }
+  .disc-num {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.65);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    transition: color 0s;
+  }
+  .disc-name {
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-weight: 700;
+    font-size: clamp(22px, 5.5vw, 58px);
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: #fff;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    transition: color 0s;
+  }
+  .disc-tag {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    text-align: right;
+    white-space: nowrap;
+    transition: color 0s;
+  }
+  @media (max-width: 600px) {
+    .disciplines-header { padding: 32px 16px 20px; }
+    .discipline-row { grid-template-columns: 30px 1fr; gap: 10px; padding: 14px 16px; }
+    .disc-tag { display: none; }
+    .disc-name { font-size: clamp(15px, 5.5vw, 32px); word-break: break-word; overflow-wrap: break-word; }
+    .manifesto-divider { display: none; }
+    .brand-name { white-space: normal; }
+    .brand-xl { font-size: clamp(28px, 8vw, 80px); }
+  }
+
+  /* ── SELECTED BRANDS ── */
+  .brands-section {
+    position: relative;
+    z-index: 10;
+    background: #000;
+    padding: 72px 28px 80px;
+    overflow: hidden;
+  }
+  .brands-section:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .07;
+    --dot-bg: #000;
+    --dot-color: #fff;
+    --dot-size: 2px;
+    --dot-space: 3px;
+    background:
+      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      var(--dot-color);
+  }
+  @media (min-width: 1280px) {
+    .brands-section:before { --dot-size: 4px; --dot-space: 5px; }
+  }
+  .brands-section > * { position: relative; z-index: 1; }
+  .brands-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    margin-bottom: 48px;
+  }
+  .brands-label:before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.5);
+  }
+  .brands-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px 20px;
+    row-gap: 0;
+  }
+  .brand-name {
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    -webkit-font-smoothing: antialiased;
+    white-space: nowrap;
+    transition: opacity 0.15s ease;
+    cursor: default;
+  }
+  .brands-grid:hover .brand-name { opacity: 0.2; }
+  .brands-grid:hover .brand-name:hover { opacity: 1; }
+  .brand-xl  { font-size: clamp(32px, 9vw, 100px); color: #fff; }
+  .brand-lg  { font-size: clamp(22px, 6vw, 66px);  color: rgba(255,255,255,0.85); }
+  .brand-md  { font-size: clamp(16px, 4vw, 44px);  color: rgba(255,255,255,0.6); }
+  .brand-sm  { font-size: clamp(13px, 2.5vw, 28px); color: rgba(255,255,255,0.35); }
+
+  /* ── MANIFESTO ── */
+  .manifesto-section {
+    position: relative;
+    z-index: 10;
+    background: #000;
+    padding: 80px 20px 100px;
+    overflow: hidden;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .manifesto-section:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .07;
+    --dot-bg: #000;
+    --dot-color: #fff;
+    --dot-size: 2px;
+    --dot-space: 3px;
+    background:
+      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      var(--dot-color);
+  }
+  @media (min-width: 1280px) {
+    .manifesto-section:before { --dot-size: 4px; --dot-space: 5px; }
+  }
+  .manifesto-section > * { position: relative; z-index: 1; }
+  .manifesto-kicker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    margin-bottom: 40px;
+  }
+  .manifesto-kicker:before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.5);
+  }
+  #manifestoCanvas {
+    display: block;
+    width: 100%;
+    cursor: default;
+    image-rendering: crisp-edges;
+  }
+  .manifesto-cta {
+    margin-top: 56px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .manifesto-cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.35);
+    padding: 8px 18px;
+    -webkit-font-smoothing: none;
+    transition: background 0.1s, color 0.1s;
+  }
+  .manifesto-cta-link:hover {
+    background: #fff;
+    color: #000;
+  }
+  .manifesto-divider {
+    width: 40px;
+    height: 1px;
+    background: rgba(255,255,255,0.15);
+  }
   </style>
 </head>
 <body>
+  <div id="pageTransitionOverlay"></div>
   <nav>
-    <div class="nav-logo">andré <em>larsen</em></div>
+    <a href="index.html" class="nav-logo" id="logoHomeLink">andré <em>larsen</em></a>
     <div class="nav-links">
       <a href="works.html">WORKS</a>
-      <a href="about.htm">ABOUT</a>
+      <a href="about.html">ABOUT</a>
     </div>
     <div class="nav-center">
       <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
@@ -544,6 +879,7 @@
       <a href="mailto:andre@andrelarsen.com" class="menu-contact-btn">&gt; CONTACT</a>
     </div>
   </div>
+  <canvas id="logoChromaCanvas" aria-hidden="true"></canvas>
   <div class="scanline-fixed" aria-hidden="true"></div>
   <main aria-label="About Andre Larsen hologram">
   <canvas id="holo" aria-label="Rotating hologram face"></canvas>
@@ -553,6 +889,7 @@
     <div class="profile-label">PROFILE</div>
     <div class="profile-headline">VISUAL ARTIST &<br><em>CINEMATOGRAPHER.</em></div>
     <div class="profile-body">
+      <p class="profile-byline"><strong>André Larsen</strong> (b. 1998)</p>
       <p>Norwegian kid flying drones in his grandmother's backyard. Long before DJI. Long before anyone called it FPV.</p>
       <p>Never stopped.</p>
       <p>Dubai, 2020. Went all in.<br>Eight years professional.<br>A lifetime in the air.</p>
@@ -572,6 +909,79 @@
         <span class="stat-year">2024</span>
         <span class="stat-label">IMFA NOMINATED</span>
       </div>
+    </div>
+  </div>
+
+  <div class="video-section">
+    <video
+      class="profile-video"
+      src="GX010138_2.mov"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+    ></video>
+  </div>
+
+  <!-- ── DISCIPLINES ── -->
+  <div class="disciplines-section">
+    <div class="disciplines-header">WHAT I DO</div>
+    <div class="discipline-row">
+      <span class="disc-num">01</span>
+      <span class="disc-name">FPV Cinematography</span>
+      <span class="disc-tag">Full-immersion aerial capture</span>
+    </div>
+    <div class="discipline-row">
+      <span class="disc-num">02</span>
+      <span class="disc-name">Commercial Direction</span>
+      <span class="disc-tag">Campaign &amp; brand films</span>
+    </div>
+    <div class="discipline-row">
+      <span class="disc-num">03</span>
+      <span class="disc-name">Aerial Direction</span>
+      <span class="disc-tag">Location scouting to final cut</span>
+    </div>
+    <div class="discipline-row">
+      <span class="disc-num">04</span>
+      <span class="disc-name">Post Production</span>
+      <span class="disc-tag">Grade, sound, delivery</span>
+    </div>
+    <div class="discipline-row">
+      <span class="disc-num">05</span>
+      <span class="disc-name">Live Event Coverage</span>
+      <span class="disc-tag">Racing, concerts, activations</span>
+    </div>
+  </div>
+
+  <!-- ── SELECTED BRANDS ── -->
+  <div class="brands-section">
+    <div class="brands-label">TRUSTED BY</div>
+    <div class="brands-grid">
+      <span class="brand-name brand-xl">GoPro</span>
+      <span class="brand-name brand-md">Red Bull</span>
+      <span class="brand-name brand-lg">Nike</span>
+      <span class="brand-name brand-sm">Lamborghini</span>
+      <span class="brand-name brand-xl">Burj Khalifa</span>
+      <span class="brand-name brand-sm">Emirates</span>
+      <span class="brand-name brand-lg">BMW</span>
+      <span class="brand-name brand-md">Bollywood</span>
+      <span class="brand-name brand-sm">Netflix</span>
+      <span class="brand-name brand-lg">Formula E</span>
+      <span class="brand-name brand-xl">Dubai</span>
+      <span class="brand-name brand-md">Adidas</span>
+      <span class="brand-name brand-sm">Expo 2020</span>
+    </div>
+  </div>
+
+  <!-- ── MANIFESTO ── -->
+  <div class="manifesto-section">
+    <div class="manifesto-kicker">PHILOSOPHY</div>
+    <canvas id="manifestoCanvas"></canvas>
+    <div class="manifesto-cta">
+      <a href="works.html" class="manifesto-cta-link">&gt; View the work</a>
+      <div class="manifesto-divider"></div>
+      <a href="mailto:andre@andrelarsen.com" class="manifesto-cta-link">&gt; Start a project</a>
     </div>
   </div>
 
@@ -745,7 +1155,7 @@ window.FPV_GOGGLES_MESH = {
 
     function wireLogoHover(logo, allSpans) {
       let hovering = false;
-      logo.style.cursor = 'default';
+      logo.style.cursor = 'pointer';
       logo.addEventListener('mouseenter', () => {
         if (hovering) return;
         hovering = true;
@@ -1039,6 +1449,23 @@ window.FPV_GOGGLES_MESH = {
       gl.drawArrays(gl.POINTS, 0, positions.length / 3);
     }
 
+    // CRT flicker state
+    let flickerVal = 1.0;
+    function tickFlicker() {
+      const delay = (3 + Math.random() * 6) * 1000;
+      setTimeout(() => {
+        const dips = 2 + Math.floor(Math.random() * 3);
+        let d = 0;
+        function dip() {
+          flickerVal = 0.55 + Math.random() * 0.3;
+          d++;
+          if (d < dips) setTimeout(dip, 32 + Math.random() * 48);
+          else setTimeout(() => { flickerVal = 1.0; tickFlicker(); }, 40);
+        }
+        dip();
+      }, delay);
+    }
+
     function frame() {
       requestAnimationFrame(frame);
       time += 0.016;
@@ -1062,6 +1489,7 @@ window.FPV_GOGGLES_MESH = {
       renderMesh(0.0, 0.0, model, view, proj, cam, scanY);
       renderMesh(0.014, 0.0, model, view, proj, cam, scanY);
       renderPoints(model, view, proj);
+      canvas.style.opacity = flickerVal;
     }
 
     window.addEventListener('resize', resize);
@@ -1095,11 +1523,39 @@ window.FPV_GOGGLES_MESH = {
       targetPointerY = t.clientY / window.innerHeight;
     }, { passive: true });
 
+    // Shared fade-to-home helper
+    function fadeToHome(e) {
+      e.preventDefault();
+      const overlay = document.getElementById('pageTransitionOverlay');
+      overlay.style.transition = 'opacity 0.45s ease';
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'all';
+      setTimeout(() => { window.location.href = 'index.html?skip'; }, 450);
+    }
+
+    // Logo → home
+    document.getElementById('logoHomeLink').addEventListener('click', fadeToHome);
+
+    // Menu HOME link → home
+    document.querySelector('.menu-nav a[href="index.html"]').addEventListener('click', fadeToHome);
+
     resize();
     updateMobileProgress();
     frame();
+    tickFlicker();
     shuffleLogoIn();
     setTimeout(startNavSequence, 800);
+
+    // ── PAGE FADE-IN on load ──
+    (function() {
+      const overlay = document.getElementById('pageTransitionOverlay');
+      // Start black, then fade out
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          overlay.classList.add('visible-out');
+        }, 80);
+      });
+    })();
     document.addEventListener('gesturestart', e => e.preventDefault());
     document.addEventListener('gesturechange', e => e.preventDefault());
     document.addEventListener('gestureend', e => e.preventDefault());
@@ -1118,6 +1574,7 @@ window.FPV_GOGGLES_MESH = {
     // Profile flicker-in on scroll
     const profileSection = document.querySelector('.profile-section');
     let profileTriggered = false;
+
     function checkProfileVisible() {
       if (profileTriggered) return;
       const rect = profileSection.getBoundingClientRect();
@@ -1232,7 +1689,306 @@ window.FPV_GOGGLES_MESH = {
       document.getElementById('footerBackTop').addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
+
+    const video = document.querySelector('.profile-video');
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setTimeout(() => video.classList.add('visible'), 150);
+        observer.disconnect();
+      }
+    }, { threshold: 0.2 });
+    observer.observe(video);
+
     })();
+  </script>
+
+  <script>
+  // ── MANIFESTO CHROME REFLECTION CANVAS ──
+  (function() {
+    const canvas = document.getElementById('manifestoCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const LINES = ['NOT A DRONE', 'OPERATOR.', 'A DIRECTOR', 'WHO FLIES.'];
+
+    let W = 0, H = 0, dpr = 1;
+    let fontSize = 60, lineH = 60, lineY = [];
+
+    const maskC  = document.createElement('canvas');
+    const maskX  = maskC.getContext('2d');
+    const refC   = document.createElement('canvas'); // reflection layer
+    const refX   = refC.getContext('2d');
+
+    // Reflection highlight — a bright band that glides across the surface
+    // Like studio light catching a chrome surface as it pans
+    function makeReflection(spread) {
+      return {
+        x:     spread ? (Math.random() * (W + 300) - 150) : -(20 + Math.random() * 200),
+        speed: 1.0 + Math.random() * 2.5,   // gentle — 1–3.5px/frame, chrome-like
+        hw:    30 + Math.random() * 80,      // highlight half-width
+        alpha: 0.3 + Math.random() * 0.5,
+        cold:  Math.random(),
+      };
+    }
+
+    const reflections = Array.from({ length: 10 }, () => makeReflection(true));
+
+    function buildMask() {
+      maskX.clearRect(0, 0, maskC.width, maskC.height);
+      maskX.fillStyle = '#fff';
+      maskX.font = `900 italic ${fontSize * dpr}px DrukWide, 'Arial Black', Arial, sans-serif`;
+      maskX.textBaseline = 'top';
+      maskX.textAlign = 'left';
+      LINES.forEach((line, i) => maskX.fillText(line, 0, lineY[i] * dpr));
+    }
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      W = canvas.offsetWidth || (canvas.parentElement || document.body).offsetWidth;
+
+      const t = document.createElement('canvas').getContext('2d');
+      let fs = W * 0.23;
+      t.font = `900 italic ${fs}px DrukWide, 'Arial Black', Arial, sans-serif`;
+      const maxW = Math.max(...LINES.map(l => t.measureText(l).width));
+      if (maxW > W * 0.97) fs *= (W * 0.97) / maxW;
+      fontSize = fs;
+      lineH   = fontSize * 0.93;
+      H       = lineH * LINES.length + lineH * 0.5;
+      lineY   = LINES.map((_, i) => i * lineH + lineH * 0.06);
+
+      [canvas, maskC, refC].forEach(c => {
+        c.width  = W * dpr;
+        c.height = H * dpr;
+      });
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+
+      buildMask();
+    }
+
+    function frame() {
+      requestAnimationFrame(frame);
+      const pw = W * dpr, ph = H * dpr;
+
+      ctx.clearRect(0, 0, pw, ph);
+
+      // ── 1. Base chrome text: bright steel-blue/silver fill ──
+      // Text itself is luminous — not dark. Chrome is always bright.
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.font = `900 italic ${fontSize}px DrukWide, 'Arial Black', Arial, sans-serif`;
+      ctx.textBaseline = 'top';
+      ctx.textAlign = 'left';
+
+      // Fill with a subtle vertical gradient simulating ambient chrome sheen
+      const baseGrad = ctx.createLinearGradient(0, 0, 0, H);
+      baseGrad.addColorStop(0,   'rgba(120, 140, 190, 0.85)');
+      baseGrad.addColorStop(0.3, 'rgba(160, 175, 220, 0.9)');
+      baseGrad.addColorStop(0.5, 'rgba(100, 120, 170, 0.8)');
+      baseGrad.addColorStop(0.7, 'rgba(140, 158, 205, 0.85)');
+      baseGrad.addColorStop(1,   'rgba(90,  110, 160, 0.75)');
+      ctx.fillStyle = baseGrad;
+      LINES.forEach((line, i) => ctx.fillText(line, 0, lineY[i]));
+      ctx.restore();
+
+      // ── 2. Build moving reflection layer ──
+      refX.clearRect(0, 0, pw, ph);
+
+      reflections.forEach(r => {
+        r.x += r.speed;
+        if (r.x - r.hw > W + 10) Object.assign(r, makeReflection(false));
+
+        const cx = r.x * dpr;
+        const hw = r.hw * dpr;
+        const cr = Math.round(200 + r.cold * 55);
+        const cg = Math.round(215 + r.cold * 40);
+        const cb = 255;
+        const a  = r.alpha;
+
+        // Soft specular highlight band — wider falloff, no hard edges
+        const grad = refX.createLinearGradient(cx - hw, 0, cx + hw, 0);
+        grad.addColorStop(0,    `rgba(${cr},${cg},${cb},0)`);
+        grad.addColorStop(0.2,  `rgba(${cr},${cg},${cb},${(a * 0.15).toFixed(3)})`);
+        grad.addColorStop(0.45, `rgba(${cr},${cg},${cb},${(a * 0.7).toFixed(3)})`);
+        grad.addColorStop(0.5,  `rgba(${cr},${cg},${cb},${a.toFixed(3)})`);
+        grad.addColorStop(0.55, `rgba(${cr},${cg},${cb},${(a * 0.7).toFixed(3)})`);
+        grad.addColorStop(0.8,  `rgba(${cr},${cg},${cb},${(a * 0.15).toFixed(3)})`);
+        grad.addColorStop(1,    `rgba(${cr},${cg},${cb},0)`);
+        refX.fillStyle = grad;
+        refX.fillRect(cx - hw, 0, hw * 2, ph);
+      });
+
+      // Clip reflections to text shape
+      refX.globalCompositeOperation = 'destination-in';
+      refX.drawImage(maskC, 0, 0);
+      refX.globalCompositeOperation = 'source-over';
+
+      // ── 3. Composite reflection over base text ──
+      ctx.drawImage(refC, 0, 0);
+    }
+
+    Promise.all([
+      document.fonts.load(`900 italic 200px DrukWide, 'Arial Black', Arial, sans-serif`),
+      document.fonts.ready
+    ]).then(() => {
+      resize();
+      window.addEventListener('resize', resize);
+      frame();
+    });
+  })();
+  </script>
+  <script>
+  // ── LOGO CHROME CANVAS ──
+  (function() {
+    const canvas = document.getElementById('logoChromaCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const TEXT1 = 'andré ';
+    const TEXT2 = 'larsen';
+    const FONT_SIZE = 18;
+    const BASELINE = FONT_SIZE;  // alphabetic baseline offset from top
+    const FONT_NORMAL = `700 ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
+    const FONT_ITALIC = `700 italic ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
+
+    let W = 0, H = 0, dpr = 1;
+    const maskC = document.createElement('canvas');
+    const maskX = maskC.getContext('2d');
+    const refC  = document.createElement('canvas');
+    const refX  = refC.getContext('2d');
+
+    function makeRef(spread) {
+      return {
+        x:     spread ? (Math.random() * (W + 100) - 50) : -(5 + Math.random() * 80),
+        speed: 1.0 + Math.random() * 2.2,
+        hw:    12 + Math.random() * 30,
+        alpha: 0.35 + Math.random() * 0.45,
+        cold:  Math.random(),
+      };
+    }
+
+    const refs = Array.from({ length: 6 }, () => makeRef(true));
+
+    function buildMask() {
+      const pw = W * dpr, ph = H * dpr;
+      maskX.clearRect(0, 0, pw, ph);
+      maskX.save();
+      maskX.scale(dpr, dpr);
+      maskX.fillStyle = '#fff';
+      maskX.font = FONT_NORMAL;
+      maskX.textBaseline = 'alphabetic';
+      maskX.textAlign = 'left';
+      maskX.fillText(TEXT1, 0, BASELINE);
+      const w1 = maskX.measureText(TEXT1).width;
+      maskX.font = FONT_ITALIC;
+      maskX.fillText(TEXT2, w1, BASELINE);
+      maskX.restore();
+    }
+
+    function resize() {
+      dpr = window.devicePixelRatio || 1;
+      const t = document.createElement('canvas').getContext('2d');
+      t.font = FONT_NORMAL;
+      const w1 = t.measureText(TEXT1).width;
+      t.font = FONT_ITALIC;
+      const w2 = t.measureText(TEXT2).width;
+      W = Math.ceil(w1 + w2) + 6;
+      H = Math.ceil(FONT_SIZE * 1.45);
+
+      [canvas, maskC, refC].forEach(c => {
+        c.width  = W * dpr;
+        c.height = H * dpr;
+        c.style.width  = W + 'px';
+        c.style.height = H + 'px';
+      });
+
+      buildMask();
+    }
+
+    function frame() {
+      requestAnimationFrame(frame);
+      const pw = W * dpr, ph = H * dpr;
+
+      ctx.clearRect(0, 0, pw, ph);
+
+      // 1 — Base chrome text
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      const baseGrad = ctx.createLinearGradient(0, 0, 0, H);
+      baseGrad.addColorStop(0,   'rgba(120, 140, 190, 0.9)');
+      baseGrad.addColorStop(0.4, 'rgba(165, 178, 225, 0.95)');
+      baseGrad.addColorStop(0.6, 'rgba(100, 120, 170, 0.85)');
+      baseGrad.addColorStop(1,   'rgba(130, 148, 200, 0.88)');
+      ctx.font = FONT_NORMAL;
+      ctx.textBaseline = 'alphabetic';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = baseGrad;
+      ctx.fillText(TEXT1, 0, BASELINE);
+      const w1 = ctx.measureText(TEXT1).width;
+      ctx.font = FONT_ITALIC;
+      ctx.fillStyle = baseGrad;
+      ctx.fillText(TEXT2, w1, BASELINE);
+      ctx.restore();
+
+      // 2 — Moving reflections (physical px coords)
+      refX.clearRect(0, 0, pw, ph);
+      refs.forEach(r => {
+        r.x += r.speed;
+        if (r.x - r.hw > W + 5) Object.assign(r, makeRef(false));
+
+        const cx = r.x * dpr, hw = r.hw * dpr;
+        const cr = Math.round(200 + r.cold * 55);
+        const cg = Math.round(215 + r.cold * 40);
+        const a  = r.alpha;
+
+        const grad = refX.createLinearGradient(cx - hw, 0, cx + hw, 0);
+        grad.addColorStop(0,    `rgba(${cr},${cg},255,0)`);
+        grad.addColorStop(0.25, `rgba(${cr},${cg},255,${(a*0.2).toFixed(3)})`);
+        grad.addColorStop(0.5,  `rgba(${cr},${cg},255,${a.toFixed(3)})`);
+        grad.addColorStop(0.75, `rgba(${cr},${cg},255,${(a*0.2).toFixed(3)})`);
+        grad.addColorStop(1,    `rgba(${cr},${cg},255,0)`);
+        refX.fillStyle = grad;
+        refX.fillRect(cx - hw, 0, hw * 2, ph);
+      });
+
+      refX.globalCompositeOperation = 'destination-in';
+      refX.drawImage(maskC, 0, 0);
+      refX.globalCompositeOperation = 'source-over';
+
+      ctx.drawImage(refC, 0, 0);
+    }
+
+    // Start immediately — no font wait
+    resize();
+    window.addEventListener('resize', resize);
+    frame();
+
+    // Rebuild mask once DrukWide confirms loaded (fixes mobile blurry text)
+    try {
+      Promise.all([
+        document.fonts.load(FONT_NORMAL),
+        document.fonts.load(FONT_ITALIC)
+      ]).then(() => { resize(); }).catch(() => {});
+    } catch(e) {}
+
+    // Blink-in sequence — fires right away
+    canvas.style.transition = 'none';
+    canvas.style.opacity = '0';
+    setTimeout(() => canvas.style.opacity = '1', 50);
+    setTimeout(() => canvas.style.opacity = '0', 110);
+    setTimeout(() => canvas.style.opacity = '1', 170);
+    setTimeout(() => canvas.style.opacity = '0', 280);
+    setTimeout(() => {
+      canvas.style.opacity = '';             // clear inline so CSS class wins
+      canvas.style.transition = 'opacity 0.4s ease';
+      canvas.classList.add('visible');
+    }, 350);
+
+    // Hard fallback
+    setTimeout(() => canvas.classList.add('visible'), 800);
+
+    canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
+  })();
   </script>
 </main>
 </body>
