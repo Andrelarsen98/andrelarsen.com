@@ -2272,6 +2272,10 @@ const isMobile = window.innerWidth <= 768;
     const logo = document.querySelector('.nav-logo');
     if (logo) logo.style.opacity = '1';
 
+    // Show chrome canvas logo instantly
+    const chromeLogo = document.getElementById('logoChromaCanvas');
+    if (chromeLogo) chromeLogo.classList.add('visible');
+
     // Show all nav text instantly — no char-by-char animation
     document.querySelectorAll('.nav-links a, .nav-center a').forEach(el => {
       el.style.opacity = '1';
@@ -4156,7 +4160,7 @@ window.addEventListener('load', () => {
   }
 
   function resize() {
-    dpr = window.devicePixelRatio || 1;
+    dpr = Math.min(window.devicePixelRatio || 1, 3);
     const t = document.createElement('canvas').getContext('2d');
     t.font = FONT_NORMAL;
     const w1 = t.measureText(TEXT1).width;
@@ -4232,8 +4236,5 @@ window.addEventListener('load', () => {
 
   // navReveal is the primary show trigger (fires after loader completes)
   window.addEventListener('navReveal', () => canvas.classList.add('visible'), { once: true });
-
-  // Hard fallback — show after 800ms no matter what
-  setTimeout(() => canvas.classList.add('visible'), 800);
 })();
 </script>
