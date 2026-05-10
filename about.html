@@ -1846,7 +1846,10 @@ window.FPV_GOGGLES_MESH = {
       ctx.drawImage(refC, 0, 0);
     }
 
-    document.fonts.ready.then(() => {
+    Promise.all([
+      document.fonts.load(`900 italic 200px DrukWide, 'Arial Black', Arial, sans-serif`),
+      document.fonts.ready
+    ]).then(() => {
       resize();
       window.addEventListener('resize', resize);
       frame();
@@ -1974,12 +1977,19 @@ window.FPV_GOGGLES_MESH = {
       ctx.drawImage(refC, 0, 0);
     }
 
-    document.fonts.ready.then(() => {
+    Promise.all([
+      document.fonts.load(`700 18px DrukWide, 'Arial Black', Arial, sans-serif`),
+      document.fonts.load(`700 italic 18px DrukWide, 'Arial Black', Arial, sans-serif`),
+      document.fonts.ready
+    ]).then(() => {
       resize();
       window.addEventListener('resize', resize);
       frame();
-      // Show after the same flicker delay as the text logo (~350ms)
-      setTimeout(() => canvas.classList.add('visible'), 350);
+      // Retry mask after extra settle time for mobile fonts
+      setTimeout(() => { buildMask(); }, 800);
+      // Show with fallback timers
+      setTimeout(() => canvas.classList.add('visible'), 400);
+      setTimeout(() => canvas.classList.add('visible'), 1200);
       canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
     });
   })();

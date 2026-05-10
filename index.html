@@ -4211,16 +4211,26 @@ window.addEventListener('load', () => {
     ctx.drawImage(refC, 0, 0);
   }
 
-  document.fonts.ready.then(() => {
+  Promise.all([
+    document.fonts.load(`700 18px DrukWide, 'Arial Black', Arial, sans-serif`),
+    document.fonts.load(`700 italic 18px DrukWide, 'Arial Black', Arial, sans-serif`),
+    document.fonts.ready
+  ]).then(() => {
     resize();
     window.addEventListener('resize', resize);
     frame();
 
-    // Reveal in sync with the nav sequence (fires after the loader completes)
-    window.addEventListener('navReveal', () => canvas.classList.add('visible'), { once: true });
+    function show() { canvas.classList.add('visible'); }
 
-    // If the loader was skipped (returning from another page), show immediately
-    if (location.search.includes('skip')) canvas.classList.add('visible');
+    // Primary: sync with nav reveal after loader
+    window.addEventListener('navReveal', show, { once: true });
+
+    // Fallback 1: skip-loader path (returning from another page)
+    if (location.search.includes('skip')) show();
+
+    // Fallback 2: if navReveal never fires (mobile / slow load)
+    setTimeout(show, 1200);
+    setTimeout(() => { buildMask(); }, 800); // retry mask after extra font settle time
   });
 })();
 </script>
