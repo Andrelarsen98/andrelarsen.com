@@ -910,14 +910,6 @@
     transform: translateY(0);
   }
 
-  /* ── BACK TO TOP — char scramble style ── */
-  #footerBackTop {
-    transition: background 0.2s ease, letter-spacing 0.3s ease;
-  }
-  #footerBackTop:hover {
-    background: rgba(255,255,255,0.08);
-    letter-spacing: 0.32em;
-  }
 
   /* ── FOOTER ── */
   .footer {
@@ -1003,21 +995,19 @@
     color: #fff;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, letter-spacing 0.3s ease;
     user-select: none;
     flex-shrink: 0;
     background: rgba(255,255,255,0.13);
     -webkit-font-smoothing: none;
     width: calc(100% - 56px);
-    margin: 0 28px;
+    margin: 0 28px 28px;
   }
-  .footer-back:hover { background: #1a2fff; }
+  .footer-back:hover { background: rgba(255,255,255,0.22); letter-spacing: 0.32em; }
 
-  /* Black space under button */
   .footer-spacer {
     flex-shrink: 0;
-    height: 32px;
-    background: #000;
+    height: 28px;
   }
 
   @media (max-width: 768px) {
