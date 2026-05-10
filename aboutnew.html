@@ -47,6 +47,85 @@
         --dot-space: 5px;
       }
     }
+    /* ── HOLOGRAM TEXT OVERLAY ── */
+    .holo-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      /* fade out as user scrolls past hologram */
+      transition: opacity 0.3s ease;
+    }
+    .holo-who {
+      position: absolute;
+      top: clamp(20px, 2.5vh, 34px);
+      left: clamp(20px, 4vw, 56px);
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-weight: 700;
+      font-size: clamp(22px, 4.5vw, 64px);
+      line-height: 0.92;
+      letter-spacing: -0.02em;
+      color: #fff;
+      text-transform: uppercase;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .holo-who span { display: block; }
+    /* Mobile: single line, pushed down below browser UI */
+    @media (max-width: 768px) {
+      .holo-who {
+        top: clamp(56px, 8vh, 80px);
+        font-size: clamp(22px, 8vw, 42px);
+        flex-direction: row;
+        gap: 0.25em;
+        line-height: 1;
+      }
+    }
+    .holo-frag {
+      position: absolute;
+      font-family: 'VT323', monospace;
+      font-size: clamp(13px, 1.4vw, 20px);
+      line-height: 1.4;
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.65);
+      text-transform: uppercase;
+      -webkit-font-smoothing: none;
+    }
+    /* Between the frame and the sky — top right, below nav */
+    .holo-frag--tr {
+      top: clamp(70px, 11vh, 110px);
+      right: clamp(20px, 4vw, 56px);
+      text-align: right;
+    }
+    /* Still locked in. Still flying. — bottom left */
+    .holo-frag--bl {
+      bottom: clamp(48px, 8vh, 100px);
+      left: clamp(20px, 4vw, 56px);
+      text-align: left;
+    }
+    /* Where physics meets film. — bottom right */
+    .holo-frag--br {
+      bottom: clamp(48px, 8vh, 100px);
+      right: clamp(20px, 4vw, 56px);
+      text-align: right;
+    }
+    /* Hired where others can't fly. — mid right */
+    .holo-frag--mr {
+      top: 50%;
+      right: clamp(20px, 4vw, 56px);
+      transform: translateY(-50%);
+      text-align: right;
+    }
+    @media (max-width: 768px) {
+      .holo-frag {
+        font-size: clamp(12px, 3vw, 16px);
+      }
+      .holo-frag--tr { top: clamp(56px, 8vh, 80px); }
+      .holo-frag--mr { display: none; }
+    }
+
     @font-face {
       font-family: 'DrukWide';
       src: url('DrukWide-Bold.woff2') format('woff2');
@@ -101,8 +180,9 @@
       cursor: pointer;
       opacity: 0;
       transition: opacity 0.4s ease;
+      display: none; /* hidden on about page — WHO AM I? replaces it */
     }
-    #logoChromaCanvas.visible { opacity: 1; }
+    #logoChromaCanvas.visible { opacity: 0; }
     @media (max-width: 768px) {
       #logoChromaCanvas { left: 20px; top: 22px; }
     }
@@ -479,12 +559,13 @@
       z-index: 1;
     }
     .footer-ascii-wrap {
-      flex: 1;
+      flex: 0 0 auto;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      min-height: 30vh;
     }
     #footerAsciiCanvas { display: block; }
     .footer-info {
@@ -541,6 +622,39 @@
     }
     .footer-back:hover { background: rgba(255,255,255,0.22); letter-spacing: 0.32em; }
     .footer-spacer { flex-shrink: 0; height: 28px; }
+
+    /* ── GLOBE ── */
+    .globe-wrap {
+      position: relative;
+      width: 100%;
+      height: 70vw;
+      max-height: 600px;
+      min-height: 280px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      background: transparent;
+    }
+    #globeCanvas {
+      position: absolute;
+      bottom: -25%;
+      left: 50%;
+      transform: translateX(-50%);
+      display: block;
+      /* width/height set by JS */
+    }
+    #globeStars {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    @media (max-width: 768px) {
+      .globe-wrap {
+        height: 90vw;
+        max-height: 420px;
+      }
+    }
     @media (max-width: 768px) {
       .about-footer { min-height: 100vh; }
       .footer-info {
@@ -887,6 +1001,14 @@
   <div class="scanline-fixed" aria-hidden="true"></div>
   <main aria-label="About Andre Larsen hologram">
   <canvas id="holo" aria-label="Rotating hologram face"></canvas>
+  <!-- ── HOLOGRAM TEXT OVERLAY ── -->
+  <div class="holo-overlay" aria-hidden="true">
+    <div class="holo-who"><span>WHO</span><span>AM</span><span>I?</span></div>
+    <div class="holo-frag holo-frag--tr">Between the<br>frame and<br>the sky.</div>
+    <div class="holo-frag holo-frag--bl">Still locked in.<br>Still flying.</div>
+    <div class="holo-frag holo-frag--br">Where physics<br>meets film.</div>
+    <div class="holo-frag holo-frag--mr">Hired where<br>others can't fly.</div>
+  </div>
   <div class="scroll-space" aria-hidden="true"></div>
   <div class="test-space" aria-hidden="true"></div>
   <div class="profile-section">
@@ -992,6 +1114,10 @@
   <footer class="about-footer">
     <div class="footer-ascii-wrap">
       <canvas id="footerAsciiCanvas"></canvas>
+    </div>
+    <div class="globe-wrap">
+      <canvas id="globeStars"></canvas>
+      <canvas id="globeCanvas"></canvas>
     </div>
     <div class="footer-info">
       <div class="footer-col">
@@ -1506,10 +1632,19 @@ window.FPV_GOGGLES_MESH = {
       const y = Math.min(window.scrollY, lockDistance);
       targetProgress = clamp(y / lockDistance, 0, 1);
     }
+    let desktopUnlocked = false;
     window.addEventListener('wheel', (e) => {
       if (isMobilePage) return;
+      if (desktopUnlocked) return; // let browser scroll normally
       targetProgress = clamp(targetProgress + e.deltaY * 0.0012, 0, 1);
       e.preventDefault();
+      // Once hologram animation completes, unlock page scroll
+      if (targetProgress >= 1 && currentProgress >= 0.98) {
+        desktopUnlocked = true;
+        // Trigger profile section reveal
+        const ps = document.querySelector('.profile-section');
+        if (ps) ps.classList.add('flicker-in');
+      }
     }, { passive: false });
     window.addEventListener('scroll', updateMobileProgress, { passive: true });
     window.addEventListener('mousemove', (e) => {
@@ -1590,6 +1725,20 @@ window.FPV_GOGGLES_MESH = {
     }
     window.addEventListener('scroll', checkProfileVisible, { passive: true });
     checkProfileVisible();
+
+    // ── HOLO OVERLAY SCROLL FADE ──
+    const holoOverlay = document.querySelector('.holo-overlay');
+    const scrollSpace = document.querySelector('.scroll-space');
+    function updateHoloOverlay() {
+      if (!holoOverlay || !scrollSpace) return;
+      const scrolled = window.scrollY;
+      const fadeStart = window.innerHeight * 0.3;
+      const fadeEnd   = window.innerHeight * 0.85;
+      const opacity   = 1 - Math.max(0, Math.min(1, (scrolled - fadeStart) / (fadeEnd - fadeStart)));
+      holoOverlay.style.opacity = opacity;
+    }
+    window.addEventListener('scroll', updateHoloOverlay, { passive: true });
+    updateHoloOverlay();
 
     // ── FOOTER ASCII CANVAS ──
     (function() {
@@ -1994,6 +2143,221 @@ window.FPV_GOGGLES_MESH = {
 
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
+  </script>
+  <script>
+  // ── GLOBE WEBGL ──
+  window.addEventListener('load', function() {
+    const canvas = document.getElementById('globeCanvas');
+    const starCanvas = document.getElementById('globeStars');
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl', { antialias: true, alpha: true });
+    if (!gl) return;
+
+    function setSize() {
+      const wrap = canvas.parentElement;
+      const W = wrap.offsetWidth;
+      const S = Math.round(W * 1.5);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width  = S * dpr;
+      canvas.height = S * dpr;
+      canvas.style.width  = S + 'px';
+      canvas.style.height = S + 'px';
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      if (starCanvas) {
+        starCanvas.width  = Math.round(W * dpr);
+        starCanvas.height = Math.round(wrap.offsetHeight * dpr);
+        starCanvas.style.width  = W + 'px';
+        starCanvas.style.height = wrap.offsetHeight + 'px';
+      }
+    }
+    setSize();
+    window.addEventListener('resize', setSize);
+
+    const VS = `
+      attribute vec3 aPos;
+      attribute vec3 aNorm;
+      attribute vec2 aUV;
+      uniform mat4 uMVP;
+      uniform mat4 uModel;
+      varying vec3 vNorm;
+      varying vec3 vWorldPos;
+      varying vec2 vUV;
+      void main(){
+        vec4 world = uModel * vec4(aPos,1.0);
+        vWorldPos = world.xyz;
+        vNorm = normalize(mat3(uModel)*aNorm);
+        vUV = aUV;
+        gl_Position = uMVP * vec4(aPos,1.0);
+      }
+    `;
+    const FS = `
+      precision mediump float;
+      varying vec3 vNorm;
+      varying vec3 vWorldPos;
+      varying vec2 vUV;
+      uniform vec3 uSunDir;
+      uniform float uSunRise;
+      uniform float uTime;
+      float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      float noise(vec2 p){
+        vec2 i=floor(p),f=fract(p);
+        f=f*f*(3.0-2.0*f);
+        return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),
+                   mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
+      }
+      void main(){
+        vec3 N = normalize(vNorm);
+        vec3 S = normalize(uSunDir);
+        float diff = max(dot(N,S),0.0);
+        vec3 ocean = vec3(0.04,0.14,0.32);
+        float n1 = noise(vUV*6.0+uTime*0.01);
+        float n2 = noise(vUV*14.0-uTime*0.007);
+        vec3 land = mix(ocean, vec3(0.07,0.20,0.28), smoothstep(0.50,0.64,n1*0.6+n2*0.4)*0.6);
+        float cityN = noise(vUV*22.0)*noise(vUV*44.0+1.7);
+        float cityM = smoothstep(0.28,0.58,cityN);
+        float night = 1.0-smoothstep(0.0,0.22,diff);
+        land += vec3(1.0,0.72,0.28)*cityM*0.85*night;
+        vec3 col = mix(vec3(0.01,0.02,0.07), land, smoothstep(0.0,0.28,diff));
+        col += land*diff*0.55;
+        vec3 V = normalize(-vWorldPos);
+        float fr = pow(1.0-max(dot(N,V),0.0),3.5);
+        float sf = max(dot(N,S),0.0);
+        col += vec3(1.0,0.35,0.06)*fr*sf*2.8;
+        col += vec3(0.15,0.48,1.0)*fr*(1.0-sf*0.5)*1.3;
+        float term = smoothstep(0.0,0.18,diff)*(1.0-smoothstep(0.18,0.44,diff));
+        col += mix(vec3(0.9,0.1,0.0),vec3(0.1,0.5,1.0),dot(N,S)*0.5+0.5)*term*fr*4.0;
+        float behind = max(-dot(N,S),0.0);
+        col += mix(vec3(1.0,0.28,0.04),vec3(1.0,0.82,0.38),uSunRise)*pow(behind,5.5)*fr*uSunRise*3.5;
+        float alpha = clamp(0.92+fr*0.08, 0.0, 1.0)*smoothstep(-0.55,0.05,dot(N,V));
+        gl_FragColor = vec4(col,alpha);
+      }
+    `;
+
+    function mkShader(type, src) {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src); gl.compileShader(s); return s;
+    }
+    const prog = gl.createProgram();
+    gl.attachShader(prog, mkShader(gl.VERTEX_SHADER, VS));
+    gl.attachShader(prog, mkShader(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog); gl.useProgram(prog);
+
+    const SEGS = 80;
+    const verts=[], norms=[], uvs=[], idx=[];
+    for(let y=0;y<=SEGS;y++){
+      const phi=(y/SEGS)*Math.PI;
+      for(let x=0;x<=SEGS;x++){
+        const th=(x/SEGS)*2*Math.PI;
+        const sx=Math.sin(phi)*Math.cos(th), sy=Math.cos(phi), sz=Math.sin(phi)*Math.sin(th);
+        verts.push(sx,sy,sz); norms.push(sx,sy,sz); uvs.push(x/SEGS,y/SEGS);
+      }
+    }
+    for(let y=0;y<SEGS;y++) for(let x=0;x<SEGS;x++){
+      const a=y*(SEGS+1)+x, b=a+SEGS+1;
+      idx.push(a,b,a+1,b,b+1,a+1);
+    }
+    function mkBuf(data, type){
+      const b=gl.createBuffer(); gl.bindBuffer(type||gl.ARRAY_BUFFER,b);
+      gl.bufferData(type||gl.ARRAY_BUFFER,data,gl.STATIC_DRAW); return b;
+    }
+    function mkAttr(name,buf,size){
+      const loc=gl.getAttribLocation(prog,name);
+      gl.bindBuffer(gl.ARRAY_BUFFER,buf);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc,size,gl.FLOAT,false,0,0);
+    }
+    const vB=mkBuf(new Float32Array(verts));
+    const nB=mkBuf(new Float32Array(norms));
+    const uB=mkBuf(new Float32Array(uvs));
+    const iB=mkBuf(new Uint16Array(idx),gl.ELEMENT_ARRAY_BUFFER);
+    mkAttr('aPos',vB,3); mkAttr('aNorm',nB,3); mkAttr('aUV',uB,2);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iB);
+
+    const uMVP   = gl.getUniformLocation(prog,'uMVP');
+    const uModel = gl.getUniformLocation(prog,'uModel');
+    const uSunD  = gl.getUniformLocation(prog,'uSunDir');
+    const uSunR  = gl.getUniformLocation(prog,'uSunRise');
+    const uTime  = gl.getUniformLocation(prog,'uTime');
+
+    function m4(){ return new Float32Array(16); }
+    function eye(m){ m.fill(0);m[0]=m[5]=m[10]=m[15]=1;return m; }
+    function persp(m,fov,asp,n,f){
+      const t=1/Math.tan(fov/2); m.fill(0);
+      m[0]=t/asp;m[5]=t;m[10]=(f+n)/(n-f);m[11]=-1;m[14]=2*f*n/(n-f);return m;
+    }
+    function rotY(m,a){ const c=Math.cos(a),s=Math.sin(a); eye(m);m[0]=c;m[2]=s;m[8]=-s;m[10]=c;return m; }
+    function trans(m,x,y,z){ eye(m);m[12]=x;m[13]=y;m[14]=z;return m; }
+    function mul(o,a,b){
+      for(let i=0;i<4;i++) for(let j=0;j<4;j++){
+        o[i*4+j]=0; for(let k=0;k<4;k++) o[i*4+j]+=a[i*4+k]*b[k*4+j];
+      } return o;
+    }
+
+    const stars = Array.from({length:180},()=>({
+      x:Math.random(), y:Math.random(),
+      r:0.5+Math.random()*1.2,
+      a:0.3+Math.random()*0.7,
+      tw:Math.random()*Math.PI*2
+    }));
+
+    function drawStars(t) {
+      if (!starCanvas) return;
+      const ctx = starCanvas.getContext('2d');
+      const W = starCanvas.offsetWidth, H = starCanvas.offsetHeight;
+      const dpr = window.devicePixelRatio||1;
+      ctx.clearRect(0,0,starCanvas.width,starCanvas.height);
+      ctx.save(); ctx.scale(dpr,dpr);
+      stars.forEach(s => {
+        const tw = 0.65+0.35*Math.sin(t*1.1+s.tw);
+        ctx.beginPath();
+        ctx.arc(s.x*W, s.y*H*0.8, s.r, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${(s.a*tw).toFixed(3)})`;
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    function scrollProgress() {
+      const wrap = canvas.parentElement;
+      const rect = wrap.getBoundingClientRect();
+      const p = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+      return Math.max(0, Math.min(1, p * 1.8 - 0.4));
+    }
+
+    const P=m4(),Mo=m4(),Tr=m4(),MV=m4(),Tmp=m4();
+    let rot=-0.3, sunRise=0, lastT=0;
+    // Check shader compilation
+    const vs2 = gl.getShaderParameter(gl.getAttachedShaders(prog)[0], gl.COMPILE_STATUS);
+    const fs2 = gl.getShaderParameter(gl.getAttachedShaders(prog)[1], gl.COMPILE_STATUS);
+    const lk  = gl.getProgramParameter(prog, gl.LINK_STATUS);
+    if (!lk) { console.error('Globe shader error:', gl.getProgramInfoLog(prog)); return; }
+
+    gl.enable(gl.DEPTH_TEST); gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0,0,0,0);
+
+    function frame(t) {
+      requestAnimationFrame(frame);
+      t/=1000; const dt=t-lastT; lastT=t;
+      rot+=dt*0.055;
+      sunRise+=(scrollProgress()-sunRise)*0.05;
+      const sa=Math.PI*(-0.38+sunRise*0.48);
+      const sd=[Math.cos(sa)*0.28, Math.sin(sa), -Math.cos(sa)*0.96];
+      persp(P,0.52,1,0.1,100);
+      rotY(Mo,rot);
+      trans(Tr,0,0.1,-2.55);
+      mul(Tmp,Tr,Mo); mul(MV,P,Tmp);
+      gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+      gl.uniformMatrix4fv(uMVP,false,MV);
+      gl.uniformMatrix4fv(uModel,false,Tmp);
+      gl.uniform3fv(uSunD,sd);
+      gl.uniform1f(uSunR,sunRise);
+      gl.uniform1f(uTime,t);
+      gl.drawElements(gl.TRIANGLES,idx.length,gl.UNSIGNED_SHORT,0);
+      drawStars(t);
+    }
+    requestAnimationFrame(frame);
+  });
   </script>
 </main>
 </body>
