@@ -221,13 +221,11 @@
     position: fixed;
     top: 26px;
     left: 32px;
-    z-index: 301;
+    z-index: 201;
     pointer-events: all;
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.4s ease;
-    mix-blend-mode: normal;
-    isolation: isolate;
   }
   #logoChromaCanvas.visible { opacity: 1; }
   @media (max-width: 768px) {
@@ -4114,7 +4112,7 @@ window.addEventListener('load', () => {
 </script>
 
 <script>
-// ── LOGO CHROME CANVAS ──
+  // ── LOGO CHROME CANVAS ──
   (function() {
     const canvas = document.getElementById('logoChromaCanvas');
     if (!canvas) return;
@@ -4123,7 +4121,7 @@ window.addEventListener('load', () => {
     const TEXT1 = 'andré ';
     const TEXT2 = 'larsen';
     const FONT_SIZE = 18;
-    const BASELINE = FONT_SIZE;  // alphabetic baseline offset from top
+    const BASELINE = FONT_SIZE;
     const FONT_NORMAL = `700 ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
     const FONT_ITALIC = `700 italic ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
 
@@ -4187,7 +4185,6 @@ window.addEventListener('load', () => {
 
       ctx.clearRect(0, 0, pw, ph);
 
-      // 1 — Base chrome text
       ctx.save();
       ctx.scale(dpr, dpr);
       const baseGrad = ctx.createLinearGradient(0, 0, 0, H);
@@ -4206,7 +4203,6 @@ window.addEventListener('load', () => {
       ctx.fillText(TEXT2, w1, BASELINE);
       ctx.restore();
 
-      // 2 — Moving reflections (physical px coords)
       refX.clearRect(0, 0, pw, ph);
       refs.forEach(r => {
         r.x += r.speed;
@@ -4234,12 +4230,10 @@ window.addEventListener('load', () => {
       ctx.drawImage(refC, 0, 0);
     }
 
-    // Start immediately — no font wait
     resize();
     window.addEventListener('resize', resize);
     frame();
 
-    // Rebuild mask once DrukWide confirms loaded (fixes mobile blurry text)
     try {
       Promise.all([
         document.fonts.load(FONT_NORMAL),
@@ -4247,7 +4241,21 @@ window.addEventListener('load', () => {
       ]).then(() => { resize(); }).catch(() => {});
     } catch(e) {}
 
-    // navReveal is the primary show trigger (fires after loader completes)
-    window.addEventListener('navReveal', () => canvas.classList.add('visible'), { once: true });
+    // Blink-in on navReveal (after loader completes)
+    window.addEventListener('navReveal', () => {
+      canvas.style.transition = 'none';
+      canvas.style.opacity = '0';
+      setTimeout(() => canvas.style.opacity = '1', 50);
+      setTimeout(() => canvas.style.opacity = '0', 110);
+      setTimeout(() => canvas.style.opacity = '1', 170);
+      setTimeout(() => canvas.style.opacity = '0', 280);
+      setTimeout(() => {
+        canvas.style.opacity = '';
+        canvas.style.transition = 'opacity 0.4s ease';
+        canvas.classList.add('visible');
+      }, 350);
+    }, { once: true });
+
+    canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
 </script>
