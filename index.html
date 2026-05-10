@@ -210,10 +210,27 @@
     line-height: 1;
     text-transform: lowercase;
     letter-spacing: -0.02em;
-    color: #fff;
-    opacity: 0;
+    color: transparent !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none;
   }
   .nav-logo em { font-style: italic; }
+
+  #logoChromaCanvas {
+    position: fixed;
+    top: 26px;
+    left: 32px;
+    z-index: 301;
+    pointer-events: all;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  #logoChromaCanvas.visible { opacity: 1; }
+  @media (max-width: 768px) {
+    #logoChromaCanvas { left: 20px; top: 22px; }
+  }
 
   /* Col 2 — WORKS / ABOUT */
   .nav-links { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
@@ -716,7 +733,9 @@
     }
     .nav-logo {
       display: block;
-      opacity: 0;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      color: transparent !important;
       font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
       font-size: 18px;
       font-weight: 700;
@@ -1628,7 +1647,7 @@
 
 <!-- ── GLOBAL FIXED NAV — floats above all sections ── -->
 <nav>
-  <div class="nav-logo">andré <em>larsen</em></div>
+  <div class="nav-logo" aria-hidden="true"></div>
   <div class="nav-links">
     <a href="works.html">WORKS</a>
     <a href="about.html">ABOUT</a>
@@ -1643,6 +1662,8 @@
   </div>
   <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
 </nav>
+
+<canvas id="logoChromaCanvas" aria-hidden="true"></canvas>
 
 <!-- ── SCROLL CONTAINER ── -->
 <div id="scrollContainer">
@@ -1835,7 +1856,7 @@ Dubai, worldwide.</div>
 <!-- Mobile full-screen menu -->
 <div class="menu-overlay" id="menuOverlay">
   <div class="menu-top">
-    <div class="menu-logo">andré <em>larsen</em></div>
+    <div class="menu-logo" aria-hidden="true" style="visibility:hidden"></div>
     <button class="menu-close" id="menuClose">:/ CLOSE</button>
   </div>
   <div class="menu-nav">
@@ -4066,5 +4087,140 @@ window.addEventListener('load', () => {
   }, { root: sc, threshold: 0.2 });
 
   items.forEach(el => obs.observe(el));
+})();
+</script>
+
+<script>
+// ── LOGO CHROME CANVAS ──
+(function() {
+  const canvas = document.getElementById('logoChromaCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const TEXT1 = 'andré ';
+  const TEXT2 = 'larsen';
+  const FONT_SIZE = 18;
+  const BASELINE = FONT_SIZE;
+  const FONT_NORMAL = `700 ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
+  const FONT_ITALIC = `700 italic ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
+
+  let W = 0, H = 0, dpr = 1;
+  const maskC = document.createElement('canvas');
+  const maskX = maskC.getContext('2d');
+  const refC  = document.createElement('canvas');
+  const refX  = refC.getContext('2d');
+
+  function makeRef(spread) {
+    return {
+      x:     spread ? (Math.random() * (W + 100) - 50) : -(5 + Math.random() * 80),
+      speed: 1.0 + Math.random() * 2.2,
+      hw:    12 + Math.random() * 30,
+      alpha: 0.35 + Math.random() * 0.45,
+      cold:  Math.random(),
+    };
+  }
+
+  const refs = Array.from({ length: 6 }, () => makeRef(true));
+
+  function buildMask() {
+    const pw = W * dpr, ph = H * dpr;
+    maskX.clearRect(0, 0, pw, ph);
+    maskX.save();
+    maskX.scale(dpr, dpr);
+    maskX.fillStyle = '#fff';
+    maskX.font = FONT_NORMAL;
+    maskX.textBaseline = 'alphabetic';
+    maskX.textAlign = 'left';
+    maskX.fillText(TEXT1, 0, BASELINE);
+    const w1 = maskX.measureText(TEXT1).width;
+    maskX.font = FONT_ITALIC;
+    maskX.fillText(TEXT2, w1, BASELINE);
+    maskX.restore();
+  }
+
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    const t = document.createElement('canvas').getContext('2d');
+    t.font = FONT_NORMAL;
+    const w1 = t.measureText(TEXT1).width;
+    t.font = FONT_ITALIC;
+    const w2 = t.measureText(TEXT2).width;
+    W = Math.ceil(w1 + w2) + 6;
+    H = Math.ceil(FONT_SIZE * 1.45);
+
+    [canvas, maskC, refC].forEach(c => {
+      c.width  = W * dpr;
+      c.height = H * dpr;
+      c.style.width  = W + 'px';
+      c.style.height = H + 'px';
+    });
+
+    buildMask();
+  }
+
+  function frame() {
+    requestAnimationFrame(frame);
+    const pw = W * dpr, ph = H * dpr;
+
+    ctx.clearRect(0, 0, pw, ph);
+
+    // 1 — Base chrome text
+    ctx.save();
+    ctx.scale(dpr, dpr);
+    const baseGrad = ctx.createLinearGradient(0, 0, 0, H);
+    baseGrad.addColorStop(0,   'rgba(120, 140, 190, 0.9)');
+    baseGrad.addColorStop(0.4, 'rgba(165, 178, 225, 0.95)');
+    baseGrad.addColorStop(0.6, 'rgba(100, 120, 170, 0.85)');
+    baseGrad.addColorStop(1,   'rgba(130, 148, 200, 0.88)');
+    ctx.font = FONT_NORMAL;
+    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = baseGrad;
+    ctx.fillText(TEXT1, 0, BASELINE);
+    const w1 = ctx.measureText(TEXT1).width;
+    ctx.font = FONT_ITALIC;
+    ctx.fillStyle = baseGrad;
+    ctx.fillText(TEXT2, w1, BASELINE);
+    ctx.restore();
+
+    // 2 — Moving reflections
+    refX.clearRect(0, 0, pw, ph);
+    refs.forEach(r => {
+      r.x += r.speed;
+      if (r.x - r.hw > W + 5) Object.assign(r, makeRef(false));
+
+      const cx = r.x * dpr, hw = r.hw * dpr;
+      const cr = Math.round(200 + r.cold * 55);
+      const cg = Math.round(215 + r.cold * 40);
+      const a  = r.alpha;
+
+      const grad = refX.createLinearGradient(cx - hw, 0, cx + hw, 0);
+      grad.addColorStop(0,    `rgba(${cr},${cg},255,0)`);
+      grad.addColorStop(0.25, `rgba(${cr},${cg},255,${(a*0.2).toFixed(3)})`);
+      grad.addColorStop(0.5,  `rgba(${cr},${cg},255,${a.toFixed(3)})`);
+      grad.addColorStop(0.75, `rgba(${cr},${cg},255,${(a*0.2).toFixed(3)})`);
+      grad.addColorStop(1,    `rgba(${cr},${cg},255,0)`);
+      refX.fillStyle = grad;
+      refX.fillRect(cx - hw, 0, hw * 2, ph);
+    });
+
+    refX.globalCompositeOperation = 'destination-in';
+    refX.drawImage(maskC, 0, 0);
+    refX.globalCompositeOperation = 'source-over';
+
+    ctx.drawImage(refC, 0, 0);
+  }
+
+  document.fonts.ready.then(() => {
+    resize();
+    window.addEventListener('resize', resize);
+    frame();
+
+    // Reveal in sync with the nav sequence (fires after the loader completes)
+    window.addEventListener('navReveal', () => canvas.classList.add('visible'), { once: true });
+
+    // If the loader was skipped (returning from another page), show immediately
+    if (location.search.includes('skip')) canvas.classList.add('visible');
+  });
 })();
 </script>
