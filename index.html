@@ -4112,7 +4112,7 @@ window.addEventListener('load', () => {
     const TEXT1 = 'andré ';
     const TEXT2 = 'larsen';
     const FONT_SIZE = 18;
-    const BASELINE = FONT_SIZE;  // alphabetic baseline offset from top
+    const BASELINE = FONT_SIZE;
     const FONT_NORMAL = `700 ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
     const FONT_ITALIC = `700 italic ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
 
@@ -4236,7 +4236,7 @@ window.addEventListener('load', () => {
       ]).then(() => { resize(); }).catch(() => {});
     } catch(e) {}
 
-    // Blink-in sequence — fires right away (exact copy from about.html)
+    // Blink-in sequence
     canvas.style.transition = 'none';
     canvas.style.opacity = '0';
     setTimeout(() => canvas.style.opacity = '1', 50);
@@ -4253,7 +4253,6 @@ window.addEventListener('load', () => {
     setTimeout(() => canvas.classList.add('visible'), 800);
 
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
-  })();
   })();
 </script>
 </body>
