@@ -2752,6 +2752,13 @@ const videoTime    = document.getElementById('videoTime');
   };
   document.addEventListener('touchstart', unlock, { once: true });
   document.addEventListener('click', unlock, { once: true });
+
+  // iOS sometimes ignores the `loop` attribute when play() is triggered
+  // programmatically — restart manually on ended as a safety net
+  videoEl.addEventListener('ended', () => {
+    videoEl.currentTime = 0;
+    videoEl.play().catch(() => {});
+  });
 })();
 
 function formatTime(s) {
