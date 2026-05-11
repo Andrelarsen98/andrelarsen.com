@@ -1397,8 +1397,8 @@
     position: relative;
     z-index: 1;
     isolation: isolate;
-    mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 12%, black 88%, transparent 100%);
+    -webkit-mask-image: none; mask-image: none;
+    -webkit--webkit-mask-image: none; mask-image: none;
   }
 
   @media (max-width: 768px) {
@@ -4275,7 +4275,7 @@ window.addEventListener('load', () => {
     }
   });
   // Hard fallback
-  setTimeout(start, 2000);
+  setTimeout(start, 500);
 
   // Pause when tab hidden, resume when visible
   document.addEventListener('visibilitychange', function () {
