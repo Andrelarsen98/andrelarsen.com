@@ -850,12 +850,44 @@
   .glass-cta {
     width: 100%;
     position: relative;
-    background: #060810;
+    /* Deep warm-tinted near-black base — like frost on a cold window at dawn */
+    background: #0d0905;
     padding: 48px 32px 52px;
     overflow: hidden;
   }
 
-  /* ── Animated organic blob background (refractive background) ── */
+  /* ── Frost texture overlay — covers the entire CTA section ── */
+  .glass-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    /* Multi-layer frost: pebbled high-freq noise + large organic low-freq bumps */
+    opacity: 1;
+    background-image:
+      /* Fine surface frost crystals */
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.55 0 0 0 0 0.35 0 0 0 0 0.10 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
+      /* Large pebbled surface bumps — the organic 'skin' of frost glass */
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.12' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.60 0 0 0 0 0.38 0 0 0 0 0.12 0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E");
+    background-size: 280px 280px, 400px 400px;
+    mix-blend-mode: screen;
+  }
+
+  /* ── Warm orange ambient light wash behind the panel ── */
+  .glass-cta::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 60% at 15% 50%, rgba(200,90,20,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 70% at 85% 40%, rgba(160,70,15,0.14) 0%, transparent 65%),
+      radial-gradient(ellipse 40% 50% at 50% 80%, rgba(120,50,10,0.10) 0%, transparent 60%);
+  }
+
+  /* ── Animated organic blob background — WARM ORANGE FROST palette ── */
   .glass-blobs {
     position: absolute;
     inset: 0;
@@ -867,32 +899,36 @@
     position: absolute;
     border-radius: 50%;
     filter: blur(72px);
-    opacity: 0.55;
+    opacity: 0.65;
     will-change: transform;
   }
+  /* Deep burnt orange — top left */
   .glass-blob-1 {
-    width: 420px; height: 320px;
-    background: radial-gradient(ellipse at center, rgba(14,60,140,0.9) 0%, rgba(6,20,80,0.4) 60%, transparent 100%);
+    width: 460px; height: 340px;
+    background: radial-gradient(ellipse at center, rgba(200,80,15,0.85) 0%, rgba(140,45,8,0.45) 55%, transparent 100%);
     top: -60px; left: -80px;
     animation: blobDrift1 18s ease-in-out infinite alternate;
   }
+  /* Rich amber — bottom right */
   .glass-blob-2 {
-    width: 360px; height: 280px;
-    background: radial-gradient(ellipse at center, rgba(160,90,20,0.7) 0%, rgba(100,50,10,0.3) 60%, transparent 100%);
+    width: 380px; height: 300px;
+    background: radial-gradient(ellipse at center, rgba(230,130,30,0.75) 0%, rgba(180,80,15,0.35) 55%, transparent 100%);
     bottom: -40px; right: -60px;
     animation: blobDrift2 22s ease-in-out infinite alternate;
   }
+  /* Warm sienna — centre */
   .glass-blob-3 {
-    width: 280px; height: 240px;
-    background: radial-gradient(ellipse at center, rgba(20,80,180,0.6) 0%, rgba(10,40,120,0.2) 60%, transparent 100%);
+    width: 300px; height: 260px;
+    background: radial-gradient(ellipse at center, rgba(175,65,12,0.60) 0%, rgba(120,40,8,0.25) 60%, transparent 100%);
     top: 40%; left: 45%;
     transform: translate(-50%, -50%);
     animation: blobDrift3 28s ease-in-out infinite alternate;
   }
+  /* Pale gold highlight — top right */
   .glass-blob-4 {
-    width: 220px; height: 200px;
-    background: radial-gradient(ellipse at center, rgba(180,100,30,0.5) 0%, transparent 70%);
-    top: 10%; right: 20%;
+    width: 240px; height: 210px;
+    background: radial-gradient(ellipse at center, rgba(240,160,50,0.50) 0%, rgba(200,100,20,0.20) 60%, transparent 100%);
+    top: 8%; right: 18%;
     animation: blobDrift4 16s ease-in-out infinite alternate;
   }
 
@@ -1186,7 +1222,7 @@
     50%       { opacity: 0; }
   }
 
-  /* ── Right CTA button — ── REFINEMENT 5: Floating lift on hover ── */
+  /* ── Right CTA button — iOS CLEAR LIQUID GLASS ── */
   .glass-right {
     display: flex;
     flex-direction: column;
@@ -1201,85 +1237,132 @@
     align-items: center;
     gap: 10px;
     padding: 14px 28px;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-top-color: rgba(255,255,255,0.55);
-    border-left-color: rgba(255,255,255,0.28);
-    border-bottom-color: rgba(0,0,0,0.3);
-    color: #fff;
+
+    /* ── LIQUID GLASS: near-zero fill — the glass is almost invisible ── */
+    background: rgba(255,255,255,0.06);
+
+    /* ── No border — specular rim entirely via box-shadow ──
+       Top-left: bright catch-light (light source above-left)
+       Bottom-right: dark recessed shadow
+       This is exactly how iOS liquid glass renders its pill borders */
+    border: none;
+    box-shadow:
+      /* Outer specular rim — top bright, right dim, bottom dark, left bright */
+      0 -1px 0 0 rgba(255,255,255,0.82),        /* top catch-light */
+      -1px 0 0 0 rgba(255,255,255,0.45),         /* left catch-light */
+      0 1px 0 0 rgba(0,0,0,0.45),               /* bottom shadow */
+      1px 0 0 0 rgba(0,0,0,0.22),               /* right shadow */
+      /* Inner surface speculars — thin bright line just inside the top edge */
+      inset 0 1px 0 rgba(255,255,255,0.55),
+      inset 0 -1px 0 rgba(0,0,0,0.18),
+      inset 1px 0 0 rgba(255,255,255,0.20),
+      inset -1px 0 0 rgba(0,0,0,0.12),
+      /* Lift shadow — ambient shadow below, like an object hovering */
+      0 4px 16px rgba(0,0,0,0.28),
+      0 2px 6px rgba(0,0,0,0.20);
+
+    color: rgba(255,255,255,0.92);
     font-family: 'VT323', monospace;
     font-size: 17px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     text-decoration: none;
     -webkit-font-smoothing: none;
-    border-radius: 8px;
+    /* Pill-ish radius like iOS liquid glass */
+    border-radius: 10px;
     white-space: nowrap;
     position: relative;
     overflow: hidden;
-    /* Base blur — button sits on the glass surface */
-    backdrop-filter: blur(8px) saturate(120%);
-    -webkit-backdrop-filter: blur(8px) saturate(120%);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.40),
-      inset 0 -1px 0 rgba(0,0,0,0.20),
-      0 2px 8px rgba(0,0,0,0.35),
-      0 1px 2px rgba(0,0,0,0.25);
-    /* Transition: blur, shadow, transform all animate smoothly */
+
+    /* ── The refraction: strong blur + over-saturate what's behind ── */
+    backdrop-filter: blur(20px) saturate(180%) brightness(1.18) contrast(105%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.18) contrast(105%);
+
     transition:
-      background 0.25s ease,
+      background 0.3s ease,
       letter-spacing 0.3s ease,
       box-shadow 0.3s ease,
       backdrop-filter 0.3s ease,
       -webkit-backdrop-filter 0.3s ease,
-      transform 0.3s cubic-bezier(0.16,1,0.3,1),
-      border-color 0.25s ease;
+      transform 0.3s cubic-bezier(0.16,1,0.3,1);
     transform: translateY(0) scale(1);
   }
-  /* Specular shine streak */
+
+  /* ── Specular highlight arc — the 'wet glass' top-edge shine ── */
   .glass-btn::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0; left: 12%; right: 12%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7) 50%, transparent);
+    /* Sharp bright line fading at edges — exactly the iOS specular */
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,255,255,0.30) 15%,
+      rgba(255,255,255,0.90) 50%,
+      rgba(255,255,255,0.30) 85%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 2;
   }
-  /* Shimmer sweep on hover */
+
+  /* ── Shimmer sweep on hover — light catching the glass surface ── */
   .glass-btn::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%);
-    transform: translateX(-100%);
-    transition: transform 0.5s ease;
+    /* Diagonal shimmer band */
+    background: linear-gradient(
+      110deg,
+      transparent 30%,
+      rgba(255,255,255,0.14) 48%,
+      rgba(255,255,255,0.08) 52%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.55s cubic-bezier(0.16,1,0.3,1);
+    pointer-events: none;
+    z-index: 1;
   }
-  .glass-btn:hover::after { transform: translateX(100%); }
+  .glass-btn:hover::after { transform: translateX(120%); }
+
+  /* ── Hover: float up, blur deepens — physically lifting off surface ── */
   .glass-btn:hover {
-    background: rgba(255,255,255,0.13);
-    border-color: rgba(255,255,255,0.40);
-    border-top-color: rgba(255,255,255,0.75);
-    letter-spacing: 0.32em;
-    /* Lift: blur increases (button 'floats' off surface), stronger shadow below */
-    backdrop-filter: blur(20px) saturate(160%) brightness(1.15);
-    -webkit-backdrop-filter: blur(20px) saturate(160%) brightness(1.15);
+    background: rgba(255,255,255,0.10);
+    letter-spacing: 0.30em;
+    backdrop-filter: blur(32px) saturate(220%) brightness(1.28) contrast(108%);
+    -webkit-backdrop-filter: blur(32px) saturate(220%) brightness(1.28) contrast(108%);
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.55),
-      inset 0 -1px 0 rgba(0,0,0,0.15),
-      0 8px 24px rgba(0,0,0,0.50),
-      0 4px 12px rgba(0,0,0,0.35),
-      0 0 40px rgba(160,190,255,0.08);
-    /* Physical lift — moves up, casts longer shadow */
-    transform: translateY(-3px) scale(1.01);
+      0 -1px 0 0 rgba(255,255,255,0.95),
+      -1px 0 0 0 rgba(255,255,255,0.60),
+      0 1px 0 0 rgba(0,0,0,0.40),
+      1px 0 0 0 rgba(0,0,0,0.18),
+      inset 0 1px 0 rgba(255,255,255,0.70),
+      inset 0 -1px 0 rgba(0,0,0,0.14),
+      inset 1px 0 0 rgba(255,255,255,0.28),
+      inset -1px 0 0 rgba(0,0,0,0.10),
+      /* Deeper lift shadow when floating */
+      0 10px 30px rgba(0,0,0,0.40),
+      0 4px 12px rgba(0,0,0,0.30),
+      0 0 0 1px rgba(255,255,255,0.08);
+    transform: translateY(-3px) scale(1.02);
   }
+
+  /* ── Press: snap back into surface ── */
   .glass-btn:active {
-    transform: translateY(0px) scale(0.99);
+    background: rgba(255,255,255,0.04);
+    transform: translateY(1px) scale(0.985);
+    backdrop-filter: blur(12px) saturate(150%) brightness(1.10);
+    -webkit-backdrop-filter: blur(12px) saturate(150%) brightness(1.10);
     box-shadow:
+      0 -0.5px 0 0 rgba(255,255,255,0.60),
+      -0.5px 0 0 0 rgba(255,255,255,0.35),
+      0 0.5px 0 0 rgba(0,0,0,0.55),
+      0.5px 0 0 0 rgba(0,0,0,0.30),
       inset 0 1px 0 rgba(255,255,255,0.30),
       inset 0 -1px 0 rgba(0,0,0,0.25),
-      0 1px 4px rgba(0,0,0,0.40);
-    backdrop-filter: blur(10px) saturate(130%);
-    -webkit-backdrop-filter: blur(10px) saturate(130%);
-    transition-duration: 0.1s;
+      0 1px 4px rgba(0,0,0,0.35);
+    transition-duration: 0.08s;
   }
 
   .glass-btn-arrow {
@@ -1329,9 +1412,9 @@
 
   @media (max-width: 768px) {
     .glass-cta { padding: 32px 16px 36px; }
-    .glass-blob-1 { width: 280px; height: 220px; filter: blur(50px); }
-    .glass-blob-2 { width: 240px; height: 200px; filter: blur(50px); }
-    .glass-blob-3 { width: 180px; height: 160px; filter: blur(45px); }
+    .glass-blob-1 { width: 300px; height: 240px; filter: blur(55px); }
+    .glass-blob-2 { width: 260px; height: 210px; filter: blur(55px); }
+    .glass-blob-3 { width: 200px; height: 170px; filter: blur(48px); }
     .glass-blob-4 { display: none; }
     .glass-panel {
       padding: 32px 24px;
