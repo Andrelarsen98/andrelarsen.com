@@ -4464,9 +4464,19 @@ window.addEventListener('load', () => {
       runAcquire();
       obs.disconnect();
     }
-  }, { root: sc, threshold: 0.15 });
+  }, { root: sc, threshold: 0.05 });
 
   obs.observe(section);
+
+  // Hard fallback — force all cells to acquired state if animation never fires
+  // (prevents logos being permanently invisible on mobile)
+  setTimeout(() => {
+    if (!fired) {
+      fired = true;
+      obs.disconnect();
+      cells.forEach(cell => cell.classList.add('acquired'));
+    }
+  }, 5000);
 })();
 
 /* ══════════════════════════════════════════════════════════════
@@ -4546,9 +4556,20 @@ window.addEventListener('load', () => {
       blinkIn();
       obs.disconnect();
     }
-  }, { root: sc, threshold: 0.3 });
+  }, { root: sc, threshold: 0.05 });
 
   obs.observe(panel);
+
+  // Hard fallback — if IntersectionObserver never fires (e.g. mobile scroll race),
+  // force the panel visible after 4 seconds so it's never permanently hidden
+  setTimeout(() => {
+    if (!fired) {
+      fired = true;
+      obs.disconnect();
+      panel.style.transition = 'opacity 0.5s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+      panel.classList.add('visible');
+    }
+  }, 4000);
 })();
 </script>
 
