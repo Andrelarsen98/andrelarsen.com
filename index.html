@@ -834,38 +834,33 @@
   /* ══════════════════════════════════════
      ── CLIENTS MARQUEE ──
   ══════════════════════════════════════ */
-  @keyframes marqueeLeft {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+  @keyframes marqueeScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
   }
 
   .logo-marquee-row {
-    position: relative;
+    width: 100%;
     overflow: hidden;
     height: 52px;
-    width: 100%;
+    display: flex;
+    align-items: center;
   }
 
   .logo-marquee-track {
-    display: inline-flex;
-    flex-wrap: nowrap;
+    display: flex;
+    flex-shrink: 0;
     align-items: center;
-    height: 52px;
-    white-space: nowrap;
-    animation: marqueeLeft 75s linear infinite;
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    min-width: 200%;
+    animation: marqueeScroll 60s linear infinite;
   }
 
   .logo-marquee-item {
-    display: inline-flex;
+    flex-shrink: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 32px;
-    flex-shrink: 0;
-    height: 52px;
+    padding: 0 28px;
     pointer-events: none;
     user-select: none;
   }
@@ -876,15 +871,12 @@
     width: auto;
     max-width: 90px;
     object-fit: contain;
-    opacity: 1;
-    pointer-events: none;
-    flex-shrink: 0;
     filter: brightness(0) invert(1);
-    -webkit-filter: brightness(0) invert(1);
+    flex-shrink: 0;
   }
-  .logo-marquee-item img.tall-logo { height: 26px; max-width: 26px; }
+  .logo-marquee-item img.tall-logo { height: 24px; max-width: 24px; }
   .logo-marquee-item img.wide-logo { height: 11px; max-width: 100px; }
-  .logo-marquee-item img.xl-logo   { height: 20px; max-width: 120px; }
+  .logo-marquee-item img.xl-logo   { height: 18px; max-width: 110px; }
 
   /* ── STUDIO PARALLAX ── */
   .studio-photo-wrap {
@@ -1422,22 +1414,13 @@
       max-width: 100%;
       mask-image: none;
       -webkit-mask-image: none;
-      transform: none;
-      -webkit-transform: none;
-    }
-    .logo-marquee-row {
-      /* Side padding creates breathing room without masking */
-      padding: 0 20px;
+      overflow: hidden;
     }
     .logo-marquee-track {
       animation-duration: 35s;
-      animation-play-state: running;
-      animation-delay: 0s;
-      will-change: auto;
-      transform: none;
     }
     .logo-marquee-item {
-      padding: 0 20px;
+      padding: 0 18px;
     }
   }
 
