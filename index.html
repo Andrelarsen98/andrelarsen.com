@@ -837,13 +837,11 @@
   .logo-marquee-row {
     width: 100%;
     overflow: hidden;
-    height: 52px;
+    height: 60px;
     display: flex;
     align-items: center;
-    /* Extra width so logos aren't clipped at viewport edges */
-    margin: 0 -20px;
-    padding: 0 20px;
-    width: calc(100% + 40px);
+    margin: 0;
+    padding: 0;
   }
 
   .logo-marquee-track {
@@ -1397,8 +1395,8 @@
     position: relative;
     z-index: 1;
     isolation: isolate;
-    -webkit-mask-image: none; mask-image: none;
-    -webkit--webkit-mask-image: none; mask-image: none;
+    mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
   }
 
   @media (max-width: 768px) {
@@ -1406,13 +1404,23 @@
     .clients-label { margin-bottom: 14px; font-size: 11px; }
     .clients-marquee-wrap {
       max-width: 100%;
-      mask-image: none;
-      -webkit-mask-image: none;
       overflow: hidden;
+      mask-image: linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%);
+    }
+    .logo-marquee-row {
+      height: 56px;
     }
     .logo-marquee-item {
-      padding: 0 18px;
+      padding: 0 16px;
     }
+    .logo-marquee-item img {
+      height: 15px;
+      max-width: 80px;
+    }
+    .logo-marquee-item img.tall-logo { height: 22px; max-width: 22px; }
+    .logo-marquee-item img.wide-logo { height: 10px; max-width: 88px; }
+    .logo-marquee-item img.xl-logo   { height: 17px; max-width: 95px; }
   }
 
 
@@ -4275,7 +4283,7 @@ window.addEventListener('load', () => {
     }
   });
   // Hard fallback
-  setTimeout(start, 500);
+  setTimeout(start, 2000);
 
   // Pause when tab hidden, resume when visible
   document.addEventListener('visibilitychange', function () {
