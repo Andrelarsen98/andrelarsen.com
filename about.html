@@ -13,14 +13,14 @@
     html { scrollbar-width: none; -ms-overflow-style: none; }
     html::-webkit-scrollbar { display: none; }
     body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; overscroll-behavior: none; }
-    canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; z-index: 1; }
+    canvas { position: fixed; inset: 0; display: block; width: 100vw; height: var(--app-height, 100vh); z-index: 1; }
     #holo { will-change: opacity; }
     #footerAsciiCanvas { position: static; inset: auto; width: 100%; height: 100%; z-index: auto; }
     .about-footer  { contain: layout paint; }
     .disciplines-section { contain: layout paint; }
     .brands-section { contain: layout paint; }
     .manifesto-section { contain: layout paint; }
-    .scroll-space { height: 100vh; }
+    .scroll-space { height: var(--app-height, 100vh); }
     .test-space { display: none; }
     .scanline-fixed {
       position: fixed;
@@ -385,7 +385,7 @@
       .nav-menu-btn {
         display: inline-block;
       }
-      .scroll-space { height: 100vh; }
+      .scroll-space { height: var(--app-height, 100vh); }
       .test-space { display: none; }
     }
 
@@ -1447,10 +1447,25 @@ window.FPV_GOGGLES_MESH = {
       return o;
     }
 
+    let _lockedMobileHeight = null;
+    let _lastWidth = null;
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       width = window.innerWidth;
-      height = window.innerHeight;
+      // On mobile, lock the height to the first measured value so that
+      // the browser chrome (address bar) appearing/disappearing doesn't
+      // cause the canvas to jump in size.
+      if (isMobilePage) {
+        if (_lockedMobileHeight === null || width !== _lastWidth) {
+          _lockedMobileHeight = window.innerHeight;
+          _lastWidth = width;
+          document.documentElement.style.setProperty('--app-height', _lockedMobileHeight + 'px');
+        }
+        height = _lockedMobileHeight;
+      } else {
+        height = window.innerHeight;
+        document.documentElement.style.setProperty('--app-height', height + 'px');
+      }
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       canvas.style.width = width + 'px';
