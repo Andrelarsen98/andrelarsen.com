@@ -930,35 +930,44 @@
     transition: opacity 0s, transform 0s;
     z-index: 1;
 
-    /* Pebbled frosted glass base */
+    /* Glass base fill */
     background:
       linear-gradient(
         135deg,
         rgba(255,255,255,0.13) 0%,
         rgba(255,255,255,0.05) 35%,
         rgba(255,255,255,0.10) 70%,
-        rgba(255,255,255,0.07) 100%
+        rgba(255,255,255,0.06) 100%
       );
 
-    /* Backdrop blur — real frosted glass depth */
-    backdrop-filter: blur(28px) saturate(1.4) brightness(1.08);
-    -webkit-backdrop-filter: blur(28px) saturate(1.4) brightness(1.08);
+    /* ── REFINEMENT 3: Electric refractive backdrop ── */
+    backdrop-filter: blur(25px) saturate(160%) brightness(1.2) contrast(110%);
+    -webkit-backdrop-filter: blur(25px) saturate(160%) brightness(1.2) contrast(110%);
 
-    /* Specular edge highlights — catches light from all sides */
-    border: 1px solid rgba(255,255,255,0.15);
-    border-top-color: rgba(255,255,255,0.45);
-    border-left-color: rgba(255,255,255,0.25);
-    border-bottom-color: rgba(255,255,255,0.06);
-
-    /* Multi-layer box-shadow: outer bloom + inset specular rim */
+    /* ── REFINEMENT 2: Gradient beveled border ──
+       border: none so we use outline + pseudo for the gradient.
+       We fake a gradient border via box-shadow layers:
+       top-left corner = bright specular white → bottom-right = near-transparent dark. */
+    border: none;
+    /* Outer gradient bevel via layered box-shadows:
+       top & left = bright white rim, bottom & right = dark recessed edge */
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.05),
-      0 8px 80px rgba(0,0,0,0.7),
-      0 2px 32px rgba(0,0,0,0.5),
-      inset 0 1.5px 0 rgba(255,255,255,0.35),
-      inset 0 -1px 0 rgba(255,255,255,0.06),
-      inset 1px 0 0 rgba(255,255,255,0.12),
-      inset -1px 0 0 rgba(255,255,255,0.06);
+      /* Beveled bright top edge */
+      0 -1px 0 0 rgba(255,255,255,0.70),
+      /* Beveled bright left edge */
+      -1px 0 0 0 rgba(255,255,255,0.40),
+      /* Beveled dark bottom edge (recessed) */
+      0 1px 0 0 rgba(0,0,0,0.50),
+      /* Beveled dark right edge */
+      1px 0 0 0 rgba(0,0,0,0.30),
+      /* Outer ambient depth */
+      0 8px 80px rgba(0,0,0,0.70),
+      0 2px 32px rgba(0,0,0,0.50),
+      /* Inset specular rim (inner surface light bounce) */
+      inset 0 1.5px 0 rgba(255,255,255,0.40),
+      inset 0 -1px 0 rgba(0,0,0,0.25),
+      inset 1px 0 0 rgba(255,255,255,0.15),
+      inset -1px 0 0 rgba(0,0,0,0.15);
   }
   .glass-panel.visible {
     opacity: 1;
@@ -967,55 +976,63 @@
     animation: glassBreath 5s ease-in-out infinite 0.8s;
   }
 
-  /* Breathing border glow — pulses the specular rim softly */
+  /* Breathing border glow — pulses the specular bevel */
   @keyframes glassBreath {
     0%, 100% {
       box-shadow:
-        0 0 0 1px rgba(255,255,255,0.05),
-        0 8px 80px rgba(0,0,0,0.7),
-        0 2px 32px rgba(0,0,0,0.5),
-        inset 0 1.5px 0 rgba(255,255,255,0.35),
-        inset 0 -1px 0 rgba(255,255,255,0.06),
-        inset 1px 0 0 rgba(255,255,255,0.12),
-        inset -1px 0 0 rgba(255,255,255,0.06);
+        0 -1px 0 0 rgba(255,255,255,0.70),
+        -1px 0 0 0 rgba(255,255,255,0.40),
+        0 1px 0 0 rgba(0,0,0,0.50),
+        1px 0 0 0 rgba(0,0,0,0.30),
+        0 8px 80px rgba(0,0,0,0.70),
+        0 2px 32px rgba(0,0,0,0.50),
+        inset 0 1.5px 0 rgba(255,255,255,0.40),
+        inset 0 -1px 0 rgba(0,0,0,0.25),
+        inset 1px 0 0 rgba(255,255,255,0.15),
+        inset -1px 0 0 rgba(0,0,0,0.15);
     }
     50% {
       box-shadow:
-        0 0 0 1px rgba(255,255,255,0.10),
+        0 -1px 0 0 rgba(255,255,255,0.90),
+        -1px 0 0 0 rgba(255,255,255,0.55),
+        0 1px 0 0 rgba(0,0,0,0.45),
+        1px 0 0 0 rgba(0,0,0,0.25),
         0 8px 100px rgba(0,0,0,0.55),
-        0 2px 60px rgba(100,140,255,0.08),
-        inset 0 1.5px 0 rgba(255,255,255,0.55),
-        inset 0 -1px 0 rgba(255,255,255,0.10),
-        inset 1px 0 0 rgba(255,255,255,0.20),
-        inset -1px 0 0 rgba(255,255,255,0.10);
+        0 2px 60px rgba(100,140,255,0.10),
+        inset 0 1.5px 0 rgba(255,255,255,0.60),
+        inset 0 -1px 0 rgba(0,0,0,0.20),
+        inset 1px 0 0 rgba(255,255,255,0.25),
+        inset -1px 0 0 rgba(0,0,0,0.10);
     }
   }
 
-  /* Pebbled / grainy noise texture — physical glass depth */
+  /* ── REFINEMENT 1: Film grain noise layer — on top of blur, under content ── */
   .glass-panel::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    opacity: 0.10;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 220px 220px;
+    /* Fine-grained fractalNoise at 4% opacity — physical frosted surface feel */
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
     pointer-events: none;
+    /* z-index 0: above blur layer, below all content (z-index: 1) */
     z-index: 0;
-    mix-blend-mode: overlay;
+    mix-blend-mode: screen;
   }
 
-  /* Specular top-edge shine arc */
+  /* ── Specular top-edge shine arc (kept as ::after) ── */
   .glass-panel::after {
     content: '';
     position: absolute;
-    top: 0; left: 8%; right: 8%;
+    top: 0; left: 6%; right: 6%;
     height: 1px;
     background: linear-gradient(90deg,
       transparent 0%,
-      rgba(255,255,255,0.25) 20%,
-      rgba(255,255,255,0.75) 50%,
-      rgba(255,255,255,0.25) 80%,
+      rgba(255,255,255,0.20) 15%,
+      rgba(255,255,255,0.85) 50%,
+      rgba(255,255,255,0.20) 85%,
       transparent 100%
     );
     border-radius: 999px;
@@ -1117,7 +1134,7 @@
     text-shadow: 0 0 10px rgba(255,255,255,0.15);
   }
 
-  /* Headline — bloom glow + chromatic aberration via text-shadow */
+  /* Headline — ── REFINEMENT 4: Multi-layer bloom text-shadow ── */
   .glass-headline {
     font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
     font-size: clamp(28px, 4vw, 52px);
@@ -1129,11 +1146,16 @@
     white-space: nowrap;
     position: relative;
 
-    /* White bloom glow */
+    /* Layer 1 — tight sharp glow (the hot centre of a light source) */
+    /* Layer 2 — medium spread (the corona) */
+    /* Layer 3 — large soft atmospheric haze */
+    /* Layer 4 — very wide cool-blue tint for depth */
     text-shadow:
-      0 0 20px rgba(255,255,255,0.55),
-      0 0 60px rgba(255,255,255,0.18),
-      0 0 100px rgba(180,200,255,0.12);
+      0 0  4px rgba(255,255,255,1.00),
+      0 0 12px rgba(255,255,255,0.80),
+      0 0 30px rgba(255,255,255,0.45),
+      0 0 70px rgba(200,215,255,0.22),
+      0 0 130px rgba(160,190,255,0.10);
 
     /* Chromatic aberration — red channel left, blue channel right */
     filter: drop-shadow(-1.5px 0 0 rgba(255,60,60,0.35))
@@ -1164,7 +1186,7 @@
     50%       { opacity: 0; }
   }
 
-  /* ── Right CTA button — etched glass ── */
+  /* ── Right CTA button — ── REFINEMENT 5: Floating lift on hover ── */
   .glass-right {
     display: flex;
     flex-direction: column;
@@ -1179,7 +1201,6 @@
     align-items: center;
     gap: 10px;
     padding: 14px 28px;
-    /* Etched glass: translucent with strong specular top border */
     background: rgba(255,255,255,0.07);
     border: 1px solid rgba(255,255,255,0.18);
     border-top-color: rgba(255,255,255,0.55);
@@ -1196,15 +1217,26 @@
     white-space: nowrap;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    /* Base blur — button sits on the glass surface */
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
     box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.4),
-      inset 0 -1px 0 rgba(0,0,0,0.2),
-      0 4px 20px rgba(0,0,0,0.4);
-    transition: background 0.2s, letter-spacing 0.3s, box-shadow 0.2s;
+      inset 0 1px 0 rgba(255,255,255,0.40),
+      inset 0 -1px 0 rgba(0,0,0,0.20),
+      0 2px 8px rgba(0,0,0,0.35),
+      0 1px 2px rgba(0,0,0,0.25);
+    /* Transition: blur, shadow, transform all animate smoothly */
+    transition:
+      background 0.25s ease,
+      letter-spacing 0.3s ease,
+      box-shadow 0.3s ease,
+      backdrop-filter 0.3s ease,
+      -webkit-backdrop-filter 0.3s ease,
+      transform 0.3s cubic-bezier(0.16,1,0.3,1),
+      border-color 0.25s ease;
+    transform: translateY(0) scale(1);
   }
-  /* Specular shine streak on button */
+  /* Specular shine streak */
   .glass-btn::before {
     content: '';
     position: absolute;
@@ -1217,22 +1249,39 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%);
     transform: translateX(-100%);
     transition: transform 0.5s ease;
   }
   .glass-btn:hover::after { transform: translateX(100%); }
   .glass-btn:hover {
-    background: rgba(255,255,255,0.14);
-    border-color: rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.13);
+    border-color: rgba(255,255,255,0.40);
     border-top-color: rgba(255,255,255,0.75);
     letter-spacing: 0.32em;
+    /* Lift: blur increases (button 'floats' off surface), stronger shadow below */
+    backdrop-filter: blur(20px) saturate(160%) brightness(1.15);
+    -webkit-backdrop-filter: blur(20px) saturate(160%) brightness(1.15);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.55),
-      inset 0 -1px 0 rgba(0,0,0,0.2),
-      0 4px 30px rgba(100,140,255,0.12),
-      0 0 40px rgba(255,255,255,0.05);
+      inset 0 -1px 0 rgba(0,0,0,0.15),
+      0 8px 24px rgba(0,0,0,0.50),
+      0 4px 12px rgba(0,0,0,0.35),
+      0 0 40px rgba(160,190,255,0.08);
+    /* Physical lift — moves up, casts longer shadow */
+    transform: translateY(-3px) scale(1.01);
   }
+  .glass-btn:active {
+    transform: translateY(0px) scale(0.99);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.30),
+      inset 0 -1px 0 rgba(0,0,0,0.25),
+      0 1px 4px rgba(0,0,0,0.40);
+    backdrop-filter: blur(10px) saturate(130%);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+    transition-duration: 0.1s;
+  }
+
   .glass-btn-arrow {
     font-size: 20px;
     line-height: 1;
@@ -1251,18 +1300,19 @@
     text-shadow: 0 0 6px rgba(255,255,255,0.1);
   }
 
-  /* Hover state — lift panel and sharpen rim */
+  /* Hover state — lift panel, sharpen bevel */
   .glass-panel:hover {
-    border-top-color: rgba(255,255,255,0.6);
-    border-color: rgba(255,255,255,0.22);
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.08),
+      0 -1px 0 0 rgba(255,255,255,0.90),
+      -1px 0 0 0 rgba(255,255,255,0.55),
+      0 1px 0 0 rgba(0,0,0,0.45),
+      1px 0 0 0 rgba(0,0,0,0.25),
       0 12px 100px rgba(0,0,0,0.65),
       0 4px 40px rgba(100,140,255,0.08),
-      inset 0 1.5px 0 rgba(255,255,255,0.5),
-      inset 0 -1px 0 rgba(255,255,255,0.08),
-      inset 1px 0 0 rgba(255,255,255,0.18),
-      inset -1px 0 0 rgba(255,255,255,0.08);
+      inset 0 1.5px 0 rgba(255,255,255,0.55),
+      inset 0 -1px 0 rgba(0,0,0,0.20),
+      inset 1px 0 0 rgba(255,255,255,0.22),
+      inset -1px 0 0 rgba(0,0,0,0.10);
   }
   .glass-panel:hover .glass-bracket::before,
   .glass-panel:hover .glass-bracket::after {
