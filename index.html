@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-  <link rel="preload" as="image" href="IMG_5937.JPG" fetchpriority="high">
+  <link rel="preload" as="image" href="IMG_5937.webp" fetchpriority="high" type="image/webp">
+  <link rel="preload" as="image" href="IMG_5937.JPG" fetchpriority="high" media="not all and (min-resolution: 0.001dppx)">
   <link rel="preload" as="font" href="DrukWide-Bold.woff2" type="font/woff2" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -921,6 +922,8 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 100vh;
   }
 
   /* ASCII name — takes all remaining space, fills the whole viewport height */
@@ -1366,6 +1369,8 @@
     border-top: 1px solid rgba(255,255,255,0.08);
     background: #000;
     padding: 28px 0;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 200px;
   }
 
   /* Dot grid — matches .scanline:after exactly (same vars, same opacity) */
@@ -1628,7 +1633,7 @@
 </head>
 <body>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
 
 <!-- Loader backdrop -->
 <div id="loadScreen"><div class="scanline-fixed"></div></div>
@@ -1670,7 +1675,10 @@
 
   <!-- SECTION 1: Landing -->
   <div class="site" id="site">
-    <img class="bg-img" src="IMG_5937.JPG" alt="" />
+    <picture>
+      <source srcset="IMG_5937.webp" type="image/webp">
+      <img class="bg-img" src="IMG_5937.JPG" alt="" />
+    </picture>
     <div class="overlay"></div>
     <div class="overlay-center"></div>
     <div class="flicker" id="flicker"></div>
@@ -1786,30 +1794,30 @@ Dubai, worldwide.</div>
         <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas" loading="eager" decoding="async"></div>
         <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike" loading="eager" decoding="async"></div>
         <!-- duplicate set for seamless loop -->
-        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 10.png" alt="Netflix" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 11.svg" class="wide-logo" alt="Porsche" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 12.svg" alt="Bugatti" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 13.svg" class="tall-logo" alt="ADNOC" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 14.svg" alt="Edge" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 15.svg" alt="Nakheel" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 16.svg" class="xl-logo" alt="Liwa 2026" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 17.png" class="xl-logo" alt="DP World" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 18.svg" class="xl-logo" alt="Rolls Royce" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 19.svg" class="tall-logo" alt="Porsche Crest" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 20.svg" alt="Honda" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 21.svg" class="wide-logo" alt="Starbucks" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 22.svg" alt="Subway" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas" loading="eager" decoding="async"></div>
-        <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike" loading="eager" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 01.svg" class="tall-logo" alt="Ferrari" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 02.svg" alt="Formula 1" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 03.svg" alt="Kia" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 04.svg" class="tall-logo" alt="Mercedes" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 05.svg" class="xl-logo" alt="Red Bull" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 06.svg" alt="Emaar" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 07.png" class="xl-logo" alt="Emirates" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 08.svg" class="xl-logo" alt="Expo 2020" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 09.svg" alt="IMAX" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 10.png" alt="Netflix" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 11.svg" class="wide-logo" alt="Porsche" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 12.svg" alt="Bugatti" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 13.svg" class="tall-logo" alt="ADNOC" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 14.svg" alt="Edge" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 15.svg" alt="Nakheel" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 16.svg" class="xl-logo" alt="Liwa 2026" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 17.png" class="xl-logo" alt="DP World" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 18.svg" class="xl-logo" alt="Rolls Royce" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 19.svg" class="tall-logo" alt="Porsche Crest" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 20.svg" alt="Honda" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 21.svg" class="wide-logo" alt="Starbucks" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 22.svg" alt="Subway" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 23.svg" class="tall-logo" alt="Adidas" loading="lazy" decoding="async"></div>
+        <div class="logo-marquee-item"><img src="CLIENT 24.svg" class="tall-logo" alt="Nike" loading="lazy" decoding="async"></div>
       </div>
     </div><!-- /.clients-marquee-wrap -->
 
@@ -2304,7 +2312,8 @@ const isMobile = window.innerWidth <= 768;
   }, 38);
 
   const bgPreload = new Image();
-  bgPreload.src = 'IMG_5937.JPG';
+  const _supportsWebP = document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0;
+  bgPreload.src = _supportsWebP ? 'IMG_5937.webp' : 'IMG_5937.JPG';
   if (bgPreload.complete) { imageDone = true; }
   else { bgPreload.onload = bgPreload.onerror = () => { imageDone = true; checkReveal(); }; }
 
@@ -2540,11 +2549,20 @@ function drawGrain() {
 }
 /* Mobile: 80ms interval (~12fps) — still looks like grain, half the CPU cost vs 42ms */
 let grainIntervalId = setInterval(drawGrain, isMobileGrain ? 80 : 42);
+// Single visibility handler — pauses grain interval, video, and sets global flag
+// that drawParticles/animateFlicker check so they stop re-scheduling when hidden
+let _pageVisible = true;
 document.addEventListener('visibilitychange', () => {
+  _pageVisible = !document.hidden;
   if (document.hidden) {
     clearInterval(grainIntervalId);
+    if (videoEl && !videoEl.paused) videoEl.pause();
   } else {
     grainIntervalId = setInterval(drawGrain, isMobileGrain ? 80 : 42);
+    if (videoEl && videoEl.paused && landingVisible) videoEl.play().catch(() => {});
+    // Restart RAF loops that self-cancelled when page was hidden
+    drawParticles();
+    animateFlicker();
   }
 });
 
@@ -2564,6 +2582,7 @@ function spawnEmber() {
   };
 }
 function drawParticles() {
+  if (!_pageVisible) return;
   requestAnimationFrame(drawParticles);
   if (!landingVisible) return;
   partCtx.clearRect(0, 0, partCanvas.width, partCanvas.height);
@@ -2586,6 +2605,7 @@ const flickerRight = document.getElementById('flickerRight');
 let flickerTarget = 0.13, flickerCurrent = 0.13;
 let flickerRTarget = 0.11, flickerRCurrent = 0.11;
 function animateFlicker() {
+  if (!_pageVisible) return;
   requestAnimationFrame(animateFlicker);
   if (!landingVisible) return;
   if (Math.random() < 0.04) flickerTarget  = 0.04 + Math.random() * 0.22;
@@ -2752,13 +2772,6 @@ const videoTime    = document.getElementById('videoTime');
   };
   document.addEventListener('touchstart', unlock, { once: true });
   document.addEventListener('click', unlock, { once: true });
-
-  // iOS sometimes ignores the `loop` attribute when play() is triggered
-  // programmatically — restart manually on ended as a safety net
-  videoEl.addEventListener('ended', () => {
-    videoEl.currentTime = 0;
-    videoEl.play().catch(() => {});
-  });
 })();
 
 function formatTime(s) {
@@ -2983,54 +2996,57 @@ videoEl.addEventListener('timeupdate', () => {
     vid.preload    = 'none';
     vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0;';
 
-    /* Seamless crossfade loop — clone fades in over the original near the end */
-    let crossfading = false;
-    vid.addEventListener('timeupdate', () => {
-      if (!vid.duration || crossfading) return;
-      const remaining = vid.duration - vid.currentTime;
-      if (remaining > 0.8) return;
+    /* Double-buffer crossfade loop — vidB is pre-created and persistent,
+       no createElement/removeChild per loop, no repeated decode cost */
+    const vidB = document.createElement('video');
+    vidB.src        = vid.src;
+    vidB.muted      = true;
+    vidB.loop       = false;
+    vidB.playsInline = true;
+    vidB.preload    = 'none';
+    vidB.style.cssText = vid.style.cssText;
+    vidB.style.opacity = '0';
 
-      crossfading = true;
+    let activeVid = vid, backVid = vidB, crossfading = false;
 
-      // Clone the video, start it at 0
-      const clone = document.createElement('video');
-      clone.src = vid.src;
-      clone.muted = true;
-      clone.loop = false;
-      clone.playsInline = true;
-      clone.style.cssText = vid.style.cssText;
-      clone.style.opacity = '0';
-      clone.style.transition = 'opacity 0.8s ease';
-      face.appendChild(clone);
+    function setupCrossfade(current, next) {
+      current.addEventListener('timeupdate', function onTimeUpdate() {
+        if (!current.duration || crossfading) return;
+        if (current.duration - current.currentTime > 0.8) return;
+        crossfading = true;
 
-      clone.play().catch(() => {});
+        next.currentTime = 0;
+        next.style.transition = 'none';
+        next.style.opacity = '0';
+        next.play().catch(() => {});
 
-      // Crossfade: bring clone in, take original out
-      requestAnimationFrame(() => {
-        clone.style.opacity = '1';
-        vid.style.transition = 'opacity 0.8s ease';
-        vid.style.opacity = '0';
+        requestAnimationFrame(() => {
+          next.style.transition = 'opacity 0.8s ease';
+          next.style.opacity = '1';
+          current.style.transition = 'opacity 0.8s ease';
+          current.style.opacity = '0';
+        });
+
+        setTimeout(() => {
+          current.pause();
+          current.currentTime = 0;
+          current.style.transition = '';
+          current.style.opacity = '0';
+          next.style.transition = '';
+          next.style.opacity = '1';
+          crossfading = false;
+          // Swap buffer roles
+          [activeVid, backVid] = [next, current];
+          setupCrossfade(activeVid, backVid);
+          current.removeEventListener('timeupdate', onTimeUpdate);
+        }, 850);
       });
+    }
 
-      // Once crossfade is done, swap roles
-      setTimeout(() => {
-        vid.pause();
-        vid.currentTime = 0;
-        vid.style.transition = '';
-        vid.style.opacity = '1';
-        clone.style.transition = '';
-
-        // Hand the timeupdate listener to the clone by mirroring state
-        crossfading = false;
-
-        // Remove clone, original takes over seamlessly from clone's position
-        vid.currentTime = clone.currentTime;
-        vid.play().catch(() => {});
-        face.removeChild(clone);
-      }, 850);
-    });
+    setupCrossfade(vid, vidB);
 
     face.appendChild(vid);
+    face.appendChild(vidB);
     card.appendChild(face);
     scene.appendChild(card);
   }
