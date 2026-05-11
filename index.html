@@ -849,11 +849,13 @@
 
   .logo-marquee-track {
     display: flex;
-    flex-shrink: 0;
     align-items: center;
-    min-width: 200%;
+    /* Exactly 2x the content width so translateX(-50%) loops perfectly */
+    width: max-content;
     animation: marqueeScroll 60s linear infinite;
     animation-play-state: paused;
+    /* Large negative delay so iOS GPU is already warmed up at start */
+    animation-delay: -30s;
   }
 
   .logo-marquee-track.ready {
@@ -1422,6 +1424,7 @@
     }
     .logo-marquee-track {
       animation-duration: 35s;
+      animation-delay: -17s;
     }
     .logo-marquee-item {
       padding: 0 18px;
@@ -4240,29 +4243,24 @@ window.addEventListener('load', () => {
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
 
-/* ── MARQUEE PRELOADER — wait for all logos before animating ── */
+/* ── MARQUEE PRELOADER ── */
 (function() {
   var track = document.querySelector('.logo-marquee-track');
   if (!track) return;
   var imgs = Array.from(track.querySelectorAll('img'));
-  // Only check first set (half are duplicates)
-  var unique = imgs.slice(0, imgs.length / 2);
+  var unique = imgs.slice(0, Math.floor(imgs.length / 2));
   var loaded = 0;
   function onLoad() {
     loaded++;
-    if (loaded >= unique.length) {
-      track.classList.add('ready');
-    }
+    if (loaded >= unique.length) track.classList.add('ready');
   }
   unique.forEach(function(img) {
-    if (img.complete && img.naturalWidth > 0) {
-      onLoad();
-    } else {
+    if (img.complete && img.naturalWidth > 0) { onLoad(); }
+    else {
       img.addEventListener('load', onLoad);
-      img.addEventListener('error', onLoad); // count errors too so it never hangs
+      img.addEventListener('error', onLoad);
     }
   });
-  // Fallback — start after 3s no matter what
   setTimeout(function() { track.classList.add('ready'); }, 3000);
 })();
 </script>
