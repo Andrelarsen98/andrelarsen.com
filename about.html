@@ -1707,10 +1707,19 @@ window.FPV_GOGGLES_MESH = {
       let footerRafId = null;
       let cachedW = 0, cachedH = 0;
 
-      function buildFooterMask() {
+      let _footerLastW = 0;
+      function buildFooterMask(forceRebuild) {
+        const currentW = window.innerWidth;
+        // On mobile, only rebuild when width changes — ignore height-only changes
+        // caused by the browser address bar appearing/disappearing (which triggers
+        // a resize event and a mid-scroll layout reflow → scroll position jump).
+        if (!forceRebuild && currentW === _footerLastW) return;
+        _footerLastW = currentW;
         const dpr = window.devicePixelRatio || 1;
-        cachedW = window.innerWidth;
-        cachedH = window.innerHeight;
+        cachedW = currentW;
+        // Use the locked --app-height on mobile so canvas size never changes mid-scroll
+        const lockedH = parseInt(document.documentElement.style.getPropertyValue('--app-height'), 10);
+        cachedH = (lockedH > 0) ? lockedH : window.innerHeight;
         cols = Math.floor(cachedW / CW);
         rows = Math.floor(cachedH / CH);
         fCanvas.width  = cachedW * dpr;
@@ -1787,7 +1796,7 @@ window.FPV_GOGGLES_MESH = {
       }, { threshold: 0.05 });
       footerObserver.observe(fCanvas);
 
-      buildFooterMask();
+      buildFooterMask(true);
       window.addEventListener('resize', buildFooterMask);
       renderFooter();
 
