@@ -835,8 +835,8 @@
      ── CLIENTS MARQUEE ──
   ══════════════════════════════════════ */
   @keyframes marqueeScroll {
-    from { transform: translateZ(0) translateX(0); }
-    to   { transform: translateZ(0) translateX(-50%); }
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
   }
 
   .logo-marquee-row {
@@ -853,9 +853,11 @@
     align-items: center;
     min-width: 200%;
     animation: marqueeScroll 60s linear infinite;
-    animation-delay: -2s;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    animation-play-state: paused;
+  }
+
+  .logo-marquee-track.ready {
+    animation-play-state: running;
   }
 
   .logo-marquee-item {
@@ -1420,7 +1422,6 @@
     }
     .logo-marquee-track {
       animation-duration: 35s;
-      animation-delay: -2s;
     }
     .logo-marquee-item {
       padding: 0 18px;
@@ -4238,6 +4239,32 @@ window.addEventListener('load', () => {
 
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
+
+/* ── MARQUEE PRELOADER — wait for all logos before animating ── */
+(function() {
+  var track = document.querySelector('.logo-marquee-track');
+  if (!track) return;
+  var imgs = Array.from(track.querySelectorAll('img'));
+  // Only check first set (half are duplicates)
+  var unique = imgs.slice(0, imgs.length / 2);
+  var loaded = 0;
+  function onLoad() {
+    loaded++;
+    if (loaded >= unique.length) {
+      track.classList.add('ready');
+    }
+  }
+  unique.forEach(function(img) {
+    if (img.complete && img.naturalWidth > 0) {
+      onLoad();
+    } else {
+      img.addEventListener('load', onLoad);
+      img.addEventListener('error', onLoad); // count errors too so it never hangs
+    }
+  });
+  // Fallback — start after 3s no matter what
+  setTimeout(function() { track.classList.add('ready'); }, 3000);
+})();
 </script>
 </body>
 </html>
