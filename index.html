@@ -874,8 +874,6 @@
     width: auto;
     max-width: 90px;
     object-fit: contain;
-    filter: brightness(0) invert(1);
-    -webkit-filter: brightness(0) invert(1);
     flex-shrink: 0;
   }
   .logo-marquee-item img.tall-logo { height: 24px; max-width: 24px; }
@@ -1403,6 +1401,9 @@
     overflow: hidden;
     position: relative;
     z-index: 1;
+    /* Force stacking context so overflow:hidden clips GPU-composited child */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
     isolation: isolate;
     mask-image: linear-gradient(90deg, transparent 0%, black 15%, black 85%, transparent 100%);
     -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 15%, black 85%, transparent 100%);
