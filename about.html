@@ -1945,19 +1945,39 @@ window.FPV_GOGGLES_MESH = {
       ctx.drawImage(refC, 0, 0);
     }
 
+    // Run resize immediately so canvas has correct dimensions before scroll reaches it.
+    // Guard against height-only resize events (mobile address bar hide/show) which
+    // cause layout reflow and scroll jump when canvas.style.height changes mid-scroll.
+    let _manifestoLastW = 0;
+    function guardedResize() {
+      const currentW = window.innerWidth;
+      if (currentW === _manifestoLastW) return;
+      _manifestoLastW = currentW;
+      resize();
+    }
+
+    resize();
+    _manifestoLastW = window.innerWidth;
+    window.addEventListener('resize', guardedResize);
+
+    const manifestoObserver = new IntersectionObserver(entries => {
+      manifestoVisible = entries[0].isIntersecting;
+      if (manifestoVisible && !manifestoRafId) frame();
+    }, { threshold: 0.05 });
+    manifestoObserver.observe(canvas);
+
+    // Rebuild mask once DrukWide confirms loaded — but only if width hasn't changed
+    // (avoids a late resize() call that shifts layout mid-scroll on mobile)
     Promise.all([
       document.fonts.load(`900 italic 200px DrukWide, 'Arial Black', Arial, sans-serif`),
       document.fonts.ready
     ]).then(() => {
-      resize();
-      window.addEventListener('resize', resize);
-
-      const manifestoObserver = new IntersectionObserver(entries => {
-        manifestoVisible = entries[0].isIntersecting;
-        if (manifestoVisible && !manifestoRafId) frame();
-      }, { threshold: 0.05 });
-      manifestoObserver.observe(canvas);
-    });
+      if (window.innerWidth === _manifestoLastW) {
+        buildMask();
+      } else {
+        guardedResize();
+      }
+    }).catch(() => {});
   })();
   </script>
   <script>
