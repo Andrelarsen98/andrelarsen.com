@@ -4464,19 +4464,9 @@ window.addEventListener('load', () => {
       runAcquire();
       obs.disconnect();
     }
-  }, { root: sc, threshold: 0.05 });
+  }, { root: sc, threshold: 0.15 });
 
   obs.observe(section);
-
-  // Hard fallback — force all cells to acquired state if animation never fires
-  // (prevents logos being permanently invisible on mobile)
-  setTimeout(() => {
-    if (!fired) {
-      fired = true;
-      obs.disconnect();
-      cells.forEach(cell => cell.classList.add('acquired'));
-    }
-  }, 5000);
 })();
 
 /* ══════════════════════════════════════════════════════════════
