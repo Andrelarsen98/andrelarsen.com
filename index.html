@@ -844,10 +844,6 @@
     overflow: hidden;
     height: 52px;
     width: 100%;
-    /* Filter lives HERE — above the will-change:transform track.
-       iOS Safari drops filter on images inside GPU-composited layers
-       after 2-3s; keeping it on the parent row avoids that bug. */
-    filter: brightness(0) invert(1);
   }
 
   .logo-marquee-track {
@@ -883,6 +879,8 @@
     opacity: 1;
     pointer-events: none;
     flex-shrink: 0;
+    filter: brightness(0) invert(1);
+    -webkit-filter: brightness(0) invert(1);
   }
   .logo-marquee-item img.tall-logo { height: 26px; max-width: 26px; }
   .logo-marquee-item img.wide-logo { height: 11px; max-width: 100px; }
@@ -1422,23 +1420,21 @@
     .clients-label { margin-bottom: 14px; font-size: 11px; }
     .clients-marquee-wrap {
       max-width: 100%;
-      /* Drop mask entirely on mobile — -webkit-mask + transform conflict clips logos on iOS */
       mask-image: none;
       -webkit-mask-image: none;
-      /* Keep transform for stacking context but reset to simple value */
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
+      transform: none;
+      -webkit-transform: none;
     }
     .logo-marquee-row {
-      /* No side padding — overflow:hidden clips padded content on iOS */
-      padding: 0;
+      /* Side padding creates breathing room without masking */
+      padding: 0 20px;
     }
     .logo-marquee-track {
-      /* Faster scroll on narrow screens so logos don't take ages to appear */
       animation-duration: 35s;
       animation-play-state: running;
       animation-delay: 0s;
-      will-change: transform;
+      will-change: auto;
+      transform: none;
     }
     .logo-marquee-item {
       padding: 0 20px;
