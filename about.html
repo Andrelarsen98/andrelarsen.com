@@ -14,7 +14,12 @@
     html::-webkit-scrollbar { display: none; }
     body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; overscroll-behavior: none; }
     canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; z-index: 1; }
+    #holo { will-change: opacity; }
     #footerAsciiCanvas { position: static; inset: auto; width: 100%; height: 100%; z-index: auto; }
+    .about-footer  { contain: layout paint; }
+    .disciplines-section { contain: layout paint; }
+    .brands-section { contain: layout paint; }
+    .manifesto-section { contain: layout paint; }
     .scroll-space { height: 100vh; }
     .test-space { display: none; }
     .scanline-fixed {
@@ -392,8 +397,10 @@
       padding: 0 20px 80px;
       opacity: 0;
       transition: opacity 0.5s ease;
+      contain: layout paint;
     }
-    .profile-section:before {
+    /* ── SHARED DOT-MATRIX OVERLAY ── */
+    .dot-bg:before {
       content: '';
       position: absolute;
       inset: 0;
@@ -410,10 +417,7 @@
         var(--dot-color);
     }
     @media (min-width: 1280px) {
-      .profile-section:before {
-        --dot-size: 4px;
-        --dot-space: 5px;
-      }
+      .dot-bg:before { --dot-size: 4px; --dot-space: 5px; }
     }
     .profile-section > * {
       position: relative;
@@ -532,28 +536,7 @@
       overflow: hidden;
       background: #000;
     }
-    .about-footer:before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      opacity: .07;
-      --dot-bg: #000;
-      --dot-color: #fff;
-      --dot-size: 2px;
-      --dot-space: 3px;
-      background:
-        linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-        linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-        var(--dot-color);
-    }
-    @media (min-width: 1280px) {
-      .about-footer:before {
-        --dot-size: 4px;
-        --dot-space: 5px;
-      }
-    }
+
     .about-footer > * {
       position: relative;
       z-index: 1;
@@ -623,38 +606,6 @@
     .footer-back:hover { background: rgba(255,255,255,0.22); letter-spacing: 0.32em; }
     .footer-spacer { flex-shrink: 0; height: 28px; }
 
-    /* ── GLOBE ── */
-    .globe-wrap {
-      position: relative;
-      width: 100%;
-      height: 70vw;
-      max-height: 600px;
-      min-height: 280px;
-      flex: 0 0 auto;
-      overflow: hidden;
-      background: transparent;
-    }
-    #globeCanvas {
-      position: absolute;
-      bottom: -25%;
-      left: 50%;
-      transform: translateX(-50%);
-      display: block;
-      /* width/height set by JS */
-    }
-    #globeStars {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-    @media (max-width: 768px) {
-      .globe-wrap {
-        height: 90vw;
-        max-height: 420px;
-      }
-    }
     @media (max-width: 768px) {
       .about-footer { min-height: 100vh; }
       .footer-info {
@@ -699,25 +650,7 @@
     background: #000;
     padding: 0 0 0;
   }
-  .disciplines-section:before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: .07;
-    --dot-bg: #000;
-    --dot-color: #fff;
-    --dot-size: 2px;
-    --dot-space: 3px;
-    background:
-      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-      var(--dot-color);
-  }
-  @media (min-width: 1280px) {
-    .disciplines-section:before { --dot-size: 4px; --dot-space: 5px; }
-  }
+
   .disciplines-section > * { position: relative; z-index: 1; }
   .disciplines-header {
     display: flex;
@@ -806,25 +739,7 @@
     padding: 72px 28px 80px;
     overflow: hidden;
   }
-  .brands-section:before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: .07;
-    --dot-bg: #000;
-    --dot-color: #fff;
-    --dot-size: 2px;
-    --dot-space: 3px;
-    background:
-      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-      var(--dot-color);
-  }
-  @media (min-width: 1280px) {
-    .brands-section:before { --dot-size: 4px; --dot-space: 5px; }
-  }
+
   .brands-section > * { position: relative; z-index: 1; }
   .brands-label {
     display: flex;
@@ -883,25 +798,7 @@
     overflow: hidden;
     border-top: 1px solid rgba(255,255,255,0.08);
   }
-  .manifesto-section:before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: .07;
-    --dot-bg: #000;
-    --dot-color: #fff;
-    --dot-size: 2px;
-    --dot-space: 3px;
-    background:
-      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
-      var(--dot-color);
-  }
-  @media (min-width: 1280px) {
-    .manifesto-section:before { --dot-size: 4px; --dot-space: 5px; }
-  }
+
   .manifesto-section > * { position: relative; z-index: 1; }
   .manifesto-kicker {
     display: flex;
@@ -1011,7 +908,7 @@
   </div>
   <div class="scroll-space" aria-hidden="true"></div>
   <div class="test-space" aria-hidden="true"></div>
-  <div class="profile-section">
+  <div class="profile-section dot-bg">
     <div class="profile-label">PROFILE</div>
     <div class="profile-headline">VISUAL ARTIST &<br><em>CINEMATOGRAPHER.</em></div>
     <div class="profile-body">
@@ -1051,7 +948,7 @@
   </div>
 
   <!-- ── DISCIPLINES ── -->
-  <div class="disciplines-section">
+  <div class="disciplines-section dot-bg">
     <div class="disciplines-header">WHAT I DO</div>
     <div class="discipline-row">
       <span class="disc-num">01</span>
@@ -1081,7 +978,7 @@
   </div>
 
   <!-- ── SELECTED BRANDS ── -->
-  <div class="brands-section">
+  <div class="brands-section dot-bg">
     <div class="brands-label">TRUSTED BY</div>
     <div class="brands-grid">
       <span class="brand-name brand-xl">GoPro</span>
@@ -1101,7 +998,7 @@
   </div>
 
   <!-- ── MANIFESTO ── -->
-  <div class="manifesto-section">
+  <div class="manifesto-section dot-bg">
     <div class="manifesto-kicker">PHILOSOPHY</div>
     <canvas id="manifestoCanvas"></canvas>
     <div class="manifesto-cta">
@@ -1111,13 +1008,9 @@
     </div>
   </div>
 
-  <footer class="about-footer">
+  <footer class="about-footer dot-bg">
     <div class="footer-ascii-wrap">
       <canvas id="footerAsciiCanvas"></canvas>
-    </div>
-    <div class="globe-wrap">
-      <canvas id="globeStars"></canvas>
-      <canvas id="globeCanvas"></canvas>
     </div>
     <div class="footer-info">
       <div class="footer-col">
@@ -1454,47 +1347,26 @@ window.FPV_GOGGLES_MESH = {
       return p;
     }
 
-    function perspective(fov, aspect, near, far) {
-      const f = 1 / Math.tan(fov / 2);
-      const nf = 1 / (near - far);
-      return new Float32Array([
-        f / aspect, 0, 0, 0,
-        0, f, 0, 0,
-        0, 0, (far + near) * nf, -1,
-        0, 0, (2 * far * near) * nf, 0
-      ]);
-    }
-
-    function multiply(a, b) {
-      const out = new Float32Array(16);
-      for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-          out[i * 4 + j] =
-            a[i * 4 + 0] * b[0 * 4 + j] +
-            a[i * 4 + 1] * b[1 * 4 + j] +
-            a[i * 4 + 2] * b[2 * 4 + j] +
-            a[i * 4 + 3] * b[3 * 4 + j];
-        }
-      }
-      return out;
-    }
-
-    function rotationX(a) {
-      const c = Math.cos(a), s = Math.sin(a);
-      return new Float32Array([1,0,0,0, 0,c,s,0, 0,-s,c,0, 0,0,0,1]);
-    }
-
-    function rotationY(a) {
-      const c = Math.cos(a), s = Math.sin(a);
-      return new Float32Array([c,0,-s,0, 0,1,0,0, s,0,c,0, 0,0,0,1]);
-    }
-
-    function translation(x,y,z) {
-      return new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, x,y,z,1]);
-    }
-
     const meshProg = program(meshVS, meshFS);
     const pointProg = program(pointVS, pointFS);
+
+    // Cache uniform locations — never look these up per-frame
+    const uMesh = {
+      proj:      gl.getUniformLocation(meshProg, 'uProj'),
+      view:      gl.getUniformLocation(meshProg, 'uView'),
+      model:     gl.getUniformLocation(meshProg, 'uModel'),
+      camPos:    gl.getUniformLocation(meshProg, 'uCamPos'),
+      time:      gl.getUniformLocation(meshProg, 'uTime'),
+      shell:     gl.getUniformLocation(meshProg, 'uShell'),
+      shellAlpha:gl.getUniformLocation(meshProg, 'uShellAlpha'),
+      scanY:     gl.getUniformLocation(meshProg, 'uScanY'),
+    };
+    const uPoint = {
+      proj:  gl.getUniformLocation(pointProg, 'uProj'),
+      view:  gl.getUniformLocation(pointProg, 'uView'),
+      model: gl.getUniformLocation(pointProg, 'uModel'),
+      time:  gl.getUniformLocation(pointProg, 'uTime'),
+    };
 
     const posBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
@@ -1518,8 +1390,62 @@ window.FPV_GOGGLES_MESH = {
     let currentPointerX = 0.5, currentPointerY = 0.5;
     let time = 0;
 
+    // Pre-allocated matrices — reused every frame, no GC pressure
+    const _proj    = new Float32Array(16);
+    const _camArr  = new Float32Array(3);
+    const _view    = new Float32Array(16);
+    const _rotY    = new Float32Array(16);
+    const _rotX    = new Float32Array(16);
+    const _trans   = new Float32Array(16);
+    const _tmp     = new Float32Array(16);
+    const _model   = new Float32Array(16);
+
     function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
     function lerp(a, b, t) { return a + (b - a) * t; }
+
+    // Write perspective into existing Float32Array `m`
+    function perspInto(m, fov, aspect, near, far) {
+      const f = 1 / Math.tan(fov / 2);
+      const nf = 1 / (near - far);
+      m[0]=f/aspect; m[1]=0; m[2]=0;  m[3]=0;
+      m[4]=0;        m[5]=f; m[6]=0;  m[7]=0;
+      m[8]=0;        m[9]=0; m[10]=(far+near)*nf; m[11]=-1;
+      m[12]=0; m[13]=0; m[14]=(2*far*near)*nf; m[15]=0;
+      return m;
+    }
+    // Write translation into existing Float32Array `m`
+    function transInto(m, x, y, z) {
+      m[0]=1; m[1]=0; m[2]=0; m[3]=0;
+      m[4]=0; m[5]=1; m[6]=0; m[7]=0;
+      m[8]=0; m[9]=0; m[10]=1; m[11]=0;
+      m[12]=x; m[13]=y; m[14]=z; m[15]=1;
+      return m;
+    }
+    // Write rotationX into existing Float32Array `m`
+    function rotXInto(m, a) {
+      const c=Math.cos(a), s=Math.sin(a);
+      m[0]=1; m[1]=0; m[2]=0; m[3]=0;
+      m[4]=0; m[5]=c; m[6]=s; m[7]=0;
+      m[8]=0; m[9]=-s; m[10]=c; m[11]=0;
+      m[12]=0; m[13]=0; m[14]=0; m[15]=1;
+      return m;
+    }
+    // Write rotationY into existing Float32Array `m`
+    function rotYInto(m, a) {
+      const c=Math.cos(a), s=Math.sin(a);
+      m[0]=c; m[1]=0; m[2]=-s; m[3]=0;
+      m[4]=0; m[5]=1; m[6]=0; m[7]=0;
+      m[8]=s; m[9]=0; m[10]=c; m[11]=0;
+      m[12]=0; m[13]=0; m[14]=0; m[15]=1;
+      return m;
+    }
+    // Multiply a*b into output `o`
+    function mulInto(o, a, b) {
+      for(let i=0;i<4;i++) for(let j=0;j<4;j++) {
+        o[i*4+j] = a[i*4+0]*b[j] + a[i*4+1]*b[4+j] + a[i*4+2]*b[8+j] + a[i*4+3]*b[12+j];
+      }
+      return o;
+    }
 
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 1.5);
@@ -1558,24 +1484,24 @@ window.FPV_GOGGLES_MESH = {
     function renderMesh(shell, alpha, model, view, proj, cam, scanY) {
       gl.useProgram(meshProg);
       bindMeshAttribs();
-      gl.uniformMatrix4fv(gl.getUniformLocation(meshProg, 'uProj'), false, proj);
-      gl.uniformMatrix4fv(gl.getUniformLocation(meshProg, 'uView'), false, view);
-      gl.uniformMatrix4fv(gl.getUniformLocation(meshProg, 'uModel'), false, model);
-      gl.uniform3fv(gl.getUniformLocation(meshProg, 'uCamPos'), cam);
-      gl.uniform1f(gl.getUniformLocation(meshProg, 'uTime'), time);
-      gl.uniform1f(gl.getUniformLocation(meshProg, 'uShell'), shell);
-      gl.uniform1f(gl.getUniformLocation(meshProg, 'uShellAlpha'), alpha);
-      gl.uniform1f(gl.getUniformLocation(meshProg, 'uScanY'), scanY);
+      gl.uniformMatrix4fv(uMesh.proj,  false, proj);
+      gl.uniformMatrix4fv(uMesh.view,  false, view);
+      gl.uniformMatrix4fv(uMesh.model, false, model);
+      gl.uniform3fv(uMesh.camPos, cam);
+      gl.uniform1f(uMesh.time,       time);
+      gl.uniform1f(uMesh.shell,      shell);
+      gl.uniform1f(uMesh.shellAlpha, alpha);
+      gl.uniform1f(uMesh.scanY,      scanY);
       gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
     }
 
     function renderPoints(model, view, proj) {
       gl.useProgram(pointProg);
       bindPointAttribs();
-      gl.uniformMatrix4fv(gl.getUniformLocation(pointProg, 'uProj'), false, proj);
-      gl.uniformMatrix4fv(gl.getUniformLocation(pointProg, 'uView'), false, view);
-      gl.uniformMatrix4fv(gl.getUniformLocation(pointProg, 'uModel'), false, model);
-      gl.uniform1f(gl.getUniformLocation(pointProg, 'uTime'), time);
+      gl.uniformMatrix4fv(uPoint.proj,  false, proj);
+      gl.uniformMatrix4fv(uPoint.view,  false, view);
+      gl.uniformMatrix4fv(uPoint.model, false, model);
+      gl.uniform1f(uPoint.time, time);
       gl.drawArrays(gl.POINTS, 0, positions.length / 3);
     }
 
@@ -1606,19 +1532,26 @@ window.FPV_GOGGLES_MESH = {
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
 
-      const proj = perspective(Math.PI / 5.0, width / height, 0.1, 100.0);
       const camZ = isMobilePage ? 2.72 : 2.35;
-      const cam = new Float32Array([0, 0, camZ]);
-      const view = translation(0, 0, -camZ);
+      perspInto(_proj, Math.PI / 5.0, width / height, 0.1, 100.0);
+      _camArr[0] = 0; _camArr[1] = 0; _camArr[2] = camZ;
+      transInto(_view, 0, 0, -camZ);
+
       const tilt = (currentPointerY - 0.5) * 0.08;
-      const yaw = currentProgress * Math.PI + time * 0.18 + (currentPointerX - 0.5) * 0.06;
-      const translate = translation(0, isMobilePage ? -0.035 : -0.06, 0);
-      const model = multiply(translate, multiply(rotationY(yaw), rotationX(tilt)));
+      const yaw  = currentProgress * Math.PI + time * 0.18 + (currentPointerX - 0.5) * 0.06;
+      const ty   = isMobilePage ? -0.035 : -0.06;
+
+      rotYInto(_rotY, yaw);
+      rotXInto(_rotX, tilt);
+      transInto(_trans, 0, ty, 0);
+      mulInto(_tmp, _rotY, _rotX);
+      mulInto(_model, _trans, _tmp);
+
       const scanY = -0.12 + 0.38 * ((Math.sin(time * 0.7) * 0.5) + 0.5);
 
-      renderMesh(0.0, 0.0, model, view, proj, cam, scanY);
-      renderMesh(0.014, 0.0, model, view, proj, cam, scanY);
-      renderPoints(model, view, proj);
+      renderMesh(0.0, 0.0, _model, _view, _proj, _camArr, scanY);
+      renderMesh(0.014, 0.0, _model, _view, _proj, _camArr, scanY);
+      renderPoints(_model, _view, _proj);
       canvas.style.opacity = flickerVal;
     }
 
@@ -1753,36 +1686,38 @@ window.FPV_GOGGLES_MESH = {
 
       let cols, rows, mask, cellChar, cellTimer;
       let footerVisible = false;
+      let footerRafId = null;
+      let cachedW = 0, cachedH = 0;
 
       function buildFooterMask() {
-        const W = window.innerWidth;
-        const H = window.innerHeight;
         const dpr = window.devicePixelRatio || 1;
-        cols = Math.floor(W / CW);
-        rows = Math.floor(H / CH);
-        fCanvas.width  = W * dpr;
-        fCanvas.height = H * dpr;
-        fCanvas.style.width  = W + 'px';
-        fCanvas.style.height = H + 'px';
+        cachedW = window.innerWidth;
+        cachedH = window.innerHeight;
+        cols = Math.floor(cachedW / CW);
+        rows = Math.floor(cachedH / CH);
+        fCanvas.width  = cachedW * dpr;
+        fCanvas.height = cachedH * dpr;
+        fCanvas.style.width  = cachedW + 'px';
+        fCanvas.style.height = cachedH + 'px';
         fCtx.setTransform(1, 0, 0, 1, 0, 0);
         fCtx.scale(dpr, dpr);
 
         const nc = document.createElement('canvas');
-        nc.width = W; nc.height = H;
+        nc.width = cachedW; nc.height = cachedH;
         const nx = nc.getContext('2d');
-        let fs = H * 0.40;
+        let fs = cachedH * 0.40;
         nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
         let nw = nx.measureText(FOOTER_NAME).width;
-        if (nw > W * 0.78) { fs *= (W * 0.78) / nw; }
+        if (nw > cachedW * 0.78) { fs *= (cachedW * 0.78) / nw; }
         nx.font = `900 italic ${fs}px Arial Black,Arial,sans-serif`;
         const tw = nx.measureText(FOOTER_NAME).width;
         nx.fillStyle = '#fff';
         nx.textBaseline = 'middle';
         for (let ox = -2; ox <= 2; ox++)
           for (let oy = -2; oy <= 2; oy++)
-            nx.fillText(FOOTER_NAME, (W - tw) / 2 + ox, H / 2 + oy);
+            nx.fillText(FOOTER_NAME, (cachedW - tw) / 2 + ox, cachedH / 2 + oy);
 
-        const d = nx.getImageData(0, 0, W, H).data;
+        const d = nx.getImageData(0, 0, cachedW, cachedH).data;
         mask      = new Uint8Array(cols * rows);
         cellChar  = new Uint8Array(cols * rows);
         cellTimer = new Uint8Array(cols * rows);
@@ -1792,7 +1727,7 @@ window.FPV_GOGGLES_MESH = {
             const i  = r * cols + c;
             const px = Math.floor(c * CW + CW / 2);
             const py = Math.floor(r * CH + CH / 2);
-            if (px < W && py < H && d[(py * W + px) * 4 + 3] >= 40) mask[i] = 1;
+            if (px < cachedW && py < cachedH && d[(py * cachedW + px) * 4 + 3] >= 40) mask[i] = 1;
             cellChar[i]  = Math.floor(Math.random() * FOOTER_CHARS.length);
             cellTimer[i] = Math.floor(Math.random() * 6) + 2;
           }
@@ -1800,11 +1735,9 @@ window.FPV_GOGGLES_MESH = {
       }
 
       function renderFooter() {
-        requestAnimationFrame(renderFooter);
-        if (!footerVisible) return;
-        const W = window.innerWidth;
-        const H = window.innerHeight;
-        fCtx.clearRect(0, 0, W, H);
+        if (!footerVisible) { footerRafId = null; return; }
+        footerRafId = requestAnimationFrame(renderFooter);
+        fCtx.clearRect(0, 0, cachedW, cachedH);
         const fs = Math.round(CH * 0.92);
         fCtx.font = `bold ${fs}px "Courier New",Courier,monospace`;
         fCtx.textBaseline = 'top';
@@ -1812,7 +1745,6 @@ window.FPV_GOGGLES_MESH = {
           for (let c = 0; c < cols; c++) {
             const i = r * cols + c;
             if (mask[i] !== 1) continue;
-            const cx = c * CW + CW / 2, cy = r * CH + CH / 2;
             let drawX = c * CW, drawY = r * CH;
             cellTimer[i]--;
             if (cellTimer[i] <= 0) {
@@ -1833,6 +1765,7 @@ window.FPV_GOGGLES_MESH = {
       fCanvas.addEventListener('mouseleave', () => { fMouseX = -999; fMouseY = -999; });
       const footerObserver = new IntersectionObserver(entries => {
         footerVisible = entries[0].isIntersecting;
+        if (footerVisible && !footerRafId) renderFooter();
       }, { threshold: 0.05 });
       footerObserver.observe(fCanvas);
 
@@ -1920,8 +1853,12 @@ window.FPV_GOGGLES_MESH = {
       buildMask();
     }
 
+    let manifestoVisible = false;
+    let manifestoRafId = null;
+
     function frame() {
-      requestAnimationFrame(frame);
+      if (!manifestoVisible) { manifestoRafId = null; return; }
+      manifestoRafId = requestAnimationFrame(frame);
       const pw = W * dpr, ph = H * dpr;
 
       ctx.clearRect(0, 0, pw, ph);
@@ -1987,7 +1924,12 @@ window.FPV_GOGGLES_MESH = {
     ]).then(() => {
       resize();
       window.addEventListener('resize', resize);
-      frame();
+
+      const manifestoObserver = new IntersectionObserver(entries => {
+        manifestoVisible = entries[0].isIntersecting;
+        if (manifestoVisible && !manifestoRafId) frame();
+      }, { threshold: 0.05 });
+      manifestoObserver.observe(canvas);
     });
   })();
   </script>
@@ -1995,7 +1937,8 @@ window.FPV_GOGGLES_MESH = {
   // ── LOGO CHROME CANVAS ──
   (function() {
     const canvas = document.getElementById('logoChromaCanvas');
-    if (!canvas) return;
+    // Hidden on about page (WHO AM I? replaces it) — skip all work
+    if (!canvas || getComputedStyle(canvas).display === 'none') return;
     const ctx = canvas.getContext('2d');
 
     const TEXT1 = 'andré ';
@@ -2144,221 +2087,7 @@ window.FPV_GOGGLES_MESH = {
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
   </script>
-  <script>
-  // ── GLOBE WEBGL ──
-  window.addEventListener('load', function() {
-    const canvas = document.getElementById('globeCanvas');
-    const starCanvas = document.getElementById('globeStars');
-    if (!canvas) return;
-    const gl = canvas.getContext('webgl', { antialias: true, alpha: true });
-    if (!gl) return;
 
-    function setSize() {
-      const wrap = canvas.parentElement;
-      const W = wrap.offsetWidth;
-      const S = Math.round(W * 1.5);
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width  = S * dpr;
-      canvas.height = S * dpr;
-      canvas.style.width  = S + 'px';
-      canvas.style.height = S + 'px';
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      if (starCanvas) {
-        starCanvas.width  = Math.round(W * dpr);
-        starCanvas.height = Math.round(wrap.offsetHeight * dpr);
-        starCanvas.style.width  = W + 'px';
-        starCanvas.style.height = wrap.offsetHeight + 'px';
-      }
-    }
-    setSize();
-    window.addEventListener('resize', setSize);
-
-    const VS = `
-      attribute vec3 aPos;
-      attribute vec3 aNorm;
-      attribute vec2 aUV;
-      uniform mat4 uMVP;
-      uniform mat4 uModel;
-      varying vec3 vNorm;
-      varying vec3 vWorldPos;
-      varying vec2 vUV;
-      void main(){
-        vec4 world = uModel * vec4(aPos,1.0);
-        vWorldPos = world.xyz;
-        vNorm = normalize(mat3(uModel)*aNorm);
-        vUV = aUV;
-        gl_Position = uMVP * vec4(aPos,1.0);
-      }
-    `;
-    const FS = `
-      precision mediump float;
-      varying vec3 vNorm;
-      varying vec3 vWorldPos;
-      varying vec2 vUV;
-      uniform vec3 uSunDir;
-      uniform float uSunRise;
-      uniform float uTime;
-      float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
-      float noise(vec2 p){
-        vec2 i=floor(p),f=fract(p);
-        f=f*f*(3.0-2.0*f);
-        return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),
-                   mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
-      }
-      void main(){
-        vec3 N = normalize(vNorm);
-        vec3 S = normalize(uSunDir);
-        float diff = max(dot(N,S),0.0);
-        vec3 ocean = vec3(0.04,0.14,0.32);
-        float n1 = noise(vUV*6.0+uTime*0.01);
-        float n2 = noise(vUV*14.0-uTime*0.007);
-        vec3 land = mix(ocean, vec3(0.07,0.20,0.28), smoothstep(0.50,0.64,n1*0.6+n2*0.4)*0.6);
-        float cityN = noise(vUV*22.0)*noise(vUV*44.0+1.7);
-        float cityM = smoothstep(0.28,0.58,cityN);
-        float night = 1.0-smoothstep(0.0,0.22,diff);
-        land += vec3(1.0,0.72,0.28)*cityM*0.85*night;
-        vec3 col = mix(vec3(0.01,0.02,0.07), land, smoothstep(0.0,0.28,diff));
-        col += land*diff*0.55;
-        vec3 V = normalize(-vWorldPos);
-        float fr = pow(1.0-max(dot(N,V),0.0),3.5);
-        float sf = max(dot(N,S),0.0);
-        col += vec3(1.0,0.35,0.06)*fr*sf*2.8;
-        col += vec3(0.15,0.48,1.0)*fr*(1.0-sf*0.5)*1.3;
-        float term = smoothstep(0.0,0.18,diff)*(1.0-smoothstep(0.18,0.44,diff));
-        col += mix(vec3(0.9,0.1,0.0),vec3(0.1,0.5,1.0),dot(N,S)*0.5+0.5)*term*fr*4.0;
-        float behind = max(-dot(N,S),0.0);
-        col += mix(vec3(1.0,0.28,0.04),vec3(1.0,0.82,0.38),uSunRise)*pow(behind,5.5)*fr*uSunRise*3.5;
-        float alpha = clamp(0.92+fr*0.08, 0.0, 1.0)*smoothstep(-0.55,0.05,dot(N,V));
-        gl_FragColor = vec4(col,alpha);
-      }
-    `;
-
-    function mkShader(type, src) {
-      const s = gl.createShader(type);
-      gl.shaderSource(s, src); gl.compileShader(s); return s;
-    }
-    const prog = gl.createProgram();
-    gl.attachShader(prog, mkShader(gl.VERTEX_SHADER, VS));
-    gl.attachShader(prog, mkShader(gl.FRAGMENT_SHADER, FS));
-    gl.linkProgram(prog); gl.useProgram(prog);
-
-    const SEGS = 80;
-    const verts=[], norms=[], uvs=[], idx=[];
-    for(let y=0;y<=SEGS;y++){
-      const phi=(y/SEGS)*Math.PI;
-      for(let x=0;x<=SEGS;x++){
-        const th=(x/SEGS)*2*Math.PI;
-        const sx=Math.sin(phi)*Math.cos(th), sy=Math.cos(phi), sz=Math.sin(phi)*Math.sin(th);
-        verts.push(sx,sy,sz); norms.push(sx,sy,sz); uvs.push(x/SEGS,y/SEGS);
-      }
-    }
-    for(let y=0;y<SEGS;y++) for(let x=0;x<SEGS;x++){
-      const a=y*(SEGS+1)+x, b=a+SEGS+1;
-      idx.push(a,b,a+1,b,b+1,a+1);
-    }
-    function mkBuf(data, type){
-      const b=gl.createBuffer(); gl.bindBuffer(type||gl.ARRAY_BUFFER,b);
-      gl.bufferData(type||gl.ARRAY_BUFFER,data,gl.STATIC_DRAW); return b;
-    }
-    function mkAttr(name,buf,size){
-      const loc=gl.getAttribLocation(prog,name);
-      gl.bindBuffer(gl.ARRAY_BUFFER,buf);
-      gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc,size,gl.FLOAT,false,0,0);
-    }
-    const vB=mkBuf(new Float32Array(verts));
-    const nB=mkBuf(new Float32Array(norms));
-    const uB=mkBuf(new Float32Array(uvs));
-    const iB=mkBuf(new Uint16Array(idx),gl.ELEMENT_ARRAY_BUFFER);
-    mkAttr('aPos',vB,3); mkAttr('aNorm',nB,3); mkAttr('aUV',uB,2);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,iB);
-
-    const uMVP   = gl.getUniformLocation(prog,'uMVP');
-    const uModel = gl.getUniformLocation(prog,'uModel');
-    const uSunD  = gl.getUniformLocation(prog,'uSunDir');
-    const uSunR  = gl.getUniformLocation(prog,'uSunRise');
-    const uTime  = gl.getUniformLocation(prog,'uTime');
-
-    function m4(){ return new Float32Array(16); }
-    function eye(m){ m.fill(0);m[0]=m[5]=m[10]=m[15]=1;return m; }
-    function persp(m,fov,asp,n,f){
-      const t=1/Math.tan(fov/2); m.fill(0);
-      m[0]=t/asp;m[5]=t;m[10]=(f+n)/(n-f);m[11]=-1;m[14]=2*f*n/(n-f);return m;
-    }
-    function rotY(m,a){ const c=Math.cos(a),s=Math.sin(a); eye(m);m[0]=c;m[2]=s;m[8]=-s;m[10]=c;return m; }
-    function trans(m,x,y,z){ eye(m);m[12]=x;m[13]=y;m[14]=z;return m; }
-    function mul(o,a,b){
-      for(let i=0;i<4;i++) for(let j=0;j<4;j++){
-        o[i*4+j]=0; for(let k=0;k<4;k++) o[i*4+j]+=a[i*4+k]*b[k*4+j];
-      } return o;
-    }
-
-    const stars = Array.from({length:180},()=>({
-      x:Math.random(), y:Math.random(),
-      r:0.5+Math.random()*1.2,
-      a:0.3+Math.random()*0.7,
-      tw:Math.random()*Math.PI*2
-    }));
-
-    function drawStars(t) {
-      if (!starCanvas) return;
-      const ctx = starCanvas.getContext('2d');
-      const W = starCanvas.offsetWidth, H = starCanvas.offsetHeight;
-      const dpr = window.devicePixelRatio||1;
-      ctx.clearRect(0,0,starCanvas.width,starCanvas.height);
-      ctx.save(); ctx.scale(dpr,dpr);
-      stars.forEach(s => {
-        const tw = 0.65+0.35*Math.sin(t*1.1+s.tw);
-        ctx.beginPath();
-        ctx.arc(s.x*W, s.y*H*0.8, s.r, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(255,255,255,${(s.a*tw).toFixed(3)})`;
-        ctx.fill();
-      });
-      ctx.restore();
-    }
-
-    function scrollProgress() {
-      const wrap = canvas.parentElement;
-      const rect = wrap.getBoundingClientRect();
-      const p = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
-      return Math.max(0, Math.min(1, p * 1.8 - 0.4));
-    }
-
-    const P=m4(),Mo=m4(),Tr=m4(),MV=m4(),Tmp=m4();
-    let rot=-0.3, sunRise=0, lastT=0;
-    // Check shader compilation
-    const vs2 = gl.getShaderParameter(gl.getAttachedShaders(prog)[0], gl.COMPILE_STATUS);
-    const fs2 = gl.getShaderParameter(gl.getAttachedShaders(prog)[1], gl.COMPILE_STATUS);
-    const lk  = gl.getProgramParameter(prog, gl.LINK_STATUS);
-    if (!lk) { console.error('Globe shader error:', gl.getProgramInfoLog(prog)); return; }
-
-    gl.enable(gl.DEPTH_TEST); gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-    gl.clearColor(0,0,0,0);
-
-    function frame(t) {
-      requestAnimationFrame(frame);
-      t/=1000; const dt=t-lastT; lastT=t;
-      rot+=dt*0.055;
-      sunRise+=(scrollProgress()-sunRise)*0.05;
-      const sa=Math.PI*(-0.38+sunRise*0.48);
-      const sd=[Math.cos(sa)*0.28, Math.sin(sa), -Math.cos(sa)*0.96];
-      persp(P,0.52,1,0.1,100);
-      rotY(Mo,rot);
-      trans(Tr,0,0.1,-2.55);
-      mul(Tmp,Tr,Mo); mul(MV,P,Tmp);
-      gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-      gl.uniformMatrix4fv(uMVP,false,MV);
-      gl.uniformMatrix4fv(uModel,false,Tmp);
-      gl.uniform3fv(uSunD,sd);
-      gl.uniform1f(uSunR,sunRise);
-      gl.uniform1f(uTime,t);
-      gl.drawElements(gl.TRIANGLES,idx.length,gl.UNSIGNED_SHORT,0);
-      drawStars(t);
-    }
-    requestAnimationFrame(frame);
-  });
-  </script>
 </main>
 </body>
 </html>
