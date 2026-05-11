@@ -862,15 +862,13 @@
     transform: translateY(18px);
     transition: opacity 0s, transform 0s;
 
-    /* Frosted glass */
+    /* Frosted glass — safe cross-browser (no backdrop-filter which breaks Safari scroll) */
     background: linear-gradient(
       135deg,
-      rgba(255,255,255,0.07) 0%,
-      rgba(255,255,255,0.03) 40%,
-      rgba(255,255,255,0.05) 100%
+      rgba(255,255,255,0.09) 0%,
+      rgba(255,255,255,0.04) 40%,
+      rgba(255,255,255,0.07) 100%
     );
-    backdrop-filter: blur(28px) saturate(1.4);
-    -webkit-backdrop-filter: blur(28px) saturate(1.4);
 
     /* Inner border glow */
     border: 1px solid rgba(255,255,255,0.12);
@@ -889,15 +887,13 @@
     opacity: 1;
     transform: translateY(0);
     transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    animation: glassBreath 4s ease-in-out infinite 0.8s;
   }
 
   /* Breathing border glow animation */
   @keyframes glassBreath {
     0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 8px 64px rgba(0,0,0,0.6), 0 2px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(255,255,255,0.04); }
     50%       { box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 80px rgba(0,0,0,0.5), 0 2px 40px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(255,255,255,0.06); }
-  }
-  .glass-panel.visible {
-    animation: glassBreath 4s ease-in-out infinite 0.8s;
   }
 
   /* Grain texture overlay */
@@ -1072,9 +1068,6 @@
     text-decoration: none;
     -webkit-font-smoothing: none;
     border-radius: 6px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: background 0.2s, border-color 0.2s, letter-spacing 0.3s;
     white-space: nowrap;
     position: relative;
     overflow: hidden;
@@ -4472,6 +4465,9 @@ window.addEventListener('load', () => {
       obs.disconnect();
     }
   }, { root: sc, threshold: 0.15 });
+
+  obs.observe(section);
+})();
 
 /* ══════════════════════════════════════════════════════════════
    ── GLASS CTA — BLINK-IN + STATUS TICKER + HEADLINE GLITCH ──
