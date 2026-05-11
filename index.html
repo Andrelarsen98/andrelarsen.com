@@ -1958,26 +1958,32 @@
   .cg-cell img.wide-logo { height: 10px; max-width: 82px; }
   .cg-cell img.xl-logo   { height: 16px; max-width: 86px; }
 
-  /* Acquired — settled state */
+  /* Acquired — settled state with subtle bloom */
   .cg-cell.acquired img {
-    opacity: 0.55;
-    filter: brightness(0) invert(1);
+    opacity: 0.72;
+    filter: brightness(0) invert(1)
+            drop-shadow(0 0 6px rgba(255,255,255,0.28))
+            drop-shadow(0 0 18px rgba(200,215,255,0.10));
+    transition: opacity 0.3s ease, filter 0.3s ease;
   }
   .cg-cell.acquired .cg-id { color: rgba(255,255,255,0.32); }
 
-  /* Hover */
+  /* Hover — full bloom, sharper and brighter */
   .cg-cell:hover img {
     opacity: 1 !important;
-    filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,0.4)) !important;
+    filter: brightness(0) invert(1)
+            drop-shadow(0 0 4px rgba(255,255,255,0.90))
+            drop-shadow(0 0 14px rgba(255,255,255,0.50))
+            drop-shadow(0 0 32px rgba(200,220,255,0.25)) !important;
     transition: opacity 0.2s ease, filter 0.2s ease;
   }
   .cg-cell:hover .cg-id { color: rgba(255,255,255,0.7); }
 
-  /* Acquire burst animation */
+  /* Acquire burst animation — lands on the glowing settled state */
   @keyframes cgAcquire {
-    0%   { opacity: 0;    transform: scale(0.88); filter: brightness(0) invert(1) drop-shadow(0 0 14px rgba(255,255,255,0.9)); }
-    35%  { opacity: 1;    transform: scale(1.04); filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,0.5)); }
-    100% { opacity: 0.55; transform: scale(1);    filter: brightness(0) invert(1); }
+    0%   { opacity: 0;    transform: scale(0.88); filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(255,255,255,1.0)); }
+    35%  { opacity: 1;    transform: scale(1.04); filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.7)); }
+    100% { opacity: 0.72; transform: scale(1);    filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,0.28)) drop-shadow(0 0 18px rgba(200,215,255,0.10)); }
   }
   .cg-cell.acquiring img {
     animation: cgAcquire 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
