@@ -834,11 +834,6 @@
   /* ══════════════════════════════════════
      ── CLIENTS MARQUEE ──
   ══════════════════════════════════════ */
-  @keyframes marqueeScroll {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
-  }
-
   .logo-marquee-row {
     width: 100%;
     overflow: hidden;
@@ -850,16 +845,8 @@
   .logo-marquee-track {
     display: flex;
     align-items: center;
-    /* Exactly 2x the content width so translateX(-50%) loops perfectly */
+    white-space: nowrap;
     width: max-content;
-    animation: marqueeScroll 60s linear infinite;
-    animation-play-state: paused;
-    /* Large negative delay so iOS GPU is already warmed up at start */
-    animation-delay: -30s;
-  }
-
-  .logo-marquee-track.ready {
-    animation-play-state: running;
   }
 
   .logo-marquee-item {
@@ -1421,10 +1408,6 @@
       mask-image: none;
       -webkit-mask-image: none;
       overflow: hidden;
-    }
-    .logo-marquee-track {
-      animation-duration: 35s;
-      animation-delay: -17s;
     }
     .logo-marquee-item {
       padding: 0 18px;
@@ -4243,25 +4226,65 @@ window.addEventListener('load', () => {
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
 
-/* ── MARQUEE PRELOADER ── */
-(function() {
+/* ── MARQUEE — RAF driven, consistent speed on all browsers incl iOS Safari ── */
+(function () {
   var track = document.querySelector('.logo-marquee-track');
   if (!track) return;
+
+  var px = 0;
+  var speed = 0.4; // px per frame at 60fps ≈ 24px/s. Adjust here.
+  var halfW = 0;
+  var running = false;
+  var raf;
+
+  function measure() {
+    // Track contains 2 identical sets — half width is one full set
+    halfW = track.scrollWidth / 2;
+  }
+
+  function tick() {
+    px += speed;
+    if (px >= halfW) px -= halfW; // seamless loop
+    track.style.transform = 'translateX(-' + px + 'px)';
+    raf = requestAnimationFrame(tick);
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    measure();
+    // Start mid-loop so there's no visible beginning
+    px = halfW * 0.5;
+    tick();
+  }
+
+  // Wait for images then start
   var imgs = Array.from(track.querySelectorAll('img'));
   var unique = imgs.slice(0, Math.floor(imgs.length / 2));
   var loaded = 0;
   function onLoad() {
     loaded++;
-    if (loaded >= unique.length) track.classList.add('ready');
+    if (loaded >= unique.length) start();
   }
-  unique.forEach(function(img) {
+  unique.forEach(function (img) {
     if (img.complete && img.naturalWidth > 0) { onLoad(); }
     else {
       img.addEventListener('load', onLoad);
       img.addEventListener('error', onLoad);
     }
   });
-  setTimeout(function() { track.classList.add('ready'); }, 3000);
+  // Hard fallback
+  setTimeout(start, 2000);
+
+  // Pause when tab hidden, resume when visible
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      cancelAnimationFrame(raf);
+      running = false;
+    } else {
+      start();
+    }
+  });
 })();
 </script>
 </body>
