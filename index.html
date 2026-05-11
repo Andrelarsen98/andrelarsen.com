@@ -836,21 +836,88 @@
 
 
   /* ══════════════════════════════════════
-     ── GLASS CTA STRIP ──
+     ── GLASS CTA STRIP — Y2K GLASSMORPHISM ──
   ══════════════════════════════════════ */
+
+  /* Hidden SVG filter for chromatic aberration */
+  .glass-ca-filter {
+    position: absolute;
+    width: 0; height: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
   .glass-cta {
     width: 100%;
     position: relative;
-    background: #000;
+    background: #060810;
     padding: 48px 32px 52px;
     overflow: hidden;
   }
 
-  /* The glass panel itself */
+  /* ── Animated organic blob background (refractive background) ── */
+  .glass-blobs {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .glass-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(72px);
+    opacity: 0.55;
+    will-change: transform;
+  }
+  .glass-blob-1 {
+    width: 420px; height: 320px;
+    background: radial-gradient(ellipse at center, rgba(14,60,140,0.9) 0%, rgba(6,20,80,0.4) 60%, transparent 100%);
+    top: -60px; left: -80px;
+    animation: blobDrift1 18s ease-in-out infinite alternate;
+  }
+  .glass-blob-2 {
+    width: 360px; height: 280px;
+    background: radial-gradient(ellipse at center, rgba(160,90,20,0.7) 0%, rgba(100,50,10,0.3) 60%, transparent 100%);
+    bottom: -40px; right: -60px;
+    animation: blobDrift2 22s ease-in-out infinite alternate;
+  }
+  .glass-blob-3 {
+    width: 280px; height: 240px;
+    background: radial-gradient(ellipse at center, rgba(20,80,180,0.6) 0%, rgba(10,40,120,0.2) 60%, transparent 100%);
+    top: 40%; left: 45%;
+    transform: translate(-50%, -50%);
+    animation: blobDrift3 28s ease-in-out infinite alternate;
+  }
+  .glass-blob-4 {
+    width: 220px; height: 200px;
+    background: radial-gradient(ellipse at center, rgba(180,100,30,0.5) 0%, transparent 70%);
+    top: 10%; right: 20%;
+    animation: blobDrift4 16s ease-in-out infinite alternate;
+  }
+
+  @keyframes blobDrift1 {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(60px, 40px) scale(1.15); }
+  }
+  @keyframes blobDrift2 {
+    from { transform: translate(0, 0) scale(1); }
+    to   { transform: translate(-50px, -30px) scale(1.1); }
+  }
+  @keyframes blobDrift3 {
+    from { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) scale(1.2) rotate(20deg); }
+  }
+  @keyframes blobDrift4 {
+    from { transform: translate(0, 0); }
+    to   { transform: translate(-40px, 50px) scale(1.08); }
+  }
+
+  /* ── The glass panel itself ── */
   .glass-panel {
     position: relative;
     width: 100%;
-    border-radius: 16px;
+    border-radius: 20px;
     padding: 48px 52px;
     display: flex;
     align-items: center;
@@ -861,67 +928,102 @@
     opacity: 0;
     transform: translateY(18px);
     transition: opacity 0s, transform 0s;
+    z-index: 1;
 
-    /* Frosted glass — safe cross-browser (no backdrop-filter which breaks Safari scroll) */
-    background: linear-gradient(
-      135deg,
-      rgba(255,255,255,0.09) 0%,
-      rgba(255,255,255,0.04) 40%,
-      rgba(255,255,255,0.07) 100%
-    );
+    /* Pebbled frosted glass base */
+    background:
+      linear-gradient(
+        135deg,
+        rgba(255,255,255,0.13) 0%,
+        rgba(255,255,255,0.05) 35%,
+        rgba(255,255,255,0.10) 70%,
+        rgba(255,255,255,0.07) 100%
+      );
 
-    /* Inner border glow */
-    border: 1px solid rgba(255,255,255,0.12);
-    border-top-color: rgba(255,255,255,0.28);
-    border-left-color: rgba(255,255,255,0.18);
+    /* Backdrop blur — real frosted glass depth */
+    backdrop-filter: blur(28px) saturate(1.4) brightness(1.08);
+    -webkit-backdrop-filter: blur(28px) saturate(1.4) brightness(1.08);
 
-    /* Outer glow */
+    /* Specular edge highlights — catches light from all sides */
+    border: 1px solid rgba(255,255,255,0.15);
+    border-top-color: rgba(255,255,255,0.45);
+    border-left-color: rgba(255,255,255,0.25);
+    border-bottom-color: rgba(255,255,255,0.06);
+
+    /* Multi-layer box-shadow: outer bloom + inset specular rim */
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.04),
-      0 8px 64px rgba(0,0,0,0.6),
-      0 2px 24px rgba(0,0,0,0.4),
-      inset 0 1px 0 rgba(255,255,255,0.22),
-      inset 0 -1px 0 rgba(255,255,255,0.04);
+      0 0 0 1px rgba(255,255,255,0.05),
+      0 8px 80px rgba(0,0,0,0.7),
+      0 2px 32px rgba(0,0,0,0.5),
+      inset 0 1.5px 0 rgba(255,255,255,0.35),
+      inset 0 -1px 0 rgba(255,255,255,0.06),
+      inset 1px 0 0 rgba(255,255,255,0.12),
+      inset -1px 0 0 rgba(255,255,255,0.06);
   }
   .glass-panel.visible {
     opacity: 1;
     transform: translateY(0);
     transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1);
-    animation: glassBreath 4s ease-in-out infinite 0.8s;
+    animation: glassBreath 5s ease-in-out infinite 0.8s;
   }
 
-  /* Breathing border glow animation */
+  /* Breathing border glow — pulses the specular rim softly */
   @keyframes glassBreath {
-    0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 8px 64px rgba(0,0,0,0.6), 0 2px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(255,255,255,0.04); }
-    50%       { box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 8px 80px rgba(0,0,0,0.5), 0 2px 40px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.32), inset 0 -1px 0 rgba(255,255,255,0.06); }
+    0%, 100% {
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.05),
+        0 8px 80px rgba(0,0,0,0.7),
+        0 2px 32px rgba(0,0,0,0.5),
+        inset 0 1.5px 0 rgba(255,255,255,0.35),
+        inset 0 -1px 0 rgba(255,255,255,0.06),
+        inset 1px 0 0 rgba(255,255,255,0.12),
+        inset -1px 0 0 rgba(255,255,255,0.06);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.10),
+        0 8px 100px rgba(0,0,0,0.55),
+        0 2px 60px rgba(100,140,255,0.08),
+        inset 0 1.5px 0 rgba(255,255,255,0.55),
+        inset 0 -1px 0 rgba(255,255,255,0.10),
+        inset 1px 0 0 rgba(255,255,255,0.20),
+        inset -1px 0 0 rgba(255,255,255,0.10);
+    }
   }
 
-  /* Grain texture overlay */
+  /* Pebbled / grainy noise texture — physical glass depth */
   .glass-panel::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    opacity: 0.045;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 180px 180px;
+    opacity: 0.10;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 220px 220px;
     pointer-events: none;
     z-index: 0;
+    mix-blend-mode: overlay;
   }
 
-  /* Specular top-edge shine */
+  /* Specular top-edge shine arc */
   .glass-panel::after {
     content: '';
     position: absolute;
-    top: 0; left: 10%; right: 10%;
+    top: 0; left: 8%; right: 8%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5) 50%, transparent);
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,255,255,0.25) 20%,
+      rgba(255,255,255,0.75) 50%,
+      rgba(255,255,255,0.25) 80%,
+      transparent 100%
+    );
     border-radius: 999px;
     pointer-events: none;
-    z-index: 0;
+    z-index: 2;
   }
 
-  /* HUD left column */
+  /* ── HUD left column ── */
   .glass-hud {
     display: flex;
     flex-direction: column;
@@ -931,7 +1033,7 @@
     flex-shrink: 0;
   }
 
-  /* Corner bracket SVG-style using CSS */
+  /* Corner bracket — etched glass look */
   .glass-bracket {
     position: relative;
     width: 56px;
@@ -943,8 +1045,9 @@
     content: '';
     position: absolute;
     width: 14px; height: 14px;
-    border-color: rgba(255,255,255,0.55);
+    border-color: rgba(255,255,255,0.7);
     border-style: solid;
+    filter: drop-shadow(0 0 3px rgba(255,255,255,0.3));
   }
   .glass-bracket::before {
     top: 0; left: 0;
@@ -954,7 +1057,6 @@
     bottom: 0; right: 0;
     border-width: 0 1.5px 1.5px 0;
   }
-  /* Inner crosshair */
   .glass-bracket-inner {
     position: absolute;
     inset: 0;
@@ -966,12 +1068,13 @@
     content: '+';
     font-family: 'VT323', monospace;
     font-size: 22px;
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.45);
     -webkit-font-smoothing: none;
     line-height: 1;
+    text-shadow: 0 0 6px rgba(255,255,255,0.3);
   }
 
-  /* Telemetry readout */
+  /* Telemetry readout — etched text */
   .glass-tele {
     display: flex;
     flex-direction: column;
@@ -981,16 +1084,18 @@
     font-family: 'VT323', monospace;
     font-size: 12px;
     letter-spacing: 0.16em;
-    color: rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.35);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
     line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
   }
   .glass-tele-row span {
-    color: rgba(255,255,255,0.55);
+    color: rgba(255,255,255,0.65);
+    text-shadow: 0 0 8px rgba(200,220,255,0.3);
   }
 
-  /* Center CTA */
+  /* ── Center CTA ── */
   .glass-center {
     flex: 1;
     display: flex;
@@ -1007,9 +1112,12 @@
     font-size: 13px;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.4);
     -webkit-font-smoothing: none;
+    text-shadow: 0 0 10px rgba(255,255,255,0.15);
   }
+
+  /* Headline — bloom glow + chromatic aberration via text-shadow */
   .glass-headline {
     font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
     font-size: clamp(28px, 4vw, 52px);
@@ -1019,30 +1127,44 @@
     color: #fff;
     line-height: 1;
     white-space: nowrap;
+    position: relative;
+
+    /* White bloom glow */
+    text-shadow:
+      0 0 20px rgba(255,255,255,0.55),
+      0 0 60px rgba(255,255,255,0.18),
+      0 0 100px rgba(180,200,255,0.12);
+
+    /* Chromatic aberration — red channel left, blue channel right */
+    filter: drop-shadow(-1.5px 0 0 rgba(255,60,60,0.35))
+            drop-shadow(1.5px 0 0 rgba(60,120,255,0.35));
   }
   .glass-sub {
     font-family: 'VT323', monospace;
     font-size: 13px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.28);
+    color: rgba(255,255,255,0.32);
     -webkit-font-smoothing: none;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
   }
+
   /* Blinking cursor */
   .glass-cursor {
     display: inline-block;
     width: 8px; height: 13px;
-    background: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.75);
     margin-left: 4px;
     vertical-align: middle;
     animation: cursorBlink 1.1s step-end infinite;
+    box-shadow: 0 0 8px rgba(255,255,255,0.5);
   }
   @keyframes cursorBlink {
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
   }
 
-  /* Right CTA button */
+  /* ── Right CTA button — etched glass ── */
   .glass-right {
     display: flex;
     flex-direction: column;
@@ -1057,9 +1179,12 @@
     align-items: center;
     gap: 10px;
     padding: 14px 28px;
-    border: 1px solid rgba(255,255,255,0.22);
-    border-top-color: rgba(255,255,255,0.45);
-    background: rgba(255,255,255,0.08);
+    /* Etched glass: translucent with strong specular top border */
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-top-color: rgba(255,255,255,0.55);
+    border-left-color: rgba(255,255,255,0.28);
+    border-bottom-color: rgba(0,0,0,0.3);
     color: #fff;
     font-family: 'VT323', monospace;
     font-size: 17px;
@@ -1067,22 +1192,46 @@
     text-transform: uppercase;
     text-decoration: none;
     -webkit-font-smoothing: none;
-    border-radius: 6px;
+    border-radius: 8px;
     white-space: nowrap;
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.4),
+      inset 0 -1px 0 rgba(0,0,0,0.2),
+      0 4px 20px rgba(0,0,0,0.4);
+    transition: background 0.2s, letter-spacing 0.3s, box-shadow 0.2s;
   }
+  /* Specular shine streak on button */
   .glass-btn::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7) 50%, transparent);
   }
+  /* Shimmer sweep on hover */
+  .glass-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+  }
+  .glass-btn:hover::after { transform: translateX(100%); }
   .glass-btn:hover {
-    background: rgba(255,255,255,0.16);
-    border-color: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.14);
+    border-color: rgba(255,255,255,0.45);
+    border-top-color: rgba(255,255,255,0.75);
     letter-spacing: 0.32em;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.55),
+      inset 0 -1px 0 rgba(0,0,0,0.2),
+      0 4px 30px rgba(100,140,255,0.12),
+      0 0 40px rgba(255,255,255,0.05);
   }
   .glass-btn-arrow {
     font-size: 20px;
@@ -1095,31 +1244,51 @@
     font-family: 'VT323', monospace;
     font-size: 11px;
     letter-spacing: 0.14em;
-    color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.22);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
     text-align: right;
+    text-shadow: 0 0 6px rgba(255,255,255,0.1);
   }
 
-  /* Hover state — lift and sharpen */
+  /* Hover state — lift panel and sharpen rim */
   .glass-panel:hover {
-    border-top-color: rgba(255,255,255,0.4);
-    border-color: rgba(255,255,255,0.18);
+    border-top-color: rgba(255,255,255,0.6);
+    border-color: rgba(255,255,255,0.22);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.08),
+      0 12px 100px rgba(0,0,0,0.65),
+      0 4px 40px rgba(100,140,255,0.08),
+      inset 0 1.5px 0 rgba(255,255,255,0.5),
+      inset 0 -1px 0 rgba(255,255,255,0.08),
+      inset 1px 0 0 rgba(255,255,255,0.18),
+      inset -1px 0 0 rgba(255,255,255,0.08);
   }
   .glass-panel:hover .glass-bracket::before,
   .glass-panel:hover .glass-bracket::after {
-    border-color: rgba(255,255,255,0.9);
-    transition: border-color 0.2s;
+    border-color: rgba(255,255,255,0.95);
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+    transition: border-color 0.2s, filter 0.2s;
+  }
+
+  /* Chromatic aberration on panel edges — subtle color fringe */
+  .glass-panel.visible {
+    filter: drop-shadow(-0.5px 0 0.5px rgba(255,80,80,0.08))
+            drop-shadow(0.5px 0 0.5px rgba(80,120,255,0.08));
   }
 
   @media (max-width: 768px) {
     .glass-cta { padding: 32px 16px 36px; }
+    .glass-blob-1 { width: 280px; height: 220px; filter: blur(50px); }
+    .glass-blob-2 { width: 240px; height: 200px; filter: blur(50px); }
+    .glass-blob-3 { width: 180px; height: 160px; filter: blur(45px); }
+    .glass-blob-4 { display: none; }
     .glass-panel {
       padding: 32px 24px;
       flex-direction: column;
       align-items: flex-start;
       gap: 24px;
-      border-radius: 12px;
+      border-radius: 14px;
     }
     .glass-hud { flex-direction: row; align-items: center; gap: 16px; }
     .glass-center { align-items: flex-start; text-align: left; }
@@ -2139,6 +2308,13 @@ Dubai, worldwide.</div>
 
   <!-- ── GLASS CTA STRIP ── -->
   <div class="glass-cta" id="glassCta">
+    <!-- Animated organic blob background -->
+    <div class="glass-blobs" aria-hidden="true">
+      <div class="glass-blob glass-blob-1"></div>
+      <div class="glass-blob glass-blob-2"></div>
+      <div class="glass-blob glass-blob-3"></div>
+      <div class="glass-blob glass-blob-4"></div>
+    </div>
     <div class="glass-panel" id="glassPanel">
 
       <!-- HUD left -->
