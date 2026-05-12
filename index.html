@@ -850,104 +850,30 @@
   .glass-cta {
     width: 100%;
     position: relative;
-    /* Deep warm-tinted near-black base — like frost on a cold window at dawn */
-    background: #0d0905;
+    background: #0d1e2a;
+    background-image: url('glass-bg-desktop.png');
+    background-size: cover;
+    background-position: center;
     padding: 48px 32px 52px;
     overflow: hidden;
   }
+  @media (max-width: 768px) {
+    .glass-cta {
+      background-image: url('glass-bg-mobile.png');
+      background-position: center top;
+    }
+  }
 
-  /* ── Frost texture overlay — covers the entire CTA section ── */
+  /* ── Frost texture overlay — disabled (bg image provides texture) ── */
   .glass-cta::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    /* Multi-layer frost: pebbled high-freq noise + large organic low-freq bumps */
-    opacity: 1;
-    background-image:
-      /* Fine surface frost crystals */
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.68' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.55 0 0 0 0 0.35 0 0 0 0 0.10 0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
-      /* Large pebbled surface bumps — the organic 'skin' of frost glass */
-      url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.12' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.60 0 0 0 0 0.38 0 0 0 0 0.12 0 0 0 0.10 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E");
-    background-size: 280px 280px, 400px 400px;
-    mix-blend-mode: screen;
+    display: none;
   }
 
-  /* ── Warm orange ambient light wash behind the panel ── */
-  .glass-cta::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 70% 60% at 15% 50%, rgba(200,90,20,0.18) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 70% at 85% 40%, rgba(160,70,15,0.14) 0%, transparent 65%),
-      radial-gradient(ellipse 40% 50% at 50% 80%, rgba(120,50,10,0.10) 0%, transparent 60%);
-  }
+  /* ── Orange ambient removed — bg image provides colour ── */
+  .glass-cta::after { display: none; }
 
-  /* ── Animated organic blob background — WARM ORANGE FROST palette ── */
-  .glass-blobs {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 0;
-  }
-  .glass-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(72px);
-    opacity: 0.65;
-    will-change: transform;
-  }
-  /* Deep burnt orange — top left */
-  .glass-blob-1 {
-    width: 460px; height: 340px;
-    background: radial-gradient(ellipse at center, rgba(200,80,15,0.85) 0%, rgba(140,45,8,0.45) 55%, transparent 100%);
-    top: -60px; left: -80px;
-    animation: blobDrift1 18s ease-in-out infinite alternate;
-  }
-  /* Rich amber — bottom right */
-  .glass-blob-2 {
-    width: 380px; height: 300px;
-    background: radial-gradient(ellipse at center, rgba(230,130,30,0.75) 0%, rgba(180,80,15,0.35) 55%, transparent 100%);
-    bottom: -40px; right: -60px;
-    animation: blobDrift2 22s ease-in-out infinite alternate;
-  }
-  /* Warm sienna — centre */
-  .glass-blob-3 {
-    width: 300px; height: 260px;
-    background: radial-gradient(ellipse at center, rgba(175,65,12,0.60) 0%, rgba(120,40,8,0.25) 60%, transparent 100%);
-    top: 40%; left: 45%;
-    transform: translate(-50%, -50%);
-    animation: blobDrift3 28s ease-in-out infinite alternate;
-  }
-  /* Pale gold highlight — top right */
-  .glass-blob-4 {
-    width: 240px; height: 210px;
-    background: radial-gradient(ellipse at center, rgba(240,160,50,0.50) 0%, rgba(200,100,20,0.20) 60%, transparent 100%);
-    top: 8%; right: 18%;
-    animation: blobDrift4 16s ease-in-out infinite alternate;
-  }
-
-  @keyframes blobDrift1 {
-    from { transform: translate(0, 0) scale(1); }
-    to   { transform: translate(60px, 40px) scale(1.15); }
-  }
-  @keyframes blobDrift2 {
-    from { transform: translate(0, 0) scale(1); }
-    to   { transform: translate(-50px, -30px) scale(1.1); }
-  }
-  @keyframes blobDrift3 {
-    from { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-    to   { transform: translate(-50%, -50%) scale(1.2) rotate(20deg); }
-  }
-  @keyframes blobDrift4 {
-    from { transform: translate(0, 0); }
-    to   { transform: translate(-40px, 50px) scale(1.08); }
-  }
+  /* ── Animated organic blob background — hidden, bg image replaces ── */
+  .glass-blobs { display: none; }
 
   /* ── The glass panel itself ── */
   .glass-panel {
@@ -1383,7 +1309,8 @@
     text-shadow: 0 0 6px rgba(255,255,255,0.1);
   }
 
-  /* Hover state — lift panel, sharpen bevel */
+  /* Hover state — lift panel, sharpen bevel (desktop pointer only) */
+  @media (hover: hover) and (pointer: fine) {
   .glass-panel:hover {
     box-shadow:
       0 -1px 0 0 rgba(255,255,255,0.90),
@@ -1403,6 +1330,7 @@
     filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
     transition: border-color 0.2s, filter 0.2s;
   }
+  }
 
   /* Chromatic aberration on panel edges — subtle color fringe */
   .glass-panel.visible {
@@ -1412,10 +1340,6 @@
 
   @media (max-width: 768px) {
     .glass-cta { padding: 32px 16px 36px; }
-    .glass-blob-1 { width: 300px; height: 240px; filter: blur(55px); }
-    .glass-blob-2 { width: 260px; height: 210px; filter: blur(55px); }
-    .glass-blob-3 { width: 200px; height: 170px; filter: blur(48px); }
-    .glass-blob-4 { display: none; }
     .glass-panel {
       padding: 32px 24px;
       flex-direction: column;
