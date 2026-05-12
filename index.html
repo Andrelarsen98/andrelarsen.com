@@ -849,41 +849,71 @@
     isolation: isolate;
   }
   /* Base glass photo */
-  .glass-bg, .glass-bg-drift, .glass-light-leak {
+  .glass-bg, .glass-bg-drift, .glass-bg-drift-2, .glass-light-leak {
     position: absolute; inset: 0;
     background-image: url('glass-bg-desktop.png');
     background-size: cover;
     background-position: center;
-    will-change: transform;
+    will-change: transform, opacity, filter;
+    backface-visibility: hidden;
+    transform: translateZ(0);
   }
-  .glass-bg { z-index: 0; }
-  /* Drifting copy — fakes surface shimmer via soft-light blend */
+  .glass-bg {
+    z-index: 0;
+    /* almost imperceptible breathing of the base surface */
+    animation: glassBreathe 38s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+  @keyframes glassBreathe {
+    0%, 100% { filter: brightness(1) saturate(1); transform: scale(1) translateZ(0); }
+    50%      { filter: brightness(1.025) saturate(1.04); transform: scale(1.006) translateZ(0); }
+  }
+  /* Drifting copy — fakes surface shimmer via soft-light blend (very slow, very subtle) */
   .glass-bg-drift {
     z-index: 1;
     mix-blend-mode: soft-light;
-    opacity: 0.55;
-    transform: scale(1.04);
-    animation: glassDrift 22s ease-in-out infinite alternate;
+    opacity: 0.32;
+    transform: scale(1.05);
+    animation: glassDrift 64s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate,
+               glassFade 41s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+  /* Second drift layer — different timing creates organic parallax */
+  .glass-bg-drift-2 {
+    z-index: 1;
+    mix-blend-mode: overlay;
+    opacity: 0.18;
+    transform: scale(1.07);
+    animation: glassDrift2 87s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate,
+               glassFade 53s cubic-bezier(0.45, 0, 0.55, 1) infinite -7s;
   }
   @keyframes glassDrift {
-    0%   { transform: scale(1.04) translate3d(-1.2%, -0.8%, 0); }
-    100% { transform: scale(1.06) translate3d(1.4%,  1.0%, 0); }
+    0%   { transform: scale(1.05) translate3d(-0.9%, -0.6%, 0) rotate(0deg); }
+    100% { transform: scale(1.07) translate3d(1.1%,  0.8%, 0) rotate(0.15deg); }
   }
+  @keyframes glassDrift2 {
+    0%   { transform: scale(1.07) translate3d(0.8%,  0.7%, 0) rotate(-0.12deg); }
+    100% { transform: scale(1.05) translate3d(-1.0%, -0.5%, 0) rotate(0.08deg); }
+  }
+  @keyframes glassFade {
+    0%, 100% { opacity: var(--fade-lo, 0.22); }
+    50%      { opacity: var(--fade-hi, 0.42); }
+  }
+  .glass-bg-drift   { --fade-lo: 0.22; --fade-hi: 0.42; }
+  .glass-bg-drift-2 { --fade-lo: 0.10; --fade-hi: 0.24; }
   /* Slow diagonal light-leak — simulates sun moving past glass */
   .glass-light-leak {
     z-index: 2;
-    background: radial-gradient(ellipse 60% 80% at var(--lx,30%) var(--ly,20%),
-                rgba(255,245,220,0.18) 0%,
-                rgba(255,235,200,0.06) 35%,
-                transparent 65%);
+    background: radial-gradient(ellipse 65% 85% at var(--lx,30%) var(--ly,20%),
+                rgba(255,245,220,0.14) 0%,
+                rgba(255,235,200,0.05) 38%,
+                transparent 68%);
     mix-blend-mode: screen;
-    animation: leakDrift 28s ease-in-out infinite alternate;
+    animation: leakDrift 72s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
     pointer-events: none;
   }
   @keyframes leakDrift {
-    0%   { --lx: 20%; --ly: 30%; opacity: 0.7; }
-    50%  { opacity: 1; }
-    100% { --lx: 75%; --ly: 65%; opacity: 0.6; }
+    0%   { --lx: 18%; --ly: 28%; opacity: 0.55; }
+    50%  { opacity: 0.9; }
+    100% { --lx: 78%; --ly: 68%; opacity: 0.5; }
   }
   /* Vignette so edges feel like real frosted glass framed */
   .glass-cta::after {
@@ -896,7 +926,7 @@
     z-index: 3;
   }
   @media (max-width: 768px) {
-    .glass-bg, .glass-bg-drift {
+    .glass-bg, .glass-bg-drift, .glass-bg-drift-2 {
       background-image: url('glass-bg-mobile.png');
     }
   }
@@ -2156,6 +2186,7 @@ Dubai, worldwide.</div>
   <div class="glass-cta" id="glassCta">
     <div class="glass-bg" aria-hidden="true"></div>
     <div class="glass-bg-drift" aria-hidden="true"></div>
+    <div class="glass-bg-drift-2" aria-hidden="true"></div>
     <div class="glass-light-leak" aria-hidden="true"></div>
 
     <div class="glass-panel" id="glassPanel">
