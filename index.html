@@ -907,10 +907,6 @@
   @keyframes glassBreath {
     0%, 100% {
       box-shadow:
-        0 -1px 0 0 rgba(255,255,255,0.70),
-        -1px 0 0 0 rgba(255,255,255,0.40),
-        0 1px 0 0 rgba(0,0,0,0.50),
-        1px 0 0 0 rgba(0,0,0,0.30),
         0 8px 80px rgba(0,0,0,0.70),
         0 2px 32px rgba(0,0,0,0.50),
         inset 0 1.5px 0 rgba(255,255,255,0.40),
@@ -920,10 +916,6 @@
     }
     50% {
       box-shadow:
-        0 -1px 0 0 rgba(255,255,255,0.90),
-        -1px 0 0 0 rgba(255,255,255,0.55),
-        0 1px 0 0 rgba(0,0,0,0.45),
-        1px 0 0 0 rgba(0,0,0,0.25),
         0 8px 100px rgba(0,0,0,0.55),
         0 2px 60px rgba(100,140,255,0.10),
         inset 0 1.5px 0 rgba(255,255,255,0.60),
@@ -1270,13 +1262,7 @@
   /* Hover — desktop pointer only */
   @media (hover: hover) and (pointer: fine) {
   .glass-panel:hover {
-    box-shadow:
-      0 12px 100px rgba(0,0,0,0.65),
-      0 4px 40px rgba(100,140,255,0.08),
-      inset 0 1.5px 0 rgba(255,255,255,0.55),
-      inset 0 -1px 0 rgba(0,0,0,0.20),
-      inset 1px 0 0 rgba(255,255,255,0.22),
-      inset -1px 0 0 rgba(0,0,0,0.10);
+    box-shadow: none;
   }
   .glass-panel:hover .glass-bracket::before,
   .glass-panel:hover .glass-bracket::after {
