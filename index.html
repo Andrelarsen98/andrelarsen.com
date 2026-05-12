@@ -1970,20 +1970,20 @@
   .cg-cell img {
     display: block;
     width: auto;
-    height: 14px;
-    max-width: 72px;
+    height: 28px;
+    max-width: 80%;
     object-fit: contain;
     opacity: 0;
     filter: brightness(0) invert(1);
     flex-shrink: 0;
   }
-  .cg-cell img.tall-logo { height: 20px; max-width: 20px; }
-  .cg-cell img.wide-logo { height: 10px; max-width: 82px; }
-  .cg-cell img.xl-logo   { height: 16px; max-width: 86px; }
+  .cg-cell img.tall-logo { height: 36px; max-width: 44px; }
+  .cg-cell img.wide-logo { height: 18px; max-width: 80%; }
+  .cg-cell img.xl-logo   { height: 30px; max-width: 80%; }
 
   /* Acquired — settled state with subtle bloom */
   .cg-cell.acquired img {
-    opacity: 0.72;
+    opacity: 1;
     filter: brightness(0) invert(1)
             drop-shadow(0 0 6px rgba(255,255,255,0.28))
             drop-shadow(0 0 18px rgba(200,215,255,0.10));
@@ -2006,7 +2006,7 @@
   @keyframes cgAcquire {
     0%   { opacity: 0;    transform: scale(0.88); filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(255,255,255,1.0)); }
     35%  { opacity: 1;    transform: scale(1.04); filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255,255,255,0.7)); }
-    100% { opacity: 0.72; transform: scale(1);    filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,0.28)) drop-shadow(0 0 18px rgba(200,215,255,0.10)); }
+    100% { opacity: 1;    transform: scale(1);    filter: brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,0.28)) drop-shadow(0 0 18px rgba(200,215,255,0.10)); }
   }
   .cg-cell.acquiring img {
     animation: cgAcquire 0.5s cubic-bezier(0.16,1,0.3,1) forwards;
@@ -2028,10 +2028,10 @@
     .clients-header { padding: 0 20px; margin-bottom: 20px; }
     .clients-grid { grid-template-columns: repeat(3, 1fr); }
     .cg-cell { min-height: 64px; padding: 16px 10px 12px; }
-    .cg-cell img { height: 12px; max-width: 58px; }
-    .cg-cell img.tall-logo { height: 17px; max-width: 17px; }
-    .cg-cell img.wide-logo { height: 9px;  max-width: 66px; }
-    .cg-cell img.xl-logo   { height: 14px; max-width: 70px; }
+    .cg-cell img { height: 22px; max-width: 75%; }
+    .cg-cell img.tall-logo { height: 28px; max-width: 36px; }
+    .cg-cell img.wide-logo { height: 14px; max-width: 75%; }
+    .cg-cell img.xl-logo   { height: 24px; max-width: 75%; }
     .cg-id { font-size: 9px; }
   }
 
