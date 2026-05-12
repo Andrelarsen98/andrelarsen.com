@@ -1142,6 +1142,127 @@
     .glass-coord, .glass-sub { text-align: center; }
   }
 
+
+  /* ── BOOKING TERMINAL ── */
+  #terminalOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  #terminalOverlay.open { display: flex; }
+  #terminalBox {
+    width: 100%;
+    max-width: 620px;
+    background: #060e14;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 0 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
+    font-family: 'VT323', monospace;
+    -webkit-font-smoothing: none;
+    overflow: hidden;
+  }
+  #terminalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+  }
+  #terminalTitle {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+  }
+  #terminalClose {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.3);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  #terminalClose:hover { color: #fff; }
+  #terminalBody {
+    padding: 24px 20px 20px;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  #terminalLog {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+  .t-line {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.55);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .t-line.prompt { color: rgba(255,255,255,0.85); }
+  .t-line.answer { color: rgba(100,200,255,0.9); padding-left: 18px; }
+  .t-line.system { color: rgba(255,255,255,0.25); font-size: 13px; letter-spacing: 0.18em; }
+  .t-line.success { color: rgba(120,255,160,0.9); }
+  #terminalInputRow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding-top: 12px;
+  }
+  #terminalPrompt {
+    font-size: 16px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.1em;
+    white-space: pre;
+    flex-shrink: 0;
+  }
+  #terminalInput {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: rgba(100,200,255,0.95);
+    caret-color: transparent;
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    padding: 0;
+  }
+  .t-cursor {
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+    animation: tCursorBlink 0.9s step-end infinite;
+    flex-shrink: 0;
+  }
+  @keyframes tCursorBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+  @media (max-width: 768px) {
+    #terminalBox { max-width: 100%; }
+    #terminalBody { min-height: 260px; padding: 18px 16px 16px; }
+    .t-line { font-size: 15px; }
+    #terminalInput { font-size: 15px; }
+  }
+
   /* ── STUDIO PARALLAX ── */
   .studio-photo-wrap {
     overflow: hidden;
@@ -4600,11 +4721,11 @@ window.addEventListener('load', () => {
     fill.style.transition   = 'width 0.25s ease';
     handle.style.left = (maxLeft) + 'px';
     fill.style.width  = '100%';
-    setTimeout(() => { window.location.href = MAILTO; }, 220);
     setTimeout(() => {
+      openTerminal();
       rail.classList.remove('fired', 'armed');
       reset();
-    }, 1800);
+    }, 400);
   }
   function onDown(e) {
     if (rail.classList.contains('fired')) return;
@@ -4820,5 +4941,131 @@ window.addEventListener('load', () => {
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
 </script>
+
+<!-- ── BOOKING TERMINAL MODAL ── -->
+<div id="terminalOverlay" aria-modal="true" role="dialog">
+  <div id="terminalBox">
+    <div id="terminalHeader">
+      <span id="terminalTitle">// MISSION REQUEST TERMINAL</span>
+      <button id="terminalClose" aria-label="Close">✕</button>
+    </div>
+    <div id="terminalBody">
+      <div id="terminalLog"></div>
+      <div id="terminalInputRow">
+        <span id="terminalPrompt">&gt;&nbsp;</span>
+        <input id="terminalInput" type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" />
+        <span class="t-cursor">█</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── BOOKING TERMINAL ──
+(function() {
+  const overlay  = document.getElementById('terminalOverlay');
+  const log      = document.getElementById('terminalLog');
+  const input    = document.getElementById('terminalInput');
+  const inputRow = document.getElementById('terminalInputRow');
+  const closeBtn = document.getElementById('terminalClose');
+  if (!overlay) return;
+
+  const STEPS = [
+    { key: 'client',   prompt: '> CLIENT / COMPANY:' },
+    { key: 'location', prompt: '> SHOOT LOCATION:' },
+    { key: 'window',   prompt: '> TIMEFRAME / DATE:' },
+    { key: 'brief',    prompt: '> MISSION BRIEF:' },
+  ];
+
+  let step = 0;
+  const answers = {};
+
+  function addLine(text, cls) {
+    const div = document.createElement('div');
+    div.className = 't-line' + (cls ? ' ' + cls : '');
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function typeIn(text, cls, cb) {
+    const div = document.createElement('div');
+    div.className = 't-line' + (cls ? ' ' + cls : '');
+    log.appendChild(div);
+    let i = 0;
+    const iv = setInterval(() => {
+      div.textContent += text[i++];
+      log.scrollTop = log.scrollHeight;
+      if (i >= text.length) { clearInterval(iv); if (cb) setTimeout(cb, 120); }
+    }, 28);
+  }
+
+  function showPrompt() {
+    if (step >= STEPS.length) { transmit(); return; }
+    inputRow.style.display = 'flex';
+    input.value = '';
+    input.focus();
+    typeIn(STEPS[step].prompt, 'prompt');
+  }
+
+  function transmit() {
+    inputRow.style.display = 'none';
+    addLine('', 'system');
+    typeIn('> ENCRYPTING PAYLOAD...', 'system', () => {
+      typeIn('> TRANSMITTING...', 'system', () => {
+        // Build mailto
+        const subject = encodeURIComponent('Mission Request — ' + (answers.client || 'Unknown'));
+        const body = encodeURIComponent('CLIENT: ' + (answers.client || '') + '\nLOCATION: ' + (answers.location || '') + '\nWINDOW: ' + (answers.window || '') + '\nBRIEF: ' + (answers.brief || ''));
+        window.location.href = 'mailto:andre@andrelarsen.com?subject=' + subject + '&body=' + body;
+        setTimeout(() => {
+          typeIn('> TRANSMISSION SENT. STANDING BY.', 'success', () => {
+            setTimeout(closeTerminal, 2200);
+          });
+        }, 600);
+      });
+    });
+  }
+
+  function handleEnter() {
+    const val = input.value.trim();
+    if (!val) return;
+    answers[STEPS[step].key] = val;
+    addLine('  ' + val.toUpperCase(), 'answer');
+    input.value = '';
+    step++;
+    setTimeout(showPrompt, 180);
+  }
+
+  function openTerminal() {
+    step = 0;
+    Object.keys(answers).forEach(k => delete answers[k]);
+    log.innerHTML = '';
+    inputRow.style.display = 'none';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    typeIn('// MISSION REQUEST TERMINAL — ANDRE LARSEN', 'system', () => {
+      typeIn('// CONNECTED — DUBAI, UAE', 'system', () => {
+        addLine('', 'system');
+        setTimeout(showPrompt, 200);
+      });
+    });
+  }
+
+  function closeTerminal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); handleEnter(); }
+  });
+  closeBtn.addEventListener('click', closeTerminal);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTerminal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTerminal(); });
+
+  window.openTerminal = openTerminal;
+})();
+</script>
+
 </body>
 </html>
