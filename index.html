@@ -1096,15 +1096,29 @@
      LIQUID GLASS BUTTON — retina quality
   ════════════════════════════════════════ */
 
-  /* Idle shimmer — slow light sweep across the surface */
   @keyframes liquidShimmer {
-    0%   { transform: translateX(-160%) skewX(-18deg); }
-    100% { transform: translateX(320%)  skewX(-18deg); }
+    0%   { left: -80%; }
+    100% { left: 160%; }
   }
-  /* Subtle breathing scale on the specular dome */
   @keyframes specularPulse {
-    0%, 100% { opacity: 0.55; }
-    50%       { opacity: 0.90; }
+    0%, 100% { opacity: 0.7; }
+    50%       { opacity: 1.0; }
+  }
+  @keyframes btnGlow {
+    0%, 100% { box-shadow:
+      0 0 0 1px rgba(255,255,255,0.45),
+      0 0 0 1.5px rgba(255,255,255,0.15),
+      inset 0 1.5px 0 rgba(255,255,255,0.80),
+      inset 0 -1px  0 rgba(0,0,0,0.20),
+      0 8px 32px rgba(0,0,0,0.35),
+      0 2px 8px  rgba(0,0,0,0.25); }
+    50%       { box-shadow:
+      0 0 0 1px rgba(255,255,255,0.75),
+      0 0 0 3px rgba(255,255,255,0.10),
+      inset 0 1.5px 0 rgba(255,255,255,0.95),
+      inset 0 -1px  0 rgba(0,0,0,0.15),
+      0 10px 40px rgba(0,0,0,0.40),
+      0 2px 10px rgba(0,0,0,0.25); }
   }
 
   .glass-btn {
@@ -1112,47 +1126,40 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding: 16px 38px;
+    padding: 15px 36px;
     position: relative;
     overflow: hidden;
     border: none;
-    border-radius: 999px;            /* full pill */
+    border-radius: 999px;
     cursor: pointer;
     text-decoration: none;
     white-space: nowrap;
 
-    /* ── Transparent fill — glass has almost no colour of its own ── */
+    /* ── High white fill so it reads clearly as glass, not tinted ── */
     background: linear-gradient(
-      160deg,
-      rgba(255,255,255,0.18) 0%,
-      rgba(255,255,255,0.06) 40%,
-      rgba(255,255,255,0.03) 65%,
-      rgba(255,255,255,0.10) 100%
+      175deg,
+      rgba(255,255,255,0.55) 0%,
+      rgba(255,255,255,0.20) 30%,
+      rgba(255,255,255,0.08) 60%,
+      rgba(255,255,255,0.18) 100%
     );
 
-    /* ── Refractive backdrop — the soul of liquid glass ── */
-    backdrop-filter: blur(24px) saturate(200%) brightness(1.22) contrast(108%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%) brightness(1.22) contrast(108%);
+    /* ── Blur only — no saturate so background colour doesn't bleed ── */
+    backdrop-filter: blur(28px) brightness(1.15);
+    -webkit-backdrop-filter: blur(28px) brightness(1.15);
 
-    /* ── Multi-layer bevelled border via box-shadow ──
-       Top-left = bright catch-light, bottom-right = dark recession */
+    /* ── Glowing pill border + breathing animation ── */
     box-shadow:
-      /* Outer specular rim */
-      0 -1px 0 0 rgba(255,255,255,0.85),
-      -1px 0 0 0 rgba(255,255,255,0.50),
-      0  1px 0 0 rgba(0,0,0,0.40),
-       1px 0 0 0 rgba(0,0,0,0.20),
-      /* Inner surface bounce */
-      inset 0  1.5px 0 rgba(255,255,255,0.60),
-      inset 0 -1px   0 rgba(0,0,0,0.18),
-      inset  1px 0  0 rgba(255,255,255,0.22),
-      inset -1px 0  0 rgba(0,0,0,0.10),
-      /* Lift shadow */
-      0 6px 24px rgba(0,0,0,0.30),
-      0 2px  8px rgba(0,0,0,0.20);
+      0 0 0 1px rgba(255,255,255,0.45),
+      0 0 0 1.5px rgba(255,255,255,0.15),
+      inset 0 1.5px 0 rgba(255,255,255,0.80),
+      inset 0 -1px  0 rgba(0,0,0,0.20),
+      0 8px 32px rgba(0,0,0,0.35),
+      0 2px 8px  rgba(0,0,0,0.25);
+    animation: btnGlow 3s ease-in-out infinite;
 
-    /* Typography */
-    color: rgba(255,255,255,0.95);
+    color: rgba(255,255,255,0.98);
+    text-shadow: 0 1px 8px rgba(255,255,255,0.4);
     font-family: 'VT323', monospace;
     font-size: 18px;
     letter-spacing: 0.22em;
@@ -1161,96 +1168,82 @@
 
     transform: translateY(0) scale(1);
     transition:
-      background      0.4s ease,
-      box-shadow      0.4s ease,
-      backdrop-filter 0.4s ease,
-      transform       0.45s cubic-bezier(0.16, 1, 0.3, 1),
-      letter-spacing  0.4s ease;
+      background  0.35s ease,
+      box-shadow  0.35s ease,
+      transform   0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      letter-spacing 0.35s ease;
   }
 
-  /* ── TOP SPECULAR DOME — the key 'wet glass' feature ── */
+  /* ── Specular dome: bright white arc on top half ── */
   .glass-btn::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 52%;
-    border-radius: 999px 999px 60% 60% / 999px 999px 80% 80%;
+    top: 0; left: 3%; right: 3%;
+    height: 55%;
+    border-radius: 999px 999px 50% 50%;
     background: linear-gradient(
       180deg,
-      rgba(255,255,255,0.52) 0%,
+      rgba(255,255,255,0.80) 0%,
       rgba(255,255,255,0.00) 100%
     );
     pointer-events: none;
     z-index: 2;
-    animation: specularPulse 3.5s ease-in-out infinite;
+    animation: specularPulse 3s ease-in-out infinite;
   }
 
-  /* ── SHIMMER SWEEP — continuous slow light moving across surface ── */
+  /* ── Shimmer sweep: bright band that slides continuously ── */
   .glass-btn::after {
     content: '';
     position: absolute;
-    inset: 0;
-    width: 45%;
+    top: 0; bottom: 0;
+    left: -80%;
+    width: 50%;
     background: linear-gradient(
-      90deg,
+      105deg,
       transparent 0%,
-      rgba(255,255,255,0.18) 40%,
-      rgba(255,255,255,0.28) 50%,
-      rgba(255,255,255,0.18) 60%,
+      rgba(255,255,255,0.35) 45%,
+      rgba(255,255,255,0.55) 50%,
+      rgba(255,255,255,0.35) 55%,
       transparent 100%
     );
-    animation: liquidShimmer 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    transform: skewX(-18deg);
+    animation: liquidShimmer 3s ease-in-out infinite;
     pointer-events: none;
-    z-index: 1;
+    z-index: 3;
   }
 
-  /* ── HOVER: float & deepen ── */
+  /* ── Hover: float, whiten, glow ── */
   @media (hover: hover) and (pointer: fine) {
     .glass-btn:hover {
       background: linear-gradient(
-        160deg,
-        rgba(255,255,255,0.28) 0%,
-        rgba(255,255,255,0.10) 40%,
-        rgba(255,255,255,0.06) 65%,
-        rgba(255,255,255,0.18) 100%
+        175deg,
+        rgba(255,255,255,0.70) 0%,
+        rgba(255,255,255,0.30) 30%,
+        rgba(255,255,255,0.12) 60%,
+        rgba(255,255,255,0.28) 100%
       );
-      backdrop-filter: blur(36px) saturate(240%) brightness(1.32) contrast(112%);
-      -webkit-backdrop-filter: blur(36px) saturate(240%) brightness(1.32) contrast(112%);
+      backdrop-filter: blur(36px) brightness(1.25);
+      -webkit-backdrop-filter: blur(36px) brightness(1.25);
       box-shadow:
-        0 -1px 0 0 rgba(255,255,255,0.98),
-        -1px 0 0 0 rgba(255,255,255,0.65),
-        0  1px 0 0 rgba(0,0,0,0.35),
-         1px 0 0 0 rgba(0,0,0,0.15),
-        inset 0  1.5px 0 rgba(255,255,255,0.80),
-        inset 0 -1px   0 rgba(0,0,0,0.14),
-        inset  1px 0  0 rgba(255,255,255,0.32),
-        inset -1px 0  0 rgba(0,0,0,0.08),
-        0 16px 40px rgba(0,0,0,0.40),
-        0  6px 16px rgba(0,0,0,0.28),
-        0  0   0 1.5px rgba(255,255,255,0.12);
-      transform: translateY(-4px) scale(1.03);
-      letter-spacing: 0.28em;
+        0 0 0 1.5px rgba(255,255,255,0.90),
+        0 0 0 4px   rgba(255,255,255,0.12),
+        inset 0 1.5px 0 rgba(255,255,255,1.00),
+        inset 0 -1px  0 rgba(0,0,0,0.15),
+        0 16px 48px rgba(0,0,0,0.45),
+        0  4px 16px rgba(0,0,0,0.30),
+        0  0   60px rgba(255,255,255,0.08);
+      transform: translateY(-5px) scale(1.04);
+      letter-spacing: 0.30em;
+      animation: none;
     }
-    .glass-btn:hover .glass-btn-arrow {
-      transform: translateX(6px);
-    }
+    .glass-btn:hover .glass-btn-arrow { transform: translateX(6px); }
   }
 
-  /* ── PRESS: snap into surface ── */
+  /* ── Press ── */
   .glass-btn:active {
-    background: rgba(255,255,255,0.04);
     transform: translateY(1px) scale(0.97);
-    backdrop-filter: blur(14px) saturate(160%) brightness(1.10);
-    -webkit-backdrop-filter: blur(14px) saturate(160%) brightness(1.10);
-    box-shadow:
-      0 -0.5px 0 0 rgba(255,255,255,0.60),
-      -0.5px 0 0 0 rgba(255,255,255,0.35),
-      0  0.5px 0 0 rgba(0,0,0,0.55),
-       0.5px 0 0 0 rgba(0,0,0,0.30),
-      inset 0  1px 0 rgba(255,255,255,0.30),
-      inset 0 -1px 0 rgba(0,0,0,0.25),
-      0 1px 4px rgba(0,0,0,0.35);
     transition-duration: 0.08s;
+    background: rgba(255,255,255,0.25);
   }
 
   .glass-btn-arrow {
