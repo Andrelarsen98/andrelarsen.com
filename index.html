@@ -840,6 +840,7 @@
   ══════════════════════════════════════ */
 
   /* Hidden SVG filter for chromatic aberration */
+  /* ── GLASS CTA: animated light behind real frost photo ── */
   .glass-cta {
     width: 100%;
     position: relative;
@@ -848,74 +849,135 @@
     overflow: hidden;
     isolation: isolate;
   }
-  /* Base glass photo */
+
+  /* Layer 0 — animated colored lights (sit BEHIND the frost photo) */
+  .glass-lights {
+    position: absolute; inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: radial-gradient(120% 120% at 50% 50%, #123047 0%, #08192a 60%, #03101a 100%);
+  }
+  .glass-lights .light {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    mix-blend-mode: screen;
+    will-change: transform;
+  }
+  .glass-lights .light-a {
+    width: 70vmax; height: 70vmax;
+    left: -20%; top: -25%;
+    background: radial-gradient(circle, rgba(140,210,255,1) 0%, rgba(70,150,225,0.6) 35%, transparent 70%);
+    animation: lightDriftA 22s ease-in-out infinite alternate;
+  }
+  .glass-lights .light-b {
+    width: 60vmax; height: 60vmax;
+    right: -15%; top: -10%;
+    background: radial-gradient(circle, rgba(220,240,255,0.95) 0%, rgba(90,170,235,0.55) 40%, transparent 72%);
+    animation: lightDriftB 28s ease-in-out infinite alternate;
+  }
+  .glass-lights .light-c {
+    width: 55vmax; height: 55vmax;
+    left: 5%; bottom: -25%;
+    background: radial-gradient(circle, rgba(160,220,255,0.95) 0%, rgba(50,120,210,0.5) 40%, transparent 75%);
+    animation: lightDriftC 32s ease-in-out infinite alternate;
+  }
+  .glass-lights .light-sweep {
+    width: 90vmax; height: 40vmax;
+    left: -50%; top: 30%;
+    border-radius: 0;
+    background: linear-gradient(100deg,
+      transparent 0%,
+      rgba(220,240,255,0.0) 30%,
+      rgba(230,245,255,0.7) 50%,
+      rgba(220,240,255,0.0) 70%,
+      transparent 100%);
+    filter: blur(80px);
+    animation: lightSweep 16s linear infinite;
+  }
+  @keyframes lightDriftA {
+    0%   { transform: translate3d(0,0,0) scale(1); }
+    50%  { transform: translate3d(18vw, 10vh, 0) scale(1.15); }
+    100% { transform: translate3d(-10vw, 22vh, 0) scale(0.95); }
+  }
+  @keyframes lightDriftB {
+    0%   { transform: translate3d(0,0,0) scale(1); }
+    50%  { transform: translate3d(-22vw, 14vh, 0) scale(1.2); }
+    100% { transform: translate3d(-6vw, -12vh, 0) scale(0.9); }
+  }
+  @keyframes lightDriftC {
+    0%   { transform: translate3d(0,0,0) scale(1); }
+    50%  { transform: translate3d(22vw, -18vh, 0) scale(1.1); }
+    100% { transform: translate3d(-12vw, -28vh, 0) scale(1.25); }
+  }
+  @keyframes lightSweep {
+    0%   { transform: translate3d(-40vw, 0, 0) rotate(8deg); opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translate3d(90vw, -10vh, 0) rotate(8deg); opacity: 0; }
+  }
+
+  /* Layer 1 — REAL frost photo on top of the lights, blends so light shows through */
   .glass-bg, .glass-bg-drift, .glass-bg-drift-2, .glass-light-leak {
     position: absolute; inset: 0;
     background-image: url('glass-bg-desktop.png');
     background-size: cover;
     background-position: center;
-    will-change: transform, opacity, filter;
+    will-change: transform, opacity;
     backface-visibility: hidden;
     transform: translateZ(0);
   }
   .glass-bg {
-    z-index: 0;
-    /* almost imperceptible breathing of the base surface */
-    animation: glassBreathe 38s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    z-index: 1;
+    mix-blend-mode: hard-light;
+    opacity: 0.95;
+    animation: glassBreathe 38s cubic-bezier(0.45,0,0.55,1) infinite;
   }
   @keyframes glassBreathe {
     0%, 100% { filter: brightness(1) saturate(1); transform: scale(1) translateZ(0); }
-    50%      { filter: brightness(1.025) saturate(1.04); transform: scale(1.006) translateZ(0); }
+    50%      { filter: brightness(1.04) saturate(1.06); transform: scale(1.006) translateZ(0); }
   }
-  /* Drifting copy — fakes surface shimmer via soft-light blend (very slow, very subtle) */
   .glass-bg-drift {
-    z-index: 1;
+    z-index: 2;
     mix-blend-mode: soft-light;
-    opacity: 0.32;
+    opacity: 0.5;
     transform: scale(1.05);
-    animation: glassDrift 64s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate,
-               glassFade 41s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation: glassDrift 64s cubic-bezier(0.4,0,0.6,1) infinite alternate,
+               glassFade 41s cubic-bezier(0.45,0,0.55,1) infinite;
   }
-  /* Second drift layer — different timing creates organic parallax */
   .glass-bg-drift-2 {
-    z-index: 1;
+    z-index: 2;
     mix-blend-mode: overlay;
-    opacity: 0.18;
+    opacity: 0.28;
     transform: scale(1.07);
-    animation: glassDrift2 87s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate,
-               glassFade 53s cubic-bezier(0.45, 0, 0.55, 1) infinite -7s;
+    animation: glassDrift2 87s cubic-bezier(0.4,0,0.6,1) infinite alternate,
+               glassFade 53s cubic-bezier(0.45,0,0.55,1) infinite -7s;
   }
-  @keyframes glassDrift {
-    0%   { transform: scale(1.05) translate3d(-0.9%, -0.6%, 0) rotate(0deg); }
-    100% { transform: scale(1.07) translate3d(1.1%,  0.8%, 0) rotate(0.15deg); }
-  }
-  @keyframes glassDrift2 {
-    0%   { transform: scale(1.07) translate3d(0.8%,  0.7%, 0) rotate(-0.12deg); }
-    100% { transform: scale(1.05) translate3d(-1.0%, -0.5%, 0) rotate(0.08deg); }
-  }
-  @keyframes glassFade {
-    0%, 100% { opacity: var(--fade-lo, 0.22); }
-    50%      { opacity: var(--fade-hi, 0.42); }
-  }
-  .glass-bg-drift   { --fade-lo: 0.22; --fade-hi: 0.42; }
-  .glass-bg-drift-2 { --fade-lo: 0.10; --fade-hi: 0.24; }
-  /* Slow diagonal light-leak — simulates sun moving past glass */
+  @keyframes glassDrift  { 0% { transform: scale(1.05) translate3d(-0.9%,-0.6%,0) rotate(0deg); } 100% { transform: scale(1.07) translate3d(1.1%, 0.8%,0) rotate(0.15deg); } }
+  @keyframes glassDrift2 { 0% { transform: scale(1.07) translate3d(0.8%, 0.7%,0) rotate(-0.12deg); } 100% { transform: scale(1.05) translate3d(-1.0%,-0.5%,0) rotate(0.08deg); } }
+  @keyframes glassFade   { 0%,100% { opacity: var(--fade-lo,0.32); } 50% { opacity: var(--fade-hi,0.55); } }
+  .glass-bg-drift   { --fade-lo: 0.32; --fade-hi: 0.55; }
+  .glass-bg-drift-2 { --fade-lo: 0.16; --fade-hi: 0.34; }
+
+  /* Sun-leak hotspot riding on top of the frost */
   .glass-light-leak {
     z-index: 2;
     background: radial-gradient(ellipse 65% 85% at var(--lx,30%) var(--ly,20%),
-                rgba(255,245,220,0.14) 0%,
-                rgba(255,235,200,0.05) 38%,
+                rgba(255,245,220,0.18) 0%,
+                rgba(255,235,200,0.06) 38%,
                 transparent 68%);
     mix-blend-mode: screen;
-    animation: leakDrift 72s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+    animation: leakDrift 72s cubic-bezier(0.45,0,0.55,1) infinite alternate;
     pointer-events: none;
   }
   @keyframes leakDrift {
-    0%   { --lx: 18%; --ly: 28%; opacity: 0.55; }
-    50%  { opacity: 0.9; }
-    100% { --lx: 78%; --ly: 68%; opacity: 0.5; }
+    0%   { --lx: 18%; --ly: 28%; opacity: 0.6; }
+    50%  { opacity: 0.95; }
+    100% { --lx: 78%; --ly: 68%; opacity: 0.55; }
   }
-  /* Vignette so edges feel like real frosted glass framed */
+
+  /* Vignette */
   .glass-cta::after {
     content: '';
     position: absolute; inset: 0;
@@ -925,6 +987,7 @@
     pointer-events: none;
     z-index: 3;
   }
+
   @media (max-width: 768px) {
     .glass-bg, .glass-bg-drift, .glass-bg-drift-2 {
       background-image: url('glass-bg-mobile.png');
@@ -2184,6 +2247,12 @@ Dubai, worldwide.</div>
 
   <!-- ── GLASS CTA (etched) ── -->
   <div class="glass-cta" id="glassCta">
+    <div class="glass-lights" aria-hidden="true">
+      <span class="light light-a"></span>
+      <span class="light light-b"></span>
+      <span class="light light-c"></span>
+      <span class="light light-sweep"></span>
+    </div>
     <div class="glass-bg" aria-hidden="true"></div>
     <div class="glass-bg-drift" aria-hidden="true"></div>
     <div class="glass-bg-drift-2" aria-hidden="true"></div>
