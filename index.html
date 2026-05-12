@@ -1295,13 +1295,13 @@
   @media (max-width: 768px) {
     .glass-cta {
       padding: 0;
-      min-height: 100vh;
       display: flex;
       align-items: stretch;
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
       background-color: #0d1e2a;
+      /* height set dynamically by JS to match photo's natural aspect ratio */
     }
     .glass-panel {
       padding: 36px 24px 60px;
@@ -1309,7 +1309,8 @@
       align-items: center;
       gap: 0;
       justify-content: space-between;
-      min-height: 100vh;
+      min-height: unset;
+      height: 100%;
       width: 100%;
     }
     .glass-hud {
@@ -4815,6 +4816,30 @@ window.addEventListener('load', () => {
     }
   }, 4000);
 })();
+</script>
+
+<script>
+  // ── GLASS CTA — FIT CONTAINER TO PHOTO HEIGHT (mobile) ──
+  (function() {
+    if (window.innerWidth > 768) return;
+    var cta = document.getElementById("glassCta");
+    if (!cta) return;
+    function sizeToPhoto() {
+      if (window.innerWidth > 768) return;
+      var img = new Image();
+      img.onload = function() {
+        var ratio = this.naturalHeight / this.naturalWidth;
+        var w = cta.offsetWidth;
+        var h = Math.round(w * ratio);
+        cta.style.height = h + "px";
+        cta.style.minHeight = h + "px";
+        cta.style.maxHeight = h + "px";
+      };
+      img.src = "glass-bg-mobile.png";
+    }
+    sizeToPhoto();
+    window.addEventListener("resize", sizeToPhoto);
+  })();
 </script>
 
 <script>
