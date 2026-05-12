@@ -840,516 +840,296 @@
   ══════════════════════════════════════ */
 
   /* Hidden SVG filter for chromatic aberration */
-  .glass-ca-filter {
-    position: absolute;
-    width: 0; height: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
   .glass-cta {
     width: 100%;
     position: relative;
-    background: #0d1e2a;
+    background: #0a1922;
+    padding: 0;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  /* Base glass photo */
+  .glass-bg, .glass-bg-drift, .glass-light-leak {
+    position: absolute; inset: 0;
     background-image: url('glass-bg-desktop.png');
     background-size: cover;
     background-position: center;
-    padding: 48px 32px 52px;
-    overflow: hidden;
+    will-change: transform;
+  }
+  .glass-bg { z-index: 0; }
+  /* Drifting copy — fakes surface shimmer via soft-light blend */
+  .glass-bg-drift {
+    z-index: 1;
+    mix-blend-mode: soft-light;
+    opacity: 0.55;
+    transform: scale(1.04);
+    animation: glassDrift 22s ease-in-out infinite alternate;
+  }
+  @keyframes glassDrift {
+    0%   { transform: scale(1.04) translate3d(-1.2%, -0.8%, 0); }
+    100% { transform: scale(1.06) translate3d(1.4%,  1.0%, 0); }
+  }
+  /* Slow diagonal light-leak — simulates sun moving past glass */
+  .glass-light-leak {
+    z-index: 2;
+    background: radial-gradient(ellipse 60% 80% at var(--lx,30%) var(--ly,20%),
+                rgba(255,245,220,0.18) 0%,
+                rgba(255,235,200,0.06) 35%,
+                transparent 65%);
+    mix-blend-mode: screen;
+    animation: leakDrift 28s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes leakDrift {
+    0%   { --lx: 20%; --ly: 30%; opacity: 0.7; }
+    50%  { opacity: 1; }
+    100% { --lx: 75%; --ly: 65%; opacity: 0.6; }
+  }
+  /* Vignette so edges feel like real frosted glass framed */
+  .glass-cta::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center,
+                transparent 40%,
+                rgba(5,15,22,0.55) 100%);
+    pointer-events: none;
+    z-index: 3;
   }
   @media (max-width: 768px) {
-    .glass-cta {
+    .glass-bg, .glass-bg-drift {
       background-image: url('glass-bg-mobile.png');
-      background-position: center center;
     }
   }
 
-    /* Frost texture removed */
-  .glass-cta::before { display: none; }
-
-    /* Orange glow removed */
-  .glass-cta::after { display: none; }
-
-    /* Orange blobs removed */
-  .glass-blobs { display: none; }
-    to   { transform: translate(-40px, 50px) scale(1.08); }
-  }
-
-    /* Glass panel — box removed, text floats on bg */
+  /* Panel */
   .glass-panel {
     position: relative;
     width: 100%;
-    border-radius: 0;
-    padding: 48px 52px;
-    display: flex;
+    padding: 56px 56px 60px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
     gap: 32px;
-    cursor: pointer;
-    overflow: visible;
+    cursor: default;
+    z-index: 4;
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(14px);
     transition: opacity 0s, transform 0s;
-    z-index: 1;
-    background: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border: none;
-    box-shadow: none;
   }
   .glass-panel.visible {
     opacity: 1;
     transform: translateY(0);
-    transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    transition: opacity 0.7s ease, transform 0.9s cubic-bezier(0.16,1,0.3,1);
   }
 
-  /* Breathing border glow — pulses the specular bevel */
-  @keyframes glassBreath {
-    0%, 100% {
-      box-shadow:
-        0 8px 80px rgba(0,0,0,0.70),
-        0 2px 32px rgba(0,0,0,0.50),
-        inset 0 1.5px 0 rgba(255,255,255,0.40),
-        inset 0 -1px 0 rgba(0,0,0,0.25),
-        inset 1px 0 0 rgba(255,255,255,0.15),
-        inset -1px 0 0 rgba(0,0,0,0.15);
-    }
-    50% {
-      box-shadow:
-        0 8px 100px rgba(0,0,0,0.55),
-        0 2px 60px rgba(100,140,255,0.10),
-        inset 0 1.5px 0 rgba(255,255,255,0.60),
-        inset 0 -1px 0 rgba(0,0,0,0.20),
-        inset 1px 0 0 rgba(255,255,255,0.25),
-        inset -1px 0 0 rgba(0,0,0,0.10);
-    }
-  }
-
-    /* Panel pseudo-elements removed */
-  .glass-panel::before, .glass-panel::after { display: none; }
-
-  /* ── HUD left column ── */
+  /* ── HUD left ── */
   .glass-hud {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    position: relative;
-    z-index: 1;
-    flex-shrink: 0;
+    justify-self: start;
   }
-
-  /* Corner bracket — etched glass look */
-  .glass-bracket {
-    position: relative;
-    width: 56px;
-    height: 56px;
-    flex-shrink: 0;
-  }
-  .glass-bracket::before,
-  .glass-bracket::after {
+  .glass-bracket { position: relative; width: 56px; height: 56px; }
+  .glass-bracket::before, .glass-bracket::after {
     content: '';
     position: absolute;
     width: 14px; height: 14px;
-    border-color: rgba(255,255,255,0.7);
+    border-color: rgba(255,255,255,0.55);
     border-style: solid;
-    filter: drop-shadow(0 0 3px rgba(255,255,255,0.3));
   }
-  .glass-bracket::before {
-    top: 0; left: 0;
-    border-width: 1.5px 0 0 1.5px;
-  }
-  .glass-bracket::after {
-    bottom: 0; right: 0;
-    border-width: 0 1.5px 1.5px 0;
-  }
+  .glass-bracket::before { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; }
+  .glass-bracket::after  { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; }
   .glass-bracket-inner {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
   }
   .glass-bracket-inner::before {
     content: '+';
     font-family: 'VT323', monospace;
     font-size: 22px;
-    color: rgba(255,255,255,0.45);
+    color: rgba(255,255,255,0.4);
     -webkit-font-smoothing: none;
     line-height: 1;
-    text-shadow: 0 0 6px rgba(255,255,255,0.3);
   }
-
-  /* Telemetry readout — etched text */
-  .glass-tele {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
+  .glass-tele { display: flex; flex-direction: column; gap: 2px; }
   .glass-tele-row {
     font-family: 'VT323', monospace;
     font-size: 12px;
     letter-spacing: 0.16em;
-    color: rgba(255,255,255,0.35);
+    color: rgba(255,255,255,0.32);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
     line-height: 1.3;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.5);
   }
-  .glass-tele-row span {
-    color: rgba(255,255,255,0.65);
-    text-shadow: 0 0 8px rgba(200,220,255,0.3);
-  }
+  .glass-tele-row span { color: rgba(255,255,255,0.6); }
 
-  /* ── Center CTA ── */
+  /* ── Center: ETCHED HEADLINE ── */
   .glass-center {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    position: relative;
-    z-index: 1;
+    gap: 14px;
     text-align: center;
   }
   .glass-eyebrow {
     font-family: 'VT323', monospace;
     font-size: 13px;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.45);
     -webkit-font-smoothing: none;
-    text-shadow: 0 0 10px rgba(255,255,255,0.15);
   }
-
-  /* Headline — ── REFINEMENT 4: Multi-layer bloom text-shadow ── */
   .glass-headline {
     font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
-    font-size: clamp(28px, 4vw, 52px);
+    font-size: clamp(32px, 5.2vw, 78px);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: -0.02em;
-    color: #fff;
-    line-height: 1;
+    line-height: 0.95;
     white-space: nowrap;
-    position: relative;
-
-    /* Layer 1 — tight sharp glow (the hot centre of a light source) */
-    /* Layer 2 — medium spread (the corona) */
-    /* Layer 3 — large soft atmospheric haze */
-    /* Layer 4 — very wide cool-blue tint for depth */
+    /* Etched look: white text in overlay blend reads as condensation cleared from glass */
+    color: rgba(255,255,255,0.92);
+    mix-blend-mode: overlay;
     text-shadow:
-      0 0  4px rgba(255,255,255,1.00),
-      0 0 12px rgba(255,255,255,0.80),
-      0 0 30px rgba(255,255,255,0.45),
-      0 0 70px rgba(200,215,255,0.22),
-      0 0 130px rgba(160,190,255,0.10);
+      0 1px 0 rgba(0,0,0,0.35),
+      0 2px 8px rgba(0,0,0,0.25);
+    /* Resolve-from-blur entrance — set on .visible */
+    filter: blur(24px);
+    opacity: 0;
+    transform: scale(1.02);
+    transition: filter 1.2s cubic-bezier(0.16,1,0.3,1) 0.25s,
+                opacity 0.9s ease 0.25s,
+                transform 1.4s cubic-bezier(0.16,1,0.3,1) 0.25s;
+  }
+  .glass-panel.visible .glass-headline {
+    filter: blur(0);
+    opacity: 1;
+    transform: scale(1);
+  }
+  .glass-headline.reveal-hover { animation: rehoverBlur 1.2s cubic-bezier(0.16,1,0.3,1); }
+  @keyframes rehoverBlur {
+    0%   { filter: blur(14px); }
+    100% { filter: blur(0); }
+  }
+  .glass-cursor { display: none; } /* removed — replaced with reticle on drag rail */
 
-    /* Chromatic aberration — red channel left, blue channel right */
-    filter: drop-shadow(-1.5px 0 0 rgba(255,60,60,0.35))
-            drop-shadow(1.5px 0 0 rgba(60,120,255,0.35));
+  /* ── Right: DRAG-TO-INITIATE ── */
+  .glass-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 16px;
+    justify-self: end;
   }
   .glass-sub {
     font-family: 'VT323', monospace;
     font-size: 13px;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.32);
+    color: rgba(255,255,255,0.45);
     -webkit-font-smoothing: none;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-  }
-  /* On desktop, email lives in glass-right above the button */
-  .glass-sub-email {
-    display: block;
   }
 
-  /* Blinking cursor */
-  .glass-cursor {
-    display: inline-block;
-    width: 8px; height: 13px;
-    background: rgba(255,255,255,0.75);
-    margin-left: 4px;
-    vertical-align: middle;
-    animation: cursorBlink 1.1s step-end infinite;
-    box-shadow: 0 0 8px rgba(255,255,255,0.5);
-  }
-  @keyframes cursorBlink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0; }
-  }
-
-  /* ── Right CTA button — iOS CLEAR LIQUID GLASS ── */
-  .glass-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 14px;
-    flex-shrink: 0;
+  /* The drag rail */
+  .drag-rail {
+    --w: 280px;
+    --h: 38px;
     position: relative;
-    z-index: 1;
+    width: var(--w);
+    height: var(--h);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
   }
-  /* ════════════════════════════════════════
-     LIQUID GLASS BUTTON — retina quality
-  ════════════════════════════════════════ */
-
-  @keyframes liquidShimmer {
-    0%   { left: -80%; }
-    100% { left: 160%; }
-  }
-  @keyframes specularPulse {
-    0%, 100% { opacity: 0.7; }
-    50%       { opacity: 1.0; }
-  }
-  @keyframes btnGlow {
-    0%, 100% { box-shadow:
-      0 0 0 1px rgba(255,255,255,0.45),
-      0 0 0 1.5px rgba(255,255,255,0.15),
-      inset 0 1.5px 0 rgba(255,255,255,0.80),
-      inset 0 -1px  0 rgba(0,0,0,0.20),
-      0 8px 32px rgba(0,0,0,0.35),
-      0 2px 8px  rgba(0,0,0,0.25); }
-    50%       { box-shadow:
-      0 0 0 1px rgba(255,255,255,0.75),
-      0 0 0 3px rgba(255,255,255,0.10),
-      inset 0 1.5px 0 rgba(255,255,255,0.95),
-      inset 0 -1px  0 rgba(0,0,0,0.15),
-      0 10px 40px rgba(0,0,0,0.40),
-      0 2px 10px rgba(0,0,0,0.25); }
-  }
-
-  .glass-btn {
-    display: inline-flex;
+  /* Faint guide text behind handle */
+  .drag-rail-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 12px 30px;
-    position: relative;
-    overflow: hidden;
-    border: none;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    -webkit-font-smoothing: none;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    padding-left: 32px; /* offset for handle */
+  }
+  /* Progress fill — leaves a trail behind handle */
+  .drag-rail-fill {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 0;
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0.18) 0%,
+      rgba(255,255,255,0.04) 100%);
+    pointer-events: none;
+  }
+  /* Handle — reticle */
+  .drag-handle {
+    position: absolute;
+    top: 50%;
+    left: 3px;
+    transform: translateY(-50%);
+    width: 32px; height: 32px;
     border-radius: 999px;
-    cursor: pointer;
-    text-decoration: none;
-    white-space: nowrap;
-
-    /* ── High white fill so it reads clearly as glass, not tinted ── */
-    background: linear-gradient(
-      175deg,
-      rgba(255,255,255,0.55) 0%,
-      rgba(255,255,255,0.20) 30%,
-      rgba(255,255,255,0.08) 60%,
-      rgba(255,255,255,0.18) 100%
-    );
-
-    /* ── Blur only — no saturate so background colour doesn't bleed ── */
-    backdrop-filter: blur(28px) brightness(1.15);
-    -webkit-backdrop-filter: blur(28px) brightness(1.15);
-
-    /* ── Glowing pill border + breathing animation ── */
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,0.45),
-      0 0 0 1.5px rgba(255,255,255,0.15),
-      inset 0 1.5px 0 rgba(255,255,255,0.80),
-      inset 0 -1px  0 rgba(0,0,0,0.20),
-      0 8px 32px rgba(0,0,0,0.35),
-      0 2px 8px  rgba(0,0,0,0.25);
-    animation: btnGlow 3s ease-in-out infinite;
-
-    color: rgba(255,255,255,0.98);
-    text-shadow: 0 1px 8px rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.9);
+    display: flex; align-items: center; justify-content: center;
+    cursor: grab;
+    transition: background 0.2s ease;
+  }
+  .drag-handle:active { cursor: grabbing; }
+  .drag-handle::before {
+    content: '→';
     font-family: 'VT323', monospace;
     font-size: 18px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-
-    transform: translateY(0) scale(1);
-    transition:
-      background  0.35s ease,
-      box-shadow  0.35s ease,
-      transform   0.4s cubic-bezier(0.16, 1, 0.3, 1),
-      letter-spacing 0.35s ease;
-  }
-
-  /* ── Specular dome: bright white arc on top half ── */
-  .glass-btn::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 3%; right: 3%;
-    height: 55%;
-    border-radius: 999px 999px 50% 50%;
-    background: linear-gradient(
-      180deg,
-      rgba(255,255,255,0.80) 0%,
-      rgba(255,255,255,0.00) 100%
-    );
-    pointer-events: none;
-    z-index: 2;
-    animation: specularPulse 3s ease-in-out infinite;
-  }
-
-  /* ── Shimmer sweep: bright band that slides continuously ── */
-  .glass-btn::after {
-    content: '';
-    position: absolute;
-    top: 0; bottom: 0;
-    left: -80%;
-    width: 50%;
-    background: linear-gradient(
-      105deg,
-      transparent 0%,
-      rgba(255,255,255,0.35) 45%,
-      rgba(255,255,255,0.55) 50%,
-      rgba(255,255,255,0.35) 55%,
-      transparent 100%
-    );
-    transform: skewX(-18deg);
-    animation: liquidShimmer 3s ease-in-out infinite;
-    pointer-events: none;
-    z-index: 3;
-  }
-
-  /* ── Hover: float, whiten, glow ── */
-  @media (hover: hover) and (pointer: fine) {
-    .glass-btn:hover {
-      background: linear-gradient(
-        175deg,
-        rgba(255,255,255,0.70) 0%,
-        rgba(255,255,255,0.30) 30%,
-        rgba(255,255,255,0.12) 60%,
-        rgba(255,255,255,0.28) 100%
-      );
-      backdrop-filter: blur(36px) brightness(1.25);
-      -webkit-backdrop-filter: blur(36px) brightness(1.25);
-      box-shadow:
-        0 0 0 1.5px rgba(255,255,255,0.90),
-        0 0 0 4px   rgba(255,255,255,0.12),
-        inset 0 1.5px 0 rgba(255,255,255,1.00),
-        inset 0 -1px  0 rgba(0,0,0,0.15),
-        0 16px 48px rgba(0,0,0,0.45),
-        0  4px 16px rgba(0,0,0,0.30),
-        0  0   60px rgba(255,255,255,0.08);
-      transform: translateY(-5px) scale(1.04);
-      letter-spacing: 0.30em;
-      animation: none;
-    }
-    .glass-btn:hover .glass-btn-arrow { transform: translateX(6px); }
-  }
-
-  /* ── Press ── */
-  .glass-btn:active {
-    transform: translateY(1px) scale(0.97);
-    transition-duration: 0.08s;
-    background: rgba(255,255,255,0.25);
-  }
-
-  .glass-btn-arrow {
-    font-size: 20px;
+    color: #0a1922;
     line-height: 1;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
+  .drag-rail.armed .drag-handle { background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,0.18), 0 4px 18px rgba(0,0,0,0.4); }
+  .drag-rail.fired .drag-rail-label { opacity: 0; }
+  .drag-rail.fired .drag-handle::before { content: '✓'; }
+  .drag-rail.dragging .drag-rail-label { opacity: 0.25; }
 
   .glass-coord {
     font-family: 'VT323', monospace;
     font-size: 11px;
-    letter-spacing: 0.14em;
-    color: rgba(255,255,255,0.22);
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.3);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
     text-align: right;
-    text-shadow: 0 0 6px rgba(255,255,255,0.1);
   }
 
-  /* Hover — desktop pointer only */
-  @media (hover: hover) and (pointer: fine) {
-  .glass-panel:hover {
-    box-shadow: none;
-  }
-  .glass-panel:hover .glass-bracket::before,
-  .glass-panel:hover .glass-bracket::after {
-    border-color: rgba(255,255,255,0.95);
-    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
-    transition: border-color 0.2s, filter 0.2s;
-  }
-  } /* end hover media query */
-
-    /* Chromatic aberration removed */
-
+  /* Mobile */
   @media (max-width: 768px) {
-    .glass-cta {
-      padding: 0;
-      display: flex;
-      align-items: stretch;
-      background-position: center center;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-color: #0d1e2a;
-      /* height set dynamically by JS to match photo's natural aspect ratio */
-    }
+    .glass-cta { padding: 0; display: flex; align-items: stretch; background-color: #0a1922; }
     .glass-panel {
-      padding: 36px 24px 60px;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
-      justify-content: space-between;
-      min-height: unset;
-      height: 100%;
+      grid-template-columns: 1fr;
+      grid-auto-rows: auto;
+      padding: 36px 24px 56px;
+      gap: 28px;
+      justify-items: center;
       width: 100%;
+      min-height: 100%;
     }
-    .glass-hud {
-      flex-direction: row;
-      align-items: flex-start;
-      gap: 16px;
-      width: 100%;
-    }
-    .glass-center {
-      align-items: center;
-      text-align: center;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 24px 0 12px;
-      width: 100%;
-    }
-    .glass-eyebrow { margin-bottom: 10px; }
-    .glass-headline {
-      font-size: clamp(36px, 11vw, 52px);
-      white-space: normal;
-      line-height: 0.95;
-      margin-bottom: 14px;
-      text-align: center;
-    }
-    .glass-sub {
-      font-size: 13px;
-      letter-spacing: 0.14em;
-      opacity: 0.55;
-    }
-    .glass-right {
-      width: 100%;
-      align-items: center;
-      gap: 14px;
-      margin-top: auto;
-      padding-top: 40px;
-    }
-    .glass-btn {
-      width: 85%;
-      justify-content: center;
-      padding: 14px 28px;
-      font-size: 16px;
-      letter-spacing: 0.20em;
-    }
-    .glass-coord {
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      opacity: 0.35;
-      padding-left: 4px;
-    }
-    .glass-sub-email {
-      font-size: 12px;
-      letter-spacing: 0.14em;
-      opacity: 0.45;
-      padding-left: 2px;
-    }
+    .glass-hud { flex-direction: row; justify-self: stretch; gap: 16px; align-items: flex-start; }
+    .glass-headline { font-size: clamp(40px, 12vw, 64px); white-space: normal; line-height: 0.92; }
+    .glass-right { justify-self: stretch; align-items: center; gap: 14px; margin-top: 8px; }
+    .drag-rail { --w: 100%; width: 100%; max-width: 360px; }
+    .glass-coord, .glass-sub { text-align: center; }
   }
 
   /* ── STUDIO PARALLAX ── */
@@ -2372,22 +2152,17 @@ Dubai, worldwide.</div>
 
   </section>
 
-  <!-- ── GLASS CTA STRIP ── -->
+  <!-- ── GLASS CTA (etched) ── -->
   <div class="glass-cta" id="glassCta">
-    <!-- Animated organic blob background -->
-    <div class="glass-blobs" aria-hidden="true">
-      <div class="glass-blob glass-blob-1"></div>
-      <div class="glass-blob glass-blob-2"></div>
-      <div class="glass-blob glass-blob-3"></div>
-      <div class="glass-blob glass-blob-4"></div>
-    </div>
+    <div class="glass-bg" aria-hidden="true"></div>
+    <div class="glass-bg-drift" aria-hidden="true"></div>
+    <div class="glass-light-leak" aria-hidden="true"></div>
+
     <div class="glass-panel" id="glassPanel">
 
       <!-- HUD left -->
       <div class="glass-hud">
-        <div class="glass-bracket">
-          <div class="glass-bracket-inner"></div>
-        </div>
+        <div class="glass-bracket"><div class="glass-bracket-inner"></div></div>
         <div class="glass-tele">
           <div class="glass-tele-row">SYS <span id="glassSys">READY</span></div>
           <div class="glass-tele-row">LAT <span>24°12'N</span></div>
@@ -2399,21 +2174,24 @@ Dubai, worldwide.</div>
       <!-- Center -->
       <div class="glass-center">
         <div class="glass-eyebrow">■ &nbsp; Transmission ready</div>
-        <div class="glass-headline" id="glassHeadline">START A PROJECT<span class="glass-cursor"></span></div>
+        <div class="glass-headline" id="glassHeadline">START A PROJECT</div>
       </div>
 
-      <!-- Right CTA -->
+      <!-- Right: drag-to-initiate -->
       <div class="glass-right">
-        <div class="glass-sub glass-sub-email">andre@andrelarsen.com</div>
-        <a href="mailto:andre@andrelarsen.com" class="glass-btn">
-          <span>> INITIATE</span>
-          <span class="glass-btn-arrow">→</span>
-        </a>
+        <div class="glass-sub">andre@andrelarsen.com</div>
+        <div class="drag-rail" id="dragRail" role="button" tabindex="0"
+             aria-label="Drag to initiate — opens email">
+          <div class="drag-rail-fill" id="dragFill"></div>
+          <div class="drag-rail-label">Drag to initiate</div>
+          <div class="drag-handle" id="dragHandle"></div>
+        </div>
         <div class="glass-coord">DUBAI, UAE — WORLDWIDE</div>
       </div>
 
     </div>
   </div>
+
 
   <!-- ── SECTION 5: STUDIO / GEAR ── -->
   <section class="studio-section">
@@ -4712,76 +4490,59 @@ window.addEventListener('load', () => {
 })();
 
 /* ══════════════════════════════════════════════════════════════
-   ── GLASS CTA — BLINK-IN + STATUS TICKER + HEADLINE GLITCH ──
+   ── GLASS CTA — etched + drag-to-initiate ──
 ══════════════════════════════════════════════════════════════ */
 (function() {
-  const panel     = document.getElementById('glassPanel');
-  const headline  = document.getElementById('glassHeadline');
-  const statusEl  = document.getElementById('glassStatus');
-  const sysEl     = document.getElementById('glassSys');
+  const panel    = document.getElementById('glassPanel');
+  const headline = document.getElementById('glassHeadline');
+  const statusEl = document.getElementById('glassStatus');
+  const sysEl    = document.getElementById('glassSys');
   if (!panel) return;
 
   const sc = document.getElementById('scrollContainer');
-  const GLITCH = '@#FRT43%=+-.<>!?|~^&*3R4T';
-  const ORIG_HEADLINE = 'START A PROJECT';
   let fired = false;
 
-  // Status ticker cycle
-  const statuses = ['OPEN', 'ONLINE', 'READY', 'LIVE', 'ACTIVE'];
+  // Status ticker
+  const statuses  = ['OPEN', 'ONLINE', 'READY', 'LIVE', 'ACTIVE'];
   const sysStates = ['READY', 'ARMED', 'GO', 'LOCKED'];
   let sIdx = 0, ssIdx = 0;
-  setInterval(() => {
-    sIdx = (sIdx + 1) % statuses.length;
-    statusEl.textContent = statuses[sIdx];
-  }, 2800);
-  setInterval(() => {
-    ssIdx = (ssIdx + 1) % sysStates.length;
-    sysEl.textContent = sysStates[ssIdx];
-  }, 3700);
+  setInterval(() => { sIdx = (sIdx+1) % statuses.length; statusEl.textContent = statuses[sIdx]; }, 2800);
+  setInterval(() => { ssIdx = (ssIdx+1) % sysStates.length; sysEl.textContent = sysStates[ssIdx]; }, 3700);
 
-  function glitchHeadline(cb) {
-    const cursor = headline.querySelector('.glass-cursor');
-    let count = 0;
-    const total = 14;
-    const iv = setInterval(() => {
-      const glitched = Array.from(ORIG_HEADLINE).map(c =>
-        c === ' ' ? ' ' : (Math.random() > 0.45
-          ? GLITCH[Math.floor(Math.random() * GLITCH.length)]
-          : c)
-      ).join('');
-      // Preserve cursor span
-      headline.childNodes[0].textContent = glitched;
-      count++;
-      if (count >= total) {
-        clearInterval(iv);
-        headline.childNodes[0].textContent = ORIG_HEADLINE;
-        if (cb) cb();
-      }
-    }, 38);
+  // Re-trigger headline blur reveal on hover
+  panel.addEventListener('mouseenter', () => {
+    headline.classList.remove('reveal-hover');
+    void headline.offsetWidth;
+    headline.classList.add('reveal-hover');
+  });
+
+  // Pointer parallax on the bg layers (desktop only)
+  const bg = panel.parentElement.querySelector('.glass-bg');
+  const bgDrift = panel.parentElement.querySelector('.glass-bg-drift');
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    panel.parentElement.addEventListener('mousemove', (e) => {
+      const r = panel.parentElement.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width  - 0.5;
+      const py = (e.clientY - r.top)  / r.height - 0.5;
+      bg.style.transform      = `translate3d(${px * -8}px, ${py * -8}px, 0) scale(1.02)`;
+      bgDrift.style.transform = `translate3d(${px * 14}px, ${py * 14}px, 0) scale(1.06)`;
+    });
   }
 
   function blinkIn() {
-    // Nav-logo style blink sequence then settle
     panel.style.transition = 'none';
     panel.style.opacity = '0';
-    panel.style.transform = 'translateY(18px)';
-
+    panel.style.transform = 'translateY(14px)';
     setTimeout(() => { panel.style.opacity = '0.3'; }, 60);
     setTimeout(() => { panel.style.opacity = '0';   }, 130);
     setTimeout(() => { panel.style.opacity = '0.7'; }, 200);
     setTimeout(() => { panel.style.opacity = '0';   }, 260);
     setTimeout(() => {
-      panel.style.transition = 'opacity 0.5s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+      panel.style.transition = 'opacity 0.7s ease, transform 0.9s cubic-bezier(0.16,1,0.3,1)';
       panel.classList.add('visible');
-      // Glitch headline once it's visible
-      setTimeout(() => glitchHeadline(), 400);
     }, 340);
   }
 
-  // Hover — re-glitch headline
-  panel.addEventListener('mouseenter', () => glitchHeadline());
-
-  // Intersection trigger
   const obs = new IntersectionObserver(entries => {
     if (entries[0].isIntersecting && !fired) {
       fired = true;
@@ -4789,19 +4550,86 @@ window.addEventListener('load', () => {
       obs.disconnect();
     }
   }, { root: sc, threshold: 0.05 });
-
   obs.observe(panel);
 
-  // Hard fallback — if IntersectionObserver never fires (e.g. mobile scroll race),
-  // force the panel visible after 4 seconds so it's never permanently hidden
   setTimeout(() => {
     if (!fired) {
-      fired = true;
-      obs.disconnect();
-      panel.style.transition = 'opacity 0.5s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1)';
+      fired = true; obs.disconnect();
+      panel.style.transition = 'opacity 0.7s ease, transform 0.9s cubic-bezier(0.16,1,0.3,1)';
       panel.classList.add('visible');
     }
   }, 4000);
+
+  /* ── DRAG-TO-INITIATE ── */
+  const rail   = document.getElementById('dragRail');
+  const handle = document.getElementById('dragHandle');
+  const fill   = document.getElementById('dragFill');
+  const MAILTO = 'mailto:andre@andrelarsen.com';
+  const TRIGGER = 0.85;
+  let dragging = false, startX = 0, startLeft = 3, maxLeft = 0;
+
+  function updatePos(left) {
+    handle.style.left = left + 'px';
+    const pct = left / maxLeft;
+    fill.style.width = (left + 16) + 'px';
+    if (pct >= TRIGGER) rail.classList.add('armed');
+    else rail.classList.remove('armed');
+    return pct;
+  }
+  function reset() {
+    handle.style.transition = 'left 0.4s cubic-bezier(0.16,1,0.3,1)';
+    fill.style.transition   = 'width 0.4s cubic-bezier(0.16,1,0.3,1)';
+    handle.style.left = '3px';
+    fill.style.width  = '0px';
+    rail.classList.remove('armed');
+    setTimeout(() => { handle.style.transition = ''; fill.style.transition = ''; }, 420);
+  }
+  function fire() {
+    rail.classList.add('fired');
+    handle.style.transition = 'left 0.25s ease';
+    fill.style.transition   = 'width 0.25s ease';
+    handle.style.left = (maxLeft) + 'px';
+    fill.style.width  = '100%';
+    setTimeout(() => { window.location.href = MAILTO; }, 220);
+    setTimeout(() => {
+      rail.classList.remove('fired', 'armed');
+      reset();
+    }, 1800);
+  }
+  function onDown(e) {
+    if (rail.classList.contains('fired')) return;
+    dragging = true;
+    rail.classList.add('dragging');
+    maxLeft = rail.clientWidth - handle.clientWidth - 6;
+    startX = (e.touches ? e.touches[0].clientX : e.clientX);
+    startLeft = parseFloat(handle.style.left || '3');
+    e.preventDefault();
+  }
+  function onMove(e) {
+    if (!dragging) return;
+    const x = (e.touches ? e.touches[0].clientX : e.clientX);
+    const dx = x - startX;
+    let next = Math.max(3, Math.min(maxLeft, startLeft + dx));
+    updatePos(next);
+  }
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    rail.classList.remove('dragging');
+    const left = parseFloat(handle.style.left || '3');
+    if (maxLeft > 0 && left / maxLeft >= TRIGGER) fire();
+    else reset();
+  }
+  handle.addEventListener('mousedown',  onDown);
+  handle.addEventListener('touchstart', onDown, { passive: false });
+  window.addEventListener('mousemove',  onMove);
+  window.addEventListener('touchmove',  onMove, { passive: false });
+  window.addEventListener('mouseup',    onUp);
+  window.addEventListener('touchend',   onUp);
+  // Keyboard / no-pointer fallback
+  rail.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fire(); }
+  });
 })();
 </script>
 
