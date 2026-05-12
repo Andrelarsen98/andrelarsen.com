@@ -854,13 +854,13 @@
     background-image: url('glass-bg-desktop.png');
     background-size: cover;
     background-position: center;
-    padding: 48px 32px 100px;
+    padding: 48px 32px 52px;
     overflow: hidden;
   }
   @media (max-width: 768px) {
     .glass-cta {
       background-image: url('glass-bg-mobile.png');
-      background-position: center top;
+      background-position: center center;
     }
   }
 
@@ -1066,6 +1066,10 @@
     -webkit-font-smoothing: none;
     text-shadow: 0 1px 3px rgba(0,0,0,0.5);
   }
+  /* On desktop, email lives in glass-right above the button */
+  .glass-sub-email {
+    display: block;
+  }
 
   /* Blinking cursor */
   .glass-cursor {
@@ -1087,7 +1091,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 10px;
+    gap: 14px;
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -1106,27 +1110,19 @@
   }
   @keyframes btnGlow {
     0%, 100% { box-shadow:
-      0 0 0 1px rgba(255,255,255,0.55),
-      0 0 0 2.5px rgba(255,255,255,0.18),
-      0 0 0 5px rgba(255,255,255,0.06),
-      inset 0 1.5px 0 rgba(255,255,255,0.90),
+      0 0 0 1px rgba(255,255,255,0.45),
+      0 0 0 1.5px rgba(255,255,255,0.15),
+      inset 0 1.5px 0 rgba(255,255,255,0.80),
       inset 0 -1px  0 rgba(0,0,0,0.20),
-      inset 1px 0 0 rgba(255,255,255,0.55),
-      inset -1px 0 0 rgba(255,255,255,0.35),
       0 8px 32px rgba(0,0,0,0.35),
-      0 2px 8px  rgba(0,0,0,0.25),
-      0 0 24px rgba(255,255,255,0.08); }
+      0 2px 8px  rgba(0,0,0,0.25); }
     50%       { box-shadow:
-      0 0 0 1px rgba(255,255,255,0.80),
-      0 0 0 3px rgba(255,255,255,0.22),
-      0 0 0 7px rgba(255,255,255,0.07),
-      inset 0 1.5px 0 rgba(255,255,255,1.00),
+      0 0 0 1px rgba(255,255,255,0.75),
+      0 0 0 3px rgba(255,255,255,0.10),
+      inset 0 1.5px 0 rgba(255,255,255,0.95),
       inset 0 -1px  0 rgba(0,0,0,0.15),
-      inset 1px 0 0 rgba(255,255,255,0.75),
-      inset -1px 0 0 rgba(255,255,255,0.50),
       0 10px 40px rgba(0,0,0,0.40),
-      0 2px 10px rgba(0,0,0,0.25),
-      0 0 40px rgba(255,255,255,0.14); }
+      0 2px 10px rgba(0,0,0,0.25); }
   }
 
   .glass-btn {
@@ -1134,7 +1130,7 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding: 15px 36px;
+    padding: 12px 30px;
     position: relative;
     overflow: hidden;
     border: none;
@@ -1156,18 +1152,14 @@
     backdrop-filter: blur(28px) brightness(1.15);
     -webkit-backdrop-filter: blur(28px) brightness(1.15);
 
-    /* ── Glowing pill border + breathing animation — enhanced edge liquid ── */
+    /* ── Glowing pill border + breathing animation ── */
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.55),
-      0 0 0 2.5px rgba(255,255,255,0.18),
-      0 0 0 5px rgba(255,255,255,0.06),
-      inset 0 1.5px 0 rgba(255,255,255,0.90),
+      0 0 0 1px rgba(255,255,255,0.45),
+      0 0 0 1.5px rgba(255,255,255,0.15),
+      inset 0 1.5px 0 rgba(255,255,255,0.80),
       inset 0 -1px  0 rgba(0,0,0,0.20),
-      inset 1px 0 0 rgba(255,255,255,0.55),
-      inset -1px 0 0 rgba(255,255,255,0.35),
       0 8px 32px rgba(0,0,0,0.35),
-      0 2px 8px  rgba(0,0,0,0.25),
-      0 0 24px rgba(255,255,255,0.08);
+      0 2px 8px  rgba(0,0,0,0.25);
     animation: btnGlow 3s ease-in-out infinite;
 
     color: rgba(255,255,255,0.98);
@@ -1278,7 +1270,17 @@
   /* Hover — desktop pointer only */
   @media (hover: hover) and (pointer: fine) {
   .glass-panel:hover {
-    box-shadow: none;
+    box-shadow:
+      0 -1px 0 0 rgba(255,255,255,0.90),
+      -1px 0 0 0 rgba(255,255,255,0.55),
+      0 1px 0 0 rgba(0,0,0,0.45),
+      1px 0 0 0 rgba(0,0,0,0.25),
+      0 12px 100px rgba(0,0,0,0.65),
+      0 4px 40px rgba(100,140,255,0.08),
+      inset 0 1.5px 0 rgba(255,255,255,0.55),
+      inset 0 -1px 0 rgba(0,0,0,0.20),
+      inset 1px 0 0 rgba(255,255,255,0.22),
+      inset -1px 0 0 rgba(0,0,0,0.10);
   }
   .glass-panel:hover .glass-bracket::before,
   .glass-panel:hover .glass-bracket::after {
@@ -1291,18 +1293,73 @@
     /* Chromatic aberration removed */
 
   @media (max-width: 768px) {
-    .glass-cta { padding: 32px 16px 80px; }
+    .glass-cta {
+      padding: 0;
+      min-height: 92vh;
+      display: flex;
+      align-items: stretch;
+      background-position: center center;
+      background-size: cover;
+    }
     .glass-panel {
-      padding: 32px 24px;
+      padding: 36px 24px 48px;
       flex-direction: column;
       align-items: flex-start;
-      gap: 24px;
+      gap: 0;
+      justify-content: space-between;
+      min-height: 92vh;
+      width: 100%;
     }
-    .glass-hud { flex-direction: row; align-items: center; gap: 16px; }
-    .glass-center { align-items: flex-start; text-align: left; }
-    .glass-headline { font-size: clamp(24px, 7vw, 36px); white-space: normal; }
-    .glass-right { width: 100%; align-items: flex-start; }
-    .glass-btn { width: 100%; justify-content: center; }
+    .glass-hud {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .glass-center {
+      align-items: flex-start;
+      text-align: left;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 24px 0 12px;
+    }
+    .glass-eyebrow { margin-bottom: 10px; }
+    .glass-headline {
+      font-size: clamp(36px, 11vw, 52px);
+      white-space: normal;
+      line-height: 0.95;
+      margin-bottom: 14px;
+    }
+    .glass-sub {
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      opacity: 0.55;
+    }
+    .glass-right {
+      width: 100%;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .glass-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 12px 28px;
+      font-size: 16px;
+      letter-spacing: 0.20em;
+    }
+    .glass-coord {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      opacity: 0.35;
+      padding-left: 4px;
+    }
+    .glass-sub-email {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      opacity: 0.45;
+      padding-left: 2px;
+    }
   }
 
   /* ── STUDIO PARALLAX ── */
@@ -2348,11 +2405,11 @@ Dubai, worldwide.</div>
       <div class="glass-center">
         <div class="glass-eyebrow">■ &nbsp; Transmission ready</div>
         <div class="glass-headline" id="glassHeadline">START A PROJECT<span class="glass-cursor"></span></div>
-        <div class="glass-sub">andre@andrelarsen.com</div>
       </div>
 
       <!-- Right CTA -->
       <div class="glass-right">
+        <div class="glass-sub glass-sub-email">andre@andrelarsen.com</div>
         <a href="mailto:andre@andrelarsen.com" class="glass-btn">
           <span>> INITIATE</span>
           <span class="glass-btn-arrow">→</span>
