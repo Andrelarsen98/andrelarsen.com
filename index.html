@@ -872,18 +872,28 @@
   /* Slow diagonal light-leak — simulates sun moving past glass */
   .glass-light-leak {
     z-index: 2;
-    background: radial-gradient(ellipse 60% 80% at var(--lx,30%) var(--ly,20%),
-                rgba(255,245,220,0.18) 0%,
-                rgba(255,235,200,0.06) 35%,
-                transparent 65%);
+    background: none;
     mix-blend-mode: screen;
-    animation: leakDrift 28s ease-in-out infinite alternate;
     pointer-events: none;
   }
+  .glass-light-leak::before {
+    content: '';
+    position: absolute;
+    width: 55%; height: 70%;
+    left: 10%; top: 5%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center,
+                rgba(255,245,220,0.28) 0%,
+                rgba(255,235,200,0.10) 40%,
+                transparent 70%);
+    filter: blur(50px);
+    animation: leakDrift 28s ease-in-out infinite alternate;
+  }
   @keyframes leakDrift {
-    0%   { --lx: 20%; --ly: 30%; opacity: 0.7; }
-    50%  { opacity: 1; }
-    100% { --lx: 75%; --ly: 65%; opacity: 0.6; }
+    0%   { transform: translate(-15%, -10%); opacity: 0.7; }
+    33%  { transform: translate(25%, 15%);   opacity: 1;   }
+    66%  { transform: translate(40%, -8%);   opacity: 0.8; }
+    100% { transform: translate(15%, 35%);   opacity: 0.6; }
   }
   /* Vignette so edges feel like real frosted glass framed */
   .glass-cta::after {
