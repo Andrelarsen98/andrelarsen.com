@@ -868,19 +868,19 @@
   .glass-lights .light-a {
     width: 70vmax; height: 70vmax;
     left: -20%; top: -25%;
-    background: radial-gradient(circle, rgba(140,210,255,1) 0%, rgba(70,150,225,0.6) 35%, transparent 70%);
+    background: radial-gradient(circle, rgba(140,210,255,0.55) 0%, rgba(70,150,225,0.3) 35%, transparent 70%);
     animation: lightDriftA 22s ease-in-out infinite alternate;
   }
   .glass-lights .light-b {
     width: 60vmax; height: 60vmax;
     right: -15%; top: -10%;
-    background: radial-gradient(circle, rgba(220,240,255,0.95) 0%, rgba(90,170,235,0.55) 40%, transparent 72%);
+    background: radial-gradient(circle, rgba(220,240,255,0.5) 0%, rgba(90,170,235,0.25) 40%, transparent 72%);
     animation: lightDriftB 28s ease-in-out infinite alternate;
   }
   .glass-lights .light-c {
     width: 55vmax; height: 55vmax;
     left: 5%; bottom: -25%;
-    background: radial-gradient(circle, rgba(160,220,255,0.95) 0%, rgba(50,120,210,0.5) 40%, transparent 75%);
+    background: radial-gradient(circle, rgba(160,220,255,0.45) 0%, rgba(50,120,210,0.22) 40%, transparent 75%);
     animation: lightDriftC 32s ease-in-out infinite alternate;
   }
   .glass-lights .light-sweep {
@@ -890,7 +890,7 @@
     background: linear-gradient(100deg,
       transparent 0%,
       rgba(220,240,255,0.0) 30%,
-      rgba(230,245,255,0.7) 50%,
+      rgba(230,245,255,0.35) 50%,
       rgba(220,240,255,0.0) 70%,
       transparent 100%);
     filter: blur(80px);
@@ -930,8 +930,8 @@
   }
   .glass-bg {
     z-index: 1;
-    mix-blend-mode: hard-light;
-    opacity: 0.95;
+    mix-blend-mode: multiply;
+    opacity: 0.82;
     animation: glassBreathe 38s cubic-bezier(0.45,0,0.55,1) infinite;
   }
   @keyframes glassBreathe {
