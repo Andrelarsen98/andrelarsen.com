@@ -3696,12 +3696,11 @@ videoEl.addEventListener('timeupdate', () => {
       const screenX = worldX * RADIUS;
       const screenY = -worldY * RADIUS;
 
-      /* Backface culling — hide cards on the back of the sphere */
-      if (worldZ < 0) {
-        card.style.visibility = 'hidden';
-        card.style.zIndex = '0';
-        return;
-      }
+      /* Cards always render — back-of-sphere cards pass BEHIND the globe
+         via z-index instead of being hidden. depth = 0 (back) → 1 (front).
+         Globe sits at z-index 50, so depth*100 puts back cards under it
+         and front cards over it. Opacity dips at the back so they read
+         as "deeper" rather than equally bright. */
       card.style.visibility = 'visible';
 
       /* Lay card flat on sphere surface using a proper orthonormal basis.
@@ -3727,9 +3726,10 @@ videoEl.addEventListener('timeupdate', () => {
 
       card.style.transform = `translate(${screenX}px, ${screenY}px)`;
       face.style.transform = `perspective(800px) matrix3d(${m})`;
-      face.style.opacity = String(0.75 + depth * 0.25);
+      // Smooth opacity across the full orbit: front bright, back dim but visible
+      face.style.opacity = String(0.20 + depth * 0.80);
 
-      /* Depth sort: front cards over sphere, back cards under */
+      /* Depth sort across the globe (z-index 50): front>50 over, back<50 under */
       card.style.zIndex = String(Math.round(depth * 100));
     });
 
@@ -3753,8 +3753,8 @@ videoEl.addEventListener('timeupdate', () => {
       const wX = wx2, wY = wy2*cosX - wz2*sinX, wZ = wy2*sinX + wz2*cosX;
       const depth = (wZ + 1) / 2;
 
-      /* Skip wires for cards on the back of the sphere */
-      if (wZ < 0 || depth < 0.08) return;
+      /* Wires draw for ALL cards now — back wires get masked by the sphere
+         clip below + heavy alpha falloff so they read as "behind" the globe. */
 
       const cardX = cx + wX * RADIUS;
       const cardY = cy - wY * RADIUS;
@@ -3778,15 +3778,21 @@ videoEl.addEventListener('timeupdate', () => {
       const cpX  = midX + (-dy / linLen) * card._wireBow * 0.5;
       const cpY  = midY + ( dx / linLen) * card._wireBow * 0.5;
 
-      const depthAlpha = Math.min(1, (depth - 0.08) / 0.55);
+      // Smooth alpha across full orbit; back wires fade further so the
+      // sphere clearly reads as occluding them.
+      const depthAlpha = depth < 0.5
+        ? Math.max(0.05, depth * 0.5)        // back half: 0.05..0.25
+        : Math.min(1, (depth - 0.08) / 0.55);  // front half: ramps to 1
 
       wireCtx.save();
 
-      /* Clip behind sphere */
+      /* Mask wires that are behind the globe (depth < ~0.55).
+         Inverse-clip with the sphere so the wire visually disappears
+         under the globe instead of overlapping it. */
       if (depth < 0.55) {
         wireCtx.beginPath();
         wireCtx.rect(0, 0, cw, ch);
-        wireCtx.arc(cx, cy, sphereScreenR * (1 - depth * 0.4), 0, Math.PI * 2, true);
+        wireCtx.arc(cx, cy, sphereScreenR, 0, Math.PI * 2, true);
         wireCtx.clip('evenodd');
       }
 
