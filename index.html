@@ -3790,38 +3790,31 @@ videoEl.addEventListener('timeupdate', () => {
         wireCtx.clip('evenodd');
       }
 
-      /* ── ELECTRIC TRANSMISSION (cyan, 3D, flowing) ──
-         Cool blue matched to the glass globe interior.
-         Width tapers with depth + along the path for a 3D feel.
-         Low-frequency flowing curve + high-frequency micro-jitter. */
+      /* ── ELECTRIC TRANSMISSION (cyan, optimized) ──
+         One polyline per layer (halo/mid/core), shadowBlur used sparingly. */
       const tFront = Math.max(0, Math.min(1, (depth - 0.45) / 0.45));
-      // electric cyan -> deep blue at edge
-      const cR = Math.round( 90 + 110 * tFront);     // 90..200
-      const cG = Math.round(170 + 70  * tFront);     // 170..240
-      const cB = Math.round(235 + 20  * tFront);     // 235..255
+      const cR = Math.round( 90 + 110 * tFront);
+      const cG = Math.round(170 + 70  * tFront);
+      const cB = Math.round(235 + 20  * tFront);
       const col = (a) => `rgba(${cR},${cG},${cB},${a})`;
-      const white = (a) => `rgba(220,240,255,${a})`;
 
-      /* Crackle flares */
       if (card._crackleNext === undefined) card._crackleNext = elapsed + Math.random() * 4;
       if (card._crackleAmt === undefined) card._crackleAmt = 0;
       if (elapsed > card._crackleNext) {
         card._crackleAmt = 1;
-        card._crackleNext = elapsed + 1.8 + Math.random() * 4;
+        card._crackleNext = elapsed + 2 + Math.random() * 4;
       }
       card._crackleAmt *= Math.pow(0.0008, dt);
       const crackle = card._crackleAmt;
 
-      /* Sample bezier with two layers of perpendicular displacement:
-         - a slow flowing swing (big amp, low freq) -> elegant curve
-         - a fast micro-jitter (small amp, high freq) -> electric feel */
-      const SEG = 36;
+      const SEG = 18;
       const bez  = (t,p0,cp,p1) => { const u=1-t; return u*u*p0 + 2*u*t*cp + t*t*p1; };
       const dbez = (t,p0,cp,p1) => 2*(1-t)*(cp-p0) + 2*t*(p1-cp);
       const phase = card._wirePhase;
-      const flowAmp   = 9 + 4 * crackle;
-      const jitterAmp = 0.7 + 3 * crackle;
-      const pts = new Array(SEG + 1);
+      const flowAmp   = 8 + 4 * crackle;
+      const jitterAmp = 0.5 + 2 * crackle;
+      const ptsX = card._ptsX || (card._ptsX = new Float32Array(SEG + 1));
+      const ptsY = card._ptsY || (card._ptsY = new Float32Array(SEG + 1));
       for (let i = 0; i <= SEG; i++) {
         const t = i / SEG;
         const bx = bez(t, startX, cpX, cardX);
@@ -3829,103 +3822,81 @@ videoEl.addEventListener('timeupdate', () => {
         const tx = dbez(t, startX, cpX, cardX);
         const ty = dbez(t, startY, cpY, cardY);
         const tl = Math.hypot(tx, ty) || 1;
-        const nxp = -ty / tl, nyp = tx / tl;
-        const taper = Math.sin(Math.PI * t);                // 0 at ends, 1 mid
-        const flow = Math.sin(t * 3.2 + phase * 1.4) * 0.7
-                   + Math.sin(t * 5.7 - phase * 0.9) * 0.35;
-        const jit  = Math.sin(t * 31 + phase * 7.3) * 0.55
-                   + Math.sin(t * 57 - phase * 11.1) * 0.3;
+        const taper = Math.sin(Math.PI * t);
+        const flow = Math.sin(t * 3.2 + phase * 1.4) + Math.sin(t * 5.7 - phase * 0.9) * 0.4;
+        const jit  = Math.sin(t * 31 + phase * 7.3);
         const off = (flow * flowAmp + jit * jitterAmp) * taper;
-        pts[i] = [bx + nxp * off, by + nyp * off];
+        ptsX[i] = bx + (-ty / tl) * off;
+        ptsY[i] = by + ( tx / tl) * off;
       }
 
-      /* Width profile gives 3D illusion: thinner at endpoints, thicker mid,
-         AND scaled by depth so back wires are noticeably finer than front. */
       const widthScale = 0.55 + depth * 0.55;
 
-      const drawLayer = (baseW, alpha, blur, colorFn) => {
-        wireCtx.shadowColor = colorFn(0.9);
-        wireCtx.shadowBlur = blur;
-        wireCtx.lineCap = 'round';
-        wireCtx.lineJoin = 'round';
-        for (let i = 0; i < SEG; i++) {
-          const t = (i + 0.5) / SEG;
-          const w = baseW * widthScale * (0.45 + 0.9 * Math.sin(Math.PI * t));
-          wireCtx.beginPath();
-          wireCtx.moveTo(pts[i][0], pts[i][1]);
-          wireCtx.lineTo(pts[i+1][0], pts[i+1][1]);
-          wireCtx.lineWidth = w;
-          wireCtx.strokeStyle = colorFn(alpha * depthAlpha);
-          wireCtx.stroke();
-        }
-      };
+      wireCtx.beginPath();
+      wireCtx.moveTo(ptsX[0], ptsY[0]);
+      for (let i = 1; i <= SEG; i++) wireCtx.lineTo(ptsX[i], ptsY[i]);
+      wireCtx.lineCap = 'round';
+      wireCtx.lineJoin = 'round';
 
-      /* Outer cyan halo */
-      drawLayer(2.6 + 1.6 * crackle, 0.10 + 0.18 * crackle, 16, col);
-      /* Inner cyan glow */
-      drawLayer(0.9, 0.30 + 0.25 * crackle, 8, col);
-      /* Hard white-blue core, very thin */
+      wireCtx.shadowColor = col(0.85);
+      wireCtx.shadowBlur = 12;
+      wireCtx.lineWidth = (2.2 + 1.4 * crackle) * widthScale;
+      wireCtx.strokeStyle = col((0.10 + 0.18 * crackle) * depthAlpha);
+      wireCtx.stroke();
+
       wireCtx.shadowBlur = 0;
-      drawLayer(0.35, 0.75, 0, white);
+      wireCtx.lineWidth = 0.9 * widthScale;
+      wireCtx.strokeStyle = col((0.32 + 0.25 * crackle) * depthAlpha);
+      wireCtx.stroke();
 
-      /* Multi-packet comet trails — bright cyan-white heads */
+      wireCtx.lineWidth = 0.4 * widthScale;
+      wireCtx.strokeStyle = `rgba(220,240,255,${0.75 * depthAlpha})`;
+      wireCtx.stroke();
+
       if (!card._packets) {
         card._packets = [
-          { t: Math.random(),       v: 0.45 + Math.random() * 0.35 },
           { t: Math.random(),       v: 0.55 + Math.random() * 0.4 },
-          { t: Math.random() * 0.4, v: 0.85 + Math.random() * 0.5 },
+          { t: Math.random() * 0.5, v: 0.85 + Math.random() * 0.4 },
         ];
       }
       const ptAt = (t) => {
         const f = Math.max(0, Math.min(SEG - 0.0001, t * SEG));
-        const i = Math.floor(f);
+        const i = f | 0;
         const u = f - i;
-        const a = pts[i], b = pts[i + 1];
-        return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u];
+        return [ptsX[i] + (ptsX[i+1] - ptsX[i]) * u, ptsY[i] + (ptsY[i+1] - ptsY[i]) * u];
       };
 
       card._packets.forEach((pk) => {
         pk.t = (pk.t + pk.v * dt * 0.5) % 1;
-        const TAIL = 12;
-        const TAIL_LEN = 0.16;
-        for (let k = 0; k < TAIL; k++) {
-          const tk = pk.t - (k / TAIL) * TAIL_LEN;
-          if (tk < 0) continue;
-          const tk2 = tk + 0.012;
-          if (tk2 > 1) continue;
-          const [ax, ay] = ptAt(tk);
-          const [bx, by] = ptAt(tk2);
-          const fade = 1 - k / TAIL;
-          wireCtx.beginPath();
-          wireCtx.moveTo(ax, ay);
-          wireCtx.lineTo(bx, by);
-          wireCtx.lineWidth = (0.4 + fade * 1.2) * widthScale;
-          wireCtx.strokeStyle = `rgba(220,240,255,${(0.12 + fade * 0.85) * depthAlpha})`;
-          wireCtx.shadowColor = col(1);
-          wireCtx.shadowBlur = 4 + fade * 14;
-          wireCtx.stroke();
-        }
-        const [hx, hy] = ptAt(Math.min(1, pk.t));
+        const tailStart = Math.max(0, pk.t - 0.13);
+        const [ax, ay] = ptAt(tailStart);
+        const [bx, by] = ptAt(pk.t);
         wireCtx.beginPath();
-        wireCtx.arc(hx, hy, 1.4 * widthScale, 0, Math.PI * 2);
+        wireCtx.moveTo(ax, ay);
+        wireCtx.lineTo(bx, by);
+        wireCtx.lineWidth = 1.4 * widthScale;
+        wireCtx.strokeStyle = `rgba(220,240,255,${0.75 * depthAlpha})`;
+        wireCtx.stroke();
+        wireCtx.shadowColor = col(1);
+        wireCtx.shadowBlur = 14;
+        wireCtx.beginPath();
+        wireCtx.arc(bx, by, 1.4 * widthScale, 0, Math.PI * 2);
         wireCtx.fillStyle = `rgba(230,245,255,${depthAlpha})`;
-        wireCtx.shadowColor = col(1);
-        wireCtx.shadowBlur = 18;
         wireCtx.fill();
+        wireCtx.shadowBlur = 0;
       });
-      wireCtx.shadowBlur = 0;
 
-      /* Endpoint sparks */
-      const ep = (x, y, sz) => {
-        wireCtx.beginPath();
-        wireCtx.arc(x, y, sz * widthScale, 0, Math.PI * 2);
-        wireCtx.fillStyle = white(0.9 * depthAlpha);
+      if (crackle > 0.05) {
         wireCtx.shadowColor = col(1);
-        wireCtx.shadowBlur = 10 + 16 * crackle;
-        wireCtx.fill();
-      };
-      ep(startX, startY, 0.9 + 1.6 * crackle);
-      ep(cardX,  cardY,  0.8 + 1.4 * crackle);
+        wireCtx.shadowBlur = 8 + 14 * crackle;
+      }
+      wireCtx.fillStyle = `rgba(220,240,255,${0.9 * depthAlpha})`;
+      wireCtx.beginPath();
+      wireCtx.arc(startX, startY, (0.9 + 1.4 * crackle) * widthScale, 0, Math.PI * 2);
+      wireCtx.fill();
+      wireCtx.beginPath();
+      wireCtx.arc(cardX, cardY, (0.8 + 1.2 * crackle) * widthScale, 0, Math.PI * 2);
+      wireCtx.fill();
       wireCtx.shadowBlur = 0;
 
       wireCtx.restore();
