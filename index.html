@@ -3726,8 +3726,8 @@ videoEl.addEventListener('timeupdate', () => {
 
       card.style.transform = `translate(${screenX}px, ${screenY}px)`;
       face.style.transform = `perspective(800px) matrix3d(${m})`;
-      // Smooth opacity across the full orbit: front bright, back dim but visible
-      face.style.opacity = String(0.20 + depth * 0.80);
+      // Videos always render at full brightness, even when behind the sphere
+      face.style.opacity = '1';
 
       /* Depth sort across the globe (z-index 50): front>50 over, back<50 under */
       card.style.zIndex = String(Math.round(depth * 100));
@@ -3767,9 +3767,13 @@ videoEl.addEventListener('timeupdate', () => {
 
       card._wirePhase += card._wireSpeed * dt;
 
-      const sphereEdgeFraction = 0.50;
-      const startX = cx + wX * RADIUS * sphereEdgeFraction;
-      const startY = cy - wY * RADIUS * sphereEdgeFraction;
+      // Anchor wire to the globe's screen-space silhouette in the card's direction,
+      // so it kisses the sphere edge instead of disappearing into it.
+      const dirX = cardX - cx;
+      const dirY = cardY - cy;
+      const dirLen = Math.sqrt(dirX * dirX + dirY * dirY) || 1;
+      const startX = cx + (dirX / dirLen) * sphereScreenR;
+      const startY = cy + (dirY / dirLen) * sphereScreenR;
 
       const midX = (startX + cardX) / 2;
       const midY = (startY + cardY) / 2;
