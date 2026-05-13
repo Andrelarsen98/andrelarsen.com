@@ -3448,8 +3448,24 @@ videoEl.addEventListener('timeupdate', () => {
   wireCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200;';
   const wireCtx = wireCanvas.getContext('2d');
 
+  /* ── Chromatic rim — sits at sphere silhouette, reads as a lens ── */
+  const rim = document.createElement('div');
+  rim.style.cssText = [
+    'position:absolute','top:50%','left:50%',
+    'width:310px','height:310px',
+    'transform:translate(-50%,-50%)',
+    'border-radius:50%','pointer-events:none','z-index:60',
+    'box-shadow:' +
+      'inset 0 0 0 1px rgba(120,210,255,0.35),' +
+      'inset 0 0 28px rgba(0,0,0,0.55),' +
+      'inset 6px 0 18px rgba(255,80,180,0.10),' +
+      'inset -6px 0 18px rgba(80,200,255,0.10),' +
+      '0 0 40px rgba(80,180,255,0.08)',
+  ].join(';');
+
   scene.appendChild(sphere);
   scene.appendChild(wireCanvas);
+  scene.appendChild(rim);
   scene.appendChild(glitchEl);
   cubeRight.appendChild(glow);
   cubeRight.appendChild(scene);
@@ -3622,25 +3638,25 @@ videoEl.addEventListener('timeupdate', () => {
          Each axis is driven by a sum of slow incommensurate sine waves
          so the motion never exactly repeats and feels organic/alive. */
 
-      /* Y — primary spin, moderate speed with breathing variation */
-      const ySpeed = 14
-        + Math.sin(t * 0.13) * 6
-        + Math.sin(t * 0.37) * 3
-        + Math.sin(t * 0.071) * 4;
+      /* Y — primary spin, slower & gravitational */
+      const ySpeed = 8
+        + Math.sin(t * 0.13) * 3
+        + Math.sin(t * 0.37) * 1.5
+        + Math.sin(t * 0.071) * 2;
       rotY += ySpeed * dt;
 
-      /* X — now also accumulates (tumbles forward/back) not just targets */
-      const xSpeed = 6
-        + Math.sin(t * 0.19) * 5
-        + Math.sin(t * 0.053) * 4
-        + Math.sin(t * 0.31) * 2;
+      /* X — gentle forward/back tumble */
+      const xSpeed = 3
+        + Math.sin(t * 0.19) * 2.5
+        + Math.sin(t * 0.053) * 2
+        + Math.sin(t * 0.31) * 1;
       rotX += xSpeed * dt;
 
-      /* Z — full roll, not just a subtle wobble */
-      const zSpeed = 4
-        + Math.sin(t * 0.11) * 5
-        + Math.sin(t * 0.23) * 3
-        + Math.sin(t * 0.41) * 2;
+      /* Z — subtle roll */
+      const zSpeed = 2
+        + Math.sin(t * 0.11) * 2.5
+        + Math.sin(t * 0.23) * 1.5
+        + Math.sin(t * 0.41) * 1;
       rotZ += zSpeed * dt;
 
       /* Inertia decay from drag */
@@ -3724,9 +3740,14 @@ videoEl.addEventListener('timeupdate', () => {
         0,   0,   0,   1
       ].map(v => v.toFixed(6)).join(',');
 
-      card.style.transform = `translate(${screenX}px, ${screenY}px)`;
+      // Depth scale: back 0.86 → front 1.16 (parallax without fading)
+      const depthScale = 0.86 + depth * 0.30;
+      card.style.transform = `translate(${screenX}px, ${screenY}px) scale(${depthScale})`;
       face.style.transform = `perspective(800px) matrix3d(${m})`;
-      // Videos always render at full brightness, even when behind the sphere
+      // Keep full brightness; nudge saturation + cool tint on back cards so they read as deeper.
+      const sat = 0.70 + depth * 0.30;
+      const cool = (1 - depth) * 14;
+      face.style.filter = `saturate(${sat}) hue-rotate(${cool}deg)`;
       face.style.opacity = '1';
 
       /* Depth sort across the globe (z-index 50): front>50 over, back<50 under */
@@ -3753,8 +3774,8 @@ videoEl.addEventListener('timeupdate', () => {
       const wX = wx2, wY = wy2*cosX - wz2*sinX, wZ = wy2*sinX + wz2*cosX;
       const depth = (wZ + 1) / 2;
 
-      /* Wires draw for ALL cards now — back wires get masked by the sphere
-         clip below + heavy alpha falloff so they read as "behind" the globe. */
+      /* Only draw wires for front-facing cards — back wires were noise. */
+      if (depth < 0.42) return;
 
       const cardX = cx + wX * RADIUS;
       const cardY = cy - wY * RADIUS;
@@ -3808,11 +3829,16 @@ videoEl.addEventListener('timeupdate', () => {
       const cB = Math.round(235 + 20  * tFront);
       const col = (a) => `rgba(${cR},${cG},${cB},${a})`;
 
-      if (card._crackleNext === undefined) card._crackleNext = elapsed + Math.random() * 4;
+      // Staggered crackle: only fire if global slot free (max 2 concurrent).
+      if (card._crackleNext === undefined) card._crackleNext = elapsed + 2 + Math.random() * 8;
       if (card._crackleAmt === undefined) card._crackleAmt = 0;
-      if (elapsed > card._crackleNext) {
+      if (elapsed > card._crackleNext && (window._activeCrackles || 0) < 2) {
         card._crackleAmt = 1;
-        card._crackleNext = elapsed + 2 + Math.random() * 4;
+        card._crackleNext = elapsed + 6 + Math.random() * 9;
+        window._activeCrackles = (window._activeCrackles || 0) + 1;
+        setTimeout(() => { window._activeCrackles = Math.max(0, (window._activeCrackles || 1) - 1); }, 700);
+      } else if (elapsed > card._crackleNext) {
+        card._crackleNext = elapsed + 0.5 + Math.random();
       }
       card._crackleAmt *= Math.pow(0.0008, dt);
       const crackle = card._crackleAmt;
