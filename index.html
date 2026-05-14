@@ -861,7 +861,7 @@
       justify-content: center;
       padding: 72px 40px;
     }
-    /* Dot grid fills the dead space around the photo */
+    /* Dot grid fills the dead space — matches scanline/footer matrix exactly */
     .glass-cta-bg-dots {
       position: absolute;
       inset: 0;
@@ -871,11 +871,14 @@
       --dot-bg: #000;
       --dot-color: #fff;
       --dot-size: 2px;
-      --dot-space: 22px;
+      --dot-space: 3px;
       background:
         linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
         linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
         var(--dot-color);
+    }
+    @media (min-width: 1280px) {
+      .glass-cta-bg-dots { --dot-size: 4px; --dot-space: 5px; }
     }
     /* Photo wrap — constrained square */
     .glass-photo-wrap {
