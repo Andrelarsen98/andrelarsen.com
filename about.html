@@ -19,8 +19,6 @@
     #footerAsciiCanvas { position: static; inset: auto; width: 100%; height: 100%; z-index: auto; }
     .about-footer  { contain: layout paint; }
     .disciplines-section { contain: layout paint; }
-    .brands-section { contain: layout paint; }
-    .manifesto-section { contain: layout paint; }
     .scroll-space { height: var(--app-height, 100vh); }
     .test-space { display: none; }
     .scanline-fixed {
@@ -457,7 +455,7 @@
       letter-spacing: -0.01em;
       color: #fff;
       text-transform: uppercase;
-      margin-bottom: 48px;
+      margin-bottom: 24px;
       -webkit-font-smoothing: antialiased;
     }
     .profile-headline em {
@@ -644,20 +642,28 @@
     opacity: 1;
   }
 
-  /* ── DISCIPLINES ── */
-  .disciplines-section {
+  /* ── BOTTOM GRID (disciplines + manifesto + brands) ── */
+  .bottom-grid {
     position: relative;
     z-index: 10;
     background: #000;
-    padding: 0 0 0;
-    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: start;
+    border-top: 1px solid rgba(255,255,255,0.08);
   }
-  @media (min-width: 601px) {
-    .disciplines-section .disciplines-inner {
-      max-width: 60%;
-      margin-left: 0;
-      margin-right: auto;
-    }
+  @media (max-width: 900px) {
+    .bottom-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── DISCIPLINES ── */
+  .disciplines-section {
+    position: relative;
+    padding: 0;
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  @media (max-width: 900px) {
+    .disciplines-section { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
   }
 
   .disciplines-section > *, .disciplines-inner > * { position: relative; z-index: 1; }
@@ -665,7 +671,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 40px 28px 28px;
+    padding: 28px 20px 20px;
     font-family: 'VT323', monospace;
     font-size: 16px;
     letter-spacing: 0.12em;
@@ -683,13 +689,13 @@
   }
   .discipline-row {
     display: grid;
-    grid-template-columns: 60px 1fr auto;
+    grid-template-columns: 40px 1fr;
     align-items: center;
-    padding: 10px 28px;
+    padding: 10px 20px;
     border-top: 1px solid rgba(255,255,255,0.1);
     cursor: default;
     transition: background 0s, color 0s;
-    gap: 24px;
+    gap: 12px;
   }
   .discipline-row:last-child { border-bottom: 1px solid rgba(255,255,255,0.1); }
   .discipline-row:hover {
@@ -711,24 +717,17 @@
   .disc-name {
     font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
     font-weight: 700;
-    font-size: 22px !important;
+    font-size: clamp(13px, 1.4vw, 18px) !important;
     text-transform: uppercase;
     letter-spacing: -0.01em;
     color: #fff;
-    line-height: 1;
+    line-height: 1.1;
     -webkit-font-smoothing: antialiased;
     transition: color 0s;
+    word-break: break-word;
   }
   .disc-tag {
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.3);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-    text-align: right;
-    white-space: nowrap;
-    transition: color 0s;
+    display: none;
   }
   @media (max-width: 600px) {
     .disciplines-header { padding: 32px 16px 20px; }
@@ -743,10 +742,14 @@
   /* ── SELECTED BRANDS ── */
   .brands-section {
     position: relative;
-    z-index: 10;
-    background: #000;
-    padding: 72px 28px 80px;
+    padding: 48px 28px 60px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  @media (max-width: 900px) {
+    .brands-section { padding: 40px 20px 60px; }
   }
 
   .brands-section > * { position: relative; z-index: 1; }
@@ -789,10 +792,10 @@
   }
   .brands-grid:hover .brand-name { opacity: 0.2; }
   .brands-grid:hover .brand-name:hover { opacity: 1; }
-  .brand-xl  { font-size: clamp(20px, 3vw, 42px); color: #fff; }
-  .brand-lg  { font-size: clamp(15px, 2vw, 28px);  color: rgba(255,255,255,0.85); }
-  .brand-md  { font-size: clamp(12px, 1.4vw, 20px);  color: rgba(255,255,255,0.6); }
-  .brand-sm  { font-size: clamp(10px, 1vw, 14px); color: rgba(255,255,255,0.35); }
+  .brand-xl  { font-size: clamp(16px, 1.8vw, 28px); color: #fff; }
+  .brand-lg  { font-size: clamp(12px, 1.2vw, 20px);  color: rgba(255,255,255,0.85); }
+  .brand-md  { font-size: clamp(10px, 0.9vw, 15px);  color: rgba(255,255,255,0.6); }
+  .brand-sm  { font-size: clamp(8px, 0.75vw, 11px); color: rgba(255,255,255,0.35); }
   @media (max-width: 600px) {
     .brand-name { white-space: normal; word-break: break-word; }
     .brand-xl { font-size: clamp(28px, 8vw, 60px); }
@@ -801,11 +804,13 @@
   /* ── MANIFESTO ── */
   .manifesto-section {
     position: relative;
-    z-index: 10;
-    background: #000;
-    padding: 80px 20px 100px;
+    background: transparent;
+    padding: 48px 28px 60px;
     overflow: hidden;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255,255,255,0.08);
+  }
+  @media (max-width: 900px) {
+    .manifesto-section { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 48px 20px 60px; }
   }
 
   .manifesto-section > * { position: relative; z-index: 1; }
@@ -954,67 +959,70 @@
     ></video>
   </div>
 
-  <!-- ── DISCIPLINES ── -->
-  <div class="disciplines-section dot-bg">
-    <div class="disciplines-inner">
-    <div class="disciplines-header">WHAT I DO</div>
-    <div class="discipline-row">
-      <span class="disc-num">01</span>
-      <span class="disc-name">FPV Cinematography</span>
-      <span class="disc-tag">Full-immersion aerial capture</span>
-    </div>
-    <div class="discipline-row">
-      <span class="disc-num">02</span>
-      <span class="disc-name">Commercial Direction</span>
-      <span class="disc-tag">Campaign &amp; brand films</span>
-    </div>
-    <div class="discipline-row">
-      <span class="disc-num">03</span>
-      <span class="disc-name">Aerial Direction</span>
-      <span class="disc-tag">Location scouting to final cut</span>
-    </div>
-    <div class="discipline-row">
-      <span class="disc-num">04</span>
-      <span class="disc-name">Post Production</span>
-      <span class="disc-tag">Grade, sound, delivery</span>
-    </div>
-    <div class="discipline-row">
-      <span class="disc-num">05</span>
-      <span class="disc-name">Live Event Coverage</span>
-      <span class="disc-tag">Racing, concerts, activations</span>
-    </div>
-    </div>
-  </div>
+  <!-- ── BOTTOM GRID: disciplines / manifesto / brands ── -->
+  <div class="bottom-grid dot-bg">
 
-  <!-- ── SELECTED BRANDS ── -->
-  <div class="brands-section dot-bg">
-    <div class="brands-label">TRUSTED BY</div>
-    <div class="brands-grid">
-      <span class="brand-name brand-xl">GoPro</span>
-      <span class="brand-name brand-md">Red Bull</span>
-      <span class="brand-name brand-lg">Nike</span>
-      <span class="brand-name brand-sm">Lamborghini</span>
-      <span class="brand-name brand-xl">Burj Khalifa</span>
-      <span class="brand-name brand-sm">Emirates</span>
-      <span class="brand-name brand-lg">BMW</span>
-      <span class="brand-name brand-md">Bollywood</span>
-      <span class="brand-name brand-sm">Netflix</span>
-      <span class="brand-name brand-lg">Formula E</span>
-      <span class="brand-name brand-xl">Dubai</span>
-      <span class="brand-name brand-md">Adidas</span>
-      <span class="brand-name brand-sm">Expo 2020</span>
+    <!-- col 1: what i do -->
+    <div class="disciplines-section">
+      <div class="disciplines-header">WHAT I DO</div>
+      <div class="discipline-row">
+        <span class="disc-num">01</span>
+        <span class="disc-name">FPV Cinematography</span>
+        <span class="disc-tag">Aerial capture</span>
+      </div>
+      <div class="discipline-row">
+        <span class="disc-num">02</span>
+        <span class="disc-name">Commercial Direction</span>
+        <span class="disc-tag">Brand films</span>
+      </div>
+      <div class="discipline-row">
+        <span class="disc-num">03</span>
+        <span class="disc-name">Aerial Direction</span>
+        <span class="disc-tag">Scout to final cut</span>
+      </div>
+      <div class="discipline-row">
+        <span class="disc-num">04</span>
+        <span class="disc-name">Post Production</span>
+        <span class="disc-tag">Grade, sound, delivery</span>
+      </div>
+      <div class="discipline-row">
+        <span class="disc-num">05</span>
+        <span class="disc-name">Live Event Coverage</span>
+        <span class="disc-tag">Racing, concerts</span>
+      </div>
     </div>
-  </div>
 
-  <!-- ── MANIFESTO ── -->
-  <div class="manifesto-section dot-bg">
-    <div class="manifesto-kicker">PHILOSOPHY</div>
-    <canvas id="manifestoCanvas"></canvas>
-    <div class="manifesto-cta">
-      <a href="works.html" class="manifesto-cta-link">&gt; View the work</a>
-      <div class="manifesto-divider"></div>
-      <a href="mailto:andre@andrelarsen.com" class="manifesto-cta-link">&gt; Start a project</a>
+    <!-- col 2: philosophy -->
+    <div class="manifesto-section">
+      <div class="manifesto-kicker">PHILOSOPHY</div>
+      <canvas id="manifestoCanvas"></canvas>
+      <div class="manifesto-cta">
+        <a href="works.html" class="manifesto-cta-link">&gt; View the work</a>
+        <div class="manifesto-divider"></div>
+        <a href="mailto:andre@andrelarsen.com" class="manifesto-cta-link">&gt; Start a project</a>
+      </div>
     </div>
+
+    <!-- col 3: trusted by -->
+    <div class="brands-section">
+      <div class="brands-label">TRUSTED BY</div>
+      <div class="brands-grid">
+        <span class="brand-name brand-xl">GoPro</span>
+        <span class="brand-name brand-md">Red Bull</span>
+        <span class="brand-name brand-lg">Nike</span>
+        <span class="brand-name brand-sm">Lamborghini</span>
+        <span class="brand-name brand-xl">Burj Khalifa</span>
+        <span class="brand-name brand-sm">Emirates</span>
+        <span class="brand-name brand-lg">BMW</span>
+        <span class="brand-name brand-md">Bollywood</span>
+        <span class="brand-name brand-sm">Netflix</span>
+        <span class="brand-name brand-lg">Formula E</span>
+        <span class="brand-name brand-xl">Dubai</span>
+        <span class="brand-name brand-md">Adidas</span>
+        <span class="brand-name brand-sm">Expo 2020</span>
+      </div>
+    </div>
+
   </div>
 
   <footer class="about-footer dot-bg">
