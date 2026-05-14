@@ -902,8 +902,10 @@
   <!-- ── HOLOGRAM TEXT OVERLAY ── -->
   <div class="holo-overlay" aria-hidden="true">
     <div class="holo-who"><span>WHO</span><span>AM</span><span>I?</span></div>
+    <div class="holo-frag holo-frag--tr">Between the<br>frame and<br>the sky.</div>
     <div class="holo-frag holo-frag--bl">Between the<br>frame and<br>the sky.</div>
     <div class="holo-frag holo-frag--br">Where physics<br>meets film.</div>
+    <div class="holo-frag holo-frag--mr">Hired where<br>others can't fly.</div>
   </div>
   <div class="scroll-space" aria-hidden="true"></div>
   <div class="test-space" aria-hidden="true"></div>
@@ -1862,7 +1864,7 @@ window.FPV_GOGGLES_MESH = {
       W = canvas.offsetWidth || (canvas.parentElement || document.body).offsetWidth;
 
       const t = document.createElement('canvas').getContext('2d');
-      let fs = window.innerWidth > 768 ? W * 0.10 : W * 0.23;
+      let fs = W * 0.23;
       t.font = `900 italic ${fs}px DrukWide, 'Arial Black', Arial, sans-serif`;
       const maxW = Math.max(...LINES.map(l => t.measureText(l).width));
       if (maxW > W * 0.97) fs *= (W * 0.97) / maxW;
