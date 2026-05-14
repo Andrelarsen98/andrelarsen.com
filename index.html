@@ -1740,10 +1740,10 @@
       padding: 0px 20px 28px;
     }
     .cube-title { font-size: clamp(32px, 10vw, 52px); }
-    #particleGlobe { width: 60vw; height: 60vw; }
-    .vs-sphere { width: 60vw; height: 60vw; }
-    .vs-glow { width: 35vw; height: 35vw; }
-    .vs-card { width: 115px; height: 65px; margin-top: -33px; margin-left: -58px; }
+    #particleGlobe { width: 52vw; height: 52vw; }
+    .vs-sphere { width: 52vw; height: 52vw; }
+    .vs-glow { width: 30vw; height: 30vw; }
+    .vs-card { width: 80px; height: 46px; margin-top: -23px; margin-left: -40px; }
     .cube-drag-label {
       position: relative;
       bottom: auto;
@@ -2250,7 +2250,7 @@ Dubai, worldwide.</div>
           <span class="cube-label">Selected Work</span>
         </div>
         <div class="cube-counter" id="cubeCounter">01</div>
-        <div class="cube-total">/08</div>
+        <div class="cube-total">/10</div>
       </div>
       <div class="cube-telemetry" id="cubeTelemetry">
         <div class="tele-row"><span class="tele-label">ALT</span><span class="tele-sep">:</span><span class="tele-val" id="teleAlt">142M</span></div>
@@ -3449,8 +3449,8 @@ videoEl.addEventListener('timeupdate', () => {
    multi-axis rotation, glitch on loop
 ══════════════════════════════════════ */
 (function() {
-  const NUM_VIDEOS   = 8;
-  const RADIUS       = window.innerWidth <= 768 ? Math.round(window.innerWidth * 0.26 + 60) : 310;
+  const NUM_VIDEOS   = 10;
+  const RADIUS       = window.innerWidth <= 768 ? Math.min(Math.round(window.innerWidth * 0.28 + 55), Math.round(window.innerWidth * 0.42)) : 380;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
   const section   = document.getElementById('cubeSection');
@@ -3474,7 +3474,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   /* ── Electric wire canvas — sits behind cards, above globe ── */
   const wireCanvas = document.createElement('canvas');
-  wireCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200;';
+  wireCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;';
   const wireCtx = wireCanvas.getContext('2d');
 
   scene.appendChild(sphere);
@@ -3487,12 +3487,16 @@ videoEl.addEventListener('timeupdate', () => {
   const globeMount = document.getElementById('particleGlobe');
   if (globeMount) scene.appendChild(globeMount);
 
-  /* ── Cards — Fibonacci sphere distribution ── */
+  /* ── Cards — evenly spaced around sphere, avoid polar clustering ── */
   for (let i = 0; i < NUM_VIDEOS; i++) {
-    const t      = i / (NUM_VIDEOS - 1);
-    const y      = 1 - t * 2;
+    // Spread cards evenly in latitude (-55° to +55°) and evenly in longitude
+    const latBands = Math.ceil(NUM_VIDEOS / 2);
+    const latT = (i / (NUM_VIDEOS - 1)) * 2 - 1; // -1 to 1
+    // Compress toward equator: use sin to avoid polar clustering
+    const y      = Math.sin(latT * Math.PI * 0.5) * 0.72;
     const rHoriz = Math.sqrt(Math.max(0, 1 - y * y));
-    const theta  = GOLDEN_ANGLE * i;
+    // Offset each card's longitude by golden angle for even azimuthal spread
+    const theta  = GOLDEN_ANGLE * i * 2.1;
     const nx     = Math.cos(theta) * rHoriz;
     const nz     = Math.sin(theta) * rHoriz;
     const ny     = y;
@@ -3771,11 +3775,11 @@ videoEl.addEventListener('timeupdate', () => {
       face.style.filter = `saturate(${sat}) hue-rotate(${cool}deg)`;
       face.style.opacity = '1';
 
-      /* Depth sort across the globe (z-index 50): front>50 over, back<50 under */
-      card.style.zIndex = String(Math.round(depth * 100));
+      /* Depth sort: wire canvas is z-index 5, cards always above it */
+      card.style.zIndex = String(10 + Math.round(depth * 100));
     });
 
-    /* particleGlobe is at z-index 50 in DOM — front cards (>50) over it, back cards (<50) under it */
+    /* particleGlobe is at z-index 50 — cards range 10-110, so depth>~40% render above globe */
 
     /* ── Signal noise wires — corrupted RF transmission ── */
     const cw = wireCanvas.offsetWidth;
@@ -3786,7 +3790,11 @@ videoEl.addEventListener('timeupdate', () => {
     wireCtx.clearRect(0, 0, cw, ch);
     const cx = cw / 2, cy = ch / 2;
 
-    const sphereScreenR = RADIUS * 0.58;
+    const isMobileWire = window.innerWidth <= 768;
+    // On mobile the globe is 52vw rendered; on desktop it's the Three.js orb ~58% of RADIUS
+    const sphereScreenR = isMobileWire
+      ? window.innerWidth * 0.52 * 0.48   // 52vw canvas * ~48% = visible orb edge
+      : RADIUS * 0.58;
 
     scene.querySelectorAll('.vs-card').forEach((card) => {
       const nx = card._nx || 0, ny = card._ny || 0, nz = card._nz || 0;
@@ -3795,8 +3803,8 @@ videoEl.addEventListener('timeupdate', () => {
       const wX = wx2, wY = wy2*cosX - wz2*sinX, wZ = wy2*sinX + wz2*cosX;
       const depth = (wZ + 1) / 2;
 
-      /* Only draw wires for front-facing cards — back wires were noise. */
-      if (depth < 0.25) return;
+      /* Only skip wires for cards fully behind the globe */
+      if (depth < 0.15) return;
 
       const cardX = cx + wX * RADIUS;
       const cardY = cy - wY * RADIUS;
@@ -3824,23 +3832,30 @@ videoEl.addEventListener('timeupdate', () => {
       const cpX  = midX + (-dy / linLen) * card._wireBow * 0.5;
       const cpY  = midY + ( dx / linLen) * card._wireBow * 0.5;
 
-      // Smooth alpha across full orbit; back wires fade further so the
-      // sphere clearly reads as occluding them.
-      const depthAlpha = depth < 0.5
-        ? Math.max(0.05, depth * 0.5)        // back half: 0.05..0.25
-        : Math.min(1, (depth - 0.08) / 0.55);  // front half: ramps to 1
+      // Full alpha for all visible wires — no more fading out mid-orbit
+      const depthAlpha = depth < 0.4
+        ? Math.max(0.15, depth * 0.8)   // behind globe: faint but visible
+        : Math.min(1, (depth - 0.15) / 0.45); // front: ramps cleanly to 1
 
       wireCtx.save();
 
-      /* Mask wires that are behind the globe (depth < ~0.55).
-         Inverse-clip with the sphere so the wire visually disappears
-         under the globe instead of overlapping it. */
-      if (depth < 0.55) {
+      /* Clip wires behind the globe away from the sphere interior */
+      if (depth < 0.5) {
         wireCtx.beginPath();
         wireCtx.rect(0, 0, cw, ch);
         wireCtx.arc(cx, cy, sphereScreenR, 0, Math.PI * 2, true);
         wireCtx.clip('evenodd');
       }
+
+      /* Clip the wire end so it disappears behind the card.
+         Use a small exclusion zone only at the card center — the wire
+         approaches from outside and vanishes right under the card face. */
+      const CARD_W = 75 * (0.86 + depth * 0.30);
+      const CARD_H = 42 * (0.86 + depth * 0.30);
+      wireCtx.beginPath();
+      wireCtx.rect(0, 0, cw, ch);
+      wireCtx.rect(cardX - CARD_W/2, cardY - CARD_H/2, CARD_W, CARD_H);
+      wireCtx.clip('evenodd');
 
       /* ── ELECTRIC TRANSMISSION (cyan, optimized) ──
          One polyline per layer (halo/mid/core), shadowBlur used sparingly. */
