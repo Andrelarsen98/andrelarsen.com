@@ -2250,7 +2250,7 @@ Dubai, worldwide.</div>
           <span class="cube-label">Selected Work</span>
         </div>
         <div class="cube-counter" id="cubeCounter">01</div>
-        <div class="cube-total">/16</div>
+        <div class="cube-total">/08</div>
       </div>
       <div class="cube-telemetry" id="cubeTelemetry">
         <div class="tele-row"><span class="tele-label">ALT</span><span class="tele-sep">:</span><span class="tele-val" id="teleAlt">142M</span></div>
@@ -3445,11 +3445,11 @@ videoEl.addEventListener('timeupdate', () => {
 
 /* ══════════════════════════════════════
    ── VIDEO SPHERE ──
-   16 Fibonacci-distributed cards,
+   12 Fibonacci-distributed cards,
    multi-axis rotation, glitch on loop
 ══════════════════════════════════════ */
 (function() {
-  const NUM_VIDEOS   = 16;
+  const NUM_VIDEOS   = 8;
   const RADIUS       = window.innerWidth <= 768 ? Math.round(window.innerWidth * 0.26 + 60) : 310;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
@@ -3733,9 +3733,17 @@ videoEl.addEventListener('timeupdate', () => {
       card.style.visibility = 'visible';
 
       /* Lay card flat on sphere surface using a proper orthonormal basis.
-         Build right/up/normal vectors from the world normal, then form a
-         CSS matrix3d — avoids gimbal lock from Euler angle decomposition. */
-      const nX = worldX, nY = worldY, nZ = worldZ;
+         Blend the surface normal toward the camera (0,0,1) so cards face
+         the user more — 0.0 = fully on surface, 1.0 = fully facing camera.
+         0.55 gives an organic tilt without losing the planet feel. */
+      const CAM_BLEND = 0.55;
+      const rawNX = worldX, rawNY = worldY, rawNZ = worldZ;
+      // Lerp normal toward camera direction (0,0,1)
+      const bNX = rawNX * (1 - CAM_BLEND);
+      const bNY = rawNY * (1 - CAM_BLEND);
+      const bNZ = rawNZ * (1 - CAM_BLEND) + 1.0 * CAM_BLEND;
+      const bLen = Math.sqrt(bNX*bNX + bNY*bNY + bNZ*bNZ) || 1;
+      const nX = bNX/bLen, nY = bNY/bLen, nZ = bNZ/bLen;
       // right = cross(worldUp, normal), fallback at poles
       let rX = -nZ, rZ = nX;
       const rLen = Math.sqrt(rX*rX + rZ*rZ);
@@ -3788,7 +3796,7 @@ videoEl.addEventListener('timeupdate', () => {
       const depth = (wZ + 1) / 2;
 
       /* Only draw wires for front-facing cards — back wires were noise. */
-      if (depth < 0.42) return;
+      if (depth < 0.25) return;
 
       const cardX = cx + wX * RADIUS;
       const cardY = cy - wY * RADIUS;
