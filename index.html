@@ -852,8 +852,9 @@
   .glass-bg, .glass-bg-drift, .glass-light-leak {
     position: absolute; inset: 0;
     background-image: url('eclipse-bg.gif');
-    background-size: cover;
+    background-size: contain;
     background-position: center;
+    background-repeat: no-repeat;
     will-change: transform;
   }
   .glass-bg { z-index: 0; }
@@ -862,8 +863,8 @@
     z-index: 1;
     mix-blend-mode: soft-light;
     opacity: 0.55;
-    transform: scale(1.04);
-    animation: glassDrift 22s ease-in-out infinite alternate;
+    transform: scale(1.0);
+    animation: none;
   }
   @keyframes glassDrift {
     0%   { transform: scale(1.04) translate3d(-1.2%, -0.8%, 0); }
@@ -908,6 +909,7 @@
   @media (max-width: 768px) {
     .glass-bg, .glass-bg-drift {
       background-image: url('eclipse-bg.gif');
+      background-size: cover;
     }
   }
 
@@ -1136,7 +1138,7 @@
       min-height: 100%;
     }
     .glass-hud { flex-direction: row; justify-self: stretch; gap: 16px; align-items: flex-start; }
-    .glass-headline { font-size: clamp(40px, 12vw, 64px); white-space: normal; line-height: 0.92; }
+    .glass-headline { font-size: clamp(28px, 9vw, 56px); white-space: normal; line-height: 0.92; }
     .glass-right { justify-self: stretch; align-items: center; gap: 14px; margin-top: 8px; }
     .drag-rail { --w: 100%; width: 100%; max-width: 360px; }
     .glass-coord, .glass-sub { text-align: center; }
@@ -4915,7 +4917,7 @@ window.addEventListener('load', () => {
         cta.style.minHeight = h + "px";
         cta.style.maxHeight = h + "px";
       };
-      img.src = "eclipse-bg.gif";
+      img.src = "glass-bg-mobile.png";
     }
     sizeToPhoto();
     window.addEventListener("resize", sizeToPhoto);
