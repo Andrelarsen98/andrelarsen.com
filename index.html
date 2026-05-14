@@ -4894,13 +4894,6 @@ window.addEventListener('load', () => {
   setInterval(() => { sIdx = (sIdx+1) % statuses.length; statusEl.textContent = statuses[sIdx]; }, 2800);
   setInterval(() => { ssIdx = (ssIdx+1) % sysStates.length; sysEl.textContent = sysStates[ssIdx]; }, 3700);
 
-  // Re-trigger headline blur reveal on hover
-  panel.addEventListener('mouseenter', () => {
-    headline.classList.remove('reveal-hover');
-    void headline.offsetWidth;
-    headline.classList.add('reveal-hover');
-  });
-
   // Pointer parallax on the bg layers (desktop only)
   const bg = panel.parentElement.querySelector('.glass-bg');
   const bgDrift = panel.parentElement.querySelector('.glass-bg-drift');
