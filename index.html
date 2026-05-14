@@ -848,9 +848,73 @@
     padding: 0;
     overflow: hidden;
     isolation: isolate;
-    /* Show more of the square GIF — 4:3 ratio on desktop */
-    aspect-ratio: 4 / 3;
+    /* Mobile default: 1:1 set below. Desktop override below. */
   }
+
+  /* ── DESKTOP: dot grid dead space + constrained photo ── */
+  @media (min-width: 769px) {
+    .glass-cta {
+      aspect-ratio: unset;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 72px 40px;
+    }
+    /* Dot grid fills the dead space around the photo */
+    .glass-cta-bg-dots {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.07;
+      --dot-bg: #000;
+      --dot-color: #fff;
+      --dot-size: 2px;
+      --dot-space: 22px;
+      background:
+        linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        var(--dot-color);
+    }
+    /* Photo wrap — constrained square */
+    .glass-photo-wrap {
+      position: relative;
+      width: min(500px, 38vw);
+      height: min(500px, 38vw);
+      overflow: hidden;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    /* Panel: single-column like mobile */
+    .glass-panel {
+      grid-template-columns: 1fr !important;
+      grid-auto-rows: auto !important;
+      padding: 28px 24px !important;
+      gap: 18px !important;
+      justify-items: center !important;
+      width: 100% !important;
+      height: 100% !important;
+      align-content: center !important;
+    }
+    .glass-hud { flex-direction: row !important; justify-self: stretch !important; gap: 14px !important; align-items: flex-start !important; }
+    .glass-headline { font-size: clamp(24px, 3.6vw, 58px) !important; white-space: normal !important; line-height: 0.92 !important; }
+    .glass-right { justify-self: stretch !important; align-items: center !important; gap: 10px !important; margin-top: 0 !important; }
+    .drag-rail { --w: 100% !important; width: 100% !important; max-width: 100% !important; }
+    .glass-coord, .glass-sub { text-align: center !important; }
+    /* Move vignette to photo-wrap */
+    .glass-cta::after { display: none; }
+    .glass-photo-wrap::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center,
+                  transparent 40%,
+                  rgba(5,15,22,0.55) 100%);
+      pointer-events: none;
+      z-index: 3;
+    }
+  }
+
   /* Base glass photo */
   .glass-bg, .glass-bg-drift, .glass-light-leak {
     position: absolute; inset: 0;
@@ -899,15 +963,16 @@
     66%  { transform: translate(40%, -8%);   opacity: 0.8; }
     100% { transform: translate(15%, 35%);   opacity: 0.6; }
   }
-  /* Vignette so edges feel like real frosted glass framed */
-  .glass-cta::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at center,
-                transparent 40%,
-                rgba(5,15,22,0.55) 100%);
-    pointer-events: none;
-    z-index: 3;
+  @media (max-width: 768px) {
+    .glass-cta::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center,
+                  transparent 40%,
+                  rgba(5,15,22,0.55) 100%);
+      pointer-events: none;
+      z-index: 3;
+    }
   }
   @media (max-width: 768px) {
     .glass-bg, .glass-bg-drift {
@@ -1146,6 +1211,13 @@
       aspect-ratio: 1 / 1;
       width: 100%;
       overflow: hidden;
+    }
+    .glass-cta-bg-dots { display: none; }
+    .glass-photo-wrap {
+      position: static;
+      width: 100%;
+      height: 100%;
+      display: contents; /* transparent passthrough — children behave as direct children of glassCta */
     }
     .glass-bg, .glass-bg-drift {
       background-size: cover;
@@ -2313,6 +2385,9 @@ Dubai, worldwide.</div>
 
   <!-- ── GLASS CTA (etched) ── -->
   <div class="glass-cta" id="glassCta">
+    <div class="glass-cta-bg-dots" aria-hidden="true"></div>
+
+    <div class="glass-photo-wrap">
     <div class="glass-bg" aria-hidden="true"></div>
     <div class="glass-bg-drift" aria-hidden="true"></div>
     <div class="glass-light-leak" aria-hidden="true"></div>
@@ -2350,6 +2425,7 @@ Dubai, worldwide.</div>
       </div>
 
     </div>
+    </div><!-- /glass-photo-wrap -->
   </div>
 
 
