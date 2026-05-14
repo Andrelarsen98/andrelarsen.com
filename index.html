@@ -1492,8 +1492,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 620px;
-    height: 620px;
+    width: 380px;
+    height: 380px;
     pointer-events: none;
     z-index: 50;
     flex-shrink: 0;
@@ -1523,16 +1523,16 @@
   }
   .vs-scene.dragging { cursor: grabbing; }
   .vs-sphere {
-    width: 620px; height: 620px;
+    width: 380px; height: 380px;
     position: relative;
     will-change: transform;
     flex-shrink: 0;
   }
   .vs-card {
     position: absolute;
-    width: 150px; height: 85px;
+    width: 110px; height: 62px;
     top: 50%; left: 50%;
-    margin-top: -42px; margin-left: -75px;
+    margin-top: -31px; margin-left: -55px;
     overflow: visible;
     background: transparent;
   }
@@ -3450,7 +3450,7 @@ videoEl.addEventListener('timeupdate', () => {
 ══════════════════════════════════════ */
 (function() {
   const NUM_VIDEOS   = 10;
-  const RADIUS       = window.innerWidth <= 768 ? Math.min(Math.round(window.innerWidth * 0.28 + 55), Math.round(window.innerWidth * 0.42)) : 380;
+  const RADIUS       = window.innerWidth <= 768 ? Math.min(Math.round(window.innerWidth * 0.28 + 55), Math.round(window.innerWidth * 0.42)) : 240;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
   const section   = document.getElementById('cubeSection');
@@ -3791,14 +3791,12 @@ videoEl.addEventListener('timeupdate', () => {
     const cx = cw / 2, cy = ch / 2;
 
     const isMobileWire = window.innerWidth <= 768;
-    // The Three.js globe CSS size is 52vw on mobile, 620px on desktop.
-    // The IcosahedronGeometry radius=1.9, camera FOV45 at z=6.
-    // Projected orb radius = (canvas_half) * (1.9/6) / tan(22.5°)
-    // tan(22.5°) = 0.4142
+    // Three.js globe CSS: 380px on both mobile (52vw≈202px) and desktop (380px)
+    // IcosahedronGeometry radius=1.9, camera FOV45 at z=6, tan(22.5°)=0.4142
     const globeCanvasHalf = isMobileWire
       ? (window.innerWidth * 0.52) / 2   // 52vw / 2
-      : 310;                              // 620px / 2
-    const sphereScreenR = globeCanvasHalf * (1.9 / 6) / 0.4142 * 0.92; // 0.92 = slight inset so wire truly touches surface
+      : 190;                              // 380px / 2
+    const sphereScreenR = globeCanvasHalf * (1.9 / 6) / 0.4142 * 0.92;
 
     scene.querySelectorAll('.vs-card').forEach((card) => {
       const nx = card._nx || 0, ny = card._ny || 0, nz = card._nz || 0;
@@ -3852,8 +3850,8 @@ videoEl.addEventListener('timeupdate', () => {
       /* Clip the wire end so it disappears behind the card.
          Use a small exclusion zone only at the card center — the wire
          approaches from outside and vanishes right under the card face. */
-      const CARD_W = 75 * (0.86 + depth * 0.30);
-      const CARD_H = 42 * (0.86 + depth * 0.30);
+      const CARD_W = 55 * (0.86 + depth * 0.30);
+      const CARD_H = 31 * (0.86 + depth * 0.30);
       wireCtx.beginPath();
       wireCtx.rect(0, 0, cw, ch);
       wireCtx.rect(cardX - CARD_W/2, cardY - CARD_H/2, CARD_W, CARD_H);
@@ -4615,7 +4613,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   /* Resize */
   window.addEventListener('resize', () => {
-    const s = window.innerWidth <= 768 ? 380 : 620;
+    const s = window.innerWidth <= 768 ? 380 : 380;
     renderer.setSize(s, s);
     mainFBO.setSize(s * 2, s * 2);
     backFBO.setSize(s * 2, s * 2);
