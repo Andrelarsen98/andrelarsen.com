@@ -880,7 +880,7 @@
     @media (min-width: 1280px) {
       .glass-cta-bg-dots { --dot-size: 4px; --dot-space: 5px; }
     }
-    /* Photo wrap — constrained square */
+    /* Photo wrap — constrained square with soft edge fade into dot grid */
     .glass-photo-wrap {
       position: relative;
       width: min(500px, 38vw);
@@ -888,6 +888,8 @@
       overflow: hidden;
       flex-shrink: 0;
       z-index: 1;
+      -webkit-mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 52%, transparent 100%);
+      mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 52%, transparent 100%);
     }
     /* Panel: single-column like mobile */
     .glass-panel {
