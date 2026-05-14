@@ -3791,10 +3791,14 @@ videoEl.addEventListener('timeupdate', () => {
     const cx = cw / 2, cy = ch / 2;
 
     const isMobileWire = window.innerWidth <= 768;
-    // On mobile the globe is 52vw rendered; on desktop it's the Three.js orb ~58% of RADIUS
-    const sphereScreenR = isMobileWire
-      ? window.innerWidth * 0.52 * 0.48   // 52vw canvas * ~48% = visible orb edge
-      : RADIUS * 0.58;
+    // The Three.js globe CSS size is 52vw on mobile, 620px on desktop.
+    // The IcosahedronGeometry radius=1.9, camera FOV45 at z=6.
+    // Projected orb radius = (canvas_half) * (1.9/6) / tan(22.5°)
+    // tan(22.5°) = 0.4142
+    const globeCanvasHalf = isMobileWire
+      ? (window.innerWidth * 0.52) / 2   // 52vw / 2
+      : 310;                              // 620px / 2
+    const sphereScreenR = globeCanvasHalf * (1.9 / 6) / 0.4142 * 0.92; // 0.92 = slight inset so wire truly touches surface
 
     scene.querySelectorAll('.vs-card').forEach((card) => {
       const nx = card._nx || 0, ny = card._ny || 0, nz = card._nz || 0;
@@ -3803,8 +3807,8 @@ videoEl.addEventListener('timeupdate', () => {
       const wX = wx2, wY = wy2*cosX - wz2*sinX, wZ = wy2*sinX + wz2*cosX;
       const depth = (wZ + 1) / 2;
 
-      /* Only skip wires for cards fully behind the globe */
-      if (depth < 0.15) return;
+      /* Skip only cards fully occluded behind the globe center */
+      if (depth < 0.05) return;
 
       const cardX = cx + wX * RADIUS;
       const cardY = cy - wY * RADIUS;
