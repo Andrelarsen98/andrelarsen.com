@@ -915,21 +915,9 @@
     }
   }
 
-  /* Dot grid overlay for mobile CTA */
+  /* Dot grid overlay for mobile CTA — disabled */
   .glass-dot-grid {
     display: none;
-  }
-  @media (max-width: 768px) {
-    .glass-dot-grid {
-      display: block;
-      position: absolute;
-      inset: 0;
-      z-index: 5;
-      pointer-events: none;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
-      background-size: 22px 22px;
-      background-position: center center;
-    }
   }
 
   /* Panel */
@@ -1146,19 +1134,35 @@
 
   /* Mobile */
   @media (max-width: 768px) {
-    .glass-cta { padding: 0; display: flex; align-items: stretch; background-color: #000; }
+    .glass-cta {
+      padding: 0;
+      display: flex;
+      align-items: stretch;
+      background-color: #000;
+      /* Size to the GIF's natural square aspect ratio */
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      overflow: hidden;
+    }
+    .glass-bg, .glass-bg-drift {
+      background-size: cover;
+      background-position: center center;
+    }
     .glass-panel {
       grid-template-columns: 1fr;
       grid-auto-rows: auto;
-      padding: 60px 24px 80px;
-      gap: 28px;
+      padding: 32px 24px 32px;
+      gap: 20px;
       justify-items: center;
       width: 100%;
-      min-height: 100%;
+      height: 100%;
+      /* Keep all content inside the GIF square */
+      box-sizing: border-box;
+      align-content: center;
     }
     .glass-hud { flex-direction: row; justify-self: stretch; gap: 16px; align-items: flex-start; }
-    .glass-headline { font-size: clamp(28px, 9vw, 56px); white-space: normal; line-height: 0.92; }
-    .glass-right { justify-self: stretch; align-items: center; gap: 14px; margin-top: 8px; }
+    .glass-headline { font-size: clamp(24px, 8vw, 52px); white-space: normal; line-height: 0.92; }
+    .glass-right { justify-self: stretch; align-items: center; gap: 10px; margin-top: 0; }
     .drag-rail { --w: 100%; width: 100%; max-width: 360px; }
     .glass-coord, .glass-sub { text-align: center; }
   }
@@ -4940,7 +4944,7 @@ window.addEventListener('load', () => {
         cta.style.minHeight = h + "px";
         cta.style.maxHeight = h + "px";
       };
-      img.src = "glass-bg-mobile.png";
+      img.src = "hero-bg.gif";
     }
     sizeToPhoto();
     window.addEventListener("resize", sizeToPhoto);
