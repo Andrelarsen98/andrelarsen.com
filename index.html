@@ -888,8 +888,6 @@
       overflow: hidden;
       flex-shrink: 0;
       z-index: 1;
-      -webkit-mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 52%, transparent 100%);
-      mask-image: radial-gradient(ellipse 88% 88% at 50% 50%, black 52%, transparent 100%);
     }
     /* Panel: single-column like mobile */
     .glass-panel {
@@ -907,16 +905,18 @@
     .glass-right { justify-self: stretch !important; align-items: center !important; gap: 10px !important; margin-top: 0 !important; }
     .drag-rail { --w: 100% !important; width: 100% !important; max-width: 100% !important; }
     .glass-coord, .glass-sub { text-align: center !important; }
-    /* Move vignette to photo-wrap */
+    /* Move vignette to photo-wrap — strong black edge fade blends into dot grid */
     .glass-cta::after { display: none; }
     .glass-photo-wrap::after {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse at center,
-                  transparent 40%,
-                  rgba(5,15,22,0.55) 100%);
+      background: radial-gradient(ellipse 80% 80% at 50% 50%,
+                  transparent 38%,
+                  rgba(0,0,0,0.5) 62%,
+                  rgba(0,0,0,0.88) 80%,
+                  #000 100%);
       pointer-events: none;
-      z-index: 3;
+      z-index: 10;
     }
   }
 
