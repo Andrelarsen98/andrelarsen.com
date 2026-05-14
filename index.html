@@ -3836,10 +3836,8 @@ videoEl.addEventListener('timeupdate', () => {
       const cpX  = midX + (-dy / linLen) * card._wireBow * 0.5;
       const cpY  = midY + ( dx / linLen) * card._wireBow * 0.5;
 
-      // Full alpha for all visible wires — no more fading out mid-orbit
-      const depthAlpha = depth < 0.4
-        ? Math.max(0.15, depth * 0.8)   // behind globe: faint but visible
-        : Math.min(1, (depth - 0.15) / 0.45); // front: ramps cleanly to 1
+      // All wires same opacity — no depth dimming
+      const depthAlpha = 1.0;
 
       wireCtx.save();
 
