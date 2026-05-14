@@ -530,6 +530,13 @@ nav a, nav button { pointer-events: all; }
   transition:background .12s,color .12s;
 }
 .lb-close:hover { background:#fff; color:#000; }
+.lb-fullscreen {
+  background:transparent; border:1px solid rgba(255,255,255,.3); color:#fff;
+  font-family:'VT323',monospace; font-size:16px; letter-spacing:.12em;
+  padding:5px 14px; cursor:pointer; text-transform:uppercase; -webkit-font-smoothing:none;
+  transition:background .12s,color .12s;
+}
+.lb-fullscreen:hover { background:#fff; color:#000; }
 
 /* stage */
 .lb-stage {
@@ -925,7 +932,10 @@ nav a, nav button { pointer-events: all; }
 <div class="lb" id="lb" role="dialog" aria-modal="true">
   <div class="lb-bar">
     <span class="lb-counter" id="lbCounter">01 / 10</span>
-    <button class="lb-close" id="lbClose">:/ CLOSE</button>
+    <div style="display:flex;gap:8px;">
+      <button class="lb-fullscreen" id="lbFullscreen">:/ FULLSCREEN</button>
+      <button class="lb-close" id="lbClose">:/ CLOSE</button>
+    </div>
   </div>
   <div class="lb-stage">
     <div class="lb-ghost" id="lbGhost">01</div>
@@ -1128,6 +1138,22 @@ nav a, nav button { pointer-events: all; }
   }
 
   lbClose.addEventListener('click', lbCloseF);
+
+  /* ── FULLSCREEN ── */
+  const lbFullscreen = document.getElementById('lbFullscreen');
+  lbFullscreen.addEventListener('click', () => {
+    const el = document.getElementById('lb');
+    if (!document.fullscreenElement) {
+      (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen).call(el);
+      lbFullscreen.textContent = ':/ EXIT FULL';
+    } else {
+      (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen).call(document);
+      lbFullscreen.textContent = ':/ FULLSCREEN';
+    }
+  });
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) lbFullscreen.textContent = ':/ FULLSCREEN';
+  });
   lbPrev.addEventListener('click', () => lbGo(lbActive - 1));
   lbNext.addEventListener('click', () => lbGo(lbActive + 1));
 
