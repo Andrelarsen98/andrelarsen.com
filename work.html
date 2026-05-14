@@ -15,6 +15,11 @@
   src: url('DrukWide-Bold.woff2') format('woff2');
   font-weight: 700; font-style: normal; font-display: block;
 }
+@font-face {
+  font-family: 'DrukWide';
+  src: url('DrukWide-Bold.woff2') format('woff2');
+  font-weight: 700; font-style: italic; font-display: block;
+}
 
 *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
 *::-webkit-scrollbar { display:none; }
@@ -1120,25 +1125,27 @@ footer {
     window.addEventListener('resize', resize);
     frame();
 
+    function blinkIn() {
+      canvas.style.transition = 'none';
+      canvas.style.opacity = '0';
+      setTimeout(() => canvas.style.opacity = '1', 50);
+      setTimeout(() => canvas.style.opacity = '0', 110);
+      setTimeout(() => canvas.style.opacity = '1', 170);
+      setTimeout(() => canvas.style.opacity = '0', 280);
+      setTimeout(() => {
+        canvas.style.opacity = '';
+        canvas.style.transition = 'opacity 0.4s ease';
+        canvas.classList.add('visible');
+      }, 350);
+      setTimeout(() => canvas.classList.add('visible'), 800);
+    }
+
     try {
       Promise.all([
         document.fonts.load(FONT_NORMAL),
         document.fonts.load(FONT_ITALIC)
-      ]).then(() => { resize(); }).catch(() => {});
-    } catch(e) {}
-
-    canvas.style.transition = 'none';
-    canvas.style.opacity = '0';
-    setTimeout(() => canvas.style.opacity = '1', 50);
-    setTimeout(() => canvas.style.opacity = '0', 110);
-    setTimeout(() => canvas.style.opacity = '1', 170);
-    setTimeout(() => canvas.style.opacity = '0', 280);
-    setTimeout(() => {
-      canvas.style.opacity = '';
-      canvas.style.transition = 'opacity 0.4s ease';
-      canvas.classList.add('visible');
-    }, 350);
-    setTimeout(() => canvas.classList.add('visible'), 800);
+      ]).then(() => { resize(); blinkIn(); }).catch(() => { blinkIn(); });
+    } catch(e) { blinkIn(); }
 
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
