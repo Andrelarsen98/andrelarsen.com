@@ -905,16 +905,25 @@
     .glass-right { justify-self: stretch !important; align-items: center !important; gap: 10px !important; margin-top: 0 !important; }
     .drag-rail { --w: 100% !important; width: 100% !important; max-width: 100% !important; }
     .glass-coord, .glass-sub { text-align: center !important; }
-    /* Move vignette to photo-wrap — strong black edge fade blends into dot grid */
+    /* Photo wrap — no overflow:hidden so edge fade can bleed outside boundary */
+    .glass-photo-wrap {
+      position: relative;
+      width: min(500px, 38vw);
+      height: min(500px, 38vw);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    /* Move vignette to photo-wrap — overlay bleeds outside photo to fade into dot grid */
     .glass-cta::after { display: none; }
     .glass-photo-wrap::after {
       content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse 78% 78% at 50% 50%,
-                  transparent 35%,
-                  rgba(0,0,0,0.45) 58%,
-                  rgba(0,0,0,0.85) 76%,
-                  #000 100%);
+      position: absolute;
+      inset: -15%;
+      background: radial-gradient(ellipse 62% 62% at 50% 50%,
+                  transparent 38%,
+                  rgba(0,0,0,0.4) 56%,
+                  rgba(0,0,0,0.82) 72%,
+                  #000 86%);
       pointer-events: none;
       z-index: 5;
     }
