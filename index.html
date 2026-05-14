@@ -229,9 +229,10 @@
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.4s ease;
+    mix-blend-mode: normal;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
-    will-change: opacity;
+    will-change: opacity, mix-blend-mode;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
   }
@@ -2436,11 +2437,14 @@ const isMobile = window.innerWidth <= 768;
 (function() {
   const navEl   = document.querySelector('nav');
   const landing = document.getElementById('site');
+  const logoCanvas = document.getElementById('logoChromaCanvas');
   const observer = new IntersectionObserver(entries => {
     if (!entries[0].isIntersecting) {
       navEl.classList.add('blend');
+      if (logoCanvas) logoCanvas.style.mixBlendMode = 'difference';
     } else {
       navEl.classList.remove('blend');
+      if (logoCanvas) logoCanvas.style.mixBlendMode = 'normal';
     }
   }, { root: document.getElementById('scrollContainer'), threshold: 0.02 });
   observer.observe(landing);
