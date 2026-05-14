@@ -851,7 +851,7 @@
   /* Base glass photo */
   .glass-bg, .glass-bg-drift, .glass-light-leak {
     position: absolute; inset: 0;
-    background-image: url('galaxy-bg-small.gif');
+    background-image: url('eclipse-bg.gif');
     background-size: cover;
     background-position: center;
     will-change: transform;
@@ -907,7 +907,7 @@
   }
   @media (max-width: 768px) {
     .glass-bg, .glass-bg-drift {
-      background-image: url('galaxy-bg-small.gif');
+      background-image: url('eclipse-bg.gif');
     }
   }
 
@@ -4915,7 +4915,7 @@ window.addEventListener('load', () => {
         cta.style.minHeight = h + "px";
         cta.style.maxHeight = h + "px";
       };
-      img.src = "galaxy-bg-small.gif";
+      img.src = "eclipse-bg.gif";
     }
     sizeToPhoto();
     window.addEventListener("resize", sizeToPhoto);
