@@ -861,6 +861,138 @@ nav a, nav button { pointer-events: all; }
 @media (min-width: 1280px) {
   .scanline:after { --dot-size: 4px; --dot-space: 5px; }
 }
+
+/* ── MARQUEE ── */
+.marquee-wrap {
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  padding: 7px 0;
+  white-space: nowrap;
+  position: relative;
+  z-index: 10;
+}
+.marquee-inner {
+  display: inline-flex;
+  animation: marquee 28s linear infinite;
+}
+.marquee-inner span {
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  opacity: .28;
+  -webkit-font-smoothing: none;
+  padding-right: 0;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── SHOWREEL HERO ── */
+.showreel-hero {
+  position: relative;
+  width: 100%;
+  height: 55vw;
+  max-height: 700px;
+  min-height: 280px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  background: #060606;
+}
+.showreel-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.showreel-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(0,0,0,.3) 0%,
+    rgba(0,0,0,.0) 30%,
+    rgba(0,0,0,.0) 55%,
+    rgba(0,0,0,.72) 100%
+  );
+  z-index: 1;
+}
+.showreel-label {
+  position: absolute;
+  bottom: 24px;
+  left: 32px;
+  z-index: 2;
+  font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+  font-size: clamp(40px, 7.5vw, 108px);
+  font-weight: 700;
+  line-height: .88;
+  letter-spacing: -.03em;
+  text-transform: uppercase;
+  color: #fff;
+  user-select: none;
+}
+.showreel-eyebrow {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  z-index: 2;
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  opacity: .55;
+  -webkit-font-smoothing: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+.showreel-playing {
+  position: absolute;
+  bottom: 24px;
+  right: 32px;
+  z-index: 2;
+  font-family: 'VT323', monospace;
+  font-size: 13px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  opacity: .38;
+  -webkit-font-smoothing: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.showreel-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,200,60,1);
+  box-shadow: 0 0 8px rgba(255,200,60,.7);
+  animation: pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .45; transform: scale(.7); }
+}
+@media (max-width: 600px) {
+  .showreel-hero { height: 62vw; min-height: 220px; }
+  .showreel-label { left: 16px; bottom: 16px; }
+  .showreel-eyebrow { right: 16px; top: 16px; }
+  .showreel-playing { right: 16px; bottom: 16px; }
+}
+
+/* ── CARD STAGGER ENTRANCE ── */
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.grid-card {
+  animation: cardReveal 0.5s ease both;
+}
 </style>
 </head>
 <body>
@@ -901,6 +1033,30 @@ nav a, nav button { pointer-events: all; }
       </div>
     </div>
   </header>
+
+  <!-- MARQUEE STRIP -->
+  <div class="marquee-wrap" aria-hidden="true">
+    <div class="marquee-inner">
+      <span>SELECTED WORKS &nbsp;—&nbsp; FPV / 3D / FILM / DIRECTION &nbsp;—&nbsp; DUBAI, UAE &nbsp;—&nbsp; 2021–2024 &nbsp;—&nbsp; VISUAL ARTIST &nbsp;—&nbsp; SELECTED WORKS &nbsp;—&nbsp; FPV / 3D / FILM / DIRECTION &nbsp;—&nbsp; DUBAI, UAE &nbsp;—&nbsp; 2021–2024 &nbsp;—&nbsp; VISUAL ARTIST &nbsp;—&nbsp; </span>
+      <span>SELECTED WORKS &nbsp;—&nbsp; FPV / 3D / FILM / DIRECTION &nbsp;—&nbsp; DUBAI, UAE &nbsp;—&nbsp; 2021–2024 &nbsp;—&nbsp; VISUAL ARTIST &nbsp;—&nbsp; SELECTED WORKS &nbsp;—&nbsp; FPV / 3D / FILM / DIRECTION &nbsp;—&nbsp; DUBAI, UAE &nbsp;—&nbsp; 2021–2024 &nbsp;—&nbsp; VISUAL ARTIST &nbsp;—&nbsp; </span>
+    </div>
+  </div>
+
+  <!-- SHOWREEL HERO -->
+  <div class="showreel-hero">
+    <video class="showreel-video" src="showreel.mp4" autoplay muted loop playsinline></video>
+    <div class="showreel-veil"></div>
+    <div class="showreel-label">SHOW-<br>REEL</div>
+    <div class="showreel-eyebrow">
+      <span>■ 2024</span>
+      <span>VISUAL ARTIST</span>
+      <span>DUBAI, UAE</span>
+    </div>
+    <div class="showreel-playing">
+      <span class="showreel-dot"></span>
+      <span>PLAYING</span>
+    </div>
+  </div>
 
   <!-- GRID VIEW -->
   <div class="works-grid" id="worksGrid"></div>
@@ -1051,6 +1207,11 @@ nav a, nav button { pointer-events: all; }
     }
 
     grid.appendChild(card);
+  });
+
+  /* ── STAGGER ENTRANCE ── */
+  Array.from(grid.children).forEach((card, i) => {
+    card.style.animationDelay = (i * 0.06) + 's';
   });
 
   /* ── BUILD LIST ── */
