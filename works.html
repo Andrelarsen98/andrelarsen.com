@@ -146,6 +146,10 @@ nav a, nav button { pointer-events: all; }
   color: #000;
   text-shadow: 0 0 8px rgba(255, 200, 60, 0.6);
 }
+.nav-links a.active {
+  background: #fff;
+  color: #000;
+}
 
 .nav-center { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
 .nav-center a {
@@ -265,6 +269,7 @@ nav a, nav button { pointer-events: all; }
   line-height: 1.35;
   display: block;
 }
+.menu-nav a.active { opacity: 0.4; pointer-events: none; }
 .menu-bottom {
   position: relative;
   z-index: 1;
@@ -868,7 +873,7 @@ nav a, nav button { pointer-events: all; }
 <nav>
   <div class="nav-logo" aria-hidden="true"></div>
   <div class="nav-links">
-    <a href="works.html">WORKS</a>
+    <a href="works.html" class="active">WORKS</a>
     <a href="about.html">ABOUT</a>
   </div>
   <div class="nav-center">
@@ -937,7 +942,7 @@ nav a, nav button { pointer-events: all; }
   </div>
   <div class="menu-nav">
     <a href="/">HOME</a>
-    <a href="works.html">WORKS</a>
+    <a href="works.html" class="active">WORKS</a>
     <a href="about.html">ABOUT</a>
   </div>
   <div class="menu-bottom">

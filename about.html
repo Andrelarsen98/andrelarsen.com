@@ -230,6 +230,10 @@
       color: #000;
       text-shadow: 0 0 8px rgba(255, 200, 60, 0.6);
     }
+    .nav-links a.active {
+      background: #fff;
+      color: #000;
+    }
     .nav-center { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
     .nav-right { display: flex; flex-direction: column; gap: 1px; text-align: right; }
     .nav-right > span {
@@ -332,6 +336,7 @@
       line-height: 1.35;
       display: block;
     }
+    .menu-nav a.active { opacity: 0.4; pointer-events: none; }
     .menu-bottom {
       position: relative;
       z-index: 1;
@@ -878,7 +883,7 @@
     <a href="index.html" class="nav-logo" id="logoHomeLink">andré <em>larsen</em></a>
     <div class="nav-links">
       <a href="works.html">WORKS</a>
-      <a href="about.html">ABOUT</a>
+      <a href="about.html" class="active">ABOUT</a>
     </div>
     <div class="nav-center">
       <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
@@ -898,7 +903,7 @@
     <div class="menu-nav">
       <a href="index.html">HOME</a>
       <a href="works.html">WORKS</a>
-      <a href="about.html">ABOUT</a>
+      <a href="about.html" class="active">ABOUT</a>
     </div>
     <div class="menu-bottom">
       <div class="menu-bottom-left">
