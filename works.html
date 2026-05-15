@@ -1045,8 +1045,8 @@ nav a, nav button { pointer-events: all; }
 
     if (p.video) {
       const v = card.querySelector('.card-video');
-      card.addEventListener('mouseenter', () => { v.load(); v.play().catch(()=>{}); });
-      card.addEventListener('mouseleave', () => { v.pause(); v.currentTime = 0; });
+      card.addEventListener('mouseenter', () => { v.play().catch(()=>{}); });
+      card.addEventListener('mouseleave', () => { v.pause(); v.load(); });
     }
 
     grid.appendChild(card);
