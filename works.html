@@ -66,15 +66,18 @@ body { overflow-x: hidden; }
   position:fixed; inset:0; pointer-events:none; z-index:58;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);
 }
-.ov-dots {
-  position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.055;
+/* ── DOTS: nav + footer only ── */
+nav::before, .footer::before {
+  content:''; position:absolute; inset:0; pointer-events:none; opacity:.055;
   --db:#000; --dc:#fff; --ds:2px; --dp:3px;
   background:
     linear-gradient(90deg,var(--db) calc(var(--dp) - var(--ds)),transparent 1%) center/var(--dp) var(--dp),
     linear-gradient(var(--db) calc(var(--dp) - var(--ds)),transparent 1%) center/var(--dp) var(--dp),
     var(--dc);
+  z-index:0;
 }
-@media (min-width:1280px) { .ov-dots { --ds:4px; --dp:5px; } }
+@media (min-width:1280px) { nav::before, .footer::before { --ds:4px; --dp:5px; } }
+
 
 /* ── NAV ── */
 nav {
@@ -869,7 +872,6 @@ nav a, nav button { pointer-events: all; }
 <body>
 
 <div id="scrollTrack"><div id="scrollThumb"></div></div>
-<div class="ov-dots"    aria-hidden="true"></div>
 <div class="ov-scan"    aria-hidden="true"></div>
 <div class="ov-grain"   aria-hidden="true"></div>
 
