@@ -320,158 +320,211 @@ nav a, nav button { pointer-events: all; }
   touch-action: pan-y;
 }
 
-/* ── PAGE HEADER ── */
+/* ── PAGE HEADER (artefakt exact) ── */
+/* pt-170 = 17rem = 272px; mb-50 mobile / mb-100 md+ */
 .page-header {
-  padding: 108px 32px 0;
+  padding: 272px 32px 80px;
   display:flex; align-items:flex-end; justify-content:space-between;
   position:relative; z-index:10;
-  border-bottom:1px solid rgba(255,255,255,.07);
-  padding-bottom:14px;
-  margin-bottom:0;
 }
+@media (min-width:768px) { .page-header { padding-bottom: 160px; } }
 .page-title {
   font-family:'DrukWide','Arial Black',Arial,sans-serif;
-  font-weight:700; font-size:clamp(40px,7vw,110px);
-  line-height:.9; letter-spacing:-.02em; text-transform:uppercase;
+  font-weight:700;
+  font-size: 4.8rem;          /* heading-m  48px */
+  line-height:100%;
+  letter-spacing:-.2rem;
+  text-transform:uppercase;
 }
+@media (min-width:768px)  { .page-title { font-size: 8.4rem;  letter-spacing:-.2rem; } } /* heading-xxl  84px */
+@media (min-width:1024px) { .page-title { font-size: 12rem;   letter-spacing:-.3rem; } } /* heading-xxxl 120px */
+@media (min-width:1280px) { .page-title { font-size: 18rem;   letter-spacing:-.3rem; } } /* heading-big  180px */
+
 .page-meta {
-  display:flex; flex-direction:column; align-items:flex-end; gap:4px;
-  padding-bottom:6px;
+  display:flex; flex-direction:column; align-items:flex-end; gap:20px;
+  padding: 30px 0 12px;
+}
+@media (max-width:1279px) { .page-views, .view-toggle { display:none; } }
+.page-views {
+  font-family:'VT323',monospace; font-size:14px; letter-spacing:.12em;
+  opacity:.52; text-transform:none; -webkit-font-smoothing:none;
 }
 .page-count {
-  font-size:14px; letter-spacing:.18em; opacity:.4; text-transform:uppercase;
+  font-family:'VT323',monospace; font-size:14px; letter-spacing:.18em;
+  opacity:.4; text-transform:uppercase; -webkit-font-smoothing:none;
 }
 .view-toggle {
-  display:flex; gap:6px;
+  display:flex; flex-direction:column; gap:5px; align-items:flex-start;
 }
 .view-btn {
-  background:transparent; color:#fff; border:1px solid rgba(255,255,255,.3);
-  font-family:'VT323',monospace; font-size:15px; letter-spacing:.12em;
-  padding:4px 12px; cursor:pointer; text-transform:uppercase;
-  -webkit-font-smoothing:none; transition:background .12s,color .12s;
+  background:transparent; color:#fff; border:none;
+  font-family:'VT323',monospace; font-size:14px; letter-spacing:.04em;
+  padding:0; cursor:pointer; text-transform:none;
+  -webkit-font-smoothing:none;
+  display:flex; align-items:center; gap:8px;
+  opacity:.52; transition:opacity .15s;
 }
-.view-btn.is-active,.view-btn:hover { background:#fff; color:#000; }
+.view-btn:hover { opacity:1; }
+.view-btn.is-active { opacity:1; }
+.vb-square { width:6px; height:6px; background:#fff; opacity:0; display:inline-block; }
+.view-btn.is-active .vb-square { opacity:1; }
 
-/* ══════════════════
-   GRID VIEW — artefakt staggered 12-col
-══════════════════ */
+/* ══════════════════════════════════════
+   GRID VIEW — artefakt exact 12-col grid-w
+   --margin:32px (padding-inline), --gutter:16px (column-gap)
+   Mobile: 6-col, Desktop ≥768px: 12-col
+   row-gap: 80px mobile, 160px ≥768px
+══════════════════════════════════════ */
 .works-grid {
   display:grid;
-  grid-template-columns:repeat(12,1fr);
-  column-gap:24px;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  column-gap:16px;
   row-gap:80px;
-  padding:40px 32px 120px;
+  padding:0 32px 200px;
   position:relative; z-index:5;
+}
+@media (min-width:768px) {
+  .works-grid {
+    grid-template-columns:repeat(12,minmax(0,1fr));
+    row-gap:160px;
+  }
 }
 .works-grid.is-hidden { display:none; }
 
-/* card variants by position in 12-col grid */
-.grid-card {
-  position:relative; cursor:pointer;
-  display:flex;
-  background:transparent;
+/* === CARD VARIANTS (artefakt 6-row stagger) ===
+   idx % 6 === 0  → BIG       col-span-full   inner: 4 text + 8 video (lg)
+   idx % 6 === 1  → HALF-5    col-span-5      stacked
+   idx % 6 === 2  → HALF-r7   col-start-7 -13 stacked
+   idx % 6 === 3  → BIG-MIR   col-span-full   inner: 8 video + 4 text (lg)
+   idx % 6 === 4  → HALF-6    col-span-6      stacked
+   idx % 6 === 5  → HALF-r8   col-start-8 -13 stacked (5-col)
+*/
+.grid-card { position:relative; cursor:pointer; grid-column:1/-1; }
+
+/* Big cards: nested 12-col internal grid with text + media */
+.grid-card.v-big,
+.grid-card.v-big-mirror {
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  column-gap:16px;
+}
+@media (min-width:768px) {
+  .grid-card.v-big,
+  .grid-card.v-big-mirror {
+    grid-template-columns:repeat(12,minmax(0,1fr));
+  }
 }
 
-/* full-width "big" — text left (4 col), video right (8 col) */
-.grid-card.is-big {
-  grid-column: 1 / -1;
-  display:grid;
-  grid-template-columns: 4fr 8fr;
-  column-gap:24px;
-  align-items:stretch;
+.grid-card .card-text-col   { grid-column:1/-1; }
+.grid-card .card-media-col  { grid-column:1/-1; }
+@media (min-width:768px) {
+  .grid-card.v-big        .card-text-col  { grid-column:1/span 5; }
+  .grid-card.v-big        .card-media-col { grid-column:6/-1;    } /* col 6-12 = 7 cols */
+  .grid-card.v-big-mirror .card-media-col { grid-column:1/span 7; order:0; }
+  .grid-card.v-big-mirror .card-text-col  { grid-column:8/-1;    order:1; }
 }
-/* mirrored big — video left (8 col), text right (4 col) */
-.grid-card.is-big-mirror {
-  grid-column: 1 / -1;
-  display:grid;
-  grid-template-columns: 8fr 4fr;
-  column-gap:24px;
-  align-items:stretch;
-}
-/* half-width left — stacked video over text */
-.grid-card.is-half-l {
-  grid-column: 1 / span 6;
-  flex-direction:column;
-}
-/* half-width right offset — stacked video over text */
-.grid-card.is-half-r {
-  grid-column: 7 / -1;
-  flex-direction:column;
+@media (min-width:1024px) {
+  .grid-card.v-big        .card-text-col  { grid-column:1/span 4; }
+  .grid-card.v-big        .card-media-col { grid-column:5/-1;    } /* col 5-12 = 8 cols */
+  .grid-card.v-big-mirror .card-media-col { grid-column:1/span 8; }
+  .grid-card.v-big-mirror .card-text-col  { grid-column:9/-1;    }
 }
 
-/* TEXT BLOCK */
-.card-text {
+/* Half cards */
+.grid-card.v-half-5    { grid-column:1/-1; }
+.grid-card.v-half-r7   { grid-column:1/-1; }
+.grid-card.v-half-6    { grid-column:1/-1; }
+.grid-card.v-half-r8   { grid-column:1/-1; }
+@media (min-width:768px) {
+  .grid-card.v-half-5  { grid-column:1/span 5; }
+  .grid-card.v-half-r7 { grid-column:7/-1; }           /* col 7-12 = 6 wide */
+  .grid-card.v-half-6  { grid-column:1/span 6; }
+  .grid-card.v-half-r8 { grid-column:8/-1; }           /* col 8-12 = 5 wide */
+}
+
+/* TEXT block — flex column, num at top, title+meta at bottom */
+.card-text-col {
   display:flex; flex-direction:column;
   justify-content:space-between;
-  gap:20px;
+  gap:16px;
   padding:6px 0;
 }
-.grid-card.is-half-l .card-text,
-.grid-card.is-half-r .card-text { padding-top:20px; }
-
-.card-num {
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.2em;
-  opacity:.45; text-transform:uppercase; -webkit-font-smoothing:none;
+@media (max-width:767px) {
+  .card-text-col { padding-top:14px; order:2; }
+  .card-media-col { order:1; }
+  .grid-card.v-big        .card-text-col,
+  .grid-card.v-big-mirror .card-text-col { order:2; }
 }
-.card-title-block { display:flex; flex-direction:column; gap:10px; }
+.card-num {
+  font-family:'VT323',monospace; font-size:14px; letter-spacing:.06em;
+  opacity:.55; text-transform:uppercase; -webkit-font-smoothing:none;
+}
+.card-title-block { display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
 .card-title {
   font-family:'DrukWide','Arial Black',Arial,sans-serif;
   font-weight:700;
-  font-size:clamp(20px,2.2vw,40px);
-  line-height:.95; letter-spacing:-.01em; text-transform:uppercase;
+  font-size:2rem;            /* heading-xxs = 20px... wait 2rem = 32px */
+  line-height:100%;
+  letter-spacing:0;
+  text-transform:uppercase;
 }
 .card-meta {
   display:flex; flex-direction:column; gap:2px;
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.12em;
-  opacity:.55; text-transform:uppercase; -webkit-font-smoothing:none;
+  font-family:'VT323',monospace; font-size:14px; letter-spacing:.04em;
+  opacity:.85; text-transform:none; -webkit-font-smoothing:none;
 }
-.card-meta-row {
-  display:flex; align-items:center; gap:10px;
-}
-.card-dot {
-  width:6px; height:6px; background:#fff; display:inline-block;
-  margin-top:-2px;
-}
+.card-meta-row { display:flex; align-items:center; gap:10px; }
+.card-dot { width:6px; height:6px; background:#fff; display:inline-block; margin-top:-2px; }
 
-/* MEDIA WRAPPER — 16:9 */
+/* mobile inline meta header (above media) */
+.card-meta-mobile {
+  display:flex; justify-content:space-between;
+  font-family:'VT323',monospace; font-size:13px; letter-spacing:.04em;
+  opacity:.52; -webkit-font-smoothing:none;
+  margin-bottom:14px;
+}
+@media (min-width:768px) { .card-meta-mobile { display:none; } }
+
+/* MEDIA WRAPPER — pt-[56.25%] trick = 16:9 */
 .card-media {
   position:relative;
   width:100%;
-  aspect-ratio:16/9;
+  padding-top:56.25%;
   overflow:hidden;
   background:#050505;
-  border:1px solid rgba(255,255,255,.06);
 }
-.card-video {
+.card-media-inner { position:absolute; inset:0; }
+.card-poster, .card-video {
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:cover; display:block;
 }
-.card-bg { display:none; }
-.card-overlay {
-  position:absolute; inset:0;
-  background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.55) 100%);
-  opacity:0; transition:opacity .35s ease;
-  pointer-events:none;
-}
-.grid-card:hover .card-overlay { opacity:1; }
+.card-poster { z-index:1; transition:opacity .4s ease; }
+.card-video  { z-index:0; opacity:0; transition:opacity .4s ease; }
+.grid-card.is-playing .card-poster { opacity:0; }
+.grid-card.is-playing .card-video  { opacity:1; }
 
-/* "Open project" hover pill (bottom-right of media) */
+/* "Open project" hover pill — sticky bottom-right of media */
 .card-pill {
-  position:absolute; right:14px; bottom:14px;
-  display:flex; align-items:center; gap:10px;
+  position:absolute; right:16px; bottom:16px;
+  display:flex; align-items:center; gap:28px;
   background:#fff; color:#000;
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.14em;
-  padding:6px 12px; text-transform:uppercase;
+  font-family:'VT323',monospace; font-size:14px; letter-spacing:.02em;
+  padding:7px 12px; border-radius:2px;
   -webkit-font-smoothing:none;
   opacity:0; transform:translateY(4px);
   transition:opacity .25s ease, transform .25s ease;
   pointer-events:none;
+  z-index:2;
 }
 .grid-card:hover .card-pill { opacity:1; transform:translateY(0); }
-.card-pill-arrow { font-size:14px; line-height:1; }
+.card-pill-arrow {
+  width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+}
+.card-pill-arrow svg { width:14px; height:auto; transform:scaleX(-1); }
 
 /* compatibility w/ old hover bits (kept hidden) */
-.card-info, .card-burn, .card-tags { display:none; }
+.card-info, .card-burn, .card-tags, .card-bg, .card-overlay { display:none; }
 
 /* ══════════════════
    LIST VIEW
@@ -882,16 +935,17 @@ nav a, nav button { pointer-events: all; }
 
 .footer-spacer { flex-shrink: 0; height: 28px; }
 
-/* ── SCANLINE ── */
+/* ── SCANLINE (artefakt exact — fixed full-screen dot grid) ── */
 .scanline {
   pointer-events: none;
   top: 0; left: 0;
-  z-index: 6;
-  height: 100%;
-  width: 100%;
-  position: absolute;
+  z-index: 1;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
   will-change: transform;
   transform: translateZ(0);
+  mix-blend-mode: difference;
 }
 .scanline:after {
   top: 0; left: 0;
@@ -1072,42 +1126,22 @@ nav a, nav button { pointer-events: all; }
 
 <canvas id="logoChromaCanvas" aria-hidden="true"></canvas>
 
+<!-- fixed dot scanline overlay (artefakt) -->
+<div class="scanline" aria-hidden="true"></div>
+
 <div id="scrollContainer">
 
   <header class="page-header">
     <h1 class="page-title">Works</h1>
     <div class="page-meta">
-      <span class="page-count" id="pageCount">10 PROJECTS</span>
+      <div class="page-views">:/ Views</div>
       <div class="view-toggle">
-        <button class="view-btn is-active" id="btnGrid">GRID</button>
-        <button class="view-btn" id="btnList">LIST</button>
+        <button class="view-btn is-active" id="btnGrid"><span class="vb-square"></span><span>Grid</span></button>
+        <button class="view-btn" id="btnList"><span class="vb-square"></span><span>List</span></button>
       </div>
+      <span class="page-count" id="pageCount">20 PROJECTS</span>
     </div>
   </header>
-
-  <!-- MARQUEE STRIP -->
-  <div class="marquee-wrap" aria-hidden="true">
-    <div class="marquee-inner">
-      <span>SELECTED WORKS &nbsp;—&nbsp; FPV / 3D / FILM / DIRECTION &nbsp;—&nbsp; DUBAI, UAE &nbsp;—&nbsp; 2021–2024 &nbsp;—&nbsp; VISUAL ARTIST &nbsp;—&nbsp; SELECTED WORKS &nbsp;—&nbsp; FPV / 3D / FILM / DIRECTION &nbsp;—&nbsp; DUBAI, UAE &nbsp;—&nbsp; 2021–2024 &nbsp;—&nbsp; VISUAL ARTIST &nbsp;—&nbsp; </span>
-      <span>SELECTED WORKS &nbsp;—&nbsp; FPV / 3D / FILM / DIRECTION &nbsp;—&nbsp; DUBAI, UAE &nbsp;—&nbsp; 2021–2024 &nbsp;—&nbsp; VISUAL ARTIST &nbsp;—&nbsp; SELECTED WORKS &nbsp;—&nbsp; FPV / 3D / FILM / DIRECTION &nbsp;—&nbsp; DUBAI, UAE &nbsp;—&nbsp; 2021–2024 &nbsp;—&nbsp; VISUAL ARTIST &nbsp;—&nbsp; </span>
-    </div>
-  </div>
-
-  <!-- SHOWREEL HERO -->
-  <div class="showreel-hero">
-    <video class="showreel-video" src="showreel.mp4" autoplay muted loop playsinline></video>
-    <div class="showreel-veil"></div>
-    <div class="showreel-label">SHOW-<br>REEL</div>
-    <div class="showreel-eyebrow">
-      <span>■ 2024</span>
-      <span>VISUAL ARTIST</span>
-      <span>DUBAI, UAE</span>
-    </div>
-    <div class="showreel-playing">
-      <span class="showreel-dot"></span>
-      <span>PLAYING</span>
-    </div>
-  </div>
 
   <!-- GRID VIEW -->
   <div class="works-grid" id="worksGrid"></div>
@@ -1209,19 +1243,29 @@ nav a, nav button { pointer-events: all; }
      Add `video: "path/to/file.mp4"` and optionally `poster: "img.jpg"`
      to show real media on hover.
   ============================================================ */
+  // artefakt project lineup — local videos cycle through work1.mp4..work16.mp4
+  const _v = (n) => `work${((n-1)%16)+1}.mp4`;
   const PROJECTS = [
-    { index:"01", title:"Night BASE Jump", client:"XDubai", year:"2021", role:"FPV / Direction", tags:["FPV","Action","Dubai"], video:"video_compressed.mp4", poster:"maxresdefault.jpg" },
-    { index:"02", title:"Racing To The Tallest Building", client:"Red Bull", year:"2022", role:"FPV / Direction", tags:["FPV","Action","Dubai"], video:"v2_redbull-burj-compressed.mp4", poster:"redbull-poster.jpg" },
-    { index:"03", title:"Signal Drift",     client:"Confidential",    year:"2024", role:"Direction",           tags:["Film","AI"] },
-    { index:"04", title:"Atlas Frame",      client:"Studio X",        year:"2023", role:"3D / Animation",      tags:["3D","Brand"] },
-    { index:"05", title:"Halogen",          client:"Music Video",     year:"2023", role:"Direction / VFX",     tags:["Film"] },
-    { index:"06", title:"Northbound",       client:"Travel Co",       year:"2023", role:"Edit / Color",        tags:["Edit"] },
-    { index:"07", title:"Glass House",      client:"Architecture",    year:"2023", role:"CGI",                 tags:["3D","Arch"] },
-    { index:"08", title:"Burn-In",          client:"Type Foundry",    year:"2022", role:"Identity / Motion",   tags:["Type","Brand"] },
-    { index:"09", title:"Receiver",         client:"Confidential",    year:"2022", role:"Direction",           tags:["Film"] },
-    { index:"10", title:"Endframe",         client:"Self-initiated",  year:"2022", role:"Direction / 3D",      tags:["3D","Film"] },
-    { index:"11", title:"Ghost Signal",     client:"Confidential",    year:"2022", role:"Direction / Edit",    tags:["Film","Edit"] },
-    { index:"12", title:"Orbit",            client:"Internal R&D",    year:"2021", role:"3D / Motion",         tags:["3D","Motion"] },
+    { index:"01", title:"Nightography",       client:"Samsung",                year:"2026", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(1)  },
+    { index:"02", title:"Käsy",                client:"McDonalds",              year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(2)  },
+    { index:"03", title:"Trailer",             client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(3)  },
+    { index:"04", title:"Wenn das Liebe ist",  client:"Nina Chuba",             year:"2025", category:"Music video", role:"Direction",          tags:["Music video"],  video:_v(4)  },
+    { index:"05", title:"Marder",              client:"Europa",                 year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(5)  },
+    { index:"06", title:"MIRAGE",              client:"arteLAB vol. 3: MIRAGE", year:"2025", category:"arteLAB",     role:"Direction",          tags:["arteLAB"],      video:_v(6)  },
+    { index:"07", title:"HUF x Bonkers",       client:"HUF x BONKERS",          year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(7)  },
+    { index:"08", title:"Nachtschicht",        client:"01099 x Ikkimel",        year:"2025", category:"Music video", role:"Direction",          tags:["Music video"],  video:_v(8)  },
+    { index:"09", title:"Marc Michaelis",      client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(9)  },
+    { index:"10", title:"OVERTIME",            client:"arteLAB",                year:"2025", category:"arteLAB",     role:"Direction",          tags:["arteLAB"],      video:_v(10) },
+    { index:"11", title:"Anna-Maria Rieder",   client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(11) },
+    { index:"12", title:"Magier",              client:"Europa",                 year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(12) },
+    { index:"13", title:"Cheyenne & Jessica",  client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(13) },
+    { index:"14", title:"arteLAB vol. 1: VIVID", client:"VIVID",                year:"2025", category:"arteLAB",     role:"Direction",          tags:["arteLAB"],      video:_v(14) },
+    { index:"15", title:"Tatjana Paller",      client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(15) },
+    { index:"16", title:"X-MAS",               client:"Raiffeisen",             year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(16) },
+    { index:"17", title:"Casino",              client:"Europa",                 year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(1)  },
+    { index:"18", title:"Senescence",          client:"ACCVSED",                year:"2025", category:"Music video", role:"Direction",          tags:["Music video"],  video:_v(2)  },
+    { index:"19", title:"Käptn Peng",          client:"LUNA",                   year:"2025", category:"Music video", role:"Direction",          tags:["Music video"],  video:_v(3)  },
+    { index:"20", title:"Nothing Added",       client:"Lea Baintner",           year:"2025", category:"Visual works",role:"Direction",          tags:["Visual works"], video:_v(4)  },
   ];
 
   document.getElementById('pageCount').textContent = PROJECTS.length + ' PROJECTS';
@@ -1229,30 +1273,59 @@ nav a, nav button { pointer-events: all; }
   const grid = document.getElementById('worksGrid');
   const list = document.getElementById('worksList');
 
-  /* ── BUILD GRID (artefakt staggered pattern) ──
-     index % 4 === 0 → big   (text-left  | video-right)
-     index % 4 === 1 → half-left  (video over text)
-     index % 4 === 2 → half-right (video over text)
-     index % 4 === 3 → big-mirror (video-left | text-right)
+  /* ── BUILD GRID (artefakt EXACT 6-card stagger) ──
+     index % 6 === 0 → v-big        col-span-full   inner: 4 text + 8 video
+     index % 6 === 1 → v-half-5     col-span-5      stacked
+     index % 6 === 2 → v-half-r7    col-start-7 -13 stacked (6 wide)
+     index % 6 === 3 → v-big-mirror col-span-full   inner: 8 video + 4 text
+     index % 6 === 4 → v-half-6     col-span-6      stacked
+     index % 6 === 5 → v-half-r8    col-start-8 -13 stacked (5 wide)
   */
-  const VARIANTS = ['is-big','is-half-l','is-half-r','is-big-mirror'];
+  const VARIANTS = ['v-big','v-half-5','v-half-r7','v-big-mirror','v-half-6','v-half-r8'];
+
+  const arrowSVG = `<svg width="11" height="9" viewBox="0 0 11 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect y="4" width="1.1" height="1.1" fill="currentColor"/><rect x="1" y="3" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="2" y="3" width="1.1" height="1.1" fill="currentColor"/><rect x="2" y="2" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="3" y="1" width="1.1" height="1.1" fill="currentColor"/><rect x="3" y="2" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="3" y="3" width="1.1" height="1.1" fill="currentColor"/><rect x="3" y="4" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="4" y="4" width="1.1" height="1.1" fill="currentColor"/><rect x="5" y="4" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="6" y="4" width="1.1" height="1.1" fill="currentColor"/><rect x="7" y="4" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="8" y="4" width="1.1" height="1.1" fill="currentColor"/><rect x="9" y="3" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="9" y="2" width="1.1" height="1.1" fill="currentColor"/><rect x="9" y="1" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="9" width="1.1" height="1.1" fill="currentColor"/><rect x="3" y="5" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="3" y="6" width="1.1" height="1.1" fill="currentColor"/><rect x="3" y="7" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="1" y="4" width="1.1" height="1.1" fill="currentColor"/><rect x="2" y="4" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="1" y="5" width="1.1" height="1.1" fill="currentColor"/><rect x="2" y="5" width="1.1" height="1.1" fill="currentColor"/>
+    <rect x="2" y="6" width="1.1" height="1.1" fill="currentColor"/>
+  </svg>`;
+
   PROJECTS.forEach((p, i) => {
-    const variant = VARIANTS[i % 4];
+    const variant = VARIANTS[i % 6];
     const card = document.createElement('div');
     card.className = 'grid-card ' + variant;
     card.dataset.index = i;
 
-    const mediaHTML = `
-      <div class="card-media">
-        ${p.video ? `<video class="card-video" src="${p.video}" ${p.poster?`poster="${p.poster}"`:''}
-          muted loop playsinline preload="none"></video>` : `<div class="card-bg"></div>`}
-        <div class="card-overlay"></div>
-        <div class="card-pill"><span>OPEN PROJECT</span><span class="card-pill-arrow">→</span></div>
+    const mediaColHTML = `
+      <div class="card-media-col">
+        <div class="card-media">
+          <div class="card-media-inner">
+            ${p.poster ? `<img class="card-poster" src="${p.poster}" alt="${p.title}" loading="lazy">` : `<div class="card-poster" style="background:#0a0a0a"></div>`}
+            ${p.video ? `<video class="card-video" src="${p.video}" muted loop playsinline preload="auto" disablepictureinpicture></video>` : ''}
+          </div>
+          <div class="card-pill">
+            <span>Open project</span>
+            <span class="card-pill-arrow">${arrowSVG}</span>
+          </div>
+        </div>
       </div>
     `;
 
-    const textHTML = `
-      <div class="card-text">
+    const textColHTML = `
+      <div class="card-text-col">
+        <div class="card-meta-mobile">
+          <div><span>${p.client}</span> · <span>${p.year}</span></div>
+          <div>${p.category}</div>
+        </div>
         <span class="card-num">${p.index}</span>
         <div class="card-title-block">
           <div class="card-title">${p.title}</div>
@@ -1262,21 +1335,28 @@ nav a, nav button { pointer-events: all; }
               <span class="card-dot"></span>
               <span>${p.year}</span>
             </div>
-            <div>${p.role}</div>
+            <div>${p.category}</div>
           </div>
         </div>
       </div>
     `;
 
-    // big variants: text col + media col (or mirrored)
-    if (variant === 'is-big')          card.innerHTML = textHTML + mediaHTML;
-    else if (variant === 'is-big-mirror') card.innerHTML = mediaHTML + textHTML;
-    else                                card.innerHTML = mediaHTML + textHTML; // half cards: media on top
+    // big: text first then media; big-mirror: media first then text; halves: media+text (text below)
+    if (variant === 'v-big')              card.innerHTML = textColHTML + mediaColHTML;
+    else if (variant === 'v-big-mirror')  card.innerHTML = mediaColHTML + textColHTML;
+    else                                  card.innerHTML = mediaColHTML + textColHTML;
 
     if (p.video) {
       const v = card.querySelector('.card-video');
-      card.addEventListener('mouseenter', () => { v.play().catch(()=>{}); });
-      card.addEventListener('mouseleave', () => { v.pause(); v.load(); });
+      card.addEventListener('mouseenter', () => {
+        card.classList.add('is-playing');
+        const pr = v.play();
+        if (pr && pr.catch) pr.catch(()=>{});
+      });
+      card.addEventListener('mouseleave', () => {
+        card.classList.remove('is-playing');
+        v.pause();
+      });
     }
 
     card.addEventListener('click', () => lbOpen(i));
