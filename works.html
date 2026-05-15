@@ -808,10 +808,14 @@ nav a, nav button { pointer-events: all; }
   .page-header { padding:80px 16px 0; padding-bottom:12px; }
   .page-title { font-size:clamp(36px,12vw,80px); }
 
-  .works-grid { grid-template-columns:1fr; border-left:none; }
+  .works-grid { grid-template-columns:1fr; border-left:none; padding:0 16px 120px; row-gap:48px; }
   .works-list  { grid-template-columns:1fr; border-left:none; }
-  .grid-card { aspect-ratio:3/2; }
-  .card-title { font-size:clamp(14px,4.5vw,20px); }
+  .grid-card { grid-column:1/-1 !important; }
+  .grid-card .card-media-col,
+  .grid-card .card-text-col { grid-column:1/-1 !important; }
+  .grid-card .card-media { padding-top:56.25%; }
+  .grid-card .card-video { object-fit:cover; }
+  .card-title { font-size:clamp(20px,6vw,28px); }
 
   .list-item { grid-template-columns:44px 1fr auto; min-height:52px; }
   .list-num  { padding-left:14px; font-size:12px; }
