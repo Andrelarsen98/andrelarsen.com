@@ -1640,5 +1640,79 @@ menuClose.addEventListener('click', () => {
 })();
 </script>
 
+<script>
+/* ── NAV HOVER GLITCH ── */
+(function () {
+  const GLITCH_CHARS = '@#FRT43%=+-.<>!?/\\|~^&*0123456789';
+
+  function splitToCharSpans(el) {
+    const text = el.textContent;
+    el.innerHTML = Array.from(text).map(c =>
+      c === ' ' ? '<span class="sc-space"> </span>'
+                : `<span class="sc-char" style="opacity:0"> </span>`
+    ).join('');
+    return {
+      chars:     [...el.querySelectorAll('.sc-char')],
+      originals: Array.from(text).filter(c => c !== ' ')
+    };
+  }
+
+  function resolveChar(span, finalChar, iterations) {
+    let count = 0;
+    span.style.opacity = '1';
+    span.textContent = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+    const iv = setInterval(() => {
+      count++;
+      if (count >= iterations) { span.textContent = finalChar; clearInterval(iv); }
+      else { span.textContent = GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)]; }
+    }, 16);
+  }
+
+  function wrapNavCharsHover(el) {
+    const GHOVER = '@#FRT43%=+-.<>!?|~^$3R4T&*()[]{}/:;,!§±°€£¥×÷√∞≠';
+    el.querySelectorAll('.sc-char').forEach(span => {
+      const orig = span.textContent;
+      span.dataset.orig = orig;
+      span.addEventListener('mouseenter', () => {
+        let count = 0;
+        const total = 5 + Math.floor(Math.random() * 2);
+        const iv = setInterval(() => {
+          span.textContent = GHOVER[Math.floor(Math.random() * GHOVER.length)];
+          count++;
+          if (count >= total) {
+            clearInterval(iv);
+            setTimeout(() => { span.textContent = span.dataset.orig; }, 60);
+          }
+        }, 55);
+      });
+    });
+  }
+
+  function initNavGlitch() {
+    const allEls = [
+      ...document.querySelectorAll('.nav-links a'),
+      ...document.querySelectorAll('.nav-center a')
+    ];
+    const CHAR_STAGGER_MS = 10;
+    const SCRAMBLE_ITER   = 6;
+    let globalCharIndex   = 0;
+
+    allEls.forEach(el => {
+      const { chars, originals } = splitToCharSpans(el);
+      chars.forEach((span, i) => {
+        const delay = globalCharIndex * CHAR_STAGGER_MS;
+        setTimeout(() => resolveChar(span, originals[i], SCRAMBLE_ITER), delay);
+        globalCharIndex++;
+      });
+    });
+
+    const totalDuration = globalCharIndex * CHAR_STAGGER_MS + SCRAMBLE_ITER * 16 + 100;
+    setTimeout(() => allEls.forEach(el => wrapNavCharsHover(el)), totalDuration);
+  }
+
+  setTimeout(initNavGlitch, 400);
+})();
+</script>
+
 </body>
 </html>

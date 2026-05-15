@@ -75,6 +75,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+      cursor: pointer;
     }
     .holo-who span { display: block; }
     /* Mobile: single line, pushed down below browser UI */
@@ -1647,6 +1648,9 @@ window.FPV_GOGGLES_MESH = {
 
     // Logo → home
     document.getElementById('logoHomeLink').addEventListener('click', fadeToHome);
+
+    // WHO AM I? → home
+    document.querySelector('.holo-who').addEventListener('click', fadeToHome);
 
     // Menu HOME link → home
     document.querySelector('.menu-nav a[href="index.html"]').addEventListener('click', fadeToHome);
