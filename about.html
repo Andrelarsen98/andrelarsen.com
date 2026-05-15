@@ -76,6 +76,7 @@
       flex-direction: column;
       align-items: flex-start;
       cursor: pointer;
+      pointer-events: all;
     }
     .holo-who span { display: block; }
     /* Mobile: single line, pushed down below browser UI */
@@ -2155,7 +2156,7 @@ window.FPV_GOGGLES_MESH = {
     // Hard fallback
     setTimeout(() => canvas.classList.add('visible'), 800);
 
-    canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
+    canvas.addEventListener('click', () => { window.location.href = 'index.html?skip'; });
   })();
   </script>
 
