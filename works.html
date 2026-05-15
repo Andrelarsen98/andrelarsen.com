@@ -496,14 +496,10 @@ nav a, nav button { pointer-events: all; }
   background:#050505;
 }
 .card-media-inner { position:absolute; inset:0; }
-.card-poster, .card-video {
+.card-video {
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:cover; display:block;
 }
-.card-poster { z-index:1; transition:opacity .4s ease; }
-.card-video  { z-index:0; opacity:0; transition:opacity .4s ease; }
-.grid-card.is-playing .card-poster { opacity:0; }
-.grid-card.is-playing .card-video  { opacity:1; }
 
 /* "Open project" hover pill — sticky bottom-right of media */
 .card-pill {
@@ -1307,8 +1303,7 @@ nav a, nav button { pointer-events: all; }
       <div class="card-media-col">
         <div class="card-media">
           <div class="card-media-inner">
-            ${p.poster ? `<img class="card-poster" src="${p.poster}" alt="${p.title}" loading="lazy">` : `<div class="card-poster" style="background:#0a0a0a"></div>`}
-            ${p.video ? `<video class="card-video" src="${p.video}" muted loop playsinline preload="auto" disablepictureinpicture></video>` : ''}
+            ${p.video ? `<video class="card-video" src="${p.video}" muted loop playsinline autoplay preload="auto" disablepictureinpicture></video>` : ''}
           </div>
           <div class="card-pill">
             <span>Open project</span>
@@ -1346,15 +1341,8 @@ nav a, nav button { pointer-events: all; }
 
     if (p.video) {
       const v = card.querySelector('.card-video');
-      card.addEventListener('mouseenter', () => {
-        card.classList.add('is-playing');
-        const pr = v.play();
-        if (pr && pr.catch) pr.catch(()=>{});
-      });
-      card.addEventListener('mouseleave', () => {
-        card.classList.remove('is-playing');
-        v.pause();
-      });
+      const pr = v.play();
+      if (pr && pr.catch) pr.catch(()=>{});
     }
 
     card.addEventListener('click', () => lbOpen(i));
