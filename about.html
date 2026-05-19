@@ -604,10 +604,10 @@
       cursor: pointer;
       user-select: none;
       flex-shrink: 0;
-      background: rgba(255,255,255,0.13);
+      background: #212121;
       -webkit-font-smoothing: none;
-      width: 100%;
-      margin: 0;
+      width: auto;
+      margin: 0 32px;
       transition: background 0.2s ease, color 0.2s ease;
     }
     .footer-back:hover { background: #1d4ed8; color: #fff; }
@@ -627,7 +627,7 @@
         display: flex; flex-direction: row;
         justify-content: space-between; align-items: flex-start; text-align: left;
       }
-      .footer-back { padding: 7px 20px; font-size: 13px; width: 100%; margin: 0; }
+      .footer-back { padding: 7px 20px; font-size: 13px; width: auto; margin: 0 20px; background: #212121; }
       .footer-spacer { height: 16px; }
     }
   .video-section {
@@ -2069,7 +2069,7 @@ window.FPV_GOGGLES_MESH = {
 
     const TEXT1 = 'andré ';
     const TEXT2 = 'larsen';
-    const FONT_SIZE = 18;
+    const FONT_SIZE = window.innerWidth <= 768 ? 22 : 28;
     const BASELINE = FONT_SIZE;  // alphabetic baseline offset from top
     const FONT_NORMAL = `700 ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
     const FONT_ITALIC = `700 italic ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
