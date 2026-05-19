@@ -542,6 +542,35 @@
       overflow: hidden;
       background: #000;
     }
+    .about-footer > .scanline {
+      pointer-events: none;
+      top: 0; left: 0;
+      z-index: 6;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    .about-footer > .scanline:after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: block;
+      opacity: .07;
+      --dot-bg: #000;
+      --dot-color: #fff;
+      --dot-size: 2px;
+      --dot-space: 3px;
+      background:
+        linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        var(--dot-color);
+    }
+    @media (min-width: 1280px) {
+      .about-footer > .scanline:after { --dot-size: 4px; --dot-space: 5px; }
+    }
 
     .about-footer > * {
       position: relative;
@@ -1070,7 +1099,8 @@
 
   </div>
 
-  <footer class="about-footer dot-bg">
+  <footer class="about-footer">
+    <div class="scanline"></div>
     <div class="footer-ascii-wrap">
       <canvas id="footerAsciiCanvas"></canvas>
     </div>
