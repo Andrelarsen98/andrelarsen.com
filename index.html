@@ -2889,6 +2889,14 @@ const isMobile = window.innerWidth <= 768;
         // Artefakt lightBlink + shuffle logo reveal
         shuffleLogoIn();
 
+        // Reveal VISUAL ARTIST / DUBAI, UAE directly — simple fade
+        setTimeout(() => {
+          document.querySelectorAll('.nav-right > span').forEach(el => {
+            el.style.transition = 'opacity 0.5s ease';
+            el.style.opacity = '1';
+          });
+        }, isMobile ? 300 : 800);
+
         // Nav reveal (other elements) slightly after logo starts
         setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), isMobile ? 300 : 800);
 
@@ -3116,23 +3124,12 @@ function startNavSequence() {
   const logo      = document.querySelector('.nav-logo');
   const navLinks  = [...document.querySelectorAll('.nav-links a')];
   const navCenter = [...document.querySelectorAll('.nav-center a')];
-  const navRight  = [...document.querySelectorAll('.nav-right > span')];
-  navRight.forEach(el => {
-    el.style.opacity = '1';
-    const inner = document.createElement('span');
-    inner.className = 'nr-inner';
-    inner.style.cssText = 'display:inline-block;text-align:left;direction:ltr;';
-    inner.textContent = el.textContent.trim();
-    el.textContent = '';
-    el.appendChild(inner);
-  });
   const bioEl     = document.getElementById('landingBio');
   const indicator = document.getElementById('scrollIndicator');
 
   // All elements that get the char-by-char reveal
   const taglineEl = document.getElementById('landingTagline');
-  const navRightInners = navRight.map(el => el.querySelector('.nr-inner'));
-  const allEls = [...navLinks, ...navCenter, ...navRightInners];
+  const allEls = [...navLinks, ...navCenter];
   if (taglineEl) allEls.push(taglineEl);
   if (bioEl) allEls.push(bioEl);
 
