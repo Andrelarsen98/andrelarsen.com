@@ -3117,12 +3117,24 @@ function startNavSequence() {
   const navLinks  = [...document.querySelectorAll('.nav-links a')];
   const navCenter = [...document.querySelectorAll('.nav-center a')];
   const navRight  = [...document.querySelectorAll('.nav-right > span')];
+  // Wrap nav-right text in inline-block .nr-inner so chars reveal LTR
+  // inside the right-aligned outer span
+  navRight.forEach(el => {
+    el.style.opacity = '1';
+    const inner = document.createElement('span');
+    inner.className = 'nr-inner';
+    inner.style.cssText = 'display:inline-block;text-align:left;direction:ltr;opacity:1;';
+    inner.textContent = el.textContent.trim();
+    el.textContent = '';
+    el.appendChild(inner);
+  });
+  const navRightInners = navRight.map(el => el.querySelector('.nr-inner'));
   const bioEl     = document.getElementById('landingBio');
   const indicator = document.getElementById('scrollIndicator');
 
   // All elements that get the char-by-char reveal
   const taglineEl = document.getElementById('landingTagline');
-  const allEls = [...navLinks, ...navCenter, ...navRight];
+  const allEls = [...navLinks, ...navCenter, ...navRightInners];
   if (taglineEl) allEls.push(taglineEl);
   if (bioEl) allEls.push(bioEl);
 
