@@ -2372,7 +2372,7 @@
 <!-- ── BURJ SCROLL HERO ── -->
   <div id="burjWrapper">
     <div id="burjSticky">
-      <video id="burjVideo" src="burj.mp4" muted playsinline preload="auto" webkit-playsinline></video>
+      <video id="burjVideo" src="burj.mp4" muted playsinline preload="auto" webkit-playsinline style="will-change:transform;transform:translateZ(0);"></video>
       <div id="burjBottomFade"></div>
       <div id="burjProgress"></div>
       <div id="burjScrollHint">↓ &nbsp; SCROLL</div>
@@ -5429,30 +5429,42 @@ window.addEventListener('load', () => {
 <script>
 // ── BURJ SCROLL VIDEO ──
 (function() {
-  const wrapper = document.getElementById('burjWrapper');
-  const video   = document.getElementById('burjVideo');
+  const wrapper  = document.getElementById('burjWrapper');
+  const video    = document.getElementById('burjVideo');
   const progress = document.getElementById('burjProgress');
-  const hint    = document.getElementById('burjScrollHint');
-  const sc      = document.getElementById('scrollContainer');
+  const hint     = document.getElementById('burjScrollHint');
+  const sc       = document.getElementById('scrollContainer');
   if (!wrapper || !video || !sc) return;
 
+  let ticking = false;
+  let targetTime = 0;
+
   function seek() {
-    const wrapperTop    = wrapper.offsetTop;
-    const wrapperHeight = wrapper.offsetHeight;
-    const scrollTop     = sc.scrollTop;
-    const scrollable    = wrapperHeight - window.innerHeight;
-    const raw           = scrollTop - wrapperTop;
-    const pct           = Math.max(0, Math.min(1, raw / scrollable));
+    const scrollable = wrapper.offsetHeight - window.innerHeight;
+    const raw        = sc.scrollTop - wrapper.offsetTop;
+    const pct        = Math.max(0, Math.min(1, raw / scrollable));
 
     if (video.readyState >= 1) {
-      video.currentTime = pct * video.duration;
+      targetTime = pct * video.duration;
+      if (typeof video.fastSeek === 'function') {
+        video.fastSeek(targetTime);
+      } else {
+        video.currentTime = targetTime;
+      }
     }
 
     if (progress) progress.style.width = (pct * 100) + '%';
-    if (hint) hint.style.opacity = pct > 0.05 ? '0' : '1';
+    if (hint)     hint.style.opacity   = pct > 0.04 ? '0' : '1';
+    ticking = false;
   }
 
-  sc.addEventListener('scroll', seek, { passive: true });
+  sc.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(seek);
+      ticking = true;
+    }
+  }, { passive: true });
+
   video.addEventListener('loadedmetadata', seek);
   video.pause();
 })();
