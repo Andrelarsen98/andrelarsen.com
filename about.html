@@ -548,13 +548,14 @@
       z-index: 1;
     }
     .footer-ascii-wrap {
-      flex: 0 0 auto;
+      flex: 1 1 auto;
       width: 100%;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
       overflow: hidden;
       min-height: 30vh;
+      padding: 0 0 24px;
     }
     #footerAsciiCanvas { display: block; }
     .footer-info {
@@ -594,9 +595,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 11px 32px;
+      padding: 7px 32px;
       font-family: 'VT323', monospace;
-      font-size: 16px;
+      font-size: 13px;
       letter-spacing: 0.18em;
       color: #fff;
       text-transform: uppercase;
@@ -605,12 +606,12 @@
       flex-shrink: 0;
       background: rgba(255,255,255,0.13);
       -webkit-font-smoothing: none;
-      width: calc(100% - 56px);
-      margin: 0 28px 28px;
-      transition: background 0.2s ease, letter-spacing 0.3s ease;
+      width: 100%;
+      margin: 0;
+      transition: background 0.2s ease, color 0.2s ease;
     }
-    .footer-back:hover { background: rgba(255,255,255,0.22); letter-spacing: 0.32em; }
-    .footer-spacer { flex-shrink: 0; height: 28px; }
+    .footer-back:hover { background: #1d4ed8; color: #fff; }
+    .footer-spacer { flex-shrink: 0; height: 0; }
 
     @media (max-width: 768px) {
       .about-footer { min-height: 100vh; }
@@ -626,7 +627,7 @@
         display: flex; flex-direction: row;
         justify-content: space-between; align-items: flex-start; text-align: left;
       }
-      .footer-back { padding: 11px 20px; width: calc(100% - 40px); margin: 0 20px 20px; }
+      .footer-back { padding: 7px 20px; font-size: 13px; width: 100%; margin: 0; }
       .footer-spacer { height: 0; }
     }
   .video-section {
@@ -1768,7 +1769,7 @@ window.FPV_GOGGLES_MESH = {
         nx.textBaseline = 'middle';
         for (let ox = -2; ox <= 2; ox++)
           for (let oy = -2; oy <= 2; oy++)
-            nx.fillText(FOOTER_NAME, (cachedW - tw) / 2 + ox, cachedH / 2 + oy);
+            nx.fillText(FOOTER_NAME, (cachedW - tw) / 2 + ox, cachedH * 0.62 + oy);
 
         const d = nx.getImageData(0, 0, cachedW, cachedH).data;
         mask      = new Uint8Array(cols * rows);
