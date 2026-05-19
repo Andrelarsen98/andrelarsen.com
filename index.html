@@ -3118,6 +3118,7 @@ function startNavSequence() {
   const navCenter = [...document.querySelectorAll('.nav-center a')];
   const navRight  = [...document.querySelectorAll('.nav-right > span')];
   navRight.forEach(el => {
+    el.style.opacity = '1';
     const inner = document.createElement('span');
     inner.className = 'nr-inner';
     inner.style.cssText = 'display:inline-block;text-align:left;direction:ltr;';
