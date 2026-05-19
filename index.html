@@ -2237,6 +2237,27 @@
 </head>
 <body>
 
+<script>
+/* Disable zoom — desktop + mobile */
+(function(){
+  window.addEventListener('wheel', function(e){
+    if (e.ctrlKey || e.metaKey) e.preventDefault();
+  }, { passive: false });
+  window.addEventListener('keydown', function(e){
+    if ((e.ctrlKey || e.metaKey) && ['+','-','=','0','_'].indexOf(e.key) !== -1) e.preventDefault();
+  });
+  document.addEventListener('gesturestart',  function(e){ e.preventDefault(); });
+  document.addEventListener('gesturechange', function(e){ e.preventDefault(); });
+  document.addEventListener('gestureend',    function(e){ e.preventDefault(); });
+  var lastTouchEnd = 0;
+  document.addEventListener('touchend', function(e){
+    var now = Date.now();
+    if (now - lastTouchEnd <= 300) e.preventDefault();
+    lastTouchEnd = now;
+  }, { passive: false });
+})();
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <!-- Loader backdrop -->
