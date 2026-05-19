@@ -3047,7 +3047,7 @@ const scrollContainer = document.getElementById('scrollContainer');
 
 /* ── NAV HOVER GLITCH — per character, 3-flash burst then restore ── */
 function wrapNavChars(el) {
-  const GLITCH = '@#FRT43%=+-.<>!?|~^$3R4T&*()[]{}/:;,!§±°€£¥×÷√∞≠';
+  const GLITCH = '!@#$%&*FKT_';
   const text = el.textContent;
   el.innerHTML = Array.from(text).map(c =>
     c === ' ' ? ' ' : `<span class="nav-char" data-orig="${c}">${c}</span>`
@@ -3103,7 +3103,7 @@ function resolveChar(span, finalChar, iterations) {
 
 /* After reveal, wrap nav link chars for hover effect */
 function wrapNavCharsHover(el) {
-  const GHOVER = '@#FRT43%=+-.<>!?|~^$3R4T&*()[]{}/:;,!§±°€£¥×÷√∞≠';
+  const GHOVER = '!@#$%&*FKT_';
   el.querySelectorAll('.sc-char').forEach(span => {
     const orig = span.textContent;
     span.dataset.orig = orig;
@@ -3461,7 +3461,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   /* Exact same constants as loader */
   const FOOTER_NAME  = 'André Larsen';
-  const FOOTER_CHARS = '3RT4FR@#T4R3T%RF4T=3R+43RT3:F4R*3T#@R43TF%R3T4R3T#4F@R3TR4%3TF#R3T4R@3TRF43RT#@%R3T4FR3@T#R4F3T%R4T3F#@R3T4';
+  const FOOTER_CHARS = ' .:-=+*#%@4RT3F';
   const CW = 5, CH = 7.5;
   const MOUSE_R = 140;
 
@@ -4865,7 +4865,7 @@ window.addEventListener('load', () => {
 (function() {
   const btn = document.getElementById('footerBackTop');
   if (!btn) return;
-  const GLITCH = '@#FRT43%=+-.<>!?|~^&*3R4T';
+  const GLITCH = '!@#$%&*FKT_';
   const orig = btn.textContent;
 
   btn.addEventListener('mouseenter', () => {
