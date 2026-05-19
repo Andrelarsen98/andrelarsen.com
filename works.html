@@ -6,9 +6,16 @@
   <title>Work — André Larsen</title>
   <meta name="description" content="Selected visual projects by André Larsen — 3D, film, direction, motion.">
   <link rel="preload" href="DrukWide-Bold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" href="DepartureMono-Regular.woff2" type="font/woff2" crossorigin>
+  <style>
+    @font-face {
+      font-family: 'DepartureMono';
+      src: url('DepartureMono-Regular.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
 <style>
 @font-face {
   font-family: 'DrukWide';
@@ -22,7 +29,7 @@
 html,body {
   width:100%; background:#000; color:#fff;
   overscroll-behavior:none; scrollbar-width:none;
-  font-family:'VT323',monospace; -webkit-font-smoothing:none;
+  font-family:'DepartureMono',monospace; -webkit-font-smoothing:none;
   overflow: hidden;
   max-width: 100%;
 }
@@ -130,7 +137,7 @@ nav a, nav button { pointer-events: all; }
 .nav-links { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
 .nav-links a {
   color: #fff; text-decoration: none;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 16px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -154,7 +161,7 @@ nav a, nav button { pointer-events: all; }
 .nav-center { display: flex; flex-direction: column; gap: 1px; align-items: flex-start; }
 .nav-center a {
   color: #fff; text-decoration: none;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 16px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -173,7 +180,7 @@ nav a, nav button { pointer-events: all; }
 
 .nav-right { display: flex; flex-direction: column; gap: 1px; text-align: right; }
 .nav-right > span {
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 16px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -189,7 +196,7 @@ nav a, nav button { pointer-events: all; }
   background: none;
   border: 1px solid rgba(255,255,255,0.5);
   color: #fff;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 16px;
   letter-spacing: 0.12em;
   padding: 5px 14px;
@@ -237,7 +244,7 @@ nav a, nav button { pointer-events: all; }
   background: rgba(255,255,255,0.12);
   border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 16px;
   letter-spacing: 0.12em;
   padding: 5px 14px;
@@ -287,7 +294,7 @@ nav a, nav button { pointer-events: all; }
 }
 .menu-bottom-left a,
 .menu-bottom-left span {
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 14px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -300,7 +307,7 @@ nav a, nav button { pointer-events: all; }
   background: rgba(255,255,255,0.12);
   border: 1px solid rgba(255,255,255,0.4);
   color: #fff;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 16px;
   letter-spacing: 0.12em;
   padding: 5px 14px;
@@ -347,11 +354,11 @@ nav a, nav button { pointer-events: all; }
 }
 @media (max-width:1279px) { .page-views, .view-toggle { display:none; } }
 .page-views {
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.12em;
+  font-family:'DepartureMono',monospace; font-size:14px; letter-spacing:.12em;
   opacity:.52; text-transform:none; -webkit-font-smoothing:none;
 }
 .page-count {
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.18em;
+  font-family:'DepartureMono',monospace; font-size:14px; letter-spacing:.18em;
   opacity:.4; text-transform:uppercase; -webkit-font-smoothing:none;
 }
 .view-toggle {
@@ -359,7 +366,7 @@ nav a, nav button { pointer-events: all; }
 }
 .view-btn {
   background:transparent; color:#fff; border:none;
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.04em;
+  font-family:'DepartureMono',monospace; font-size:14px; letter-spacing:.04em;
   padding:0; cursor:pointer; text-transform:none;
   -webkit-font-smoothing:none;
   display:flex; align-items:center; gap:8px;
@@ -386,7 +393,7 @@ nav a, nav button { pointer-events: all; }
   background: #000;
   border: 1px solid rgba(255,255,255,0.55);
   color: #fff;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 14px;
   letter-spacing: 0.04em;
   text-transform: none;
@@ -412,7 +419,7 @@ nav a, nav button { pointer-events: all; }
   border-radius: 2px;
 }
 .wfb-meta {
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 14px;
   letter-spacing: 0.04em;
   color: rgba(255,255,255,0.55);
@@ -510,7 +517,7 @@ nav a, nav button { pointer-events: all; }
   .grid-card.v-big-mirror .card-text-col { order:2; }
 }
 .card-num {
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.06em;
+  font-family:'DepartureMono',monospace; font-size:14px; letter-spacing:.06em;
   opacity:.55; text-transform:uppercase; -webkit-font-smoothing:none;
 }
 .card-title-block { display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
@@ -524,7 +531,7 @@ nav a, nav button { pointer-events: all; }
 }
 .card-meta {
   display:flex; flex-direction:column; gap:2px;
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.04em;
+  font-family:'DepartureMono',monospace; font-size:14px; letter-spacing:.04em;
   opacity:.85; text-transform:none; -webkit-font-smoothing:none;
 }
 .card-meta-row { display:flex; align-items:center; gap:10px; }
@@ -533,7 +540,7 @@ nav a, nav button { pointer-events: all; }
 /* mobile inline meta header (above media) */
 .card-meta-mobile {
   display:flex; justify-content:space-between;
-  font-family:'VT323',monospace; font-size:13px; letter-spacing:.04em;
+  font-family:'DepartureMono',monospace; font-size:13px; letter-spacing:.04em;
   opacity:.52; -webkit-font-smoothing:none;
   margin-bottom:14px;
 }
@@ -558,7 +565,7 @@ nav a, nav button { pointer-events: all; }
   position:absolute; right:16px; bottom:16px;
   display:flex; align-items:center; gap:28px;
   background:#fff; color:#000;
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.02em;
+  font-family:'DepartureMono',monospace; font-size:14px; letter-spacing:.02em;
   padding:7px 12px; border-radius:2px;
   -webkit-font-smoothing:none;
   opacity:0; transform:translateY(4px);
@@ -597,7 +604,7 @@ nav a, nav button { pointer-events: all; }
 .list-item:hover { background:rgba(255,255,255,.04); }
 
 .list-num {
-  font-family:'VT323',monospace; font-size:13px; letter-spacing:.18em;
+  font-family:'DepartureMono',monospace; font-size:13px; letter-spacing:.18em;
   opacity:.35; text-transform:uppercase; -webkit-font-smoothing:none;
   padding:0 0 0 20px; align-self:stretch;
   display:flex; align-items:center;
@@ -612,7 +619,7 @@ nav a, nav button { pointer-events: all; }
   line-height:.95; letter-spacing:-.01em; text-transform:uppercase;
 }
 .list-role {
-  font-family:'VT323',monospace; font-size:14px;
+  font-family:'DepartureMono',monospace; font-size:14px;
   letter-spacing:.1em; opacity:.35; text-transform:uppercase;
   -webkit-font-smoothing:none;
 }
@@ -620,13 +627,13 @@ nav a, nav button { pointer-events: all; }
   padding:0 20px; display:flex; flex-direction:column; align-items:flex-end; gap:4px;
 }
 .list-year {
-  font-family:'VT323',monospace; font-size:14px;
+  font-family:'DepartureMono',monospace; font-size:14px;
   letter-spacing:.14em; opacity:.4; text-transform:uppercase;
   -webkit-font-smoothing:none;
 }
 .list-tags { display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
 .list-tag {
-  font-family:'VT323',monospace; font-size:11px;
+  font-family:'DepartureMono',monospace; font-size:11px;
   letter-spacing:.12em; padding:1px 5px;
   border:1px solid rgba(255,255,255,.15);
   text-transform:uppercase; -webkit-font-smoothing:none;
@@ -656,14 +663,14 @@ nav a, nav button { pointer-events: all; }
 }
 .lb-close {
   background:transparent; border:1px solid rgba(255,255,255,.3); color:#fff;
-  font-family:'VT323',monospace; font-size:16px; letter-spacing:.12em;
+  font-family:'DepartureMono',monospace; font-size:16px; letter-spacing:.12em;
   padding:5px 14px; cursor:pointer; text-transform:uppercase; -webkit-font-smoothing:none;
   transition:background .12s,color .12s;
 }
 .lb-close:hover { background:#fff; color:#000; }
 .lb-fullscreen {
   background:transparent; border:1px solid rgba(255,255,255,.3); color:#fff;
-  font-family:'VT323',monospace; font-size:16px; letter-spacing:.12em;
+  font-family:'DepartureMono',monospace; font-size:16px; letter-spacing:.12em;
   padding:5px 14px; cursor:pointer; text-transform:uppercase; -webkit-font-smoothing:none;
   transition:background .12s,color .12s;
 }
@@ -726,7 +733,7 @@ nav a, nav button { pointer-events: all; }
   position:absolute; top:50%; transform:translateY(-50%);
   background:transparent; color:#fff;
   border:1px solid rgba(255,255,255,.25);
-  font-family:'VT323',monospace; font-size:18px; letter-spacing:.1em;
+  font-family:'DepartureMono',monospace; font-size:18px; letter-spacing:.1em;
   padding:12px 16px; cursor:pointer; text-transform:uppercase; -webkit-font-smoothing:none;
   z-index:10; transition:background .12s,color .12s,opacity .12s;
 }
@@ -782,7 +789,7 @@ nav a, nav button { pointer-events: all; }
 }
 .lb-vol-btn {
   background:transparent; border:1px solid rgba(255,255,255,.3); color:#fff;
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.1em;
+  font-family:'DepartureMono',monospace; font-size:14px; letter-spacing:.1em;
   padding:3px 10px; cursor:pointer; text-transform:uppercase;
   -webkit-font-smoothing:none; transition:background .12s,color .12s;
   white-space:nowrap; flex-shrink:0;
@@ -797,7 +804,7 @@ nav a, nav button { pointer-events: all; }
   width:0%; pointer-events:none; transition:width .1s linear;
 }
 .lb-time {
-  font-family:'VT323',monospace; font-size:14px; letter-spacing:.08em;
+  font-family:'DepartureMono',monospace; font-size:14px; letter-spacing:.08em;
   opacity:.5; white-space:nowrap; flex-shrink:0;
 }
 @media (max-width:768px) {
@@ -935,7 +942,7 @@ nav a, nav button { pointer-events: all; }
   align-items: flex-start;
   padding: 16px 28px 16px;
   border-top: none;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 16px;
   letter-spacing: 0.08em;
   color: #fff;
@@ -948,7 +955,7 @@ nav a, nav button { pointer-events: all; }
   color: #fff;
   text-decoration: none;
   display: block;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 16px;
   -webkit-font-smoothing: none;
 }
@@ -959,7 +966,7 @@ nav a, nav button { pointer-events: all; }
 .footer-col-label {
   color: #fff;
   font-size: 16px;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   margin-bottom: 0;
   letter-spacing: 0.08em;
   -webkit-font-smoothing: none;
@@ -970,7 +977,7 @@ nav a, nav button { pointer-events: all; }
   align-items: center;
   justify-content: center;
   padding: 7px 32px;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 13px;
   letter-spacing: 0.18em;
   color: #fff;
@@ -1031,7 +1038,7 @@ nav a, nav button { pointer-events: all; }
   animation: marquee 28s linear infinite;
 }
 .marquee-inner span {
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 13px;
   letter-spacing: .2em;
   text-transform: uppercase;
@@ -1093,7 +1100,7 @@ nav a, nav button { pointer-events: all; }
   top: 24px;
   right: 32px;
   z-index: 2;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 13px;
   letter-spacing: .22em;
   text-transform: uppercase;
@@ -1110,7 +1117,7 @@ nav a, nav button { pointer-events: all; }
   bottom: 24px;
   right: 32px;
   z-index: 2;
-  font-family: 'VT323', monospace;
+  font-family: 'DepartureMono', monospace;
   font-size: 13px;
   letter-spacing: .22em;
   text-transform: uppercase;
