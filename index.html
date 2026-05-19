@@ -332,62 +332,6 @@
     }
   }
 
-  /* ── BURJ SCROLL SECTION ── */
-  #burjWrapper {
-    position: relative;
-    height: 500vh;
-    background: #000;
-  }
-  #burjSticky {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow: hidden;
-  }
-  #burjVideo {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center center;
-    display: block;
-  }
-  #burjBottomFade {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 30%;
-    background: linear-gradient(to bottom, transparent, #000);
-    z-index: 2;
-    pointer-events: none;
-  }
-  #burjScrollHint {
-    position: absolute;
-    bottom: 36px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
-    font-family: 'VT323', monospace;
-    font-size: 14px;
-    letter-spacing: 0.18em;
-    color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-    pointer-events: none;
-    animation: scrollBounce 1.6s ease-in-out infinite;
-    white-space: nowrap;
-  }
-  #burjProgress {
-    position: absolute;
-    bottom: 0; left: 0;
-    height: 2px;
-    width: 0%;
-    background: rgba(255,255,255,0.4);
-    z-index: 4;
-    pointer-events: none;
-    transition: width 0.05s linear;
-  }
-
   /* ── SCROLL INDICATOR ── */
   .scroll-indicator {
     position: absolute;
@@ -2368,16 +2312,6 @@
 
 <!-- ── SCROLL CONTAINER ── -->
 <div id="scrollContainer">
-
-<!-- ── BURJ SCROLL HERO ── -->
-  <div id="burjWrapper">
-    <div id="burjSticky">
-      <video id="burjVideo" src="burj.mp4" muted playsinline preload="auto" webkit-playsinline style="will-change:transform;transform:translateZ(0);"></video>
-      <div id="burjBottomFade"></div>
-      <div id="burjProgress"></div>
-      <div id="burjScrollHint">↓ &nbsp; SCROLL</div>
-    </div>
-  </div>
 
   <!-- SECTION 1: Landing -->
   <div class="site" id="site">
@@ -5426,49 +5360,6 @@ window.addEventListener('load', () => {
 })();
 </script>
 
-<script>
-// ── BURJ SCROLL VIDEO ──
-(function() {
-  const wrapper  = document.getElementById('burjWrapper');
-  const video    = document.getElementById('burjVideo');
-  const progress = document.getElementById('burjProgress');
-  const hint     = document.getElementById('burjScrollHint');
-  const sc       = document.getElementById('scrollContainer');
-  if (!wrapper || !video || !sc) return;
-
-  let ticking = false;
-  let targetTime = 0;
-
-  function seek() {
-    const scrollable = wrapper.offsetHeight - window.innerHeight;
-    const raw        = sc.scrollTop - wrapper.offsetTop;
-    const pct        = Math.max(0, Math.min(1, raw / scrollable));
-
-    if (video.readyState >= 1) {
-      targetTime = pct * video.duration;
-      if (typeof video.fastSeek === 'function') {
-        video.fastSeek(targetTime);
-      } else {
-        video.currentTime = targetTime;
-      }
-    }
-
-    if (progress) progress.style.width = (pct * 100) + '%';
-    if (hint)     hint.style.opacity   = pct > 0.04 ? '0' : '1';
-    ticking = false;
-  }
-
-  sc.addEventListener('scroll', () => {
-    if (!ticking) {
-      requestAnimationFrame(seek);
-      ticking = true;
-    }
-  }, { passive: true });
-
-  video.addEventListener('loadedmetadata', seek);
-  video.pause();
-})();
-</script>
 
 </body>
 </html>
