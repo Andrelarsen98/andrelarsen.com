@@ -2889,14 +2889,6 @@ const isMobile = window.innerWidth <= 768;
         // Artefakt lightBlink + shuffle logo reveal
         shuffleLogoIn();
 
-        // Reveal VISUAL ARTIST / DUBAI, UAE directly — simple fade
-        setTimeout(() => {
-          document.querySelectorAll('.nav-right > span').forEach(el => {
-            el.style.transition = 'opacity 0.5s ease';
-            el.style.opacity = '1';
-          });
-        }, isMobile ? 300 : 800);
-
         // Nav reveal (other elements) slightly after logo starts
         setTimeout(() => window.dispatchEvent(new CustomEvent('navReveal')), isMobile ? 300 : 800);
 
@@ -3124,12 +3116,13 @@ function startNavSequence() {
   const logo      = document.querySelector('.nav-logo');
   const navLinks  = [...document.querySelectorAll('.nav-links a')];
   const navCenter = [...document.querySelectorAll('.nav-center a')];
+  const navRight  = [...document.querySelectorAll('.nav-right > span')];
   const bioEl     = document.getElementById('landingBio');
   const indicator = document.getElementById('scrollIndicator');
 
   // All elements that get the char-by-char reveal
   const taglineEl = document.getElementById('landingTagline');
-  const allEls = [...navLinks, ...navCenter];
+  const allEls = [...navLinks, ...navCenter, ...navRight];
   if (taglineEl) allEls.push(taglineEl);
   if (bioEl) allEls.push(bioEl);
 
