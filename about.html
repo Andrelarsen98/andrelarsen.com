@@ -1753,6 +1753,8 @@ window.FPV_GOGGLES_MESH = {
       let footerVisible = false;
       let footerRafId = null;
       let cachedW = 0, cachedH = 0;
+      let fMouseX = -999, fMouseY = -999;
+      const isMobileFooter = window.innerWidth <= 768;
 
       let _footerLastW = 0;
       function buildFooterMask(forceRebuild) {
@@ -1819,7 +1821,21 @@ window.FPV_GOGGLES_MESH = {
           for (let c = 0; c < cols; c++) {
             const i = r * cols + c;
             if (mask[i] !== 1) continue;
+            const cx = c * CW + CW / 2, cy = r * CH + CH / 2;
             let drawX = c * CW, drawY = r * CH;
+
+            /* Mouse lens push — matches index.html loader */
+            if (!isMobileFooter && fMouseX > 0) {
+              const dx = cx - fMouseX, dy = cy - fMouseY;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < MOUSE_R && dist > 0) {
+                const strength = (1 - dist / MOUSE_R);
+                const push = strength * strength * CW * 3.5;
+                drawX += (dx / dist) * push;
+                drawY += (dy / dist) * push;
+              }
+            }
+
             cellTimer[i]--;
             if (cellTimer[i] <= 0) {
               cellChar[i]  = Math.floor(Math.random() * FOOTER_CHARS.length);

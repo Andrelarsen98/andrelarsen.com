@@ -3885,10 +3885,9 @@ videoEl.addEventListener('timeupdate', () => {
       const depthScale = 0.86 + depth * 0.30;
       card.style.transform = `translate(${screenX}px, ${screenY}px) scale(${depthScale})`;
       face.style.transform = `perspective(800px) matrix3d(${m})`;
-      // Keep full brightness; nudge saturation + cool tint on back cards so they read as deeper.
+      // Keep full brightness; nudge saturation on back cards so they read as deeper. No hue shift.
       const sat = 0.70 + depth * 0.30;
-      const cool = (1 - depth) * 14;
-      face.style.filter = `saturate(${sat}) hue-rotate(${cool}deg)`;
+      face.style.filter = `saturate(${sat})`;
       face.style.opacity = '1';
 
       /* Depth sort: wire canvas is z-index 5, cards always above it */
