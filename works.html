@@ -877,7 +877,7 @@ nav a, nav button { pointer-events: all; }
   .footer-info { grid-template-columns:1fr 1fr; gap:8px 12px; padding:0 16px 14px; }
   .footer-col-center { grid-column:1/-1; align-items:flex-start; text-align:left; }
   .footer-back { padding: 7px 20px; font-size: 13px; width: 100%; margin: 0; }
-  .footer-spacer { height: 40px; }
+  .footer-spacer { height: 16px; }
 }
 
 /* ── FOOTER MOBILE (768px — matches index.html exactly) ── */
@@ -903,7 +903,7 @@ nav a, nav button { pointer-events: all; }
   }
   .footer-col.footer-col-right span:last-child { text-align: right; }
   .footer-back { padding: 7px 20px; font-size: 13px; width: 100%; margin: 0; }
-  .footer-spacer { height: 40px; }
+  .footer-spacer { height: 16px; }
 }
 
 /* ── FOOTER ── */
@@ -986,7 +986,7 @@ nav a, nav button { pointer-events: all; }
 }
 .footer-back:hover { background: #1d4ed8; color: #fff; }
 
-.footer-spacer { flex-shrink: 0; height: 80px; background: #000; }
+.footer-spacer { flex-shrink: 0; height: 24px; background: #000; }
 
 /* ── SCANLINE (artefakt exact — fixed full-screen dot grid, behind content) ── */
 .scanline {
@@ -1789,7 +1789,7 @@ menuClose.addEventListener('click', () => {
     nx.textBaseline = 'middle';
     for (let ox = -2; ox <= 2; ox++)
       for (let oy = -2; oy <= 2; oy++)
-        nx.fillText(FOOTER_NAME, (W - tw) / 2 + ox, H * 0.95 + oy);
+        nx.fillText(FOOTER_NAME, (W - tw) / 2 + ox, H * 0.62 + oy);
 
     const d = nx.getImageData(0, 0, W, H).data;
     mask      = new Uint8Array(cols * rows);

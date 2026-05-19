@@ -611,7 +611,7 @@
       transition: background 0.2s ease, color 0.2s ease;
     }
     .footer-back:hover { background: #1d4ed8; color: #fff; }
-    .footer-spacer { flex-shrink: 0; height: 80px; background: #000; }
+    .footer-spacer { flex-shrink: 0; height: 24px; background: #000; }
 
     @media (max-width: 768px) {
       .about-footer { min-height: 100vh; }
@@ -628,7 +628,7 @@
         justify-content: space-between; align-items: flex-start; text-align: left;
       }
       .footer-back { padding: 7px 20px; font-size: 13px; width: 100%; margin: 0; }
-      .footer-spacer { height: 40px; }
+      .footer-spacer { height: 16px; }
     }
   .video-section {
     position: relative;
@@ -1808,7 +1808,7 @@ window.FPV_GOGGLES_MESH = {
         nx.textBaseline = 'middle';
         for (let ox = -2; ox <= 2; ox++)
           for (let oy = -2; oy <= 2; oy++)
-            nx.fillText(FOOTER_NAME, (cachedW - tw) / 2 + ox, cachedH * 0.95 + oy);
+            nx.fillText(FOOTER_NAME, (cachedW - tw) / 2 + ox, cachedH * 0.62 + oy);
 
         const d = nx.getImageData(0, 0, cachedW, cachedH).data;
         mask      = new Uint8Array(cols * rows);
