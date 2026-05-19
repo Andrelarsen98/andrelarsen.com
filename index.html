@@ -196,7 +196,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 200;
+    z-index: 9999;
     mix-blend-mode: normal;
     pointer-events: none;
   }
@@ -224,7 +224,7 @@
     position: fixed;
     top: 26px;
     left: 32px;
-    z-index: 201;
+    z-index: 10000;
     pointer-events: all;
     cursor: pointer;
     opacity: 0;
@@ -318,6 +318,74 @@
     cursor: pointer;
     text-transform: uppercase;
     -webkit-font-smoothing: none;
+  }
+
+  @media (max-width: 768px) {
+    .nav-menu-btn {
+      background: rgba(80,80,80,0.55);
+      backdrop-filter: blur(60px);
+      -webkit-backdrop-filter: blur(60px);
+      border: 1px solid rgba(255,255,255,0.7);
+      font-size: 17px;
+      padding: 6px 16px;
+      letter-spacing: 0.14em;
+    }
+  }
+
+  /* ── BURJ SCROLL SECTION ── */
+  #burjWrapper {
+    position: relative;
+    height: 500vh;
+    background: #000;
+  }
+  #burjSticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  #burjVideo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+  }
+  #burjBottomFade {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(to bottom, transparent, #000);
+    z-index: 2;
+    pointer-events: none;
+  }
+  #burjScrollHint {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    pointer-events: none;
+    animation: scrollBounce 1.6s ease-in-out infinite;
+    white-space: nowrap;
+  }
+  #burjProgress {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    width: 0%;
+    background: rgba(255,255,255,0.4);
+    z-index: 4;
+    pointer-events: none;
+    transition: width 0.05s linear;
   }
 
   /* ── SCROLL INDICATOR ── */
@@ -738,7 +806,7 @@
       left: 0;
       right: 0;
       mix-blend-mode: normal;
-      z-index: 200;
+      z-index: 9999;
     }
     .nav-logo {
       display: block;
@@ -754,8 +822,10 @@
     .nav-links, .nav-center, .nav-right { display: none; }
     .nav-menu-btn {
       display: block;
-      border: 1px solid rgba(255,255,255,0.38);
-      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.7);
+      background: rgba(80,80,80,0.55);
+      backdrop-filter: blur(60px);
+      -webkit-backdrop-filter: blur(60px);
     }
 
     .ascii-wrap {
@@ -2298,6 +2368,16 @@
 
 <!-- ── SCROLL CONTAINER ── -->
 <div id="scrollContainer">
+
+<!-- ── BURJ SCROLL HERO ── -->
+  <div id="burjWrapper">
+    <div id="burjSticky">
+      <video id="burjVideo" src="burj.mp4" muted playsinline preload="auto" webkit-playsinline></video>
+      <div id="burjBottomFade"></div>
+      <div id="burjProgress"></div>
+      <div id="burjScrollHint">↓ &nbsp; SCROLL</div>
+    </div>
+  </div>
 
   <!-- SECTION 1: Landing -->
   <div class="site" id="site">
@@ -5076,7 +5156,7 @@ window.addEventListener('load', () => {
 
     const TEXT1 = 'andré ';
     const TEXT2 = 'larsen';
-    const FONT_SIZE = 18;
+    const FONT_SIZE = window.innerWidth <= 768 ? 22 : 18;
     const BASELINE = FONT_SIZE;
     const FONT_NORMAL = `700 ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
     const FONT_ITALIC = `700 italic ${FONT_SIZE}px DrukWide, 'Arial Black', Arial, sans-serif`;
@@ -5343,6 +5423,38 @@ window.addEventListener('load', () => {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTerminal(); });
 
   window.openTerminal = openTerminal;
+})();
+</script>
+
+<script>
+// ── BURJ SCROLL VIDEO ──
+(function() {
+  const wrapper = document.getElementById('burjWrapper');
+  const video   = document.getElementById('burjVideo');
+  const progress = document.getElementById('burjProgress');
+  const hint    = document.getElementById('burjScrollHint');
+  const sc      = document.getElementById('scrollContainer');
+  if (!wrapper || !video || !sc) return;
+
+  function seek() {
+    const wrapperTop    = wrapper.offsetTop;
+    const wrapperHeight = wrapper.offsetHeight;
+    const scrollTop     = sc.scrollTop;
+    const scrollable    = wrapperHeight - window.innerHeight;
+    const raw           = scrollTop - wrapperTop;
+    const pct           = Math.max(0, Math.min(1, raw / scrollable));
+
+    if (video.readyState >= 1) {
+      video.currentTime = pct * video.duration;
+    }
+
+    if (progress) progress.style.width = (pct * 100) + '%';
+    if (hint) hint.style.opacity = pct > 0.05 ? '0' : '1';
+  }
+
+  sc.addEventListener('scroll', seek, { passive: true });
+  video.addEventListener('loadedmetadata', seek);
+  video.pause();
 })();
 </script>
 
