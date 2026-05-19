@@ -649,6 +649,22 @@
   .profile-video.visible {
     opacity: 1;
   }
+  .profile-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Desktop: show image, hide video */
+  @media (min-width: 901px) {
+    .video-section .profile-video { display: none; }
+    .video-section .profile-image { display: block; }
+  }
+  /* Mobile: show video, hide image */
+  @media (max-width: 900px) {
+    .video-section .profile-video { display: block; }
+    .video-section .profile-image { display: none; }
+  }
 
   /* ── BOTTOM GRID (disciplines + manifesto + brands) ── */
   .bottom-grid {
@@ -976,6 +992,7 @@
   </div>
 
   <div class="video-section">
+    <img class="profile-image" src="damn.jpg?v=1" alt="André Larsen" />
     <video
       class="profile-video"
       src="GX010138_2.mp4"
