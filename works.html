@@ -1789,7 +1789,7 @@ menuClose.addEventListener('click', () => {
     nx.textBaseline = 'middle';
     for (let ox = -2; ox <= 2; ox++)
       for (let oy = -2; oy <= 2; oy++)
-        nx.fillText(FOOTER_NAME, (W - tw) / 2 + ox, H * 0.62 + oy);
+        nx.fillText(FOOTER_NAME, (W - tw) / 2 + ox, H * 0.85 + oy);
 
     const d = nx.getImageData(0, 0, W, H).data;
     mask      = new Uint8Array(cols * rows);
