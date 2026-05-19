@@ -172,7 +172,7 @@
     opacity: 0;
   }
   .nav-right > span {
-    opacity: 1;
+    opacity: 0;
   }
   .nav-right > span .nr-inner {
     opacity: 0;
@@ -5215,21 +5215,21 @@ window.addEventListener('load', () => {
       ]).then(() => { resize(); }).catch(() => {});
     } catch(e) {}
 
-    // Blink-in sequence
-    canvas.style.transition = 'none';
-    canvas.style.opacity = '0';
-    setTimeout(() => canvas.style.opacity = '1', 50);
-    setTimeout(() => canvas.style.opacity = '0', 110);
-    setTimeout(() => canvas.style.opacity = '1', 170);
-    setTimeout(() => canvas.style.opacity = '0', 280);
-    setTimeout(() => {
-      canvas.style.opacity = '';
-      canvas.style.transition = 'opacity 0.4s ease';
-      canvas.classList.add('visible');
-    }, 350);
-
-    // Hard fallback
-    setTimeout(() => canvas.classList.add('visible'), 800);
+    // Blink-in sequence — fires when loader completes (navReveal event)
+    function blinkLogoIn() {
+      canvas.style.transition = 'none';
+      canvas.style.opacity = '0';
+      setTimeout(() => canvas.style.opacity = '1', 50);
+      setTimeout(() => canvas.style.opacity = '0', 110);
+      setTimeout(() => canvas.style.opacity = '1', 170);
+      setTimeout(() => canvas.style.opacity = '0', 280);
+      setTimeout(() => {
+        canvas.style.opacity = '';
+        canvas.style.transition = 'opacity 0.4s ease';
+        canvas.classList.add('visible');
+      }, 350);
+    }
+    window.addEventListener('navReveal', blinkLogoIn, { once: true });
 
     canvas.addEventListener('click', () => { window.location.href = 'index.html'; });
   })();
