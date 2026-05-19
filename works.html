@@ -378,12 +378,13 @@ nav a, nav button { pointer-events: all; }
   z-index: 30;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   pointer-events: auto;
+  align-items: flex-start;
 }
 .wfb-toggle {
-  background: transparent;
-  border: none;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.55);
   color: #fff;
   font-family: 'VT323', monospace;
   font-size: 14px;
@@ -391,22 +392,37 @@ nav a, nav button { pointer-events: all; }
   text-transform: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 0;
+  gap: 14px;
+  padding: 7px 14px;
   cursor: pointer;
   -webkit-font-smoothing: none;
-  line-height: 1.1;
+  line-height: 1;
+  border-radius: 2px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
-.wfb-toggle:hover { opacity: 0.85; }
-.wfb-plus { display: inline-block; font-size: 14px; line-height: 1; }
+.wfb-toggle:hover { background: rgba(255,255,255,0.10); }
+.wfb-plus { display: inline-block; font-size: 14px; line-height: 1; opacity: 0.9; }
+.wfb-meta-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 14px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 2px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
 .wfb-meta {
   font-family: 'VT323', monospace;
   font-size: 14px;
   letter-spacing: 0.04em;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255,255,255,0.55);
   text-transform: none;
   -webkit-font-smoothing: none;
-  line-height: 1.1;
+  line-height: 1;
 }
 @media (max-width: 767px) { .works-filter-box { display: none; } }
 
@@ -1205,8 +1221,10 @@ nav a, nav button { pointer-events: all; }
   <!-- STICKY FILTER BOX (bottom-left, follows scroll) -->
   <div class="works-filter-box" id="worksFilterBox" aria-hidden="false">
     <button type="button" class="wfb-toggle" id="wfbToggle">All works <span class="wfb-plus">+</span></button>
-    <span class="wfb-meta">:/ Filters</span>
-    <span class="wfb-meta" id="wfbCount">20 Projects</span>
+    <div class="wfb-meta-box">
+      <span class="wfb-meta">:/ Filters</span>
+      <span class="wfb-meta" id="wfbCount">20 Projects</span>
+    </div>
   </div>
 
   <!-- GRID VIEW -->
