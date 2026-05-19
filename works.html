@@ -324,11 +324,11 @@ nav a, nav button { pointer-events: all; }
 /* ── PAGE HEADER (artefakt exact) ── */
 /* pt-170 = 17rem = 272px; mb-50 mobile / mb-100 md+ */
 .page-header {
-  padding: 272px 32px 80px;
+  padding: 200px 32px 60px;
   display:flex; align-items:flex-end; justify-content:space-between;
   position:relative; z-index:10;
 }
-@media (min-width:768px) { .page-header { padding-bottom: 160px; } }
+@media (min-width:768px) { .page-header { padding: 180px 32px 80px; } }
 .page-title {
   font-family:'DrukWide','Arial Black',Arial,sans-serif;
   font-weight:700;
@@ -369,6 +369,46 @@ nav a, nav button { pointer-events: all; }
 .view-btn.is-active { opacity:1; }
 .vb-square { width:6px; height:6px; background:#fff; opacity:0; display:inline-block; }
 .view-btn.is-active .vb-square { opacity:1; }
+
+/* ── STICKY BOTTOM-LEFT FILTER BOX (artefakt) ── */
+.works-filter-box {
+  position: fixed;
+  left: 32px;
+  bottom: 32px;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: auto;
+}
+.wfb-toggle {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  cursor: pointer;
+  -webkit-font-smoothing: none;
+  line-height: 1.1;
+}
+.wfb-toggle:hover { opacity: 0.85; }
+.wfb-plus { display: inline-block; font-size: 14px; line-height: 1; }
+.wfb-meta {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.45);
+  text-transform: none;
+  -webkit-font-smoothing: none;
+  line-height: 1.1;
+}
+@media (max-width: 767px) { .works-filter-box { display: none; } }
 
 /* ══════════════════════════════════════
    GRID VIEW — artefakt exact 12-col grid-w
@@ -1161,6 +1201,13 @@ nav a, nav button { pointer-events: all; }
       <span class="page-count" id="pageCount">20 PROJECTS</span>
     </div>
   </header>
+
+  <!-- STICKY FILTER BOX (bottom-left, follows scroll) -->
+  <div class="works-filter-box" id="worksFilterBox" aria-hidden="false">
+    <button type="button" class="wfb-toggle" id="wfbToggle">All works <span class="wfb-plus">+</span></button>
+    <span class="wfb-meta">:/ Filters</span>
+    <span class="wfb-meta" id="wfbCount">20 Projects</span>
+  </div>
 
   <!-- GRID VIEW -->
   <div class="works-grid" id="worksGrid"></div>
