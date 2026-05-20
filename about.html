@@ -89,10 +89,10 @@
     /* Mobile: single line, pushed down below browser UI */
     @media (max-width: 768px) {
       .holo-who {
-        top: clamp(18px, 3vh, 32px);
-        font-size: clamp(22px, 8vw, 42px);
+        top: clamp(22px, 3.4vh, 38px);
+        font-size: clamp(17px, 5.4vw, 26px);
         flex-direction: row;
-        gap: 0.25em;
+        gap: 0.28em;
         line-height: 1;
       }
     }
@@ -1389,6 +1389,8 @@ window.FPV_GOGGLES_MESH = {
     const menuClose = document.getElementById('menuClose');
     const mainNav = document.querySelector('nav');
     if (menuBtn && menuOverlay && menuClose) {
+      const chromeLogo = document.getElementById('logoChromaCanvas');
+      const menuLogoText = menuOverlay.querySelector('.menu-logo');
       menuBtn.addEventListener('click', () => {
         menuOverlay.style.transition = 'opacity 0.5s cubic-bezier(0.23,1,0.32,1)';
         menuOverlay.style.display = 'flex';
@@ -1402,6 +1404,13 @@ window.FPV_GOGGLES_MESH = {
         mainNav.style.transition = 'opacity 0.25s ease';
         mainNav.style.opacity = '0';
         mainNav.style.pointerEvents = 'none';
+        // Swap plain-text menu logo for the blue shimmer chrome canvas
+        if (chromeLogo) {
+          chromeLogo.style.display = 'block';
+          chromeLogo.style.zIndex = '9999';
+          chromeLogo.classList.add('visible');
+        }
+        if (menuLogoText) menuLogoText.style.visibility = 'hidden';
       });
       menuClose.addEventListener('click', () => {
         menuOverlay.style.transition = 'opacity 0.5s cubic-bezier(0.23,1,0.32,1)';
@@ -1412,6 +1421,13 @@ window.FPV_GOGGLES_MESH = {
         mainNav.style.opacity = '1';
         mainNav.style.pointerEvents = 'all';
         setTimeout(() => { menuOverlay.style.display = 'none'; }, 520);
+        // Restore: hide chrome canvas, show plain-text logo again
+        if (chromeLogo) {
+          chromeLogo.classList.remove('visible');
+          chromeLogo.style.display = 'none';
+          chromeLogo.style.zIndex = '';
+        }
+        if (menuLogoText) menuLogoText.style.visibility = '';
       });
     }
 
