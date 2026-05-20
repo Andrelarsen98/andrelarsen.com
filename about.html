@@ -725,6 +725,99 @@
     .video-section .profile-image { display: none; }
   }
 
+  /* ── RECOGNITION (awards + press) — tight monospace block ── */
+  .recognition-section {
+    position: relative;
+    z-index: 10;
+    background: #000;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 56px 32px 64px;
+  }
+  .recognition-header {
+    font-family: 'TronicaMono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .recognition-header::before {
+    content: '\25A0'; /* ■ */
+    color: #fff;
+    font-size: 8px;
+  }
+  .recognition-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 56px;
+    align-items: start;
+  }
+  .recognition-col-label {
+    font-family: 'TronicaMono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.35);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .rec-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 16px;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: 'TronicaMono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: none;
+  }
+  .rec-row:last-child { border-bottom: none; }
+  .rec-num {
+    color: rgba(255,255,255,0.35);
+    font-size: 11px;
+  }
+  .rec-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .rec-title { color: #fff; }
+  .rec-sub {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+  }
+  .rec-meta {
+    color: rgba(255,255,255,0.55);
+    font-size: 12px;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .rec-link {
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.35);
+    padding-bottom: 1px;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .rec-link:hover {
+    color: #fff;
+    border-bottom-color: #fff;
+  }
+  @media (max-width: 900px) {
+    .recognition-section { padding: 40px 20px 48px; }
+    .recognition-grid { grid-template-columns: 1fr; gap: 32px; }
+    .rec-row { grid-template-columns: 22px 1fr auto; font-size: 12px; gap: 12px; }
+  }
+
   /* ── BOTTOM GRID (disciplines + manifesto + brands) ── */
   .bottom-grid {
     position: relative;
@@ -1128,6 +1221,77 @@
     </div>
 
   </div>
+
+  <!-- ── RECOGNITION ── -->
+  <section class="recognition-section">
+    <div class="recognition-header">Recognition</div>
+    <div class="recognition-grid">
+
+      <div class="recognition-col">
+        <div class="recognition-col-label">Awards</div>
+
+        <div class="rec-row">
+          <span class="rec-num">01</span>
+          <div class="rec-body">
+            <span class="rec-title">GoPro Million Dollar Challenge — <a href="https://gopro.com/en/ae/news/million-dollar-challenge-creator-andre-larsen" target="_blank" rel="noopener" class="rec-link">Winner</a></span>
+            <span class="rec-sub">Global filmmaking competition</span>
+          </div>
+          <span class="rec-meta">2022</span>
+        </div>
+
+        <div class="rec-row">
+          <span class="rec-num">02</span>
+          <div class="rec-body">
+            <span class="rec-title">International Motor Film Awards — Nominated</span>
+            <span class="rec-sub">Best Commercial Film · Kia EV9</span>
+          </div>
+          <span class="rec-meta">2024</span>
+        </div>
+      </div>
+
+      <div class="recognition-col">
+        <div class="recognition-col-label">Press</div>
+
+        <div class="rec-row">
+          <span class="rec-num">—</span>
+          <div class="rec-body">
+            <span class="rec-title">My Modern Met</span>
+            <span class="rec-sub">Burj Khalifa FPV feature</span>
+          </div>
+          <a class="rec-link" href="https://mymodernmet.com/drone-video-burj-khalifa-andre-larsen/" target="_blank" rel="noopener">Read ↗</a>
+        </div>
+
+        <div class="rec-row">
+          <span class="rec-num">—</span>
+          <div class="rec-body">
+            <span class="rec-title">The Kid Should See This</span>
+            <span class="rec-sub">FPV drone diving Dubai</span>
+          </div>
+          <a class="rec-link" href="https://thekidshouldseethis.com/post/fpv-drone-diving-dubai-burj-khalifa" target="_blank" rel="noopener">Read ↗</a>
+        </div>
+
+        <div class="rec-row">
+          <span class="rec-num">—</span>
+          <div class="rec-body">
+            <span class="rec-title">Nettavisen</span>
+            <span class="rec-sub">National feature, Norway</span>
+          </div>
+          <a class="rec-link" href="https://www.nettavisen.no/okonomi/andr-blir-omtalt-som-en-av-verdens-beste-dronepiloter-det-er-en-drom-a-kunne-leve-av-noe-man-elsker-a-drive-med/f/5-95-443543" target="_blank" rel="noopener">Read ↗</a>
+        </div>
+
+        <div class="rec-row">
+          <span class="rec-num">—</span>
+          <div class="rec-body">
+            <span class="rec-title">MarComm News</span>
+            <span class="rec-sub">Atlantis The Palm campaign</span>
+          </div>
+          <a class="rec-link" href="https://marcommnews.com/atlantis-the-palm-unveils-a-world-away-a-transformative-new-brand-campaign-inspired-by-extraordinary-experiences/" target="_blank" rel="noopener">Read ↗</a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
 
   <footer class="about-footer">
     <div class="scanline"></div>

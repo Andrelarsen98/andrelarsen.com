@@ -2144,6 +2144,61 @@
       var(--dot-color);
   }
   /* ══════════════════════════════════════
+     ── RECOGNITION — homepage tight version
+  ══════════════════════════════════════ */
+  .recognition-section {
+    position: relative;
+    z-index: 10;
+    background: #000;
+    padding: 56px 32px 64px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .recognition-header {
+    font-family: 'TronicaMono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    -webkit-font-smoothing: none;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .recognition-header::before { content: '\25A0'; color: #fff; font-size: 8px; }
+  .recognition-list { max-width: 720px; }
+  .rec-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 16px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: 'TronicaMono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: none;
+  }
+  .rec-row:last-child { border-bottom: none; }
+  .rec-num { color: rgba(255,255,255,0.35); font-size: 11px; }
+  .rec-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .rec-title { color: #fff; }
+  .rec-sub { color: rgba(255,255,255,0.5); font-size: 12px; }
+  .rec-meta { color: rgba(255,255,255,0.55); font-size: 12px; text-align: right; white-space: nowrap; }
+  .rec-link {
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.35);
+    padding-bottom: 1px;
+    transition: border-color 0.2s ease;
+  }
+  .rec-link:hover { border-bottom-color: #fff; }
+  @media (max-width: 900px) {
+    .recognition-section { padding: 40px 20px 48px; }
+    .rec-row { grid-template-columns: 22px 1fr auto; font-size: 12px; gap: 12px; }
+  }
+
+  /* ══════════════════════════════════════
      ── STUDIO SECTION ──
   ══════════════════════════════════════ */
   .studio-section {
@@ -2520,6 +2575,29 @@ Dubai, worldwide.</div>
 
 
 
+  </section>
+
+  <!-- ── SECTION 6: RECOGNITION ── -->
+  <section class="recognition-section">
+    <div class="recognition-header">Recognition</div>
+    <div class="recognition-list">
+      <div class="rec-row">
+        <span class="rec-num">01</span>
+        <div class="rec-body">
+          <span class="rec-title">GoPro Million Dollar Challenge — <a href="https://gopro.com/en/ae/news/million-dollar-challenge-creator-andre-larsen" target="_blank" rel="noopener" class="rec-link">Winner</a></span>
+          <span class="rec-sub">Global filmmaking competition</span>
+        </div>
+        <span class="rec-meta">2022</span>
+      </div>
+      <div class="rec-row">
+        <span class="rec-num">02</span>
+        <div class="rec-body">
+          <span class="rec-title">International Motor Film Awards — Nominated</span>
+          <span class="rec-sub">Best Commercial Film · Kia EV9</span>
+        </div>
+        <span class="rec-meta">2024</span>
+      </div>
+    </div>
   </section>
 
   <!-- ── FOOTER ── -->
