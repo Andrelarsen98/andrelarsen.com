@@ -1365,30 +1365,22 @@ nav a, nav button { pointer-events: all; }
   ============================================================ */
   // artefakt project lineup — local videos cycle through work1.mp4..work16.mp4
   const _v = (n) => `work${((n-1)%16)+1}.mp4`;
+  /* Real selected works. Card thumbnails use local work*.mp4; click opens the actual project video in the lightbox via embed. */
   const PROJECTS = [
-    { index:"01", title:"Nightography",       client:"Samsung",                year:"2026", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(1)  },
-    { index:"02", title:"Käsy",                client:"McDonalds",              year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(2)  },
-    { index:"03", title:"Trailer",             client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(3)  },
-    { index:"04", title:"Wenn das Liebe ist",  client:"Nina Chuba",             year:"2025", category:"Music video", role:"Direction",          tags:["Music video"],  video:_v(4)  },
-    { index:"05", title:"Marder",              client:"Europa",                 year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(5)  },
-    { index:"06", title:"MIRAGE",              client:"arteLAB vol. 3: MIRAGE", year:"2025", category:"arteLAB",     role:"Direction",          tags:["arteLAB"],      video:_v(6)  },
-    { index:"07", title:"HUF x Bonkers",       client:"HUF x BONKERS",          year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(7)  },
-    { index:"08", title:"Nachtschicht",        client:"01099 x Ikkimel",        year:"2025", category:"Music video", role:"Direction",          tags:["Music video"],  video:_v(8)  },
-    { index:"09", title:"Marc Michaelis",      client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(9)  },
-    { index:"10", title:"OVERTIME",            client:"arteLAB",                year:"2025", category:"arteLAB",     role:"Direction",          tags:["arteLAB"],      video:_v(10) },
-    { index:"11", title:"Anna-Maria Rieder",   client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(11) },
-    { index:"12", title:"Magier",              client:"Europa",                 year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(12) },
-    { index:"13", title:"Cheyenne & Jessica",  client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(13) },
-    { index:"14", title:"arteLAB vol. 1: VIVID", client:"VIVID",                year:"2025", category:"arteLAB",     role:"Direction",          tags:["arteLAB"],      video:_v(14) },
-    { index:"15", title:"Tatjana Paller",      client:"Generali",               year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(15) },
-    { index:"16", title:"X-MAS",               client:"Raiffeisen",             year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(16) },
-    { index:"17", title:"Casino",              client:"Europa",                 year:"2025", category:"Commercial",  role:"Direction",          tags:["Commercial"],   video:_v(1)  },
-    { index:"18", title:"Senescence",          client:"ACCVSED",                year:"2025", category:"Music video", role:"Direction",          tags:["Music video"],  video:_v(2)  },
-    { index:"19", title:"Käptn Peng",          client:"LUNA",                   year:"2025", category:"Music video", role:"Direction",          tags:["Music video"],  video:_v(3)  },
-    { index:"20", title:"Nothing Added",       client:"Lea Baintner",           year:"2025", category:"Visual works",role:"Direction",          tags:["Visual works"], video:_v(4)  },
+    { index:"01", title:"Night BASE Jump",           client:"PlayStation × X Dubai", year:"2023", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], video:_v(1), youtube:"NVjVZDQxHic" },
+    { index:"02", title:"Speed of Light",            client:"Porsche × David Guetta",year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     video:_v(2), youtube:"gFUJgV6tQZI" },
+    { index:"03", title:"See you at Dubai Expo",     client:"Emirates",              year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     video:_v(3), youtube:"fbL9QdWWJzo" },
+    { index:"04", title:"Chiron Pur Sport",          client:"Bugatti",               year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     video:_v(4), youtube:"E_-Ht0eqCog" },
+    { index:"05", title:"SF90 XX Stradale",          client:"Ferrari",               year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     video:_v(5), youtube:"2xbg44TCiww" },
+    { index:"06", title:"United at Home — Burj Al Arab", client:"David Guetta × Visit Dubai", year:"2020", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], video:_v(6), youtube:"xaurMcGqZHU" },
+    { index:"07", title:"War 2",                     client:"SXG Films",             year:"2025", category:"Film",           role:"FPV Cinematography", tags:["Film"],           video:_v(7), youtube:"TtuG61usu3w" },
+    { index:"08", title:"Bade Miyan Chote Miyan",    client:"BMCM",                  year:"2024", category:"Film",           role:"FPV Cinematography", tags:["Film"],           video:_v(8), youtube:"pZbJOW5CwQM" },
+    { index:"09", title:"Ain Dubai",                 client:"Sheikh Hamdan",         year:"2021", category:"Cultural",       role:"FPV Cinematography", tags:["Cultural"],       video:_v(9), external:"https://www.instagram.com/reel/CVSYJBmJaN7/" },
   ];
 
   document.getElementById('pageCount').textContent = PROJECTS.length + ' PROJECTS';
+  const wfbCountEl = document.getElementById('wfbCount');
+  if (wfbCountEl) wfbCountEl.textContent = PROJECTS.length + ' Projects';
 
   const grid = document.getElementById('worksGrid');
   const list = document.getElementById('worksList');
@@ -1545,6 +1537,19 @@ nav a, nav button { pointer-events: all; }
     lbDots.appendChild(d);
   });
 
+  /* YouTube iframe lives in the same container as lbVideo; lazily created. */
+  let lbYTFrame = null;
+  function ensureYTFrame() {
+    if (lbYTFrame) return lbYTFrame;
+    lbYTFrame = document.createElement('iframe');
+    lbYTFrame.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+    lbYTFrame.setAttribute('allowfullscreen', '');
+    lbYTFrame.setAttribute('frameborder', '0');
+    lbYTFrame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;border:0;background:#000;';
+    lbVideo.parentNode.appendChild(lbYTFrame);
+    return lbYTFrame;
+  }
+
   function lbGo(i) {
     lbActive = Math.max(0, Math.min(PROJECTS.length - 1, i));
     const p = PROJECTS[lbActive];
@@ -1555,23 +1560,40 @@ nav a, nav button { pointer-events: all; }
     lbEyebrow.innerHTML   = '&#9632; &nbsp; ' + counter;
     lbTitle.textContent   = p.title;
 
-    lbRows.innerHTML =
+    const rows =
       `<div class="lb-row"><span>CLIENT</span>${p.client}</div>` +
       `<div class="lb-row"><span>YEAR</span>${p.year}</div>` +
       `<div class="lb-row"><span>ROLE</span>${p.role}</div>`;
+    const linkUrl = p.youtube ? ('https://www.youtube.com/watch?v=' + p.youtube) : (p.external || null);
+    lbRows.innerHTML = rows + (linkUrl
+      ? `<div class="lb-row"><span>LINK</span><a href="${linkUrl}" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline;">Open original ↗</a></div>`
+      : '');
 
     lbTags.innerHTML = p.tags.map(t => `<span class="lb-tag">${t}</span>`).join('');
 
     lbBurn.innerHTML =
       `<span>${p.index}</span><span>${p.client.toUpperCase()}</span><span>${p.year}</span>`;
 
-    if (p.video) {
+    /* Decide what media to show:
+       1. YouTube embed if p.youtube is set
+       2. Local mp4 if p.video is set (used for Instagram / fallback)
+       3. Placeholder otherwise */
+    if (p.youtube) {
+      const yt = ensureYTFrame();
+      yt.src = 'https://www.youtube.com/embed/' + p.youtube + '?autoplay=1&rel=0&modestbranding=1';
+      yt.style.display = 'block';
+      lbVideo.pause();
+      lbVideo.style.display = 'none';
+      lbPlaceholder.style.display = 'none';
+    } else if (p.video) {
+      if (lbYTFrame) { lbYTFrame.src = ''; lbYTFrame.style.display = 'none'; }
       lbVideo.src = p.video;
       if (p.poster) lbVideo.poster = p.poster;
       lbVideo.style.display = 'block';
       lbPlaceholder.style.display = 'none';
       lbVideo.play().catch(()=>{});
     } else {
+      if (lbYTFrame) { lbYTFrame.src = ''; lbYTFrame.style.display = 'none'; }
       lbVideo.pause(); lbVideo.style.display = 'none';
       lbPlaceholder.style.display = 'flex';
       lbPhNum.textContent   = p.index;
@@ -1594,6 +1616,7 @@ nav a, nav button { pointer-events: all; }
   function lbCloseF() {
     lb.classList.remove('is-open');
     lbVideo.pause();
+    if (lbYTFrame) { lbYTFrame.src = ''; lbYTFrame.style.display = 'none'; }
     document.body.style.overflow = '';
   }
 
