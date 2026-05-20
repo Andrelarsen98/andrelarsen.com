@@ -2149,53 +2149,56 @@
   .recognition-section {
     position: relative;
     z-index: 10;
-    background: #000;
     padding: 56px 32px 64px;
     border-top: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
   }
+  .recognition-section > .scanline { z-index: 0; }
+  .recognition-section > * { position: relative; z-index: 1; }
   .recognition-header {
     font-family: 'TronicaMono', monospace;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: 0.18em;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.6);
     text-transform: uppercase;
     -webkit-font-smoothing: none;
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .recognition-header::before { content: '\25A0'; color: #fff; font-size: 8px; }
+  .recognition-header::before { content: '\25A0'; color: #fff; font-size: 10px; }
   .recognition-list { max-width: 720px; }
   .rec-row {
     display: grid;
-    grid-template-columns: 28px 1fr auto;
-    gap: 16px;
+    grid-template-columns: 32px 1fr auto;
+    gap: 18px;
     align-items: baseline;
-    padding: 14px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     font-family: 'TronicaMono', monospace;
-    font-size: 13px;
+    font-size: 15px;
     letter-spacing: 0.02em;
     -webkit-font-smoothing: none;
   }
   .rec-row:last-child { border-bottom: none; }
-  .rec-num { color: rgba(255,255,255,0.35); font-size: 11px; }
-  .rec-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .rec-num { color: rgba(255,255,255,0.4); font-size: 13px; }
+  .rec-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
   .rec-title { color: #fff; }
-  .rec-sub { color: rgba(255,255,255,0.5); font-size: 12px; }
-  .rec-meta { color: rgba(255,255,255,0.55); font-size: 12px; text-align: right; white-space: nowrap; }
+  .rec-sub { color: rgba(255,255,255,0.55); font-size: 13px; }
+  .rec-meta { color: rgba(255,255,255,0.6); font-size: 13px; text-align: right; white-space: nowrap; }
   .rec-link {
     color: #fff;
     text-decoration: none;
-    border-bottom: 1px solid rgba(255,255,255,0.35);
+    border-bottom: 1px solid rgba(255,255,255,0.4);
     padding-bottom: 1px;
     transition: border-color 0.2s ease;
   }
   .rec-link:hover { border-bottom-color: #fff; }
   @media (max-width: 900px) {
     .recognition-section { padding: 40px 20px 48px; }
-    .rec-row { grid-template-columns: 22px 1fr auto; font-size: 12px; gap: 12px; }
+    .rec-row { grid-template-columns: 26px 1fr auto; font-size: 14px; gap: 14px; }
+    .rec-num, .rec-sub, .rec-meta { font-size: 12px; }
   }
 
   /* ══════════════════════════════════════
@@ -2579,6 +2582,7 @@ Dubai, worldwide.</div>
 
   <!-- ── SECTION 6: RECOGNITION ── -->
   <section class="recognition-section">
+    <div class="scanline"></div>
     <div class="recognition-header">Recognition</div>
     <div class="recognition-list">
       <div class="rec-row">
@@ -2615,6 +2619,7 @@ Dubai, worldwide.</div>
     <div class="footer-col footer-col-center">
       <span class="footer-col-label">■ Start a project</span>
       <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+      <a href="tel:+971566885463">+971 56 688 5463</a>
     </div>
     <div class="footer-col footer-col-right">
       <span class="footer-col-label">■ Website made by André Larsen</span>
