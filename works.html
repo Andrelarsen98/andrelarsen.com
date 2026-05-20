@@ -388,6 +388,12 @@ nav a, nav button { pointer-events: all; }
   gap: 8px;
   pointer-events: auto;
   align-items: flex-start;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.works-filter-box.is-at-footer {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 .wfb-toggle {
   background: #000;
@@ -1943,6 +1949,16 @@ menuClose.addEventListener('click', () => {
     footerVisible = entries[0].isIntersecting;
   }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
   footerObserver.observe(fCanvas);
+
+  /* Hide the bottom-left filter pills once the footer scrolls into view */
+  const filterBox = document.querySelector('.works-filter-box');
+  const footerEl  = document.querySelector('footer.footer');
+  if (filterBox && footerEl) {
+    const filterHideObserver = new IntersectionObserver(entries => {
+      filterBox.classList.toggle('is-at-footer', entries[0].isIntersecting);
+    }, { root: document.getElementById('scrollContainer'), threshold: 0.01 });
+    filterHideObserver.observe(footerEl);
+  }
 
   buildFooterMask();
   window.addEventListener('resize', debounce(buildFooterMask, 200));
