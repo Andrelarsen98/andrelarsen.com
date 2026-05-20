@@ -354,6 +354,10 @@ nav a, nav button { pointer-events: all; }
   touch-action: pan-y;
   z-index: 2;
 }
+@media (min-width: 769px) {
+  #scrollContainer { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; }
+}
 
 /* ── PAGE HEADER (artefakt exact) ── */
 /* pt-170 = 17rem = 272px; mb-50 mobile / mb-100 md+ */

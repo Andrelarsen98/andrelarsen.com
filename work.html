@@ -170,6 +170,10 @@ nav a,nav button { pointer-events:all; }
 
 /* ── PAGE WRAPPER ── */
 #scrollContainer { overflow-y:auto; overflow-x:hidden; overscroll-behavior:none; }
+@media (min-width: 769px) {
+  #scrollContainer { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; }
+}
 
 /* ── PAGE HEADER ── */
 .page-header {

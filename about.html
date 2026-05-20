@@ -42,6 +42,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { background: #000; overscroll-behavior: none; }
     html { scrollbar-width: none; -ms-overflow-style: none; }
+    /* Desktop only — mobile keeps native momentum scroll */
+    @media (min-width: 769px) {
+      html { scroll-behavior: smooth; }
+    }
     html::-webkit-scrollbar { display: none; }
     body { min-width: 320px; min-height: 100vh; overflow-x: hidden; touch-action: pan-y; overscroll-behavior: none; }
     canvas { position: fixed; inset: 0; display: block; width: 100vw; height: var(--app-height, 100vh); z-index: 1; }
@@ -2313,8 +2317,12 @@ window.FPV_GOGGLES_MESH = {
   // ── LOGO CHROME CANVAS ──
   (function() {
     const canvas = document.getElementById('logoChromaCanvas');
-    // Hidden on about page (WHO AM I? replaces it) — skip all work
-    if (!canvas || getComputedStyle(canvas).display === 'none') return;
+    if (!canvas) return;
+    /* Note: stays display:none on the about page via CSS, but we still
+       initialize so the canvas has correct width/height when the menu
+       opens and we toggle display:block. Otherwise it shows as a
+       300x150 default canvas at z-index 9999 with pointer-events:all
+       and blocks taps on the HOME/WORKS menu links. */
     const ctx = canvas.getContext('2d');
 
     const TEXT1 = 'andré ';
