@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>Life — André Larsen</title>
+  <meta name="description" content="Beyond the lens. André Larsen — skydiver, adventurer, human.">
+  <meta name="robots" content="noindex">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <link rel="preload" as="font" href="DrukWide-Bold.woff2" type="font/woff2" crossorigin>
+  <link rel="preload" as="font" href="TronicaMono-Regular.woff2" type="font/woff2" crossorigin>
+
+  <style>
+    @font-face {
+      font-family: 'DrukWide';
+      src: url('DrukWide-Bold.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'TronicaMono';
+      src: url('TronicaMono-Regular.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: #000;
+      color: #fff;
+      overscroll-behavior: none;
+    }
+    html { scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; overflow-x: hidden; }
+
+    /* ── DOT GRID MIXIN ── */
+    .dot-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: .07;
+      --dot-bg: #000;
+      --dot-color: #fff;
+      --dot-size: 2px;
+      --dot-space: 3px;
+      background:
+        linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        var(--dot-color);
+    }
+    @media (min-width: 1280px) {
+      .dot-bg::before { --dot-size: 4px; --dot-space: 5px; }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 20px;
+      pointer-events: none;
+    }
+    nav a, nav button { pointer-events: all; }
+    .nav-back {
+      font-family: 'TronicaMono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      -webkit-font-smoothing: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #fff; }
+    .nav-label {
+      font-family: 'TronicaMono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      -webkit-font-smoothing: none;
+    }
+
+    /* ── HERO VIDEO ── */
+    .hero {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+    .hero-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .hero-video.loaded { opacity: 1; }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 60%, rgba(0,0,0,0.85) 100%);
+      z-index: 1;
+    }
+    .hero-text {
+      position: absolute;
+      bottom: 48px;
+      left: 24px;
+      right: 24px;
+      z-index: 2;
+    }
+    .hero-kicker {
+      font-family: 'TronicaMono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      -webkit-font-smoothing: none;
+      margin-bottom: 10px;
+    }
+    .hero-title {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(48px, 12vw, 96px);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 0.95;
+      color: #fff;
+    }
+    .hero-scroll {
+      position: absolute;
+      bottom: 48px;
+      right: 24px;
+      z-index: 2;
+      font-family: 'TronicaMono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      -webkit-font-smoothing: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-scroll::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: rgba(255,255,255,0.25);
+      display: block;
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .section-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 64px 24px 72px;
+    }
+    .section-kicker {
+      font-family: 'TronicaMono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      -webkit-font-smoothing: none;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-kicker::before { content: '■'; color: rgba(255,255,255,0.5); font-size: 10px; }
+    .section-title {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(36px, 8vw, 72px);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 0.95;
+      color: #fff;
+      margin-bottom: 28px;
+    }
+    .section-body {
+      font-family: 'TronicaMono', monospace;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.9;
+      -webkit-font-smoothing: none;
+      max-width: 600px;
+    }
+    .section-body strong {
+      color: #fff;
+    }
+
+    /* ── STAT ROW ── */
+    .stat-row {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin-top: 48px;
+      flex-wrap: wrap;
+    }
+    .stat-col {
+      flex: 1;
+      min-width: 140px;
+      padding: 28px 24px 28px 0;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-col:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: #fff;
+    }
+    .stat-lbl {
+      font-family: 'TronicaMono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.38);
+      -webkit-font-smoothing: none;
+    }
+
+    /* ── QUOTE ── */
+    .quote-section {
+      text-align: center;
+    }
+    .quote-section .section-inner {
+      padding: 80px 24px;
+    }
+    .quote-text {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(22px, 5vw, 48px);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+      color: #fff;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .quote-attr {
+      font-family: 'TronicaMono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-top: 24px;
+      -webkit-font-smoothing: none;
+    }
+
+    /* ── MORE COMING ── */
+    .coming-section {
+      text-align: center;
+      min-height: 40vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .coming-section .section-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .coming-gem {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      opacity: 0.6;
+    }
+    .coming-text {
+      font-family: 'TronicaMono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      -webkit-font-smoothing: none;
+    }
+
+    /* ── FOOTER ── */
+    .life-footer {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 28px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .life-footer a {
+      font-family: 'TronicaMono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      -webkit-font-smoothing: none;
+      transition: color 0.2s;
+    }
+    .life-footer a:hover { color: #fff; }
+
+    /* ── PAGE TRANSITION ── */
+    #pageIn {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 9999;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+    #pageIn.out { opacity: 0; }
+  </style>
+</head>
+<body>
+
+<div id="pageIn"></div>
+
+<nav>
+  <a class="nav-back" href="javascript:history.back()">&larr; Back</a>
+  <span class="nav-label">■ Life</span>
+</nav>
+
+<!-- HERO VIDEO -->
+<div class="hero">
+  <video
+    class="hero-video"
+    id="heroVid"
+    src="skydiveMP4.MP4"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="auto"
+  ></video>
+  <div class="hero-overlay"></div>
+  <div class="hero-text">
+    <div class="hero-kicker">■ Beyond the lens</div>
+    <h1 class="hero-title">Free<br>Fall</h1>
+  </div>
+  <div class="hero-scroll">scroll</div>
+</div>
+
+<!-- INTRO -->
+<section class="dot-bg">
+  <div class="section-inner">
+    <div class="section-kicker">The other side</div>
+    <h2 class="section-title">Not just<br>a camera</h2>
+    <p class="section-body">
+      Before the clients. Before Dubai. Before the Burj Khalifa and the Formula cars —
+      there was a kid who couldn't sit still.<br><br>
+      <strong>Still can't.</strong><br><br>
+      The camera follows me into the sky. Always has.
+      Flying drones was never enough — I needed to be the one falling.
+      Skydiving, wingsuit, BASE. If it's in the air, I want in.
+    </p>
+    <div class="stat-row">
+      <div class="stat-col">
+        <span class="stat-num">500+</span>
+        <span class="stat-lbl">Skydives</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-num">20+</span>
+        <span class="stat-lbl">Countries</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-num">∞</span>
+        <span class="stat-lbl">Jump still left</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote-section dot-bg">
+  <div class="section-inner">
+    <p class="quote-text">"The best shots come from knowing what it feels like to fall."</p>
+    <p class="quote-attr">— André Larsen</p>
+  </div>
+</section>
+
+<!-- ADVENTURES -->
+<section class="dot-bg">
+  <div class="section-inner">
+    <div class="section-kicker">Adventures</div>
+    <h2 class="section-title">Always<br>moving</h2>
+    <p class="section-body">
+      Norway. Dubai. Bali. Switzerland. The Maldives.<br><br>
+      Every trip ends up on film — whether I planned it or not.
+      That's the thing about carrying a camera everywhere:
+      <strong>life becomes the reel.</strong><br><br>
+      More footage, stories, and chaos coming here soon.
+    </p>
+  </div>
+</section>
+
+<!-- MORE COMING -->
+<section class="coming-section">
+  <div class="section-inner">
+    <img class="coming-gem" src="diamond.GIF" alt="" />
+    <p class="coming-text">More dropping soon</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="life-footer">
+  <a href="/">&larr; andrelarsen.com</a>
+  <a href="mailto:andre@andrelarsen.com">andre@andrelarsen.com</a>
+</footer>
+
+<script>
+  // Fade in page
+  const pageIn = document.getElementById('pageIn');
+  window.addEventListener('load', function() {
+    requestAnimationFrame(function() {
+      pageIn.classList.add('out');
+    });
+  });
+
+  // Fade in video when ready
+  const vid = document.getElementById('heroVid');
+  vid.addEventListener('canplay', function() {
+    vid.classList.add('loaded');
+  });
+  // fallback if already ready
+  if (vid.readyState >= 3) vid.classList.add('loaded');
+</script>
+
+</body>
+</html>
