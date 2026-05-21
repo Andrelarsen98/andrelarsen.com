@@ -64,8 +64,9 @@
   }
   /* Desktop only — mobile keeps native momentum scroll */
   @media (min-width: 769px) {
-    #scrollContainer { scroll-behavior: smooth; }
+    #scrollContainer { scroll-behavior: smooth; scroll-snap-type: y proximity; }
     html { scroll-behavior: smooth; }
+    .video-section { scroll-snap-align: start; }
   }
 
   /* ── LIQUID GLASS SCROLLBAR (desktop only) ── */
