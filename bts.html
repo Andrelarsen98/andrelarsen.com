@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>BTS — André Larsen</title>
+  <meta name="description" content="Behind the scenes with André Larsen — on set, in the air, unfiltered.">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="preload" as="font" href="DrukWide-Bold.woff2" type="font/woff2" crossorigin>
+  <link rel="preload" as="font" href="TronicaMono-Regular.woff2" type="font/woff2" crossorigin>
+  <style>
+    @font-face { font-family: 'DrukWide'; src: url('DrukWide-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'TronicaMono'; src: url('TronicaMono-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: #000; color: #fff; overscroll-behavior: none; }
+    html { scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; overflow-x: hidden; }
+
+    .dot-bg::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .07;
+      --dot-bg: #000; --dot-color: #fff; --dot-size: 2px; --dot-space: 3px;
+      background:
+        linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        var(--dot-color);
+    }
+    @media (min-width: 1280px) { .dot-bg::before { --dot-size: 4px; --dot-space: 5px; } }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 28px; pointer-events: none;
+    }
+    nav a, nav button { pointer-events: all; }
+    .nav-logo { font-family: 'DrukWide', Arial, sans-serif; font-size: 17px; font-weight: 700; color: #fff; text-transform: lowercase; letter-spacing: -0.02em; text-decoration: none; }
+    .nav-logo em { font-style: italic; }
+    .nav-menu-btn { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.38); color: #fff; font-family: 'TronicaMono', monospace; font-size: 13px; letter-spacing: 0.14em; padding: 6px 14px; cursor: pointer; text-transform: uppercase; -webkit-font-smoothing: none; }
+
+    .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(10,6,4,0.96); backdrop-filter: blur(2px); z-index: 300; flex-direction: column; justify-content: space-between; align-items: stretch; }
+    .menu-overlay.open { display: flex; }
+    .menu-top { display: flex; align-items: center; justify-content: space-between; padding: 22px 20px 0; flex-shrink: 0; }
+    .menu-close { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-family: 'TronicaMono', monospace; font-size: 16px; letter-spacing: 0.12em; padding: 5px 14px; cursor: pointer; text-transform: uppercase; -webkit-font-smoothing: none; }
+    .menu-nav { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 0 20px; flex: 1; gap: 0; }
+    .menu-nav a { color: #fff; text-decoration: none; font-family: 'DrukWide', Arial, sans-serif; font-size: 9vw; font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1.3; display: block; }
+    .menu-nav a.active { opacity: 0.4; pointer-events: none; }
+    .menu-gem-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 0 0; width: 100%; }
+    .menu-gem-btn { background: none; border: none; cursor: pointer; color: #fff; font-size: 28px; line-height: 1; padding: 0; opacity: 0.35; -webkit-tap-highlight-color: transparent; }
+    .menu-gem-hint { font-family: 'TronicaMono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.28); text-align: center; -webkit-font-smoothing: none; }
+    .menu-bottom { display: flex; justify-content: space-between; align-items: flex-end; padding: 16px 20px 36px; flex-shrink: 0; }
+    .menu-bottom-left { display: flex; flex-direction: column; gap: 2px; }
+    .menu-bottom-left a { font-family: 'TronicaMono', monospace; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; text-decoration: none; -webkit-font-smoothing: none; }
+    .menu-contact-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-family: 'TronicaMono', monospace; font-size: 16px; letter-spacing: 0.12em; padding: 5px 14px; text-decoration: none; text-transform: uppercase; -webkit-font-smoothing: none; white-space: nowrap; }
+    .diamond-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: #000; align-items: center; justify-content: center; cursor: pointer; }
+    .diamond-overlay.show { display: flex; }
+    .diamond-overlay img { width: min(80vw, 80vh); height: min(80vw, 80vh); object-fit: contain; animation: gemSpin 0.4s ease-out; }
+    @keyframes gemSpin { from { transform: scale(0.4) rotate(-20deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+
+    .hero { padding: 140px 28px 80px; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .hero-kicker { font-family: 'TronicaMono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; -webkit-font-smoothing: none; }
+    .hero-kicker::before { content: '■'; color: rgba(255,255,255,0.5); font-size: 10px; }
+    .hero-title { font-family: 'DrukWide', Arial, sans-serif; font-size: clamp(52px, 10vw, 120px); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.92; color: #fff; }
+    .hero-sub { font-family: 'TronicaMono', monospace; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-top: 28px; max-width: 480px; line-height: 1.8; -webkit-font-smoothing: none; }
+
+    .content { position: relative; }
+    .content-inner { max-width: 900px; margin: 0 auto; padding: 64px 28px 80px; position: relative; z-index: 1; }
+    .section-kicker { font-family: 'TronicaMono', monospace; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; -webkit-font-smoothing: none; }
+    .section-kicker::before { content: '■'; font-size: 10px; color: rgba(255,255,255,0.5); }
+    .section-title { font-family: 'DrukWide', Arial, sans-serif; font-size: clamp(36px, 7vw, 72px); font-weight: 700; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.95; color: #fff; margin-bottom: 28px; }
+    .section-body { font-family: 'TronicaMono', monospace; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.5); line-height: 1.9; -webkit-font-smoothing: none; max-width: 560px; }
+    .section-body strong { color: #fff; }
+    .cta-link { display: inline-flex; margin-top: 32px; font-family: 'TronicaMono', monospace; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); padding: 12px 24px; transition: border-color 0.2s; -webkit-font-smoothing: none; }
+    .cta-link:hover { border-color: #fff; }
+
+    footer { border-top: 1px solid rgba(255,255,255,0.08); padding: 28px; display: flex; align-items: center; justify-content: space-between; }
+    footer a { font-family: 'TronicaMono', monospace; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.3); text-decoration: none; -webkit-font-smoothing: none; transition: color 0.2s; }
+    footer a:hover { color: #fff; }
+
+    #pageIn { position: fixed; inset: 0; background: #000; z-index: 9999; pointer-events: none; transition: opacity 0.5s ease; }
+    #pageIn.out { opacity: 0; }
+  </style>
+</head>
+<body>
+<div id="pageIn"></div>
+<nav>
+  <a class="nav-logo" href="/"><span>andré</span> <em>larsen</em></a>
+  <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
+</nav>
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-top">
+    <div style="visibility:hidden;font-family:'DrukWide';font-size:18px;">andré</div>
+    <button class="menu-close" id="menuClose">:/ CLOSE</button>
+  </div>
+  <div class="menu-nav">
+    <a href="/">HOME</a>
+    <a href="works.html">WORKS</a>
+    <a href="about.html">ABOUT</a>
+    <a href="how-we-work.html">HOW WE WORK</a>
+    <a href="bts.html" class="active">BTS</a>
+    <a href="course.html">THE COURSE</a>
+    <div class="menu-gem-wrap">
+      <button class="menu-gem-btn" id="gemBtn">+</button>
+      <span class="menu-gem-hint">more of me</span>
+    </div>
+  </div>
+  <div class="menu-bottom">
+    <div class="menu-bottom-left">
+      <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
+      <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+    </div>
+    <a href="mailto:andre@andrelarsen.com" class="menu-contact-btn">&gt; CONTACT</a>
+  </div>
+</div>
+<div class="diamond-overlay" id="diamondOverlay">
+  <img src="diamond.GIF" alt="" id="diamondImg" />
+</div>
+
+<section class="hero dot-bg">
+  <div class="hero-kicker">Behind the scenes</div>
+  <h1 class="hero-title">On Set.<br>In the Air.</h1>
+  <p class="hero-sub">Raw moments from shoots — volcanoes, rooftops, free fall. The stuff that doesn't make the final cut.</p>
+</section>
+
+<section class="content dot-bg" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+  <div class="content-inner">
+    <div class="section-kicker">Coming soon</div>
+    <h2 class="section-title">Footage<br>Dropping</h2>
+    <p class="section-body">
+      Burj Khalifa. Iceland volcano. Formula cars through lasers. Bollywood sets.<br><br>
+      <strong>BTS clips from every major shoot are being edited and dropped here.</strong><br><br>
+      Follow Instagram for the unfiltered version in the meantime.
+    </p>
+    <a class="cta-link" href="https://instagram.com/andrelarsen" target="_blank">&gt; Follow on Instagram</a>
+  </div>
+</section>
+
+<footer>
+  <a href="/">&larr; andrelarsen.com</a>
+  <a href="mailto:andre@andrelarsen.com">andre@andrelarsen.com</a>
+</footer>
+
+<script>
+  requestAnimationFrame(function() { document.getElementById('pageIn').classList.add('out'); });
+  const menuBtn = document.getElementById('menuBtn');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const menuClose = document.getElementById('menuClose');
+  menuBtn.addEventListener('click', function() { menuOverlay.classList.add('open'); });
+  menuClose.addEventListener('click', function() { menuOverlay.classList.remove('open'); });
+  const gemBtn = document.getElementById('gemBtn');
+  const diamondOverlay = document.getElementById('diamondOverlay');
+  const diamondImg = document.getElementById('diamondImg');
+  const nav = document.querySelector('nav');
+  gemBtn.addEventListener('click', function() { diamondOverlay.classList.add('show'); if (nav) nav.style.display = 'none'; });
+  diamondImg.addEventListener('click', function() { window.location.href = 'life.html'; });
+  diamondOverlay.addEventListener('click', function(e) { if (e.target === diamondOverlay) { diamondOverlay.classList.remove('show'); if (nav) nav.style.display = ''; } });
+</script>
+</body>
+</html>
