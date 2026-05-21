@@ -2252,10 +2252,14 @@
   @media (min-width: 1280px) {
     .services-section::before { --dot-size: 4px; --dot-space: 5px; }
   }
-  .services-header {
-    padding: 32px 32px 0;
+  .services-inner {
+    max-width: 1100px;
+    margin: 0 auto;
     position: relative;
     z-index: 1;
+  }
+  .services-header {
+    padding: 32px 32px 0;
     font-family: 'TronicaMono', monospace;
     font-size: 13px;
     letter-spacing: 0.22em;
@@ -2304,6 +2308,7 @@
   }
   @media (max-width: 768px) {
     .services-header { padding: 28px 20px 0; }
+    .services-inner { max-width: 100%; }
     .services-grid { grid-template-columns: repeat(2, 1fr); margin-top: 20px; }
     .svc-item { padding: 22px 20px 26px; }
     .svc-item:nth-child(3n) { border-right: 1px solid rgba(255,255,255,0.08); }
@@ -2605,6 +2610,7 @@ Dubai, worldwide.</div>
 
   <!-- ── SECTION 6: SERVICES ── -->
   <section class="services-section" id="servicesSection">
+    <div class="services-inner">
     <div class="services-header">Services</div>
     <div class="services-grid">
       <div class="svc-item">
@@ -2631,6 +2637,7 @@ Dubai, worldwide.</div>
         <div class="svc-name">Creative Direction</div>
         <div class="svc-desc">Full vision — concept, shoot, edit — for clients who want the whole package</div>
       </div>
+    </div>
     </div>
   </section>
 
