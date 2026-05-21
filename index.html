@@ -2223,6 +2223,95 @@
     .stat-item:nth-last-child(-n+2) { border-bottom: none; }
   }
 
+  /* ══════════════════════════════════════
+     ── SERVICES SECTION ──
+  ══════════════════════════════════════ */
+  .services-section {
+    width: 100%;
+    background: #000;
+    position: relative;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+  .services-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: .07;
+    --dot-bg: #000;
+    --dot-color: #fff;
+    --dot-size: 2px;
+    --dot-space: 3px;
+    background:
+      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      var(--dot-color);
+    pointer-events: none;
+  }
+  @media (min-width: 1280px) {
+    .services-section::before { --dot-size: 4px; --dot-space: 5px; }
+  }
+  .services-header {
+    padding: 32px 32px 0;
+    position: relative;
+    z-index: 1;
+    font-family: 'TronicaMono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    -webkit-font-smoothing: none;
+  }
+  .services-header::before { content: '■ \00a0'; color: rgba(255,255,255,0.6); }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    position: relative;
+    z-index: 1;
+    margin-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .svc-item {
+    padding: 28px 32px 32px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: background 0.2s;
+  }
+  .svc-item:hover { background: rgba(255,255,255,0.03); }
+  .svc-item:nth-child(3n) { border-right: none; }
+  .svc-item:nth-last-child(-n+3) { border-bottom: none; }
+  .svc-name {
+    font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+    font-size: clamp(15px, 1.4vw, 22px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: #fff;
+    line-height: 1.1;
+  }
+  .svc-desc {
+    font-family: 'TronicaMono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.38);
+    line-height: 1.6;
+    -webkit-font-smoothing: none;
+  }
+  @media (max-width: 768px) {
+    .services-header { padding: 28px 20px 0; }
+    .services-grid { grid-template-columns: repeat(2, 1fr); margin-top: 20px; }
+    .svc-item { padding: 22px 20px 26px; }
+    .svc-item:nth-child(3n) { border-right: 1px solid rgba(255,255,255,0.08); }
+    .svc-item:nth-child(2n) { border-right: none; }
+    .svc-item:nth-last-child(-n+3) { border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .svc-item:nth-last-child(-n+2) { border-bottom: none; }
+  }
+
   /* Fixed variant for load screen */
   .scanline-fixed {
     pointer-events: none;
@@ -2510,6 +2599,37 @@ Dubai, worldwide.</div>
       <div class="stat-item">
         <div class="stat-num" data-target="15" data-suffix="">15</div>
         <div class="stat-label">Years</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 6: SERVICES ── -->
+  <section class="services-section" id="servicesSection">
+    <div class="services-header">Services</div>
+    <div class="services-grid">
+      <div class="svc-item">
+        <div class="svc-name">FPV Cinematography</div>
+        <div class="svc-desc">High-speed immersive shots — indoors, outdoors, unrestricted</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-name">Commercial Film</div>
+        <div class="svc-desc">Branded campaigns and hero content built to perform</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-name">Automotive</div>
+        <div class="svc-desc">Motion-first coverage of cars, launches and track events</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-name">Aerial & Drone</div>
+        <div class="svc-desc">Licensed multi-platform aerial across any location worldwide</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-name">Social & Reels</div>
+        <div class="svc-desc">Platform-native short-form content engineered to stop the scroll</div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-name">Creative Direction</div>
+        <div class="svc-desc">Full vision — concept, shoot, edit — for clients who want the whole package</div>
       </div>
     </div>
   </section>
