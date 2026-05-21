@@ -5630,16 +5630,20 @@ window.addEventListener('load', () => {
   const btn = document.getElementById('gemBtn');
   const overlay = document.getElementById('diamondOverlay');
   const img = document.getElementById('diamondImg');
+  const nav = document.querySelector('nav');
   if (!btn || !overlay) return;
   btn.addEventListener('click', function() {
     overlay.classList.add('show');
+    if (nav) nav.style.display = 'none';
   });
   img.addEventListener('click', function() {
     window.location.href = 'life.html';
   });
-  // tap outside image closes
   overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) overlay.classList.remove('show');
+    if (e.target === overlay) {
+      overlay.classList.remove('show');
+      if (nav) nav.style.display = '';
+    }
   });
 })();
 </script>
