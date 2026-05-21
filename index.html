@@ -3115,31 +3115,30 @@ const isMobile = window.innerWidth <= 768;
 
 const scrollContainer = document.getElementById('scrollContainer');
 
-/* ── LERP SMOOTH SCROLL — desktop only ── */
+/* ── SMOOTH SCROLL — desktop only, velocity + friction ── */
 (function() {
   if (window.innerWidth <= 768) return;
 
-  let target = 0;
-  let current = 0;
+  let velocity = 0;
   let rafId = null;
-  const ease = 0.09; /* lower = slower/smoother, higher = snappier */
+  const friction = 0.85;
 
   scrollContainer.addEventListener('wheel', function(e) {
     e.preventDefault();
-    target += e.deltaY * (e.deltaMode === 1 ? 20 : 1); /* line mode fallback */
-    const max = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-    target = Math.max(0, Math.min(target, max));
+    velocity += e.deltaY * (e.deltaMode === 1 ? 20 : 1);
     if (!rafId) rafId = requestAnimationFrame(tick);
   }, { passive: false });
 
   function tick() {
-    current += (target - current) * ease;
-    scrollContainer.scrollTop = current;
-    if (Math.abs(target - current) > 0.5) {
+    velocity *= friction;
+    const max = scrollContainer.scrollHeight - scrollContainer.clientHeight;
+    const next = Math.max(0, Math.min(scrollContainer.scrollTop + velocity, max));
+    scrollContainer.scrollTop = next;
+    if (next === 0 || next === max) velocity = 0;
+    if (Math.abs(velocity) > 0.5) {
       rafId = requestAnimationFrame(tick);
     } else {
-      scrollContainer.scrollTop = target;
-      current = target;
+      velocity = 0;
       rafId = null;
     }
   }
