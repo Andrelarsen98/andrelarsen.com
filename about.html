@@ -702,7 +702,7 @@
     height: var(--app-height, 100vh);
     overflow: hidden;
   }
-  /* Dot grid on sides (desktop) */
+  /* Dot grid on sides + top/bottom (desktop) */
   @media (min-width: 901px) {
     .video-section::before {
       content: '';
@@ -721,6 +721,9 @@
       pointer-events: none;
     }
   }
+  @media (min-width: 1280px) {
+    .video-section::before { --dot-size: 4px; --dot-space: 5px; }
+  }
   .profile-video {
     display: block;
     width: 100%;
@@ -738,7 +741,7 @@
     object-fit: cover;
     object-position: center 40%;
   }
-  /* Desktop: show image inset with side margins, hide video */
+  /* Desktop: show image inset with side + top/bottom margins, hide video */
   @media (min-width: 901px) {
     .video-section .profile-video { display: none; }
     .video-section .profile-image {
@@ -746,8 +749,8 @@
       position: relative;
       z-index: 1;
       width: calc(100% - 12vw);
-      margin: 0 6vw;
-      height: 100%;
+      margin: 5vh 6vw;
+      height: calc(100% - 10vh);
     }
   }
   /* Mobile: show video, hide image */
