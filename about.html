@@ -2219,8 +2219,8 @@ window.FPV_GOGGLES_MESH = {
       maskX.fillStyle = '#fff';
       maskX.font = `900 italic ${fontSize * dpr}px DrukWide, 'Arial Black', Arial, sans-serif`;
       maskX.textBaseline = 'top';
-      maskX.textAlign = 'left';
-      LINES.forEach((line, i) => maskX.fillText(line, 0, lineY[i] * dpr));
+      maskX.textAlign = 'center';
+      LINES.forEach((line, i) => maskX.fillText(line, maskC.width / 2, lineY[i] * dpr));
     }
 
     function resize() {
@@ -2263,7 +2263,7 @@ window.FPV_GOGGLES_MESH = {
       ctx.scale(dpr, dpr);
       ctx.font = `900 italic ${fontSize}px DrukWide, 'Arial Black', Arial, sans-serif`;
       ctx.textBaseline = 'top';
-      ctx.textAlign = 'left';
+      ctx.textAlign = 'center';
 
       // Fill with a subtle vertical gradient simulating ambient chrome sheen
       const baseGrad = ctx.createLinearGradient(0, 0, 0, H);
@@ -2273,7 +2273,7 @@ window.FPV_GOGGLES_MESH = {
       baseGrad.addColorStop(0.7, 'rgba(140, 158, 205, 0.85)');
       baseGrad.addColorStop(1,   'rgba(90,  110, 160, 0.75)');
       ctx.fillStyle = baseGrad;
-      LINES.forEach((line, i) => ctx.fillText(line, 0, lineY[i]));
+      LINES.forEach((line, i) => ctx.fillText(line, W / 2, lineY[i]));
       ctx.restore();
 
       // ── 2. Build moving reflection layer ──
