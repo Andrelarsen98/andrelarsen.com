@@ -2148,163 +2148,74 @@
       linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
       var(--dot-color);
   }
-  /* ══════════════════════════════════════
-     ── RECOGNITION — homepage tight version
-  ══════════════════════════════════════ */
-  .recognition-section {
-    position: relative;
-    z-index: 10;
-    padding: 56px 32px 64px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    overflow: hidden;
-  }
-  .recognition-section > .scanline { z-index: 0; }
-  .recognition-section > * { position: relative; z-index: 1; }
-  .recognition-header {
-    font-family: 'TronicaMono', monospace;
-    font-size: 14px;
-    letter-spacing: 0.18em;
-    color: rgba(255,255,255,0.6);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-    margin-bottom: 28px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .recognition-header::before { content: '\25A0'; color: #fff; font-size: 10px; }
-  .recognition-list { max-width: 720px; }
-  .rec-row {
-    display: grid;
-    grid-template-columns: 32px 1fr auto;
-    gap: 18px;
-    align-items: baseline;
-    padding: 16px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    font-family: 'TronicaMono', monospace;
-    font-size: 15px;
-    letter-spacing: 0.02em;
-    -webkit-font-smoothing: none;
-  }
-  .rec-row:last-child { border-bottom: none; }
-  .rec-num { color: rgba(255,255,255,0.4); font-size: 13px; }
-  .rec-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .rec-title { color: #fff; }
-  .rec-sub { color: rgba(255,255,255,0.55); font-size: 13px; }
-  .rec-meta { color: rgba(255,255,255,0.6); font-size: 13px; text-align: right; white-space: nowrap; }
-  .rec-link {
-    color: #fff;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(255,255,255,0.4);
-    padding-bottom: 1px;
-    transition: border-color 0.2s ease;
-  }
-  .rec-link:hover { border-bottom-color: #fff; }
-  @media (max-width: 900px) {
-    .recognition-section { padding: 40px 20px 48px; }
-    .rec-row { grid-template-columns: 26px 1fr auto; font-size: 14px; gap: 14px; }
-    .rec-num, .rec-sub, .rec-meta { font-size: 12px; }
-  }
 
   /* ══════════════════════════════════════
-     ── STUDIO SECTION ──
+     ── STATS SECTION ──
   ══════════════════════════════════════ */
-  .studio-section {
+  .stats-section {
     width: 100%;
     background: #000;
     position: relative;
-    content-visibility: auto;
-    contain-intrinsic-size: 0 0;
-  }
-
-  .studio-label-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 28px 32px 20px;
-    border-top: 1px solid rgba(255,255,255,0.12);
-  }
-
-  .studio-label-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: 'TronicaMono', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.5);
-    text-transform: uppercase;
-    -webkit-font-smoothing: none;
-  }
-
-  .studio-label-right {
-    font-family: 'TronicaMono', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.3);
-    -webkit-font-smoothing: none;
-  }
-
-  .studio-photo-wrap {
-    width: 100%;
-    position: relative;
+    border-top: 1px solid rgba(255,255,255,0.08);
     overflow: hidden;
-    aspect-ratio: 16/9;
-    z-index: 10;
-    padding: 0 32px;
   }
-
-  .studio-headline {
+  .stats-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: .07;
+    --dot-bg: #000;
+    --dot-color: #fff;
+    --dot-size: 2px;
+    --dot-space: 3px;
+    background:
+      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      var(--dot-color);
+    pointer-events: none;
+  }
+  @media (min-width: 1280px) {
+    .stats-section::before { --dot-size: 4px; --dot-space: 5px; }
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     position: relative;
-    z-index: 10;
+    z-index: 1;
   }
-
-  .studio-photo-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center center;
-    display: block;
+  .stat-item {
+    padding: 52px 32px 56px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
-
-  .studio-headline {
-    padding: 28px 32px 24px;
-  }
-
-  .studio-headline h2 {
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
     font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
-    font-size: clamp(32px, 5.5vw, 88px);
+    font-size: clamp(40px, 5.5vw, 88px);
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 1.0;
+    line-height: 1;
     color: #fff;
-    margin: 0;
+    letter-spacing: -0.02em;
   }
-
-  .studio-headline-sub {
+  .stat-label {
     font-family: 'TronicaMono', monospace;
-    font-size: 16px;
-    letter-spacing: 0.1em;
-    color: rgba(255,255,255,0.35);
+    font-size: 13px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    margin-top: 12px;
+    color: rgba(255,255,255,0.4);
     -webkit-font-smoothing: none;
   }
-
   @media (max-width: 768px) {
-    .studio-label-row { padding: 20px 20px 16px; }
-    .studio-photo-wrap {
-      aspect-ratio: 4/3;
-      padding: 0 16px;
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .stat-item {
+      padding: 36px 20px 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-    .studio-photo-wrap img {
-      object-position: center 60%;
-      width: 100%;
-      height: 100%;
-    }
-    .studio-headline { padding: 20px 20px 36px; }
-    .studio-headline h2 { font-size: clamp(28px, 10vw, 52px); }
+    .stat-item:nth-child(even) { border-right: none; }
+    .stat-item:nth-last-child(-n+2) { border-bottom: none; }
   }
 
   /* Fixed variant for load screen */
@@ -2576,35 +2487,24 @@ Dubai, worldwide.</div>
   </div>
 
 
-  <!-- ── SECTION 5: STUDIO / GEAR ── -->
-  <section class="studio-section">
-    <div class="scanline"></div>
-
-
-
-
-  </section>
-
-  <!-- ── SECTION 6: RECOGNITION ── -->
-  <section class="recognition-section">
-    <div class="scanline"></div>
-    <div class="recognition-header">Recognition</div>
-    <div class="recognition-list">
-      <div class="rec-row">
-        <span class="rec-num">01</span>
-        <div class="rec-body">
-          <span class="rec-title">GoPro Million Dollar Challenge — <a href="https://gopro.com/en/ae/news/million-dollar-challenge-creator-andre-larsen" target="_blank" rel="noopener" class="rec-link">Winner</a></span>
-          <span class="rec-sub">Global filmmaking competition</span>
-        </div>
-        <span class="rec-meta">2022</span>
+  <!-- ── SECTION 5: STATS ── -->
+  <section class="stats-section" id="statsSection">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-num" data-target="120" data-suffix="+">120+</div>
+        <div class="stat-label">Projects</div>
       </div>
-      <div class="rec-row">
-        <span class="rec-num">02</span>
-        <div class="rec-body">
-          <span class="rec-title">International Motor Film Awards — Nominated</span>
-          <span class="rec-sub">Best Commercial Film · Kia EV9</span>
-        </div>
-        <span class="rec-meta">2024</span>
+      <div class="stat-item">
+        <div class="stat-num" data-target="12" data-suffix="">12</div>
+        <div class="stat-label">Countries</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="60" data-suffix="M+">60M+</div>
+        <div class="stat-label">Views</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" data-target="15" data-suffix="">15</div>
+        <div class="stat-label">Years</div>
       </div>
     </div>
   </section>
@@ -3701,6 +3601,37 @@ videoEl.addEventListener('timeupdate', () => {
   document.getElementById('footerBackTop').addEventListener('click', () => {
     document.getElementById('scrollContainer').scrollTo({ top: 0, behavior: 'smooth' });
   });
+})();
+
+/* ── STATS COUNT-UP ── */
+(function() {
+  const nums = document.querySelectorAll('.stat-num[data-target]');
+  if (!nums.length) return;
+
+  function countUp(el) {
+    const target = parseInt(el.dataset.target, 10);
+    const suffix = el.dataset.suffix || '';
+    const duration = 1200;
+    const start = performance.now();
+    function frame(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(ease * target) + suffix;
+      if (t < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        countUp(entry.target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.3 });
+
+  nums.forEach(function(el) { observer.observe(el); });
 })();
 
 
