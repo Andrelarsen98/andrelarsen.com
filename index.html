@@ -3115,35 +3115,6 @@ const isMobile = window.innerWidth <= 768;
 
 const scrollContainer = document.getElementById('scrollContainer');
 
-/* ── SMOOTH SCROLL — desktop only, velocity + friction ── */
-(function() {
-  if (window.innerWidth <= 768) return;
-
-  let velocity = 0;
-  let rafId = null;
-  const friction = 0.85;
-
-  scrollContainer.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    velocity += e.deltaY * (e.deltaMode === 1 ? 20 : 1);
-    if (!rafId) rafId = requestAnimationFrame(tick);
-  }, { passive: false });
-
-  function tick() {
-    velocity *= friction;
-    const max = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-    const next = Math.max(0, Math.min(scrollContainer.scrollTop + velocity, max));
-    scrollContainer.scrollTop = next;
-    if (next === 0 || next === max) velocity = 0;
-    if (Math.abs(velocity) > 0.5) {
-      rafId = requestAnimationFrame(tick);
-    } else {
-      velocity = 0;
-      rafId = null;
-    }
-  }
-})();
-
 /* ── LIQUID GLASS SCROLLBAR — desktop only ── */
 (function() {
   const track = document.getElementById('scrollTrack');
