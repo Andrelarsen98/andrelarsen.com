@@ -876,6 +876,7 @@
   .disciplines-header {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 48px 20px 20px;
     font-family: 'TronicaMono', monospace;
@@ -894,14 +895,14 @@
     background: rgba(255,255,255,0.9);
   }
   .discipline-row {
-    display: grid;
-    grid-template-columns: 40px 1fr;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 12px;
     padding: 10px 20px;
     border-top: 1px solid rgba(255,255,255,0.1);
     cursor: default;
     transition: background 0s, color 0s;
-    gap: 12px;
   }
   .discipline-row:last-child { border-bottom: 1px solid rgba(255,255,255,0.1); }
   .discipline-row:hover {
@@ -962,6 +963,7 @@
   .brands-label {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     font-family: 'TronicaMono', monospace;
     font-size: 16px;
@@ -982,6 +984,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
+    justify-content: center;
     gap: 12px 20px;
     row-gap: 0;
   }
@@ -1023,6 +1026,7 @@
   .manifesto-kicker {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     font-family: 'TronicaMono', monospace;
     font-size: 16px;
@@ -1048,9 +1052,9 @@
   .manifesto-cta {
     margin-top: 56px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 24px;
-    flex-wrap: wrap;
+    gap: 12px;
   }
   .manifesto-cta-link {
     display: inline-flex;
@@ -1225,9 +1229,7 @@
       <canvas id="manifestoCanvas"></canvas>
       <div class="manifesto-cta">
         <a href="works.html" class="manifesto-cta-link">&gt; View the work</a>
-        <div class="manifesto-divider"></div>
         <a href="mailto:andre@andrelarsen.com" class="manifesto-cta-link">&gt; Start a project</a>
-        <div class="manifesto-divider"></div>
         <a href="tel:+971566885463" class="manifesto-cta-link">&gt; Direct line · +971 56 688 5463</a>
       </div>
     </div>
