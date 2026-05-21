@@ -386,6 +386,105 @@
       transition: right 0s linear;
     }
 
+    /* ── HUB NAV ── */
+    .hub-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .hub-nav::-webkit-scrollbar { display: none; }
+    .hub-nav a {
+      font-family: 'TronicaMono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      padding: 16px 24px;
+      white-space: nowrap;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      transition: color 0.2s;
+      -webkit-font-smoothing: none;
+    }
+    .hub-nav a:hover, .hub-nav a.active { color: #fff; }
+
+    /* ── HUB CTA ── */
+    .hub-cta {
+      display: inline-flex;
+      margin-top: 28px;
+      font-family: 'TronicaMono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 10px 20px;
+      transition: border-color 0.2s;
+      -webkit-font-smoothing: none;
+    }
+    .hub-cta:hover { border-color: #fff; }
+
+    /* ── WAITLIST ── */
+    .waitlist-form {
+      display: flex;
+      gap: 0;
+      margin-top: 28px;
+      max-width: 480px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .waitlist-input {
+      flex: 1;
+      min-width: 200px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-family: 'TronicaMono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 12px 16px;
+      outline: none;
+      -webkit-font-smoothing: none;
+    }
+    .waitlist-input::placeholder { color: rgba(255,255,255,0.25); }
+    .waitlist-input:focus { border-color: rgba(255,255,255,0.5); }
+    .waitlist-btn {
+      background: #fff;
+      color: #000;
+      border: none;
+      font-family: 'TronicaMono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 12px 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-font-smoothing: none;
+      transition: opacity 0.2s;
+    }
+    .waitlist-btn:hover { opacity: 0.85; }
+    .waitlist-confirm {
+      display: none;
+      margin-top: 16px;
+      font-family: 'TronicaMono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      -webkit-font-smoothing: none;
+    }
+    .waitlist-confirm.show { display: block; }
+
     /* ── PAGE TRANSITION ── */
     #pageIn {
       position: fixed;
@@ -435,8 +534,15 @@
   <div class="hero-scroll">scroll</div>
 </div>
 
-<!-- INTRO -->
-<section class="dot-bg">
+<!-- HUB NAV -->
+<nav class="hub-nav" id="hubNav">
+  <a href="#bts">BTS</a>
+  <a href="#course">The Course</a>
+  <a href="#story">The Story</a>
+</nav>
+
+<!-- THE STORY -->
+<section class="dot-bg" id="story">
   <div class="section-inner">
     <div class="section-kicker">The other side</div>
     <h2 class="section-title">Not just<br>a camera</h2>
@@ -449,18 +555,9 @@
       Skydiving, wingsuit, BASE. If it's in the air, I want in.
     </p>
     <div class="stat-row">
-      <div class="stat-col">
-        <span class="stat-num">500+</span>
-        <span class="stat-lbl">Skydives</span>
-      </div>
-      <div class="stat-col">
-        <span class="stat-num">20+</span>
-        <span class="stat-lbl">Countries</span>
-      </div>
-      <div class="stat-col">
-        <span class="stat-num">∞</span>
-        <span class="stat-lbl">Jump still left</span>
-      </div>
+      <div class="stat-col"><span class="stat-num">500+</span><span class="stat-lbl">Skydives</span></div>
+      <div class="stat-col"><span class="stat-num">20+</span><span class="stat-lbl">Countries</span></div>
+      <div class="stat-col"><span class="stat-num">∞</span><span class="stat-lbl">Jumps left</span></div>
     </div>
   </div>
 </section>
@@ -473,22 +570,40 @@
   </div>
 </section>
 
-<!-- ADVENTURES -->
-<section class="dot-bg">
+<!-- BTS -->
+<section class="dot-bg" id="bts">
   <div class="section-inner">
-    <div class="section-kicker">Adventures</div>
-    <h2 class="section-title">Always<br>moving</h2>
+    <div class="section-kicker">Behind the scenes</div>
+    <h2 class="section-title">On Set.<br>In The Air.</h2>
     <p class="section-body">
-      Norway. Dubai. Bali. Switzerland. The Maldives.<br><br>
-      Every trip ends up on film — whether I planned it or not.
-      That's the thing about carrying a camera everywhere:
-      <strong>life becomes the reel.</strong><br><br>
-      More footage, stories, and chaos coming here soon.
+      Raw moments from the field — volcanoes, rooftops, free fall.<br><br>
+      <strong>BTS footage dropping soon.</strong><br><br>
+      Follow on Instagram for the unfiltered version while this builds out.
     </p>
+    <a class="hub-cta" href="https://instagram.com/andrelarsen" target="_blank">&gt; Instagram</a>
   </div>
 </section>
 
-<!-- MORE COMING -->
+<!-- THE COURSE -->
+<section class="dot-bg" id="course">
+  <div class="section-inner">
+    <div class="section-kicker">Knowledge drop</div>
+    <h2 class="section-title">The<br>Course</h2>
+    <p class="section-body">
+      15 years of FPV cinema. Every mistake. Every breakthrough.<br>
+      Gear, flying, color, clients, business — everything I know.<br><br>
+      <strong>One course. No fluff. Built for people who are serious.</strong><br><br>
+      Drop your email and be first when it launches.
+    </p>
+    <form class="waitlist-form" id="waitlistForm">
+      <input type="email" class="waitlist-input" placeholder="YOUR@EMAIL.COM" required />
+      <button type="submit" class="waitlist-btn">&gt; JOIN WAITLIST</button>
+    </form>
+    <p class="waitlist-confirm" id="waitlistConfirm">You're on the list. I'll be in touch.</p>
+  </div>
+</section>
+
+<!-- COMING -->
 <section class="coming-section">
   <div class="section-inner">
     <img class="coming-gem" src="a.JPG" alt="" />
@@ -555,6 +670,32 @@
       if (done) dismiss();
     });
   })();
+
+  // Waitlist form
+  const form = document.getElementById('waitlistForm');
+  const confirm = document.getElementById('waitlistConfirm');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      form.style.display = 'none';
+      confirm.classList.add('show');
+    });
+  }
+
+  // Hub nav active state on scroll
+  const hubSections = ['bts','course','story'].map(function(id) {
+    return { id: id, el: document.getElementById(id) };
+  });
+  const navLinks = document.querySelectorAll('.hub-nav a');
+  window.addEventListener('scroll', function() {
+    let current = '';
+    hubSections.forEach(function(s) {
+      if (s.el && window.scrollY >= s.el.offsetTop - 120) current = s.id;
+    });
+    navLinks.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }, { passive: true });
 </script>
 
 </body>

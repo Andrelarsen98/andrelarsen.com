@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  <title>How We Work — André Larsen</title>
+  <meta name="description" content="From brief to final delivery — how André Larsen works with clients.">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <link rel="preload" as="font" href="DrukWide-Bold.woff2" type="font/woff2" crossorigin>
+  <link rel="preload" as="font" href="TronicaMono-Regular.woff2" type="font/woff2" crossorigin>
+
+  <style>
+    @font-face {
+      font-family: 'DrukWide';
+      src: url('DrukWide-Bold.woff2') format('woff2');
+      font-weight: 700; font-style: normal; font-display: swap;
+    }
+    @font-face {
+      font-family: 'TronicaMono';
+      src: url('TronicaMono-Regular.woff2') format('woff2');
+      font-weight: 400; font-style: normal; font-display: swap;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: #000; color: #fff; overscroll-behavior: none; }
+    html { scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar { display: none; }
+    body { min-height: 100vh; overflow-x: hidden; }
+
+    .dot-bg::before {
+      content: ''; position: absolute; inset: 0; z-index: 0;
+      pointer-events: none; opacity: .07;
+      --dot-bg: #000; --dot-color: #fff; --dot-size: 2px; --dot-space: 3px;
+      background:
+        linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+        var(--dot-color);
+    }
+    @media (min-width: 1280px) { .dot-bg::before { --dot-size: 4px; --dot-space: 5px; } }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 28px; pointer-events: none;
+    }
+    nav a, nav button { pointer-events: all; }
+    .nav-logo {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: 17px; font-weight: 700; color: #fff;
+      text-transform: lowercase; letter-spacing: -0.02em;
+      text-decoration: none; line-height: 1;
+    }
+    .nav-logo em { font-style: italic; }
+    .nav-menu-btn {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.38);
+      color: #fff; font-family: 'TronicaMono', monospace;
+      font-size: 13px; letter-spacing: 0.14em; padding: 6px 14px;
+      cursor: pointer; text-transform: uppercase; -webkit-font-smoothing: none;
+    }
+
+    /* ── MOBILE MENU ── */
+    .menu-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,6,4,0.96); backdrop-filter: blur(2px);
+      z-index: 300; flex-direction: column;
+      justify-content: space-between; align-items: stretch;
+    }
+    .menu-overlay.open { display: flex; }
+    .menu-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 20px 0; flex-shrink: 0;
+    }
+    .menu-close {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4);
+      color: #fff; font-family: 'TronicaMono', monospace; font-size: 16px;
+      letter-spacing: 0.12em; padding: 5px 14px; cursor: pointer;
+      text-transform: uppercase; -webkit-font-smoothing: none;
+    }
+    .menu-nav {
+      display: flex; flex-direction: column; align-items: flex-start;
+      justify-content: center; padding: 0 20px; flex: 1; gap: 0;
+    }
+    .menu-nav a {
+      color: #fff; text-decoration: none;
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: 12vw; font-weight: 700; text-transform: uppercase;
+      letter-spacing: -0.02em; line-height: 1.35; display: block;
+    }
+    .menu-nav a.active { opacity: 0.4; pointer-events: none; }
+    .menu-gem-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 8px; padding: 16px 0 0; width: 100%;
+    }
+    .menu-gem-btn {
+      background: none; border: none; cursor: pointer; color: #fff;
+      font-size: 36px; line-height: 1; padding: 0; opacity: 0.35;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .menu-gem-hint {
+      font-family: 'TronicaMono', monospace; font-size: 11px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.28); text-align: center; -webkit-font-smoothing: none;
+    }
+    .menu-bottom {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 16px 20px 36px; flex-shrink: 0;
+    }
+    .menu-bottom-left { display: flex; flex-direction: column; gap: 2px; }
+    .menu-bottom-left a {
+      font-family: 'TronicaMono', monospace; font-size: 14px;
+      letter-spacing: 0.1em; text-transform: uppercase; color: #fff;
+      text-decoration: none; -webkit-font-smoothing: none;
+    }
+    .menu-contact-btn {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.4);
+      color: #fff; font-family: 'TronicaMono', monospace; font-size: 16px;
+      letter-spacing: 0.12em; padding: 5px 14px; text-decoration: none;
+      text-transform: uppercase; -webkit-font-smoothing: none; white-space: nowrap;
+    }
+    .diamond-overlay {
+      display: none; position: fixed; inset: 0; z-index: 10000;
+      background: #000; align-items: center; justify-content: center; cursor: pointer;
+    }
+    .diamond-overlay.show { display: flex; }
+    .diamond-overlay img {
+      width: min(80vw, 80vh); height: min(80vw, 80vh); object-fit: contain;
+      animation: gemSpin 0.4s ease-out;
+    }
+    @keyframes gemSpin {
+      from { transform: scale(0.4) rotate(-20deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 140px 28px 80px;
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hero-kicker {
+      font-family: 'TronicaMono', monospace; font-size: 12px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+      -webkit-font-smoothing: none;
+    }
+    .hero-kicker::before { content: '■'; color: rgba(255,255,255,0.5); font-size: 10px; }
+    .hero-title {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(52px, 10vw, 120px); font-weight: 700;
+      text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.92;
+      color: #fff; max-width: 800px;
+    }
+    .hero-sub {
+      font-family: 'TronicaMono', monospace; font-size: 14px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.45); margin-top: 28px;
+      max-width: 480px; line-height: 1.8; -webkit-font-smoothing: none;
+    }
+
+    /* ── PROCESS STEPS ── */
+    .process-section {
+      position: relative; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .process-inner {
+      max-width: 1100px; margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+    .process-header {
+      padding: 48px 28px 0;
+      font-family: 'TronicaMono', monospace; font-size: 12px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); -webkit-font-smoothing: none;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .process-header::before { content: '■'; color: rgba(255,255,255,0.5); font-size: 10px; }
+    .steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(255,255,255,0.08); margin-top: 32px;
+    }
+    .step {
+      padding: 36px 28px 48px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+    }
+    .step:last-child { border-right: none; }
+    .step-num {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(48px, 5vw, 80px); font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1;
+      color: rgba(255,255,255,0.08); margin-bottom: 20px;
+    }
+    .step-title {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(18px, 1.8vw, 26px); font-weight: 700;
+      text-transform: uppercase; letter-spacing: -0.01em;
+      color: #fff; margin-bottom: 14px; line-height: 1.1;
+    }
+    .step-desc {
+      font-family: 'TronicaMono', monospace; font-size: 12px;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); line-height: 1.8;
+      -webkit-font-smoothing: none;
+    }
+    @media (max-width: 768px) {
+      .steps { grid-template-columns: 1fr 1fr; }
+      .step:nth-child(2) { border-right: none; }
+      .step:nth-child(3) { border-top: 1px solid rgba(255,255,255,0.08); }
+      .step:nth-child(4) { border-top: 1px solid rgba(255,255,255,0.08); border-right: none; }
+    }
+
+    /* ── WHAT YOU GET ── */
+    .get-section {
+      position: relative; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .get-inner {
+      max-width: 1100px; margin: 0 auto; padding: 56px 28px 64px;
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start;
+    }
+    .get-left .section-kicker {
+      font-family: 'TronicaMono', monospace; font-size: 12px;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px; -webkit-font-smoothing: none;
+    }
+    .get-left .section-kicker::before { content: '■'; font-size: 10px; color: rgba(255,255,255,0.5); }
+    .get-title {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(36px, 5vw, 64px); font-weight: 700;
+      text-transform: uppercase; letter-spacing: -0.02em;
+      line-height: 0.95; color: #fff;
+    }
+    .get-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+    .get-list li {
+      font-family: 'TronicaMono', monospace; font-size: 13px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.6); padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 14px;
+      -webkit-font-smoothing: none; line-height: 1.6;
+    }
+    .get-list li::before { content: '→'; color: rgba(255,255,255,0.3); flex-shrink: 0; }
+    @media (max-width: 768px) {
+      .get-inner { grid-template-columns: 1fr; gap: 36px; }
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      position: relative;
+    }
+    .cta-inner {
+      max-width: 1100px; margin: 0 auto; padding: 80px 28px 100px;
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 24px;
+    }
+    .cta-title {
+      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+      font-size: clamp(40px, 7vw, 88px); font-weight: 700;
+      text-transform: uppercase; letter-spacing: -0.02em;
+      line-height: 0.95; color: #fff; max-width: 700px;
+    }
+    .cta-sub {
+      font-family: 'TronicaMono', monospace; font-size: 13px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4); -webkit-font-smoothing: none;
+    }
+    .cta-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #fff; color: #000;
+      font-family: 'TronicaMono', monospace; font-size: 14px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      padding: 14px 32px; text-decoration: none;
+      -webkit-font-smoothing: none; margin-top: 8px;
+      transition: opacity 0.2s;
+    }
+    .cta-btn:hover { opacity: 0.85; }
+    .cta-btn-ghost {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: none; color: rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      font-family: 'TronicaMono', monospace; font-size: 14px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      padding: 14px 32px; text-decoration: none;
+      -webkit-font-smoothing: none; transition: all 0.2s;
+    }
+    .cta-btn-ghost:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+    .cta-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 28px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    footer a {
+      font-family: 'TronicaMono', monospace; font-size: 12px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3); text-decoration: none;
+      -webkit-font-smoothing: none; transition: color 0.2s;
+    }
+    footer a:hover { color: #fff; }
+
+    /* ── PAGE IN ── */
+    #pageIn {
+      position: fixed; inset: 0; background: #000;
+      z-index: 9999; pointer-events: none; transition: opacity 0.5s ease;
+    }
+    #pageIn.out { opacity: 0; }
+  </style>
+</head>
+<body>
+
+<div id="pageIn"></div>
+
+<nav>
+  <a class="nav-logo" href="/"><span>andré</span> <em>larsen</em></a>
+  <button class="nav-menu-btn" id="menuBtn">:/ MENU</button>
+</nav>
+
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-top">
+    <div style="visibility:hidden;font-family:'DrukWide';font-size:18px;">andré larsen</div>
+    <button class="menu-close" id="menuClose">:/ CLOSE</button>
+  </div>
+  <div class="menu-nav">
+    <a href="/">HOME</a>
+    <a href="works.html">WORKS</a>
+    <a href="about.html">ABOUT</a>
+    <a href="how-we-work.html" class="active">HOW WE WORK</a>
+    <div class="menu-gem-wrap">
+      <button class="menu-gem-btn" id="gemBtn" aria-label="secret">+</button>
+      <span class="menu-gem-hint">more of me</span>
+    </div>
+  </div>
+  <div class="menu-bottom">
+    <div class="menu-bottom-left">
+      <a href="https://instagram.com/andrelarsen" target="_blank">INSTAGRAM</a>
+      <a href="mailto:andre@andrelarsen.com">ANDRE@ANDRELARSEN.COM</a>
+    </div>
+    <a href="mailto:andre@andrelarsen.com" class="menu-contact-btn">&gt; CONTACT</a>
+  </div>
+</div>
+
+<div class="diamond-overlay" id="diamondOverlay">
+  <img src="diamond.GIF" alt="" id="diamondImg" />
+</div>
+
+<!-- HERO -->
+<section class="hero dot-bg">
+  <div class="hero-kicker">Process</div>
+  <h1 class="hero-title">How We<br>Work</h1>
+  <p class="hero-sub">No guesswork. No back-and-forth. Just clean execution from brief to delivery.</p>
+</section>
+
+<!-- PROCESS STEPS -->
+<section class="process-section dot-bg">
+  <div class="process-inner">
+    <div class="process-header">The process</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">The Brief</div>
+        <div class="step-desc">You tell me the vision, the brand, the feeling. One call. I listen more than I talk.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Pre-Production</div>
+        <div class="step-desc">Shot list, locations, permits, gear. Everything locked before we step on set.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Shoot</div>
+        <div class="step-desc">One director. One pilot. One vision. No agency layers, no wasted days.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Delivery</div>
+        <div class="step-desc">Edited, graded, export-ready. Two revision rounds included. Fast turnaround.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT YOU GET -->
+<section class="get-section dot-bg">
+  <div class="get-inner">
+    <div class="get-left">
+      <div class="section-kicker">What's included</div>
+      <h2 class="get-title">What You<br>Get</h2>
+    </div>
+    <div class="get-right">
+      <ul class="get-list">
+        <li>Full creative direction — concept to cut</li>
+        <li>Licensed FPV & aerial footage</li>
+        <li>Professional colour grade</li>
+        <li>Two revision rounds</li>
+        <li>All formats — social, broadcast, web</li>
+        <li>Raw files on request</li>
+        <li>Usage rights included</li>
+        <li>Direct line to me — not an account manager</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section dot-bg">
+  <div class="cta-inner">
+    <h2 class="cta-title">Ready to start?</h2>
+    <p class="cta-sub">Every project starts with a conversation.</p>
+    <div class="cta-btns">
+      <a class="cta-btn" href="mailto:andre@andrelarsen.com">&gt; Send a brief</a>
+      <a class="cta-btn-ghost" href="works.html">&gt; See the work first</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="/">&larr; andrelarsen.com</a>
+  <a href="mailto:andre@andrelarsen.com">andre@andrelarsen.com</a>
+</footer>
+
+<script>
+  requestAnimationFrame(function() {
+    document.getElementById('pageIn').classList.add('out');
+  });
+
+  const menuBtn     = document.getElementById('menuBtn');
+  const menuOverlay = document.getElementById('menuOverlay');
+  const menuClose   = document.getElementById('menuClose');
+  menuBtn.addEventListener('click', function() { menuOverlay.classList.add('open'); });
+  menuClose.addEventListener('click', function() { menuOverlay.classList.remove('open'); });
+
+  const gemBtn = document.getElementById('gemBtn');
+  const diamondOverlay = document.getElementById('diamondOverlay');
+  const diamondImg = document.getElementById('diamondImg');
+  const nav = document.querySelector('nav');
+  gemBtn.addEventListener('click', function() {
+    diamondOverlay.classList.add('show');
+    if (nav) nav.style.display = 'none';
+  });
+  diamondImg.addEventListener('click', function() { window.location.href = 'life.html'; });
+  diamondOverlay.addEventListener('click', function(e) {
+    if (e.target === diamondOverlay) {
+      diamondOverlay.classList.remove('show');
+      if (nav) nav.style.display = '';
+    }
+  });
+</script>
+
+</body>
+</html>
