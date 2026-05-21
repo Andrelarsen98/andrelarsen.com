@@ -736,6 +736,32 @@
     background: #000;
     border-top: 1px solid rgba(255,255,255,0.08);
     padding: 56px 32px 64px;
+    overflow: hidden;
+  }
+  .recognition-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: .07;
+    --dot-bg: #000;
+    --dot-color: #fff;
+    --dot-size: 2px;
+    --dot-space: 3px;
+    background:
+      linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space) var(--dot-space),
+      var(--dot-color);
+    pointer-events: none;
+  }
+  @media (min-width: 1280px) {
+    .recognition-section::before { --dot-size: 4px; --dot-space: 5px; }
+  }
+  .recognition-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
   }
   .recognition-header {
     font-family: 'TronicaMono', monospace;
@@ -762,7 +788,7 @@
   }
   .recognition-col-label {
     font-family: 'TronicaMono', monospace;
-    font-size: 11px;
+    font-size: 13px;
     letter-spacing: 0.18em;
     color: rgba(255,255,255,0.35);
     text-transform: uppercase;
@@ -776,32 +802,32 @@
     grid-template-columns: 28px 1fr auto;
     gap: 16px;
     align-items: baseline;
-    padding: 12px 0;
+    padding: 14px 0;
     border-bottom: 1px solid rgba(255,255,255,0.06);
     font-family: 'TronicaMono', monospace;
-    font-size: 13px;
+    font-size: 15px;
     letter-spacing: 0.02em;
     -webkit-font-smoothing: none;
   }
   .rec-row:last-child { border-bottom: none; }
   .rec-num {
     color: rgba(255,255,255,0.35);
-    font-size: 11px;
+    font-size: 13px;
   }
   .rec-body {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 3px;
     min-width: 0;
   }
   .rec-title { color: #fff; }
   .rec-sub {
     color: rgba(255,255,255,0.5);
-    font-size: 12px;
+    font-size: 13px;
   }
   .rec-meta {
     color: rgba(255,255,255,0.55);
-    font-size: 12px;
+    font-size: 13px;
     text-align: right;
     white-space: nowrap;
   }
@@ -1230,6 +1256,7 @@
 
   <!-- ── RECOGNITION ── -->
   <section class="recognition-section">
+    <div class="recognition-inner">
     <div class="recognition-header">Recognition</div>
     <div class="recognition-grid">
 
@@ -1296,6 +1323,7 @@
 
       </div>
 
+    </div>
     </div>
   </section>
 
