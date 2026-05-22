@@ -284,26 +284,93 @@ nav a, nav button { pointer-events: all; }
 .menu-nav {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   justify-content: center;
-  padding: 0 20px;
+  padding: 0;
   flex: 1;
   position: relative;
   z-index: 1;
-  gap: 0;
 }
 .menu-nav a {
   color: #fff;
   text-decoration: none;
   font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
-  font-size: 9vw;
+  font-size: clamp(26px, 7vw, 44px);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: -0.02em;
-  line-height: 1.3;
-  display: block;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
-.menu-nav a.active { opacity: 0.4; pointer-events: none; }
+.menu-nav a:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
+.menu-nav a:active { background: rgba(255,255,255,0.04); }
+.menu-nav a.active { opacity: 0.3; pointer-events: none; }
+.menu-nav a .nav-arrow {
+  font-family: 'TronicaMono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.25);
+  font-weight: 400;
+}
+.menu-gem-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-gem-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.menu-gem-btn img { width: 32px; height: 32px; object-fit: contain; }
+.menu-gem-btn:active { opacity: 1; }
+.menu-gem-hint {
+  font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
+  font-size: clamp(26px, 7vw, 44px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: rgba(255,255,255,0.3);
+  line-height: 1;
+}
+.diamond-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #000;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.diamond-overlay.show { display: flex; }
+.diamond-overlay img {
+  width: min(80vw, 80vh);
+  height: min(80vw, 80vh);
+  object-fit: contain;
+  animation: gemSpin 0.4s ease-out;
+}
+@keyframes gemSpin {
+  from { transform: scale(0.4) rotate(-20deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg); opacity: 1; }
+}
 .menu-bottom {
   position: relative;
   z-index: 1;
@@ -1306,12 +1373,16 @@ nav a, nav button { pointer-events: all; }
     <button class="menu-close" id="menuClose">:/ CLOSE</button>
   </div>
   <div class="menu-nav">
-    <a href="/">HOME</a>
-    <a href="works.html" class="active">WORKS</a>
-    <a href="about.html">ABOUT</a>
-    <a href="how-we-work.html">HOW WE WORK</a>
-    <a href="bts.html">BTS</a>
-    <a href="course.html">THE COURSE</a>
+    <a href="/"><span>HOME</span><span class="nav-arrow">→</span></a>
+    <a href="works.html" class="active"><span>WORKS</span><span class="nav-arrow">→</span></a>
+    <a href="about.html"><span>ABOUT</span><span class="nav-arrow">→</span></a>
+    <a href="how-we-work.html"><span>HOW WE WORK</span><span class="nav-arrow">→</span></a>
+    <a href="bts.html"><span>BTS</span><span class="nav-arrow">→</span></a>
+    <a href="course.html"><span>THE COURSE</span><span class="nav-arrow">→</span></a>
+    <div class="menu-gem-wrap" id="gemBtn">
+      <button class="menu-gem-btn" aria-label="more of me"><img src="lightning.JPG" alt="⚡" /></button>
+      <span class="menu-gem-hint">MORE OF ME</span>
+    </div>
   </div>
   <div class="menu-bottom">
     <div class="menu-bottom-left">
@@ -2094,6 +2165,33 @@ menuClose.addEventListener('click', () => {
   }
 
   setTimeout(initNavGlitch, 400);
+})();
+</script>
+
+<!-- Diamond easter egg overlay -->
+<div class="diamond-overlay" id="diamondOverlay">
+  <img src="diamond.GIF" alt="" id="diamondImg" />
+</div>
+<script>
+(function() {
+  const btn = document.getElementById('gemBtn');
+  const overlay = document.getElementById('diamondOverlay');
+  const img = document.getElementById('diamondImg');
+  const nav = document.querySelector('nav');
+  if (!btn || !overlay) return;
+  btn.addEventListener('click', function() {
+    overlay.classList.add('show');
+    if (nav) nav.style.display = 'none';
+  });
+  img.addEventListener('click', function() {
+    window.location.href = 'life.html';
+  });
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      overlay.classList.remove('show');
+      if (nav) nav.style.display = '';
+    }
+  });
 })();
 </script>
 
