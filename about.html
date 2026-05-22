@@ -2081,7 +2081,8 @@ window.FPV_GOGGLES_MESH = {
     document.querySelector('.holo-who').addEventListener('click', fadeToHome);
 
     // Menu HOME link → home
-    document.querySelector('.menu-nav a[href="index.html"]').addEventListener('click', fadeToHome);
+    const homeMenuLink = document.querySelector('.menu-nav a[href="/"]') || document.querySelector('.menu-nav a[href="index.html"]');
+    if (homeMenuLink) homeMenuLink.addEventListener('click', fadeToHome);
 
     resize();
     updateMobileProgress();
