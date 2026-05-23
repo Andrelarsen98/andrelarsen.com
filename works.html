@@ -1611,6 +1611,7 @@ nav a, nav button { pointer-events: all; }
 
   /* YouTube iframe lives in the same container as lbVideo; lazily created. */
   let lbYTFrame = null;
+  let lbYTOverlay = null;
   function ensureYTFrame() {
     if (lbYTFrame) return lbYTFrame;
     lbYTFrame = document.createElement('iframe');
@@ -1619,6 +1620,10 @@ nav a, nav button { pointer-events: all; }
     lbYTFrame.setAttribute('frameborder', '0');
     lbYTFrame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:none;border:0;background:#000;';
     lbVideo.parentNode.appendChild(lbYTFrame);
+    /* transparent overlay blocks mouse from reaching YouTube's UI */
+    lbYTOverlay = document.createElement('div');
+    lbYTOverlay.style.cssText = 'position:absolute;inset:0;z-index:1;display:none;';
+    lbVideo.parentNode.appendChild(lbYTOverlay);
     return lbYTFrame;
   }
 
@@ -1652,13 +1657,15 @@ nav a, nav button { pointer-events: all; }
        3. Placeholder otherwise */
     if (p.youtube) {
       const yt = ensureYTFrame();
-      yt.src = 'https://www.youtube.com/embed/' + p.youtube + '?autoplay=1&rel=0&modestbranding=1';
+      yt.src = 'https://www.youtube.com/embed/' + p.youtube + '?autoplay=1&rel=0&modestbranding=1&controls=0';
       yt.style.display = 'block';
+      if (lbYTOverlay) lbYTOverlay.style.display = 'block';
       lbVideo.pause();
       lbVideo.style.display = 'none';
       lbPlaceholder.style.display = 'none';
     } else if (p.video) {
       if (lbYTFrame) { lbYTFrame.src = ''; lbYTFrame.style.display = 'none'; }
+      if (lbYTOverlay) lbYTOverlay.style.display = 'none';
       lbVideo.src = p.video;
       if (p.poster) lbVideo.poster = p.poster;
       lbVideo.style.display = 'block';
@@ -1689,6 +1696,7 @@ nav a, nav button { pointer-events: all; }
     lb.classList.remove('is-open');
     lbVideo.pause();
     if (lbYTFrame) { lbYTFrame.src = ''; lbYTFrame.style.display = 'none'; }
+    if (lbYTOverlay) lbYTOverlay.style.display = 'none';
     document.body.style.overflow = '';
   }
 
