@@ -1438,19 +1438,16 @@ nav a, nav button { pointer-events: all; }
      Add `video: "path/to/file.mp4"` and optionally `poster: "img.jpg"`
      to show real media on hover.
   ============================================================ */
-  // artefakt project lineup — local videos cycle through work1.mp4..work16.mp4
-  const _v = (n) => `work${((n-1)%16)+1}.mp4`;
-  /* Real selected works. Card thumbnails use local work*.mp4; click opens the actual project video in the lightbox via embed. */
   const PROJECTS = [
-    { index:"01", title:"Night BASE Jump",           client:"PlayStation × X Dubai", year:"2023", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], video:_v(1), youtube:"NVjVZDQxHic" },
-    { index:"02", title:"Speed of Light",            client:"Porsche × David Guetta",year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     video:_v(2), youtube:"gFUJgV6tQZI" },
-    { index:"03", title:"See you at Dubai Expo",     client:"Emirates",              year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     video:_v(3), youtube:"fbL9QdWWJzo" },
-    { index:"04", title:"Chiron Pur Sport",          client:"Bugatti",               year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     video:_v(4), youtube:"E_-Ht0eqCog" },
-    { index:"05", title:"SF90 XX Stradale",          client:"Ferrari",               year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     video:_v(5), youtube:"2xbg44TCiww" },
-    { index:"06", title:"United at Home — Burj Al Arab", client:"David Guetta × Visit Dubai", year:"2020", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], video:_v(6), youtube:"xaurMcGqZHU" },
-    { index:"07", title:"War 2",                     client:"SXG Films",             year:"2025", category:"Film",           role:"FPV Cinematography", tags:["Film"],           video:_v(7), youtube:"TtuG61usu3w" },
-    { index:"08", title:"Bade Miyan Chote Miyan",    client:"BMCM",                  year:"2024", category:"Film",           role:"FPV Cinematography", tags:["Film"],           video:_v(8), youtube:"pZbJOW5CwQM" },
-    { index:"09", title:"Ain Dubai",                 client:"Sheikh Hamdan",         year:"2021", category:"Cultural",       role:"FPV Cinematography", tags:["Cultural"],       video:_v(9), external:"https://www.instagram.com/reel/CVSYJBmJaN7/" },
+    { index:"01", title:"Night BASE Jump",           client:"PlayStation × X Dubai", year:"2023", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"NVjVZDQxHic" },
+    { index:"02", title:"Speed of Light",            client:"Porsche × David Guetta",year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"gFUJgV6tQZI" },
+    { index:"03", title:"See you at Dubai Expo",     client:"Emirates",              year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"fbL9QdWWJzo" },
+    { index:"04", title:"Chiron Pur Sport",          client:"Bugatti",               year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"E_-Ht0eqCog" },
+    { index:"05", title:"SF90 XX Stradale",          client:"Ferrari",               year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"2xbg44TCiww" },
+    { index:"06", title:"United at Home — Burj Al Arab", client:"David Guetta × Visit Dubai", year:"2020", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"xaurMcGqZHU" },
+    { index:"07", title:"War 2",                     client:"SXG Films",             year:"2025", category:"Film",           role:"FPV Cinematography", tags:["Film"],           youtube:"TtuG61usu3w" },
+    { index:"08", title:"Bade Miyan Chote Miyan",    client:"BMCM",                  year:"2024", category:"Film",           role:"FPV Cinematography", tags:["Film"],           youtube:"pZbJOW5CwQM" },
+    { index:"09", title:"Ain Dubai",                 client:"Sheikh Hamdan",         year:"2021", category:"Cultural",       role:"FPV Cinematography", tags:["Cultural"],       external:"https://www.instagram.com/reel/CVSYJBmJaN7/" },
   ];
 
   document.getElementById('pageCount').textContent = PROJECTS.length + ' PROJECTS';
