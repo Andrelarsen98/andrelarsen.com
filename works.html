@@ -1622,7 +1622,7 @@ nav a, nav button { pointer-events: all; }
     lbVideo.parentNode.appendChild(lbYTFrame);
     /* transparent overlay blocks mouse from reaching YouTube's UI */
     lbYTOverlay = document.createElement('div');
-    lbYTOverlay.style.cssText = 'position:absolute;inset:0;z-index:1;display:none;';
+    lbYTOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;height:15%;z-index:1;display:none;';
     lbVideo.parentNode.appendChild(lbYTOverlay);
     return lbYTFrame;
   }
@@ -1657,7 +1657,7 @@ nav a, nav button { pointer-events: all; }
        3. Placeholder otherwise */
     if (p.youtube) {
       const yt = ensureYTFrame();
-      yt.src = 'https://www.youtube.com/embed/' + p.youtube + '?autoplay=1&rel=0&modestbranding=1&controls=0';
+      yt.src = 'https://www.youtube.com/embed/' + p.youtube + '?autoplay=1&rel=0&modestbranding=1';
       yt.style.display = 'block';
       if (lbYTOverlay) lbYTOverlay.style.display = 'block';
       lbVideo.pause();
