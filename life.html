@@ -551,6 +551,7 @@
 
     setTimeout(function() {
       intro.classList.add('out');
+      vid.classList.add('loaded');
       vid.play().catch(function(){});
       setTimeout(function() { intro.classList.add('gone'); }, 1000);
     }, 2500);
