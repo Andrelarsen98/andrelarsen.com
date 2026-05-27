@@ -317,8 +317,8 @@
   </div>
   <div class="menu-nav">
     <a href="/"><span>HOME</span><span class="nav-arrow">→</span></a>
-    <a href="works.html"><span>WORKS</span><span class="nav-arrow">→</span></a>
-    <a href="about.html"><span>ABOUT</span><span class="nav-arrow">→</span></a>
+    <a href="/works"><span>WORKS</span><span class="nav-arrow">→</span></a>
+    <a href="/about"><span>ABOUT</span><span class="nav-arrow">→</span></a>
     <div class="menu-gem-wrap" id="gemBtn">
       <button class="menu-gem-btn" aria-label="more of me"><img src="lightning.JPG" alt="⚡" /></button>
       <span class="menu-gem-hint">MORE OF ME</span>
@@ -402,7 +402,7 @@
     <p class="cta-sub">Every project starts with a conversation.</p>
     <div class="cta-btns">
       <a class="cta-btn" href="mailto:andre@andrelarsen.com">&gt; Send a brief</a>
-      <a class="cta-btn-ghost" href="works.html">&gt; See the work first</a>
+      <a class="cta-btn-ghost" href="/works">&gt; See the work first</a>
     </div>
   </div>
 </section>
@@ -431,7 +431,7 @@
     diamondOverlay.classList.add('show');
     if (nav) nav.style.display = 'none';
   });
-  diamondImg.addEventListener('click', function() { window.location.href = 'life.html'; });
+  diamondImg.addEventListener('click', function() { window.location.href = '/life'; });
   diamondOverlay.addEventListener('click', function(e) {
     if (e.target === diamondOverlay) {
       diamondOverlay.classList.remove('show');
