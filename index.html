@@ -3849,7 +3849,7 @@ videoEl.addEventListener('timeupdate', () => {
    multi-axis rotation, glitch on loop
 ══════════════════════════════════════ */
 (function() {
-  const NUM_VIDEOS   = 10;
+  const NUM_VIDEOS   = 18;
   const RADIUS       = window.innerWidth <= 768 ? Math.min(Math.round(window.innerWidth * 0.28 + 55), Math.round(window.innerWidth * 0.42)) : 240;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
@@ -3916,7 +3916,8 @@ videoEl.addEventListener('timeupdate', () => {
     card._face = face;
 
     const vid = document.createElement('video');
-    vid.src        = `work${i + 1}.mp4`;
+    vid.src        = `work${i + 17}.mp4`;
+    vid.poster     = `thumb_work${i + 17}.jpg`;
     vid.muted      = true;
     vid.loop       = false;
     vid.playsInline = true;

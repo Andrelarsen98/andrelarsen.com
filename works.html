@@ -1439,15 +1439,26 @@ nav a, nav button { pointer-events: all; }
      to show real media on hover.
   ============================================================ */
   const PROJECTS = [
-    { index:"01", title:"Night BASE Jump",           client:"PlayStation × X Dubai", year:"2023", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"NVjVZDQxHic" },
-    { index:"02", title:"Speed of Light",            client:"Porsche × David Guetta",year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"gFUJgV6tQZI" },
-    { index:"03", title:"See you at Dubai Expo",     client:"Emirates",              year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"fbL9QdWWJzo" },
-    { index:"04", title:"Chiron Pur Sport",          client:"Bugatti",               year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"E_-Ht0eqCog" },
-    { index:"05", title:"SF90 XX Stradale",          client:"Ferrari",               year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"2xbg44TCiww" },
-    { index:"06", title:"United at Home — Burj Al Arab", client:"David Guetta × Visit Dubai", year:"2020", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"xaurMcGqZHU" },
-    { index:"07", title:"War 2",                     client:"SXG Films",             year:"2025", category:"Film",           role:"FPV Cinematography", tags:["Film"],           youtube:"TtuG61usu3w" },
-    { index:"08", title:"Bade Miyan Chote Miyan",    client:"BMCM",                  year:"2024", category:"Film",           role:"FPV Cinematography", tags:["Film"],           youtube:"pZbJOW5CwQM" },
-    { index:"09", title:"Ain Dubai",                 client:"Sheikh Hamdan",         year:"2021", category:"Cultural",       role:"FPV Cinematography", tags:["Cultural"],       external:"https://www.instagram.com/reel/CVSYJBmJaN7/" },
+    { index:"01", title:"Night BASE Jump",                    client:"PlayStation × X Dubai",      year:"2023", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"NVjVZDQxHic", video:"work17.mp4", poster:"thumb_work17.jpg" },
+    { index:"02", title:"Speed of Light",                     client:"Porsche × David Guetta",     year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"gFUJgV6tQZI", video:"work18.mp4", poster:"thumb_work18.jpg" },
+    { index:"03", title:"See you at Dubai Expo",              client:"Emirates",                   year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"fbL9QdWWJzo", video:"work19.mp4", poster:"thumb_work19.jpg" },
+    { index:"04", title:"Chiron Pur Sport",                   client:"Bugatti",                    year:"2021", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"E_-Ht0eqCog", video:"work30.mp4", poster:"thumb_work30.jpg" },
+    { index:"05", title:"SF90 XX Stradale",                   client:"Ferrari",                    year:"2023", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"2xbg44TCiww", video:"work29.mp4", poster:"thumb_work29.jpg" },
+    { index:"06", title:"United at Home — Burj Al Arab",      client:"David Guetta × Visit Dubai", year:"2020", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"xaurMcGqZHU" },
+    { index:"07", title:"War 2",                              client:"SXG Films",                  year:"2025", category:"Film",           role:"FPV Cinematography", tags:["Film"],           youtube:"TtuG61usu3w", video:"work23.mp4", poster:"thumb_work23.jpg" },
+    { index:"08", title:"Bade Miyan Chote Miyan",             client:"BMCM",                       year:"2024", category:"Film",           role:"FPV Cinematography", tags:["Film"],           youtube:"pZbJOW5CwQM", video:"work24.mp4", poster:"thumb_work24.jpg" },
+    { index:"09", title:"Armin Van Buuren — Burj Khalifa",    client:"Visit Dubai",                year:"2023", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"5hErWSLiNxQ", video:"work20.mp4", poster:"thumb_work20.jpg" },
+    { index:"10", title:"THE NEW M2 CS",                      client:"BMW M",                      year:"2025", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"RgdMyon5y78", video:"work21.mp4", poster:"thumb_work21.jpg" },
+    { index:"11", title:"A World Away",                       client:"Atlantis Dubai",             year:"2025", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"TQKeQ40wqa0", video:"work22.mp4", poster:"thumb_work22.jpg" },
+    { index:"12", title:"Lotus Emira",                        client:"Lotus",                      year:"2024", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     external:"https://vimeo.com/1004300022", video:"work25.mp4", poster:"thumb_work25.jpg" },
+    { index:"13", title:"IONIQ 6 N World Premiere",           client:"Hyundai N",                  year:"2025", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"PUGdsDAsBGM", video:"work26.mp4", poster:"thumb_work26.jpg" },
+    { index:"14", title:"BLACK COFFEE & &ME B2B",             client:"WHITE Dubai",                year:"2024", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"beEsn8dUAPo", video:"work27.mp4", poster:"thumb_work27.jpg" },
+    { index:"15", title:"All New Kia EV9",                    client:"Kia UAE",                    year:"2024", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"G9_TYbW9oPY", video:"work28.mp4", poster:"thumb_work28.jpg" },
+    { index:"16", title:"Racing To The Tallest Building",     client:"Red Bull",                   year:"2022", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"SK1HmKDMFTE", video:"work31.mp4", poster:"thumb_work31.jpg" },
+    { index:"17", title:"Untold Music Festival",              client:"Untold Dubai",               year:"2024", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], external:"https://vimeo.com/919548151", video:"work32.mp4", poster:"thumb_work32.jpg" },
+    { index:"18", title:"Tiësto — 10:35 feat. Tate McRae",   client:"Tiësto",                     year:"2022", category:"Commercial",     role:"FPV Cinematography", tags:["Commercial"],     youtube:"EXIWlRrkjKE", video:"work33.mp4", poster:"thumb_work33.jpg" },
+    { index:"19", title:"GoPro — Burj Khalifa FPV",          client:"GoPro",                      year:"2022", category:"Brand Campaign", role:"FPV Cinematography", tags:["Brand Campaign"], youtube:"8imcK9ugc2o", video:"work34.mp4", poster:"thumb_work34.jpg" },
+    { index:"20", title:"Ain Dubai",                          client:"Sheikh Hamdan",              year:"2021", category:"Cultural",       role:"FPV Cinematography", tags:["Cultural"],       external:"https://www.instagram.com/reel/CVSYJBmJaN7/" },
   ];
 
   document.getElementById('pageCount').textContent = PROJECTS.length + ' PROJECTS';
@@ -1493,7 +1504,7 @@ nav a, nav button { pointer-events: all; }
       <div class="card-media-col">
         <div class="card-media">
           <div class="card-media-inner">
-            ${p.video ? `<video class="card-video" src="${p.video}" muted loop playsinline autoplay preload="auto" disablepictureinpicture></video>` : ''}
+            ${p.video ? `<video class="card-video" src="${p.video}" poster="${p.poster || ''}" muted loop playsinline autoplay preload="auto" disablepictureinpicture></video>` : `${p.poster ? `<img src="${p.poster}" style="width:100%;height:100%;object-fit:cover;display:block;" alt="">` : ''}`}
           </div>
           <div class="card-pill">
             <span>Open project</span>
