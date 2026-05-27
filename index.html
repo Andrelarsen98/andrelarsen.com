@@ -2600,7 +2600,7 @@ Dubai, worldwide.</div>
           <span class="cube-label">Selected Work</span>
         </div>
         <div class="cube-counter" id="cubeCounter">01</div>
-        <div class="cube-total">/10</div>
+        <div class="cube-total">/13</div>
       </div>
       <div class="cube-telemetry" id="cubeTelemetry">
         <div class="tele-row"><span class="tele-label">ALT</span><span class="tele-sep">:</span><span class="tele-val" id="teleAlt">142M</span></div>
@@ -3895,8 +3895,10 @@ videoEl.addEventListener('timeupdate', () => {
    multi-axis rotation, glitch on loop
 ══════════════════════════════════════ */
 (function() {
-  const SPHERE_VIDEOS = [31, 18, 19, 20, 21, 22, 28, 24, 25, 34, 27];
+  const SPHERE_VIDEOS = [31, 18, 19, 20, 21, 22, 28, 24, 25, 34, 27, 17, 23];
   const NUM_VIDEOS   = SPHERE_VIDEOS.length;
+  /* Videos that start dark — skip first 5s and play 5s deeper into the clip */
+  const VID_START_OFFSET = { 17: 5, 23: 5, 31: 5 };
   const RADIUS       = window.innerWidth <= 768 ? Math.min(Math.round(window.innerWidth * 0.28 + 55), Math.round(window.innerWidth * 0.42)) : 240;
   const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
@@ -3962,14 +3964,21 @@ videoEl.addEventListener('timeupdate', () => {
     face.className = 'vs-card-face';
     card._face = face;
 
+    const vidNum = SPHERE_VIDEOS[i];
+    const vidStart = VID_START_OFFSET[vidNum] || 0;
+
     const vid = document.createElement('video');
-    vid.src        = `sph${SPHERE_VIDEOS[i]}.mp4`;
-    vid.poster     = `thumb_work${SPHERE_VIDEOS[i]}.jpg`;
+    vid.src        = `sph${vidNum}.mp4`;
+    vid.poster     = `thumb_work${vidNum}.jpg`;
     vid.muted      = true;
     vid.loop       = false;
     vid.playsInline = true;
     vid.preload    = 'none';
     vid.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;position:absolute;top:0;left:0;';
+
+    if (vidStart > 0) {
+      vid.addEventListener('loadedmetadata', () => { vid.currentTime = vidStart; }, { once: true });
+    }
 
     /* Seamless crossfade loop — clone fades in over the original near the end */
     let crossfading = false;
@@ -3980,7 +3989,7 @@ videoEl.addEventListener('timeupdate', () => {
 
       crossfading = true;
 
-      // Clone the video, start it at 0
+      // Clone the video, start it at vidStart
       const clone = document.createElement('video');
       clone.src = vid.src;
       clone.muted = true;
@@ -3991,6 +4000,9 @@ videoEl.addEventListener('timeupdate', () => {
       clone.style.transition = 'opacity 0.8s ease';
       face.appendChild(clone);
 
+      if (vidStart > 0) {
+        clone.addEventListener('loadedmetadata', () => { clone.currentTime = vidStart; }, { once: true });
+      }
       clone.play().catch(() => {});
 
       // Crossfade: bring clone in, take original out
@@ -4003,15 +4015,13 @@ videoEl.addEventListener('timeupdate', () => {
       // Once crossfade is done, swap roles
       setTimeout(() => {
         vid.pause();
-        vid.currentTime = 0;
+        vid.currentTime = vidStart;
         vid.style.transition = '';
         vid.style.opacity = '1';
         clone.style.transition = '';
 
-        // Hand the timeupdate listener to the clone by mirroring state
         crossfading = false;
 
-        // Remove clone, original takes over seamlessly from clone's position
         vid.currentTime = clone.currentTime;
         vid.play().catch(() => {});
         face.removeChild(clone);
