@@ -662,6 +662,13 @@ nav a, nav button { pointer-events: all; }
   position:absolute; inset:0; width:100%; height:100%;
   object-fit:cover; display:block;
 }
+.card-thumb-overlay {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; display:block;
+  z-index:3;
+  pointer-events:none;
+  transition:opacity 0.6s ease;
+}
 
 /* "Open project" hover pill — sticky bottom-right of media */
 .card-pill {
@@ -1504,6 +1511,7 @@ nav a, nav button { pointer-events: all; }
         <div class="card-media">
           <div class="card-media-inner">
             ${p.preview ? `<video class="card-video" src="${p.preview}" poster="${p.poster || ''}" muted loop playsinline autoplay preload="auto" disablepictureinpicture></video>` : `${p.poster ? `<img src="${p.poster}" style="width:100%;height:100%;object-fit:cover;display:block;" alt="">` : ''}`}
+            ${p.poster ? `<img class="card-thumb-overlay" src="${p.poster}" alt="">` : ''}
           </div>
           <div class="card-pill">
             <span>Open project</span>
@@ -1548,6 +1556,32 @@ nav a, nav button { pointer-events: all; }
     card.addEventListener('click', () => lbOpen(i));
     grid.appendChild(card);
   });
+
+  /* ── MOBILE THUMBNAIL DELAY ── */
+  if (window.matchMedia('(pointer: coarse)').matches) {
+    const thumbObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const overlay = entry.target.querySelector('.card-thumb-overlay');
+        if (!overlay) return;
+        if (entry.isIntersecting) {
+          overlay._fadeTimer = setTimeout(() => {
+            overlay.style.opacity = '0';
+          }, 1500);
+        } else {
+          clearTimeout(overlay._fadeTimer);
+          overlay.style.opacity = '1';
+        }
+      });
+    }, { threshold: 0.3 });
+
+    Array.from(grid.children).forEach(card => thumbObserver.observe(card));
+  } else {
+    /* Desktop: hide overlays instantly so hover video shows through */
+    Array.from(grid.children).forEach(card => {
+      const overlay = card.querySelector('.card-thumb-overlay');
+      if (overlay) overlay.style.display = 'none';
+    });
+  }
 
   /* ── STAGGER ENTRANCE ── */
   Array.from(grid.children).forEach((card, i) => {
@@ -1813,12 +1847,14 @@ menuBtn.addEventListener('click', () => {
     menuOverlay.style.opacity = '1';
   }));
   menuBtn.style.opacity = '0';
+  menuBtn.style.visibility = 'hidden';
   menuBtn.style.pointerEvents = 'none';
 });
 menuClose.addEventListener('click', () => {
   menuOverlay.style.transition = 'opacity 0.5s cubic-bezier(0.23,1,0.32,1)';
   menuOverlay.style.opacity = '0';
   menuBtn.style.opacity = '1';
+  menuBtn.style.visibility = 'visible';
   menuBtn.style.pointerEvents = 'all';
   setTimeout(() => { menuOverlay.style.display = 'none'; }, 520);
 });
