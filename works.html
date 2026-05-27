@@ -1734,16 +1734,29 @@ nav a, nav button { pointer-events: all; }
   const lbFullscreen = document.getElementById('lbFullscreen');
   lbFullscreen.addEventListener('click', () => {
     const el = document.getElementById('lb');
+
+    // iOS Safari: requestFullscreen doesn't work on divs — use webkitEnterFullscreen on the video element directly
+    if (lbVideo && lbVideo.webkitEnterFullscreen && !lbVideo.webkitDisplayingFullscreen &&
+        (typeof document.fullscreenEnabled === 'undefined' || !document.fullscreenEnabled)) {
+      lbVideo.webkitEnterFullscreen();
+      return;
+    }
+
     if (!document.fullscreenElement) {
-      (el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen).call(el);
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
+      if (req) req.call(el);
       lbFullscreen.textContent = ':/ EXIT FULL';
     } else {
-      (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen).call(document);
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
+      if (exit) exit.call(document);
       lbFullscreen.textContent = ':/ FULLSCREEN';
     }
   });
   document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) lbFullscreen.textContent = ':/ FULLSCREEN';
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    if (!document.webkitFullscreenElement) lbFullscreen.textContent = ':/ FULLSCREEN';
   });
   lbPrev.addEventListener('click', () => lbGo(lbActive - 1));
   lbNext.addEventListener('click', () => lbGo(lbActive + 1));
