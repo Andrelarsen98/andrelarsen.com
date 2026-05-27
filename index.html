@@ -5798,19 +5798,18 @@ window.addEventListener('load', () => {
     const sphere = document.getElementById('cubeSection');
     if (!sphere) return;
     const rect = sphere.getBoundingClientRect();
-    const sphereInRange = rect.top < window.innerHeight && rect.bottom > 0;
+    // Only count as "in sphere" once user has actually scrolled INTO it
+    const inSphere = rect.top <= window.innerHeight * 0.25 && rect.bottom > 0;
 
-    if (sphereInRange && !spawned) {
-      spawned = true;
-      for (let i = 0; i < COUNT; i++) walkers.push(makeWalker());
+    if (inSphere) {
+      if (!spawned) {
+        spawned = true;
+        for (let i = 0; i < COUNT; i++) walkers.push(makeWalker());
+        if (!running) { running = true; requestAnimationFrame(tick); }
+      }
       canvas.style.opacity = '1';
-      canvas.style.transition = 'opacity 0.6s ease';
-      if (!running) { running = true; requestAnimationFrame(tick); }
-    } else if (!sphereInRange && rect.top >= window.innerHeight) {
-      // scrolled back above sphere — hide
+    } else {
       canvas.style.opacity = '0';
-    } else if (spawned) {
-      canvas.style.opacity = '1';
     }
   }
   canvas.style.opacity = '0';
