@@ -329,61 +329,26 @@
     }
     .life-footer a:hover { color: #fff; }
 
-    /* ── ALTIMETER LOADER ── */
-    #altimeter {
+    /* ── DIAMOND INTRO ── */
+    #diamondIntro {
       position: fixed;
       inset: 0;
       z-index: 9998;
       background: #000;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      transition: opacity 0.8s ease;
+      transition: opacity 0.9s ease;
     }
-    #altimeter.out { opacity: 0; pointer-events: none; }
-    #altimeter.gone { display: none; }
-    .alt-label {
-      font-family: 'TronicaMono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      -webkit-font-smoothing: none;
+    #diamondIntro.out { opacity: 0; pointer-events: none; }
+    #diamondIntro.gone { display: none; }
+    #diamondIntro img {
+      width: min(180px, 38vw);
+      animation: gemSpin 2s linear infinite;
     }
-    .alt-num {
-      font-family: 'DrukWide', 'Arial Black', Arial, sans-serif;
-      font-size: clamp(40px, 13vw, 100px);
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      color: #fff;
-      font-variant-numeric: tabular-nums;
-      min-width: 5ch;
-      text-align: center;
-    }
-    .alt-unit {
-      font-family: 'TronicaMono', monospace;
-      font-size: 13px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      -webkit-font-smoothing: none;
-    }
-    .alt-bar {
-      width: 120px;
-      height: 1px;
-      background: rgba(255,255,255,0.1);
-      margin-top: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-    .alt-bar-fill {
-      position: absolute;
-      inset: 0 100% 0 0;
-      background: #fff;
-      transition: right 0s linear;
+    @keyframes gemSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
     }
 
     /* ── HUB NAV ── */
@@ -501,12 +466,9 @@
 
 <div id="pageIn"></div>
 
-<!-- ALTIMETER LOADER -->
-<div id="altimeter">
-  <div class="alt-label">Altitude</div>
-  <div class="alt-num" id="altNum">14000</div>
-  <div class="alt-unit">ft</div>
-  <div class="alt-bar"><div class="alt-bar-fill" id="altFill"></div></div>
+<!-- DIAMOND INTRO -->
+<div id="diamondIntro">
+  <img src="diamond.GIF" alt="" />
 </div>
 
 <nav>
@@ -582,53 +544,16 @@
   const pageIn = document.getElementById('pageIn');
   requestAnimationFrame(function() { pageIn.classList.add('out'); });
 
-  // Altimeter countdown
+  // Diamond intro → skydive video
   (function() {
-    const altNum  = document.getElementById('altNum');
-    const altFill = document.getElementById('altFill');
-    const altEl   = document.getElementById('altimeter');
-    const vid     = document.getElementById('heroVid');
+    const intro = document.getElementById('diamondIntro');
+    const vid   = document.getElementById('heroVid');
 
-    const START    = 14000;
-    const END      = 0;
-    const DURATION = 2200; // ms for full countdown
-    let startTime  = null;
-    let done       = false;
-
-    function easeIn(t) { return t * t; }
-
-    function tick(now) {
-      if (!startTime) startTime = now;
-      const elapsed = now - startTime;
-      const t = Math.min(elapsed / DURATION, 1);
-      const eased = easeIn(t);
-      const current = Math.round(START - eased * START);
-      altNum.textContent = current.toLocaleString();
-      // progress bar fills as altitude drops
-      altFill.style.right = (100 - eased * 100) + '%';
-
-      if (t < 1) {
-        requestAnimationFrame(tick);
-      } else {
-        done = true;
-        dismiss();
-      }
-    }
-
-    function dismiss() {
-      if (!done) return; // wait for countdown to finish
-      altEl.classList.add('out');
-      vid.classList.add('loaded');
-      setTimeout(function() { altEl.classList.add('gone'); }, 900);
-    }
-
-    // Start countdown immediately
-    requestAnimationFrame(tick);
-
-    // If video is ready before countdown finishes, still wait for countdown
-    vid.addEventListener('canplay', function() {
-      if (done) dismiss();
-    });
+    setTimeout(function() {
+      intro.classList.add('out');
+      vid.play().catch(function(){});
+      setTimeout(function() { intro.classList.add('gone'); }, 1000);
+    }, 2500);
   })();
 
 </script>
