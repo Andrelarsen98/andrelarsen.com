@@ -2871,7 +2871,7 @@ const isMobile = window.innerWidth <= 768;
       navEl.classList.remove('blend');
       if (logoCanvas) logoCanvas.style.mixBlendMode = 'normal';
     }
-  }, { root: window.innerWidth > 768 ? document.getElementById('scrollContainer') : null, threshold: 0.02 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.02 });
   observer.observe(landing);
 })();
 
@@ -3285,34 +3285,6 @@ const isMobile = window.innerWidth <= 768;
 
 const scrollContainer = document.getElementById('scrollContainer');
 
-/* ── MOBILE SCROLL SHIM ──
-   On mobile the scrollContainer is position:static so body scrolls natively.
-   Proxy scroll events from window → scrollContainer so all listeners work. */
-(function() {
-  if (window.innerWidth > 768) return;
-  const sc = scrollContainer;
-  /* Forward window scroll to scrollContainer's internal scroll position tracker */
-  window.addEventListener('scroll', function() {
-    sc.dispatchEvent(new Event('scroll', { bubbles: false }));
-  }, { passive: true });
-  /* Patch scrollTop to read from window on mobile */
-  Object.defineProperty(sc, 'scrollTop', {
-    get: function() { return window.scrollY; },
-    set: function(v) { window.scrollTo(0, v); },
-    configurable: true
-  });
-  Object.defineProperty(sc, 'scrollHeight', {
-    get: function() { return document.documentElement.scrollHeight; },
-    configurable: true
-  });
-  Object.defineProperty(sc, 'clientHeight', {
-    get: function() { return window.innerHeight; },
-    configurable: true
-  });
-  /* Patch scrollTo so smooth scrolls work */
-  sc.scrollTo = function(opts) { window.scrollTo(opts); };
-})();
-
 /* ── LIQUID GLASS SCROLLBAR — desktop only ── */
 (function() {
   const track = document.getElementById('scrollTrack');
@@ -3504,7 +3476,7 @@ const landingSection = document.getElementById('site');
 if (landingSection) {
   const landingObserver = new IntersectionObserver(entries => {
     landingVisible = entries[0].isIntersecting;
-  }, { root: window.innerWidth > 768 ? document.getElementById('scrollContainer') : null, threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
   landingObserver.observe(landingSection);
 }
 
@@ -3730,7 +3702,7 @@ const videoTime    = document.getElementById('videoTime');
     } else {
       if (played) videoEl.pause();
     }
-  }, { root: window.innerWidth > 768 ? document.getElementById('scrollContainer') : null, threshold: 0.05, rootMargin: '20% 0px' });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05, rootMargin: '20% 0px' });
   observer.observe(section);
 
   // First touch anywhere = unlock autoplay and play if in view
@@ -3889,7 +3861,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   const footerObserver = new IntersectionObserver(entries => {
     footerVisible = entries[0].isIntersecting;
-  }, { root: window.innerWidth > 768 ? document.getElementById('scrollContainer') : null, threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
   footerObserver.observe(fCanvas);
 
   buildFooterMask();
@@ -3927,7 +3899,7 @@ videoEl.addEventListener('timeupdate', () => {
         observer.unobserve(entry.target);
       }
     });
-  }, { root: window.innerWidth > 768 ? document.getElementById('scrollContainer') : null, threshold: 0.3 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.3 });
 
   nums.forEach(function(el) { observer.observe(el); });
 })();
@@ -4499,7 +4471,7 @@ videoEl.addEventListener('timeupdate', () => {
     } else {
       scene.querySelectorAll('video').forEach(v => v.pause());
     }
-  }, { root: window.innerWidth > 768 ? document.getElementById('scrollContainer') : null, threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
 
   // Videos are small (300-800KB) — preload all immediately, no observer needed
   // This ensures sphere is fully loaded before user ever scrolls to it
@@ -4538,7 +4510,7 @@ videoEl.addEventListener('timeupdate', () => {
   if (cubeSection) {
     const teleObs = new IntersectionObserver(e => {
       teleVisible = e[0].isIntersecting;
-    }, { root: window.innerWidth > 768 ? document.getElementById('scrollContainer') : null, threshold: 0.1 });
+    }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
     teleObs.observe(cubeSection);
   }
 
