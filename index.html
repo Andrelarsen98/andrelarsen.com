@@ -206,8 +206,8 @@
 
   /* ── SITE SECTION 1 — Landing ── */
   .site {
-    min-height: var(--app-height, 100vh);
-    height: var(--app-height, 100vh);
+    min-height: 100vh;
+    height: 100vh;
     overflow: hidden;
     font-family: 'Courier New', Courier, monospace;
     color: #fff;
@@ -804,7 +804,7 @@
      ── VIDEO SECTION ──
   ══════════════════════════════════════ */
   .video-section {
-    height: var(--app-height, 100vh);
+    height: 100vh;
     width: 100%;
     position: relative;
     background: #000;
@@ -1591,8 +1591,8 @@
   .footer {
     background: #000;
     width: 100%;
-    min-height: var(--app-height, 100vh);
-    height: var(--app-height, 100vh);
+    min-height: 100vh;
+    height: 100vh;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -1688,7 +1688,7 @@
   }
 
   @media (max-width: 768px) {
-    .footer { min-height: var(--app-height, 100vh); height: var(--app-height, 100vh); }
+    .footer { min-height: 100vh; height: 100vh; }
     .footer-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1723,8 +1723,8 @@
 
   .cube-section {
     width: 100%;
-    min-height: var(--app-height, 100vh);
-    height: var(--app-height, 100vh);
+    min-height: 100vh;
+    height: 100vh;
     position: relative;
     background: #000;
     display: grid;
@@ -1988,7 +1988,7 @@
       grid-template-columns: 1fr;
       grid-template-rows: auto auto auto;
       height: auto;
-      min-height: var(--app-height, 100vh);
+      min-height: 100vh;
       overflow: hidden;
       gap: 0;
     }
@@ -3284,34 +3284,6 @@ const isMobile = window.innerWidth <= 768;
 })();
 
 const scrollContainer = document.getElementById('scrollContainer');
-
-/* ── LOCK MOBILE VIEWPORT HEIGHT ──
-   On mobile, set --app-height once and don't update on browser chrome
-   resize. This prevents sections jumping when Safari/Instagram toolbar
-   shows/hides. Only update on orientation change or significant width change. */
-(function() {
-  let _lockedH = null;
-  let _lockedW = null;
-  function setAppHeight() {
-    const w = window.innerWidth;
-    if (w <= 768) {
-      if (_lockedH === null || Math.abs(w - _lockedW) > 50) {
-        _lockedH = window.innerHeight;
-        _lockedW = w;
-        document.documentElement.style.setProperty('--app-height', _lockedH + 'px');
-      }
-    } else {
-      document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
-      _lockedH = null;
-    }
-  }
-  setAppHeight();
-  window.addEventListener('resize', setAppHeight);
-  window.addEventListener('orientationchange', function() {
-    _lockedH = null;
-    setTimeout(setAppHeight, 100);
-  });
-})();
 
 /* ── MOBILE SCROLL SHIM ──
    On mobile the scrollContainer is position:static so body scrolls natively.
