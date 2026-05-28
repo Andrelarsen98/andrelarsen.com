@@ -462,11 +462,6 @@
 
 <div id="pageIn"></div>
 
-<!-- DIAMOND INTRO -->
-<div id="diamondIntro">
-  <img src="diamond.GIF" alt="" />
-</div>
-
 <nav>
   <a class="nav-back" href="javascript:history.back()">&larr; Back</a>
 </nav>
@@ -537,20 +532,11 @@
   const pageIn = document.getElementById('pageIn');
   requestAnimationFrame(function() { pageIn.classList.add('out'); });
 
-  // Diamond intro → skydive video (2s, then fade)
+  // Auto-play hero video
   (function() {
-    const intro = document.getElementById('diamondIntro');
-    const vid   = document.getElementById('heroVid');
-
-    // Try to play video immediately so it's ready when diamond fades
+    const vid = document.getElementById('heroVid');
+    vid.classList.add('loaded');
     vid.play().catch(function(){});
-
-    setTimeout(function() {
-      intro.classList.add('out');
-      vid.classList.add('loaded');
-      vid.play().catch(function(){});
-      setTimeout(function() { intro.classList.add('gone'); }, 900);
-    }, 2000);
   })();
 
 </script>
