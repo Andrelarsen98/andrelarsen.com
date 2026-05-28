@@ -101,6 +101,20 @@
   *::-webkit-scrollbar { display: none; }
   body { overflow-x: hidden; }
 
+  /* ── MOBILE: use body scroll so Safari toolbar hides on scroll ── */
+  @media (max-width: 768px) {
+    html, body {
+      overflow: auto;
+      overflow-x: hidden;
+      height: auto;
+    }
+    #scrollContainer {
+      position: static;
+      height: auto;
+      overflow: visible;
+    }
+  }
+
   /* ── SCROLL CONTAINER ── */
   #scrollContainer {
     position: fixed;
