@@ -93,36 +93,36 @@
   html, body {
     background: #000;
     margin: 0; padding: 0;
+    overflow: hidden;
     max-width: 100%;
     overscroll-behavior: none;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
   *::-webkit-scrollbar { display: none; }
+  body { overflow-x: hidden; }
 
-  /* ── MOBILE: native body scroll so Safari/Instagram toolbar hides ── */
+  /* ── MOBILE: use body scroll so Safari toolbar hides on scroll ── */
   @media (max-width: 768px) {
-    html { overflow-x: hidden; overflow-y: auto; height: auto; }
-    body { overflow-x: hidden; overflow-y: auto; height: auto; min-height: 100%; }
+    html, body {
+      overflow: auto;
+      overflow-x: hidden;
+      height: auto;
+    }
     #scrollContainer {
-      position: static !important;
-      inset: auto !important;
-      height: auto !important;
-      overflow: visible !important;
-      touch-action: pan-y;
+      position: static;
+      height: auto;
+      overflow: visible;
     }
   }
 
-  /* ── DESKTOP: fixed scroll container ── */
-  @media (min-width: 769px) {
-    html, body { overflow: hidden; }
-    #scrollContainer {
-      position: fixed;
-      inset: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      overscroll-behavior: none;
-      touch-action: pan-y;
-    }
+  /* ── SCROLL CONTAINER ── */
+  #scrollContainer {
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    touch-action: pan-y;
   }
   /* Desktop only — mobile keeps native momentum scroll */
   @media (min-width: 769px) {
