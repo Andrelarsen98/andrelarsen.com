@@ -537,17 +537,20 @@
   const pageIn = document.getElementById('pageIn');
   requestAnimationFrame(function() { pageIn.classList.add('out'); });
 
-  // Diamond intro → skydive video
+  // Diamond intro → skydive video (2s, then fade)
   (function() {
     const intro = document.getElementById('diamondIntro');
     const vid   = document.getElementById('heroVid');
+
+    // Try to play video immediately so it's ready when diamond fades
+    vid.play().catch(function(){});
 
     setTimeout(function() {
       intro.classList.add('out');
       vid.classList.add('loaded');
       vid.play().catch(function(){});
-      setTimeout(function() { intro.classList.add('gone'); }, 1000);
-    }, 2500);
+      setTimeout(function() { intro.classList.add('gone'); }, 900);
+    }, 2000);
   })();
 
 </script>
