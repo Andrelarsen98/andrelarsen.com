@@ -38,7 +38,7 @@
     }
     html { scrollbar-width: none; -ms-overflow-style: none; }
     html::-webkit-scrollbar { display: none; }
-    body { min-height: 100vh; overflow-x: hidden; }
+    body { min-height: var(--app-height, 100vh); overflow-x: hidden; }
 
     /* ── DOT GRID MIXIN ── */
     .dot-bg::before {
@@ -97,7 +97,7 @@
     .hero {
       position: relative;
       width: 100vw;
-      height: 100vh;
+      height: var(--app-height, 100vh);
       overflow: hidden;
       background: #000;
     }
@@ -541,6 +541,31 @@
 </footer>
 
 <script>
+  // Lock viewport height on mobile so Safari toolbar resize doesn't cause jump
+  (function() {
+    let _lockedH = null;
+    let _lockedW = null;
+    function setAppHeight() {
+      const w = window.innerWidth;
+      if (w <= 768) {
+        if (_lockedH === null || Math.abs(w - _lockedW) > 50) {
+          _lockedH = window.innerHeight;
+          _lockedW = w;
+          document.documentElement.style.setProperty('--app-height', _lockedH + 'px');
+        }
+      } else {
+        document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+        _lockedH = null;
+      }
+    }
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', function() {
+      _lockedH = null;
+      setTimeout(setAppHeight, 100);
+    });
+  })();
+
   // Page fade in
   const pageIn = document.getElementById('pageIn');
   requestAnimationFrame(function() { pageIn.classList.add('out'); });
@@ -551,6 +576,13 @@
     const vid   = document.getElementById('heroVid');
 
     vid.play().catch(function(){});
+
+    // If autoplay was blocked, play on first user interaction anywhere on page
+    function tryPlay() {
+      vid.play().catch(function(){});
+    }
+    document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
+    document.addEventListener('click', tryPlay, { once: true });
 
     setTimeout(function() {
       intro.classList.add('out');
