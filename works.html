@@ -53,10 +53,26 @@ html,body {
   width:100%; background:#000; color:#fff;
   overscroll-behavior:none; scrollbar-width:none;
   font-family:'TronicaMono',monospace; -webkit-font-smoothing:none;
-  overflow: hidden;
   max-width: 100%;
 }
-body { overflow-x: hidden; }
+
+/* ── MOBILE: native body scroll (Safari/Instagram toolbar hides) ── */
+@media (max-width: 768px) {
+  html { overflow-x: hidden; overflow-y: auto; height: auto; }
+  body { overflow-x: hidden; overflow-y: auto; min-height: 100%; }
+  #scrollContainer {
+    position: static !important;
+    inset: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    touch-action: pan-y;
+  }
+}
+
+/* ── DESKTOP: fixed scroll container ── */
+@media (min-width: 769px) {
+  html, body { overflow: hidden; }
+}
 
 /* ── GLASS SCROLLBAR ── */
 @media (min-width:769px) {
@@ -1001,7 +1017,7 @@ nav a, nav button { pointer-events: all; }
 
 /* ── FOOTER MOBILE (768px — matches index.html exactly) ── */
 @media (max-width: 768px) {
-  .footer { min-height: 100vh; height: 100vh; }
+  .footer { min-height: var(--app-height, 100vh); height: var(--app-height, 100vh); }
   .footer-info {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1029,8 +1045,8 @@ nav a, nav button { pointer-events: all; }
 .footer {
   background: #000;
   width: 100%;
-  min-height: 100vh;
-  height: 100vh;
+  min-height: var(--app-height, 100vh);
+  height: var(--app-height, 100vh);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -1442,6 +1458,68 @@ nav a, nav button { pointer-events: all; }
 </div>
 
 <script>
+  /* ── MOBILE BODY-SCROLL ARCHITECTURE ──
+     Body scrolls natively on mobile so Safari/Instagram toolbar can hide.
+     Proxy scrollContainer.scrollTop to window.scrollY and forward scroll
+     listeners so existing JS keeps working. */
+  const IS_MOBILE = window.innerWidth <= 768;
+
+  if (IS_MOBILE) {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
+    let _lockedH = null, _lockedW = null;
+    function setAppHeight() {
+      const w = window.innerWidth;
+      if (_lockedH === null || Math.abs(w - _lockedW) > 50) {
+        _lockedH = window.innerHeight;
+        _lockedW = w;
+        document.documentElement.style.setProperty('--app-height', _lockedH + 'px');
+      }
+    }
+    setAppHeight();
+    window.addEventListener('orientationchange', function() {
+      _lockedH = null;
+      setTimeout(setAppHeight, 100);
+    });
+
+    const sc = document.getElementById('scrollContainer');
+    if (sc) {
+      Object.defineProperty(sc, 'scrollTop', {
+        get: function() { return window.scrollY || window.pageYOffset; },
+        set: function(v) { window.scrollTo(0, v); },
+        configurable: true
+      });
+      Object.defineProperty(sc, 'scrollHeight', {
+        get: function() { return document.documentElement.scrollHeight; },
+        configurable: true
+      });
+      Object.defineProperty(sc, 'clientHeight', {
+        get: function() { return window.innerHeight; },
+        configurable: true
+      });
+      sc.scrollTo = function(opts) {
+        if (typeof opts === 'object') window.scrollTo(opts);
+        else window.scrollTo(0, opts);
+      };
+      const _origAdd = sc.addEventListener.bind(sc);
+      const _origRemove = sc.removeEventListener.bind(sc);
+      sc.addEventListener = function(type, handler, opts) {
+        if (type === 'scroll') window.addEventListener('scroll', handler, opts);
+        else _origAdd(type, handler, opts);
+      };
+      sc.removeEventListener = function(type, handler, opts) {
+        if (type === 'scroll') window.removeEventListener('scroll', handler, opts);
+        else _origRemove(type, handler, opts);
+      };
+    }
+  } else {
+    document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+    window.addEventListener('resize', function() {
+      document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+    });
+  }
+
   /* ============================================================
      PROJECTS
      Add `video: "path/to/file.mp4"` and optionally `poster: "img.jpg"`
@@ -2127,7 +2205,7 @@ menuClose.addEventListener('click', () => {
 
   const footerObserver = new IntersectionObserver(entries => {
     footerVisible = entries[0].isIntersecting;
-  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
+  }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.05 });
   footerObserver.observe(fCanvas);
 
   /* Hide the bottom-left filter pills once the footer scrolls into view */
@@ -2136,7 +2214,7 @@ menuClose.addEventListener('click', () => {
   if (filterBox && footerEl) {
     const filterHideObserver = new IntersectionObserver(entries => {
       filterBox.classList.toggle('is-at-footer', entries[0].isIntersecting);
-    }, { root: document.getElementById('scrollContainer'), threshold: 0.01 });
+    }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.01 });
     filterHideObserver.observe(footerEl);
   }
 
