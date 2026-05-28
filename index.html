@@ -93,39 +93,26 @@
   html, body {
     background: #000;
     margin: 0; padding: 0;
+    overflow: hidden;
     max-width: 100%;
     overscroll-behavior: none;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
   *::-webkit-scrollbar { display: none; }
+  body { overflow-x: hidden; }
 
-  /* ── MOBILE: native body scroll (Safari/Instagram toolbar hides) ── */
-  @media (max-width: 768px) {
-    html { overflow-x: hidden; overflow-y: auto; height: auto; scroll-snap-type: y proximity; }
-    body { overflow-x: hidden; overflow-y: auto; min-height: 100%; }
-    #scrollContainer {
-      position: static !important;
-      inset: auto !important;
-      height: auto !important;
-      overflow: visible !important;
-      touch-action: pan-y;
-    }
-    .video-section { scroll-snap-align: start; }
+  /* ── SCROLL CONTAINER ── */
+  #scrollContainer {
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    touch-action: pan-y;
   }
-
-  /* ── DESKTOP: fixed scroll container ── */
+  /* Desktop only — mobile keeps native momentum scroll */
   @media (min-width: 769px) {
-    html, body { overflow: hidden; }
-    #scrollContainer {
-      position: fixed;
-      inset: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      overscroll-behavior: none;
-      touch-action: pan-y;
-      scroll-behavior: smooth;
-      scroll-snap-type: y proximity;
-    }
+    #scrollContainer { scroll-behavior: smooth; scroll-snap-type: y proximity; }
     html { scroll-behavior: smooth; }
     .video-section { scroll-snap-align: start; }
   }
@@ -205,8 +192,8 @@
 
   /* ── SITE SECTION 1 — Landing ── */
   .site {
-    min-height: var(--app-height, 100vh);
-    height: var(--app-height, 100vh);
+    min-height: 100vh;
+    height: 100vh;
     overflow: hidden;
     font-family: 'Courier New', Courier, monospace;
     color: #fff;
@@ -803,7 +790,7 @@
      ── VIDEO SECTION ──
   ══════════════════════════════════════ */
   .video-section {
-    height: var(--app-height, 100vh);
+    height: 100vh;
     width: 100%;
     position: relative;
     background: #000;
@@ -1590,8 +1577,8 @@
   .footer {
     background: #000;
     width: 100%;
-    min-height: var(--app-height, 100vh);
-    height: var(--app-height, 100vh);
+    min-height: 100vh;
+    height: 100vh;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -1687,7 +1674,7 @@
   }
 
   @media (max-width: 768px) {
-    .footer { min-height: var(--app-height, 100vh); height: var(--app-height, 100vh); }
+    .footer { min-height: 100vh; height: 100vh; }
     .footer-info {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1722,8 +1709,8 @@
 
   .cube-section {
     width: 100%;
-    min-height: var(--app-height, 100vh);
-    height: var(--app-height, 100vh);
+    min-height: 100vh;
+    height: 100vh;
     position: relative;
     background: #000;
     display: grid;
@@ -1987,7 +1974,7 @@
       grid-template-columns: 1fr;
       grid-template-rows: auto auto auto;
       height: auto;
-      min-height: var(--app-height, 100vh);
+      min-height: 100vh;
       overflow: hidden;
       gap: 0;
     }
@@ -2870,7 +2857,7 @@ const isMobile = window.innerWidth <= 768;
       navEl.classList.remove('blend');
       if (logoCanvas) logoCanvas.style.mixBlendMode = 'normal';
     }
-  }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.02 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.02 });
   observer.observe(landing);
 })();
 
@@ -3284,81 +3271,6 @@ const isMobile = window.innerWidth <= 768;
 
 const scrollContainer = document.getElementById('scrollContainer');
 
-/* ── MOBILE BODY-SCROLL ARCHITECTURE ──
-   On mobile, body scrolls natively (Safari/Instagram toolbar hides on scroll).
-   We proxy reads to scrollContainer.scrollTop so existing JS keeps working,
-   and forward window scroll events to scrollContainer listeners. */
-const IS_MOBILE = window.innerWidth <= 768;
-
-if (IS_MOBILE) {
-  /* Disable browser scroll restoration so refresh always starts at top */
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  window.scrollTo(0, 0);
-
-  /* Lock --app-height so Safari toolbar resize doesn't cause layout jumps */
-  let _lockedH = null, _lockedW = null;
-  function setAppHeight() {
-    const w = window.innerWidth;
-    if (_lockedH === null || Math.abs(w - _lockedW) > 50) {
-      _lockedH = window.innerHeight;
-      _lockedW = w;
-      document.documentElement.style.setProperty('--app-height', _lockedH + 'px');
-    }
-  }
-  setAppHeight();
-  window.addEventListener('orientationchange', function() {
-    _lockedH = null;
-    setTimeout(setAppHeight, 100);
-  });
-
-  /* Proxy scrollContainer.scrollTop → window.scrollY */
-  Object.defineProperty(scrollContainer, 'scrollTop', {
-    get: function() { return window.scrollY || window.pageYOffset; },
-    set: function(v) { window.scrollTo(0, v); },
-    configurable: true
-  });
-  Object.defineProperty(scrollContainer, 'scrollHeight', {
-    get: function() { return document.documentElement.scrollHeight; },
-    configurable: true
-  });
-  Object.defineProperty(scrollContainer, 'clientHeight', {
-    get: function() { return window.innerHeight; },
-    configurable: true
-  });
-  /* scrollTo proxy */
-  const _origScrollTo = scrollContainer.scrollTo.bind(scrollContainer);
-  scrollContainer.scrollTo = function(opts) {
-    if (typeof opts === 'object') window.scrollTo(opts);
-    else window.scrollTo(0, opts);
-  };
-
-  /* Forward window scroll → scrollContainer scroll listeners */
-  const _scrollListeners = new Set();
-  const _origAdd = scrollContainer.addEventListener.bind(scrollContainer);
-  const _origRemove = scrollContainer.removeEventListener.bind(scrollContainer);
-  scrollContainer.addEventListener = function(type, handler, opts) {
-    if (type === 'scroll') {
-      _scrollListeners.add(handler);
-      window.addEventListener('scroll', handler, opts);
-    } else {
-      _origAdd(type, handler, opts);
-    }
-  };
-  scrollContainer.removeEventListener = function(type, handler, opts) {
-    if (type === 'scroll') {
-      _scrollListeners.delete(handler);
-      window.removeEventListener('scroll', handler, opts);
-    } else {
-      _origRemove(type, handler, opts);
-    }
-  };
-} else {
-  document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
-  window.addEventListener('resize', function() {
-    document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
-  });
-}
-
 /* ── LIQUID GLASS SCROLLBAR — desktop only ── */
 (function() {
   const track = document.getElementById('scrollTrack');
@@ -3550,7 +3462,7 @@ const landingSection = document.getElementById('site');
 if (landingSection) {
   const landingObserver = new IntersectionObserver(entries => {
     landingVisible = entries[0].isIntersecting;
-  }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
   landingObserver.observe(landingSection);
 }
 
@@ -3776,7 +3688,7 @@ const videoTime    = document.getElementById('videoTime');
     } else {
       if (played) videoEl.pause();
     }
-  }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.05, rootMargin: '20% 0px' });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05, rootMargin: '20% 0px' });
   observer.observe(section);
 
   // First touch anywhere = unlock autoplay and play if in view
@@ -3935,7 +3847,7 @@ videoEl.addEventListener('timeupdate', () => {
 
   const footerObserver = new IntersectionObserver(entries => {
     footerVisible = entries[0].isIntersecting;
-  }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
   footerObserver.observe(fCanvas);
 
   buildFooterMask();
@@ -3973,7 +3885,7 @@ videoEl.addEventListener('timeupdate', () => {
         observer.unobserve(entry.target);
       }
     });
-  }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.3 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.3 });
 
   nums.forEach(function(el) { observer.observe(el); });
 })();
@@ -4545,7 +4457,7 @@ videoEl.addEventListener('timeupdate', () => {
     } else {
       scene.querySelectorAll('video').forEach(v => v.pause());
     }
-  }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.05 });
+  }, { root: document.getElementById('scrollContainer'), threshold: 0.05 });
 
   // Videos are small (300-800KB) — preload all immediately, no observer needed
   // This ensures sphere is fully loaded before user ever scrolls to it
@@ -4584,7 +4496,7 @@ videoEl.addEventListener('timeupdate', () => {
   if (cubeSection) {
     const teleObs = new IntersectionObserver(e => {
       teleVisible = e[0].isIntersecting;
-    }, { root: IS_MOBILE ? null : document.getElementById('scrollContainer'), threshold: 0.1 });
+    }, { root: document.getElementById('scrollContainer'), threshold: 0.1 });
     teleObs.observe(cubeSection);
   }
 
